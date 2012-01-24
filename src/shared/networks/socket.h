@@ -16,7 +16,17 @@
 #ifndef _SOCKET_H
 #define _SOCKET_H
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <unistd.h>
 #include <string>
+#include <arpa/inet.h>
+
+const int MAXHOSTNAME = 200;
+const int MAXCONNECTIONS = 5;
+const int MAXRECV = 500;
 
 class Packet;
 
@@ -41,6 +51,8 @@ class Socket
 		
 		/// Mutex type used for various synchronizations.
 		/// TODO
+		
+		void close_socket (void);
 
 	    /// Server initialization
 	    bool create (void);
@@ -51,19 +63,23 @@ class Socket
 	    /// Client initialization
 	    bool connect (const std::string host, const int port);
 		
+		// Temp send with String
+		bool send ( const std::string s ) const
+		
         /// Send A packet on the socket, this function is reentrant.
         /// @param pct packet to send
         /// @return -1 of failure
         int send_packet (const Packet& pct);
 		
+		// Temp recv with String
+		int recv ( std::string& s ) const
+		
 		/// @return -1 of failure
-		int get_packet (const Packet& pct);
+		int recv_packet (const Packet& pct);
 		
 		void set_non_blocking (const bool);
 
         bool is_valid() const { return m_sock != -1; }
-		
-		void close_socket (void);
 	
 	private:
 	

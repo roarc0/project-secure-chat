@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include "crypt.h"
+#include <openssl/evp.h>
 
 void printbyte(char b)
 {
@@ -16,21 +18,21 @@ void printbyte(char b)
 void select_random_key(char *k, int b)
 {
     int i;
-    RAND_bytes(k, b);
+    //RAND_bytes(k, b);
     for (i = 0; i < b - 1; i++)
         printbyte(k[i]);
     printbyte(k[b-1]);
     printf("\n");
 }
 
-EVP_CIPHER_CTX *init_ctx(const char *key)
+EVP_CIPHER_CTX *init_ctx(const unsigned char *key)
 {
     if (!key)
         return 0;
 
     EVP_CIPHER_CTX *ctx = (EVP_CIPHER_CTX *) malloc(sizeof(EVP_CIPHER_CTX));
     EVP_CIPHER_CTX_init(ctx);
-    EVP_EncryptInit(ctx, EVP_des_ecb(), NULL, NULL); /* al momento solo ecb */
+    EVP_EncryptInit(ctx, EVP_des_ecb(), NULL, NULL); // al momento solo ecb 
 
     printf("key size %d\n", EVP_CIPHER_key_length(EVP_des_ecb()));
     printf("block size %d\n", EVP_CIPHER_CTX_block_size(ctx));
@@ -40,12 +42,12 @@ EVP_CIPHER_CTX *init_ctx(const char *key)
     return ctx;
 }
 
-char *
+unsigned char *
 encrypt(int *ct_len,
-        const char *plaintext, int pt_len,
-        const char *key,       int key_size)
+        const unsigned char *plaintext, int pt_len,
+        const unsigned char *key,       int key_size)
 {
-    char *ciphertext;
+    unsigned char *ciphertext;
     int nc, nctot, i;
     int ct_ptr, pt_ptr, n;
 
@@ -89,10 +91,10 @@ encrypt(int *ct_len,
     return ciphertext;
 }
 
-char *decrypt(const char *ciphertext, int ct_len,
-              const char *key,       int key_size)
+unsigned char *decrypt(const unsigned char *ciphertext, int ct_len,
+              const unsigned char *key,       int key_size)
 {
-    char *plaintext;
+    unsigned char *plaintext;
     int nc, nctot, i;
     int ct_ptr, pt_ptr, n;
 
@@ -103,8 +105,8 @@ char *decrypt(const char *ciphertext, int ct_len,
 
     EVP_CIPHER_CTX *ctx = init_ctx(key);
 
-    plaintext = (char *)malloc(ct_len);
-    bzero(plaintext, ct_len);
+    plaintext = (unsigned char *)malloc(ct_len);
+    //bzero(plaintext, ct_len); // undeclared
 
     EVP_CIPHER_CTX_init(ctx);
     EVP_DecryptInit(ctx, EVP_des_ecb(), key, NULL);

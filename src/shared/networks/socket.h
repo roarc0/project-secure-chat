@@ -34,7 +34,7 @@ class SocketException
 {
 	public:
 		SocketException (std::string s) { m_s = s; };
-		~SocketException (void){};
+		~SocketException (){};
 
 		std::string description() { return m_s; }
 
@@ -46,18 +46,18 @@ class SocketException
 class Socket
 {
     public:
-        Socket (void);
-        ~Socket (void);
+        Socket ();
+        ~Socket ();
 		
 		/// Mutex type used for various synchronizations.
 		/// TODO
 		
-		void close_socket (void);
+		void close_socket ();
 
 	    /// Server initialization
-	    bool create (void);
+	    bool create ();
 	    bool bind (const int port);
-	    bool listen (void) const;
+	    bool listen () const;
 	    bool accept (Socket&) const;
 
 	    /// Client initialization
@@ -69,13 +69,13 @@ class Socket
         /// Send A packet on the socket, this function is reentrant.
         /// @param pct packet to send
         /// @return -1 of failure
-        int send_packet (const Packet& pct);
+        //int send_packet (const Packet& pct);
 		
 		// Temp recv with String
 		int recv ( std::string& s ) const
 		
 		/// @return -1 of failure
-		int recv_packet (const Packet& pct);
+		//int recv_packet (const Packet& pct);
 		
 		void set_non_blocking (const bool);
 
@@ -90,22 +90,22 @@ class Socket
 	    /// Mutex private
 
 		/// Class used for managing encryption
-        Crypt m_Crypt;
+        //Crypt m_Crypt;
 		
 		/// process one incoming packet.
         /// @param new_pct received packet
-        int process_incoming (Packet* new_pct);
+        //int process_incoming (Packet* new_pct);
 		
 		/// Called by ProcessIncoming()
-        int handle_packet (Packet& recvPacket);
+        //int handle_packet (Packet& recvPacket);
 
         /// Called by ProcessIncoming() on CMSG_PING.
-        int handle_ping (Packet& recvPacket);
+        //int handle_ping (Packet& recvPacket);
 		
 		/// Helper functions for processing incoming data.
-        int handle_input_header (void);
-        int handle_input_payload (void);
-        int handle_input_missing_data (void);
+        //int handle_input_header ();
+        //int handle_input_payload ();
+        //int handle_input_missing_data ();
 }
 
 

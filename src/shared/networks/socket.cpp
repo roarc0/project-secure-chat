@@ -53,7 +53,6 @@ bool Socket::bind ( const int port )
 	return true;
 }
 
-
 bool Socket::listen() const
 {
 	if ( !is_valid() )
@@ -67,7 +66,6 @@ bool Socket::listen() const
 	return true;
 }
 
-
 bool Socket::accept ( Socket& new_socket ) const
 {
 	int addr_length = sizeof ( m_addr );
@@ -78,7 +76,6 @@ bool Socket::accept ( Socket& new_socket ) const
 	else
 		return true;
 }
-
 
 bool Socket::send ( const std::string s ) const
 {
@@ -121,14 +118,16 @@ int Socket::recv ( std::string& s ) const
 
 bool Socket::connect ( const std::string host, const int port )
 {
-	if ( ! is_valid() ) return false;
+	if ( !is_valid() ) 
+		return false;
 
 	m_addr.sin_family = AF_INET;
 	m_addr.sin_port = htons ( port );
 
 	int status = inet_pton ( AF_INET, host.c_str(), &m_addr.sin_addr );
 
-	if ( errno == EAFNOSUPPORT ) return false;
+	if ( errno == EAFNOSUPPORT ) 
+		return false;
 
 	status = ::connect ( m_sock, ( sockaddr * ) &m_addr, sizeof ( m_addr ) );
 
@@ -143,9 +142,7 @@ void Socket::set_non_blocking ( const bool b )
 	int opts;
 	opts = fcntl ( m_sock, F_GETFL );
 	if ( opts < 0 )
-    {
 		return;
-    }
 
 	if ( b )
 		opts = ( opts | O_NONBLOCK );

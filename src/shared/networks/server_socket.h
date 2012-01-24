@@ -13,26 +13,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _ACCEPT_SOCKET_H
-#define _ACCEPT_SOCKET_H
+#ifndef _SERVER_SOCKET_H
+#define _SERVER_SOCKET_H
 
 #include "Socket.h"
 
-class AcceptSocket : private Socket
+class ServerSocket : private Socket
 {
 	public:
+	
+		ServerSocket ( int port );
+		ServerSocket (){};
+		virtual ~ServerSocket();
 
-	AcceptSocket (int port);
-	AcceptSocket (void){};
-	virtual ~AcceptSocket();
+		// To change with con ByteBuffer
+		const ServerSocket& operator << ( const std::string& ) const;
+		const ServerSocket& operator >> ( std::string& ) const;
 
-	// To change with con ByteBuffer
-	const AcceptSocket& operator << ( const std::string& ) const;
-	const AcceptSocket& operator >> ( std::string& ) const;
-
-	void accept ( AcceptSocket& );
+		void accept ( ServerSocket& );
 };
 
 
 
-#endif  /* _ACCEPT_SOCKET_H */
+#endif  /* _SERVER_SOCKET_H */

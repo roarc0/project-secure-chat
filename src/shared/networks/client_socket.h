@@ -13,23 +13,27 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _CONNECT_SOCKET_H
-#define _CONNECT_SOCKET_H
+#ifndef _CLIENT_SOCKET_H
+#define _CLIENT_SOCKET_H
 
 #include "Socket.h"
 
-class ConnectSocket : private Socket
+class ClientSocket : private Socket
 {
 	public:
 
-    ConnectSocket ( std::string host, int port );
-    virtual ~ClientSocket(){};
+		ClientSocket ( std::string host, int port );
+		virtual ~ClientSocket(){};
+		
+		connect();
 
-	// To change with ByteBuffer
-	const ConnectSocket& operator << ( const std::string& ) const;
-	const ConnectSocket& operator >> ( std::string& ) const;
+		// To change with ByteBuffer
+		const ClientSocket& operator << ( const std::string& ) const;
+		const ClientSocket& operator >> ( std::string& ) const;
+		
+	private:
+	
+		std::string m_host;
+		int m_port;
 };
-
-
-
-#endif  /* _CONNECT_SOCKET_H */
+#endif  /* _Client_SOCKET_H */

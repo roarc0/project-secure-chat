@@ -12,7 +12,7 @@ typedef enum cmd_type
     CMD_ACK,
     CMD_ABORT,
     CMD_SENDMSG,
-    CMD_SENDPRIVMSG
+    CMD_SENDPRIVMSG,
     CMD_JOIN,
     CMD_LEAVE,
     CMD_USERINFO
@@ -26,14 +26,16 @@ class command
     char        *name;
     bool        needparam;
     handler     h;
+
+    //static cmd_type getType(char* name)
+    //static char* getName(cmd_type type)
   public:
+    command(char *, command *);
+    command(cmd_type, command *);
+
     bool send(int, char *, unsigned int *);
     int  recv(char *, unsigned int *);
     char *forge_packet(int, const char *);
-
 };
-
-command *get_command_from_name(char *, command *);
-command *get_command_from_type(cmd_type, command *);
 
 #endif

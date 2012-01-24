@@ -64,7 +64,7 @@ class Socket
 	    bool connect (const std::string host, const int port);
 		
 		// Temp send with String
-		bool send ( const std::string s ) const
+		bool send ( const std::string s ) const;
 		
         /// Send A packet on the socket, this function is reentrant.
         /// @param pct packet to send
@@ -72,7 +72,7 @@ class Socket
         //int send_packet (const Packet& pct);
 		
 		// Temp recv with String
-		int recv ( std::string& s ) const
+		int recv ( std::string& s ) const;
 		
 		/// @return -1 of failure
 		//int recv_packet (const Packet& pct);

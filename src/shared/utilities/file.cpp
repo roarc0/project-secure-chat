@@ -1,5 +1,14 @@
 #include "file.h"
 
+#include <cstring>
+#include <openssl/sha.h>
+
+void* my_malloc(int n) 
+{
+      return malloc(n);
+}
+
+
 int file_size(const char *filename)
 {
       struct stat file_info;
@@ -134,7 +143,7 @@ char *list_files(const char *dir)
     return buffer;
 }
 
-/*
+
 void makeSubDir(char *dir)
 {
     char *slash;
@@ -156,7 +165,7 @@ void makeSubDir(char *dir)
         loops++;
     }
 }
-*/
+
 
 char *sha_digest(const char *filename)
 {
@@ -168,7 +177,7 @@ char *sha_digest(const char *filename)
 
     if ((fd=open(filename, O_RDONLY)) < 0)
     {
-        perrorf("open()",0);
+        //perrorf("open()",0); // undeclared
         return 0;
     }
 
@@ -203,7 +212,7 @@ void print_file_info(const char *filename,int size,const char *sha)
     printf("* filename: %s\n",filename);
 
     printf("* filesize: ");
-    num2human(size);
+    //num2human(size); // undeclared
     printf("B\n");
 
     printf("* sha1:     %s\n",sha);

@@ -26,10 +26,15 @@ class command
     char        *name;
     bool        needparam;
     handler     h;
+
   public:
-    bool send(int, char *, unsigned int *);
-    int  recv(char *, unsigned int *);
     char *forge_packet(int, const char *);
+    inline void execution_info(const char *name, client_slot *cli)
+    {
+        #if ENABLE_DEBUG
+           cout << "* <" << name << "> executed from " << cli->host << ":" << cli->port << endl << endl;
+        #endif
+    }
 
 };
 

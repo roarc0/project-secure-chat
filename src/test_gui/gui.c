@@ -4,22 +4,11 @@
 
 #define VERSION "0.0.1"
 
-/*
-gui_data g_data;
-
-typedef struct myma_data
-{
-} gui_data;
-
-
-typedef struct gui
-{
-    GtkWidget *entry_;
-    GtkWidget *entry_location;
-    GtkWidget *entry_description;
-
-} gui;
-*/
+enum {
+  COLUMN_STRING,
+  COLUMN_INT,
+  COLUMNS
+};
 
 GdkPixbuf *create_pixbuf(const gchar * filename)
 {
@@ -78,6 +67,21 @@ void destroy (GtkObject *object, gpointer user_data)
     gtk_main_quit(); 
 }
 
+void add_list(gpointer data, gchar *str, gint num)
+{
+  GtkTreeView *view = GTK_TREE_VIEW(data);
+  GtkTreeModel *model;
+  GtkTreeIter iter;
+
+  model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+
+  gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+  gtk_list_store_set(GTK_LIST_STORE(model), &iter, 
+		     COLUMN_STRING, str, 
+		     COLUMN_INT, num, -1);
+}
+
+
 int main(int argc, char** argv)
 {
     GtkWidget *window; 
@@ -100,8 +104,13 @@ int main(int argc, char** argv)
     GtkWidget *view_chat;
     GtkTextBuffer *buffer;
     GtkTextIter start, end;
-    GtkTextIter iter;
+    GtkTextIter textiter;
 
+    GtkWidget *scrolledwindow;
+    GtkListStore *model;              /* oggetto model       */
+    GtkWidget *view;                  /* -\                  */ 
+    GtkCellRenderer *renderer;        /* ---> l'oggetto view */
+    GtkTreeSelection *selection;      /* -/                  */
 
     GtkWidget *hbox_inputs;
     GtkWidget *vbox_inputs;
@@ -137,7 +146,7 @@ int main(int argc, char** argv)
     
     /* vbox */
 
-    vbox_main = gtk_vbox_new (FALSE, 3); 
+    vbox_main = gtk_vbox_new (FALSE, 1); 
     gtk_container_add(GTK_CONTAINER(window), vbox_main); 
     gtk_container_set_border_width(GTK_CONTAINER(vbox_main),0);
 
@@ -171,7 +180,7 @@ int main(int argc, char** argv)
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), help);
 
 
-    gtk_box_pack_start(GTK_BOX(vbox_main), menubar, FALSE, FALSE, 3);
+    gtk_box_pack_start(GTK_BOX(vbox_main), menubar, FALSE, FALSE, 0);
 
     g_signal_connect(G_OBJECT(quit), "activate", G_CALLBACK(gtk_main_quit), NULL); 
     g_signal_connect(G_OBJECT(about), "activate", G_CALLBACK(show_about), NULL); 
@@ -197,10 +206,20 @@ int main(int argc, char** argv)
     
 
     /* CHAT */
-    hbox_chat = gtk_hbox_new (FALSE, 2);
-    gtk_container_add(GTK_CONTAINER(vbox_main), hbox_chat);
+    hbox_chat = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox_main), hbox_chat, TRUE, TRUE, 0);
+
+    scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
+    gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow, TRUE, TRUE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow), 2);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), 
+			      GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_widget_show (scrolledwindow);
+
     view_chat = gtk_text_view_new();
-    gtk_box_pack_start(GTK_BOX(vbox_main), view_chat, TRUE, TRUE, 0);
+
+    gtk_container_add (GTK_CONTAINER (scrolledwindow), view_chat);
+    //gtk_box_pack_start(GTK_BOX(hbox_chat), view_chat, TRUE, TRUE, 0);
 
 /*##############################################*/
   buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view_chat));
@@ -208,22 +227,62 @@ int main(int argc, char** argv)
   gtk_text_buffer_create_tag(buffer, "gap", "pixels_above_lines", 30, NULL);
 
   gtk_text_buffer_create_tag(buffer, "lmarg", "left_margin", 5, NULL);
-  gtk_text_buffer_create_tag(buffer, "blue_fg", "foreground", "blue", NULL); 
-  gtk_text_buffer_create_tag(buffer, "gray_bg", "background", "gray", NULL); 
-  gtk_text_buffer_create_tag(buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
+
+  gtk_text_buffer_create_tag(buffer, "black_fg", "foreground", "black", NULL);
+  gtk_text_buffer_create_tag(buffer, "green_fg", "background", "green", NULL);
+  gtk_text_buffer_create_tag(buffer, "red_fg", "background", "red", NULL);
+
+  /*gtk_text_buffer_create_tag(buffer, "green_bg", "background", "green", NULL); 
+  gtk_text_buffer_create_tag(buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);*/
   gtk_text_buffer_create_tag(buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
+  gtk_text_buffer_get_iter_at_offset(buffer, &textiter, 0);
 
-  gtk_text_buffer_get_iter_at_offset(buffer, &iter, 0);
-
-  gtk_text_buffer_insert(buffer, &iter, "Plain text\n", -1);
-  gtk_text_buffer_insert_with_tags_by_name(buffer, &iter, "Colored Text\n", -1, "blue_fg", "lmarg",  NULL);
-  gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, "Text with colored background\n", -1, "lmarg", "gray_bg", NULL);
-
-  gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, "Text in italics\n", -1, "italic", "lmarg",  NULL);
-
-  gtk_text_buffer_insert_with_tags_by_name (buffer, &iter, "Bold text\n", -1, "bold", "lmarg",  NULL);
+  gtk_text_buffer_insert_with_tags_by_name (buffer, &textiter, "\"gufo\" has joined the chat\n", -1, "lmarg", "green_fg", "bold", NULL);
+  gtk_text_buffer_insert_with_tags_by_name(buffer, &textiter, "<gufo> salve buonuomo\n", -1, "black_fg", "lmarg", NULL);
+  gtk_text_buffer_insert_with_tags_by_name (buffer, &textiter, "<alec> ave!\n", -1, "black_fg", "lmarg",  NULL);
+  gtk_text_buffer_insert_with_tags_by_name (buffer, &textiter, "<furla> ciao!\n", -1, "black_fg", "lmarg",  NULL);
+  gtk_text_buffer_insert_with_tags_by_name (buffer, &textiter, "\"gufo\" has been kicked out by \"alec\"!\n", -1, "red_fg", "lmarg", "bold",  NULL);
 /*##############################################*/
 
+  scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
+  gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow), 2);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), 
+				  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_widget_show (scrolledwindow);
+
+  model     = gtk_list_store_new(COLUMNS, G_TYPE_STRING, G_TYPE_INT);
+  view      = gtk_tree_view_new_with_model (GTK_TREE_MODEL(model));
+  selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+  
+  gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+  gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(view), TRUE);
+
+  renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view), /* vista */
+                       -1,                  /* posizione della colonna */
+                       "Name",  /* titolo della colonna */
+                       renderer,            /* cella inserita nella colonna */
+                       "text",              /* attributo colonna */
+                       COLUMN_STRING,    /* colonna inserita  */
+                       NULL);               /* fine ;-) */
+
+  renderer = gtk_cell_renderer_text_new();
+  gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view), -1, 
+					      "?", renderer, 
+					      "text", COLUMN_INT, 
+					      NULL);          
+
+  gtk_widget_show (view);
+  g_object_unref(model);
+
+  gtk_container_add (GTK_CONTAINER (scrolledwindow), view);
+  gtk_container_set_border_width (GTK_CONTAINER (view), 0);
+  gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view), TRUE);
+
+    add_list(view,"alec", 0);
+    add_list(view,"furla", 1);
+    add_list(view,"gufo", 2);
 
     /* INPUTS */
     hbox_inputs = gtk_hbox_new (FALSE, 0);

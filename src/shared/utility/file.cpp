@@ -1,13 +1,9 @@
 #include "file.h"
 
-#include <cstring>
-#include <openssl/sha.h>
-
 void* my_malloc(int n) 
 {
       return malloc(n);
 }
-
 
 int file_size(const char *filename)
 {
@@ -23,6 +19,17 @@ bool file_exists (const char * filename)
     if (stat (filename, &file_info ) == 0)
         return true;
     return false;
+}
+
+bool dir_exists(string dirname)
+{
+    struct stat sb;
+    stat(dirname.c_str(), &sb);
+
+    if (errno == ENOENT || (sb.st_mode & S_IFMT) != S_IFDIR)
+    return false;
+
+    return true;
 }
 
 int is_dir(const char *path)
@@ -58,10 +65,10 @@ bool is_dir_empty(const char *dir)
     return true;
 }
 
-void add_slash(char *s)
+void add_slash(string &str)
 {
-    if (s && (strlen(s) > 0) && (s[strlen(s)-1] != '/'))
-        strcat(s,"/");
+     if (str.at(str.length()-1) != '/')
+        str += "/";
 }
 
 void deltree(const char *dir)
@@ -166,7 +173,7 @@ void makeSubDir(char *dir)
     }
 }
 
-
+/*
 char *sha_digest(const char *filename)
 {
     SHA_CTX context;
@@ -203,8 +210,9 @@ char *sha_digest(const char *filename)
 
     return (char*) digest_ret;
 }
+*/
 
-void print_file_info(const char *filename,int size,const char *sha)
+void info_file(const char *filename,int size,const char *sha)
 {
     if (!filename || !sha)
         return;
@@ -218,6 +226,29 @@ void print_file_info(const char *filename,int size,const char *sha)
     printf("* sha1:     %s\n",sha);
 }
 
+char* read_file(const char *filename)
+{
+    ifstream file;
+    char   *buffer = NULL;
+    int length = 0;
 
+    file.open(filename, ios::binary);
 
+    if (!file.is_open())
+    {
+        printf("file: %s\n", filename);
+        perror("open()");
+        return 0;
+    }
 
+    file.seekg (0, ios::end);
+    length = file.tellg();
+    file.seekg (0, ios::beg);
+
+    buffer = new char[length + 1];
+
+    file.read (buffer,length);
+    file.close();
+    buffer[length] = 0;
+    return buffer;
+}

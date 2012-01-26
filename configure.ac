@@ -1,6 +1,7 @@
 AC_PREREQ(2.61)
-AC_INIT([remote-compressor], [0.10.0])
-AM_PROG_CC_C_O
+AC_INIT([pschat], [0.0.1])
+AC_PROG_CXX
+
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([-Wall foreign])
 
@@ -12,7 +13,8 @@ AC_CHECK_FUNCS(gettimeofday chdir chmod getopt fmod)
 AC_CHECK_LIB(m, fmod)
 AC_CHECK_LIB(pthread, pthread_create)
 AC_CHECK_LIB(archive, archive_write_open_filename)
-AC_CHECK_LIB(ssl, SHA256_Init)
+AC_CHECK_LIB(confuse, cfg_parse)
+#AC_CHECK_LIB(ssl, SHA256_Init)
 #AC_CHECK_LIB(crypto, )
 
 #profile
@@ -23,7 +25,7 @@ profile,
 [enable_profile=no]
 )
 if test "$enable_profile" = "yes"; then
-CFLAGS="$CFLAGS -pg"
+CXXFLAGS="$CFLAGS -pg"
 AC_DEFINE(ENABLE_PROFILE,1,[profile option])
 else
 AC_DEFINE(ENABLE_PROFILE,1,[profile option])
@@ -51,13 +53,13 @@ release,
 [enable_release=no]
 )
 if test "$enable_release" = "yes"; then
-CFLAGS="-O3 -mtune=native -march=native -pipe"
+CXXFLAGS="-O3 -mtune=native -march=native -pipe"
 AC_DEFINE(ENABLE_RELEASE,1,[release option])
 else
 AC_DEFINE(ENABLE_RELEASE,0,[release option])
 fi
 
-CFLAGS="$CFLAGS -std=gnu99"
+CXXFLAGS="$CXXFLAGS"
 
 DISTCLEANFILES="Makefile.in"
 AC_SUBST(DISTCLEANFILES)

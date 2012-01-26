@@ -87,10 +87,7 @@ class Socket
 		
         sockaddr_in m_addr;
 	
-	    /// Mutex private
-
-		/// Class used for managing encryption
-        //Crypt m_Crypt;
+	    /// Mutex private		
 		
 		/// process one incoming packet.
         /// @param new_pct received packet

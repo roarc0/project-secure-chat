@@ -27,7 +27,7 @@ class ClientSocket : private Socket
 		
 		connect();
 
-		// To change with ByteBuffer
+		// To change with Packets
 		const ClientSocket& operator << ( const std::string& ) const;
 		const ClientSocket& operator >> ( std::string& ) const;
 		

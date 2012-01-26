@@ -18,9 +18,10 @@
 
 #include <string>            // For string
 #include <exception>         // For exception class
+#include "../common.h"
 
 using namespace std;
-#DEFINE MAX_QUEUE_CONNECTIONS 5;
+#define MAX_QUEUE_CONNECTIONS 5;
 
 class SocketException : public exception 
 {

@@ -120,10 +120,6 @@ void Socket::setLocalAddressAndPort(const string &localAddress,
 	}
 }
 
-void Socket::cleanUp() throw(SocketException) 
-{
-}
-
 unsigned short Socket::resolveService(const string &service,
                                       const string &protocol) 
 {

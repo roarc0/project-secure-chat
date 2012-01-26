@@ -6,7 +6,7 @@
 #include <limits.h>
 #include <math.h>
 
-#include "typedefs.h"
+#include "../common.h"
 
 typedef struct timer
 {

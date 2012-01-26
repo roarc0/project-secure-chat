@@ -1,15 +1,8 @@
 #ifndef FILE_H
 #define FILE_H
 
-#include <cstdio>
-#include <cstdlib>
-#include <string>
-#include <unistd.h>
 #include <fcntl.h>
 #include <dirent.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
 
 #include "../common.h"
 
@@ -20,7 +13,7 @@ bool is_dir_empty(const char *);
 void add_slash(char *);
 void deltree(const char *);
 char *list_files(const char *);
-char *sha_digest(const char *);
+//char *sha_digest(const char *);
 void print_file_info(const char *,int ,const char *);
 
 #endif

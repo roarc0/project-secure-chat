@@ -27,3 +27,4 @@ server
 src/shared/.dirstamp
 src/shared/.deps/.dirstamp
 compile
+src/test_gui/gui

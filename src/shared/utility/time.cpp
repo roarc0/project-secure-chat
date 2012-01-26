@@ -1,5 +1,6 @@
 #include "time.h"
 #include <cstdio>
+
 typedef int uint32;
 
 double timeval_diff(struct timeval *end_time, struct timeval *start_time)

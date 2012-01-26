@@ -1,3 +1,1 @@
-
-
-typedef bool(*handler)(char *, void *);
+typedef bool(*handler)(char *, void *); // esempio handler

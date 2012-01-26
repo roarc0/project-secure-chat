@@ -1,5 +1,7 @@
 #include "common.h"
 
+logger *logger::l_singleton = NULL;
+
 void welcome()
 {
     cout << PACKAGE_STRING << ": project secure chat ";

@@ -28,3 +28,9 @@ src/shared/.dirstamp
 src/shared/.deps/.dirstamp
 compile
 src/test_gui/gui
+src/shared/logger/.deps/.dirstamp
+src/shared/networks/.deps/.dirstamp
+src/shared/networks/.dirstamp
+src/shared/logger/.dirstamp
+src/shared/utility/.deps/.dirstamp
+src/shared/utility/.dirstamp

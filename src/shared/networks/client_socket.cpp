@@ -1,34 +1,34 @@
 #include "client_socket.h"
 
-ClientSocket::ClientSocket ( std::string host, int port ) : m_host( host ) : m_port (port)
+ClientSocket::ClientSocket (std::string host, int port) : m_host(host) : m_port (port)
 {
-	if ( !Socket::create() )
-		throw SocketException ( "Could not create client socket." );
+	if (!Socket::create())
+		throw SocketException ("Could not create client socket.");
 }
 
 ClientSocket::connect ()
 {
-	if ( !Socket::connect ( host, port ) )
+	if (!Socket::connect(host, port))
 	{
-		throw SocketException ( "Could not bind to port." );
+		throw SocketException ("Could not bind to port.");
 	}
 }
 
-const ClientSocket& ClientSocket::operator << ( const std::string& s ) const
+const ClientSocket& ClientSocket::operator << (const std::string& s) const
 {
-	if ( !Socket::send ( s ) )
+	if (!Socket::send (s))
     {
-		throw SocketException ( "Could not write to socket." );
+		throw SocketException ("Could not write to socket.");
     }
 
 	return *this;
 }
 
-const ClientSocket& ClientSocket::operator >> ( std::string& s ) const
+const ClientSocket& ClientSocket::operator >> (std::string& s) const
 {
-	if ( !Socket::recv ( s ) )
+	if (!Socket::recv (s))
 	{
-		throw SocketException ( "Could not read from socket." );
+		throw SocketException ("Could not read from socket.");
 	}
 
 	return *this;

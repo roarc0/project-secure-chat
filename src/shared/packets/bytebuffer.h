@@ -16,7 +16,7 @@
 #ifndef _BYTEBUFFER_H
 #define _BYTEBUFFER_H
 
-
+#include <vector>
 #include "byteconverter.h"
 
 class ByteBufferException
@@ -356,7 +356,7 @@ class ByteBuffer
             if (!cnt)
                 return;
 
-            ASSERT(size() < 10000000);
+            // ASSERT(size() < 10000000);
 
             if (_storage.size() < _wpos + cnt)
                 _storage.resize(_wpos + cnt);
@@ -368,35 +368,6 @@ class ByteBuffer
         {
             if (buffer.wpos())
                 append(buffer.contents(), buffer.wpos());
-        }
-
-        // can be used in SMSG_MONSTER_MOVE opcode
-        void appendPackXYZ(float x, float y, float z)
-        {
-            uint32 packed = 0;
-            packed |= ((int)(x / 0.25f) & 0x7FF);
-            packed |= ((int)(y / 0.25f) & 0x7FF) << 11;
-            packed |= ((int)(z / 0.25f) & 0x3FF) << 22;
-            *this << packed;
-        }
-
-        void appendPackGUID(uint64 guid)
-        {
-            uint8 packGUID[8+1];
-            packGUID[0] = 0;
-            size_t size = 1;
-            for (uint8 i = 0;guid != 0;++i)
-            {
-                if (guid & 0xFF)
-                {
-                    packGUID[0] |= uint8(1 << i);
-                    packGUID[size] =  uint8(guid & 0xFF);
-                    ++size;
-                }
-
-                guid >>= 8;
-            }
-            append(packGUID, size);
         }
 
         void put(size_t pos, const uint8 *src, size_t cnt)
@@ -573,7 +544,6 @@ inline ByteBuffer &operator>>(ByteBuffer &b, std::map<K, V> &m)
     return b;
 }
 
-// TODO: Make a ByteBuffer.cpp and move all this inlining to it.
 template<> inline std::string ByteBuffer::read<std::string>()
 {
     std::string tmp;

@@ -1,10 +1,7 @@
 syntax: glob
-
 *.o
 *~
 *.Po
-*.patch
-*.diff
 autom4te.cache/*
 stamp-h1
 config.status
@@ -21,11 +18,6 @@ missing
 Makefile
 Makefile.in
 INSTALL
-src/*.spw
-*.tar.*
-client
-server
-*.dirstamp
 src/shared/.dirstamp
 src/shared/.deps/.dirstamp
 src/shared/logger/.deps/.dirstamp
@@ -34,3 +26,7 @@ src/shared/networks/.dirstamp
 src/shared/logger/.dirstamp
 src/shared/utility/.deps/.dirstamp
 src/shared/utility/.dirstamp
+src/client/.deps/.dirstamp
+src/client/.dirstamp
+src/server/.deps/.dirstamp
+src/server/.dirstamp

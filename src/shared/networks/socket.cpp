@@ -176,6 +176,23 @@ int CommunicatingSocket::recv(void *buffer, int bufferLen)
 	return rtn;
 }
 
+void CommunicatingSocket::setBlocking(const bool b)
+	throw(SocketException)
+{
+	int opts;
+	opts = fcntl (sockDesc, F_GETFL);
+	if (opts < 0)
+	{
+		throw SocketException("Get opts failed (setBlocking())", true);
+	}
+	if (b)
+		opts |= O_NONBLOCK;
+	else
+		opts &= ~O_NONBLOCK ;
+
+	fcntl (sockDesc, F_SETFL, opts);
+}
+
 string CommunicatingSocket::getForeignAddress() 
     throw(SocketException) 
 {

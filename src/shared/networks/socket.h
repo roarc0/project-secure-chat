@@ -27,13 +27,13 @@ using namespace std;
 class SocketException : public exception 
 {
 	public:
-		SocketException(const string &message, bool inclSysMsg = false) throw();
+		SocketException(const std::string &message, bool inclSysMsg = false) throw();
 		~SocketException() throw();
 
 		const char *what() const throw();
 
 	private:
-		string userMessage;  // Exception message
+		std::string userMessage;  // Exception message
 };
 
 class Socket 
@@ -71,6 +71,8 @@ class CommunicatingSocket : public Socket
 		void send(const void *buffer, int bufferLen) throw(SocketException);
 
 		int recv(void *buffer, int bufferLen) throw(SocketException);
+		
+		void setBlocking(const bool b) throw(SocketException);
 
 		string getForeignAddress() throw(SocketException);
 

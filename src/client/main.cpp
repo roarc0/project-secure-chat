@@ -4,6 +4,7 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    cin>>argc;
+    TCPClientSocket server(6666, 128);
+    server.accept();
     return 0;
 }

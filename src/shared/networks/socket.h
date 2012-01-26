@@ -21,7 +21,8 @@
 #include "../common.h"
 
 using namespace std;
-#define MAX_QUEUE_CONNECTIONS 5;
+
+#define MAX_QUEUE_CONNECTIONS 5
 
 class SocketException : public exception 
 {
@@ -85,7 +86,7 @@ class TCPSocket : public CommunicatingSocket
 	public:
 		TCPSocket() throw(SocketException);
 
-		TCPSocket(const string &foreignAddress, unsigned short foreignPort) 
+		TCPSocket(const string &foreignAddress, unsigned short foreignPort)
 		  throw(SocketException);
 
 	private:

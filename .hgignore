@@ -15,6 +15,7 @@ configure
 config.status
 config.h
 config.h.in
+compile
 depcomp
 missing
 Makefile
@@ -24,10 +25,9 @@ src/*.spw
 *.tar.*
 client
 server
+*.dirstamp
 src/shared/.dirstamp
 src/shared/.deps/.dirstamp
-compile
-src/test_gui/gui
 src/shared/logger/.deps/.dirstamp
 src/shared/networks/.deps/.dirstamp
 src/shared/networks/.dirstamp

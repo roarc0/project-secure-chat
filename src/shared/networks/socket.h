@@ -16,94 +16,95 @@
 #ifndef _SOCKET_H
 #define _SOCKET_H
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <string>
-#include <arpa/inet.h>
+#include <string>            // For string
+#include <exception>         // For exception class
 
-const int MAXHOSTNAME = 200;
-const int MAXCONNECTIONS = 5;
-const int MAXRECV = 500;
+using namespace std;
+#DEFINE MAX_QUEUE_CONNECTIONS 5;
 
-class Packet;
-
-class SocketException
+class SocketException : public exception 
 {
 	public:
-		SocketException (std::string s) { m_s = s; };
-		~SocketException (){};
+		SocketException(const string &message, bool inclSysMsg = false) throw();
+		~SocketException() throw();
 
-		std::string description() { return m_s; }
+		const char *what() const throw();
 
 	private:
-
-		std::string m_s;
+		string userMessage;  // Exception message
 };
 
-class Socket
+class Socket 
 {
-    public:
-        Socket ();
-        ~Socket ();
-		
-		/// Mutex type used for various synchronizations.
-		/// TODO
-		
-		void close_socket ();
+	public:
+		~Socket();
 
-	    /// Server initialization
-	    bool create ();
-	    bool bind (const int port);
-	    bool listen () const;
-	    bool accept (Socket&) const;
+		string getLocalAddress() throw(SocketException);
 
-	    /// Client initialization
-	    bool connect (const std::string host, const int port);
-		
-		// Temp send with String
-		bool send ( const std::string s ) const;
-		
-        /// Send A packet on the socket, this function is reentrant.
-        /// @param pct packet to send
-        /// @return -1 of failure
-        //int send_packet (const Packet& pct);
-		
-		// Temp recv with String
-		int recv ( std::string& s ) const;
-		
-		/// @return -1 of failure
-		//int recv_packet (const Packet& pct);
-		
-		void set_non_blocking (const bool);
+		unsigned short getLocalPort() throw(SocketException);
 
-        bool is_valid() const { return m_sock != -1; }
-	
+		void setLocalPort(unsigned short localPort) throw(SocketException);
+
+		void setLocalAddressAndPort(const string &localAddress, 
+		unsigned short localPort = 0) throw(SocketException);
+
+		static unsigned short resolveService(const string &service,
+										   const string &protocol = "tcp");
 	private:
-	
-	    int m_sock;
-		
-        sockaddr_in m_addr;
-	
-	    /// Mutex private		
-		
-		/// process one incoming packet.
-        /// @param new_pct received packet
-        //int process_incoming (Packet* new_pct);
-		
-		/// Called by ProcessIncoming()
-        //int handle_packet (Packet& recvPacket);
+		Socket(const Socket &sock);
+		void operator=(const Socket &sock);
 
-        /// Called by ProcessIncoming() on CMSG_PING.
-        //int handle_ping (Packet& recvPacket);
-		
-		/// Helper functions for processing incoming data.
-        //int handle_input_header ();
-        //int handle_input_payload ();
-        //int handle_input_missing_data ();
-}
+	protected:
+		int sockDesc;	// Socket descriptor
+		Socket(int type, int protocol) throw(SocketException);
+		Socket(int sockDesc);
+};
 
+class CommunicatingSocket : public Socket 
+{
+	public:
+		void connect(const string &foreignAddress, unsigned short foreignPort)
+		throw(SocketException);
+
+		void send(const void *buffer, int bufferLen) throw(SocketException);
+
+		int recv(void *buffer, int bufferLen) throw(SocketException);
+
+		string getForeignAddress() throw(SocketException);
+
+		unsigned short getForeignPort() throw(SocketException);
+
+	protected:
+		CommunicatingSocket(int type, int protocol) throw(SocketException);
+		CommunicatingSocket(int newConnSD);
+};
+
+class TCPSocket : public CommunicatingSocket 
+{
+	public:
+		TCPSocket() throw(SocketException);
+
+		TCPSocket(const string &foreignAddress, unsigned short foreignPort) 
+		  throw(SocketException);
+
+	private:
+		friend class TCPServerSocket;
+		TCPSocket(int newConnSD);
+};
+
+class TCPServerSocket : public Socket 
+{
+	public:
+		TCPServerSocket(unsigned short localPort, int queueLen = MAX_QUEUE_CONNECTIONS) 
+		  throw(SocketException);
+
+		TCPServerSocket(const string &localAddress, unsigned short localPort,
+		  int queueLen = MAX_QUEUE_CONNECTIONS) throw(SocketException);
+
+		TCPSocket *accept() throw(SocketException);
+
+	private:
+		void setListen(int queueLen) throw(SocketException);
+};
 
 #endif  /* _SOCKET_H */

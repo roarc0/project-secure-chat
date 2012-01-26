@@ -1,153 +1,258 @@
 #include "socket.h"
-#include "string.h"
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
+#include <sys/types.h>       // For data types
+#include <sys/socket.h>      // For socket(), connect(), send(), and recv()
+#include <netdb.h>           // For gethostbyname()
+#include <arpa/inet.h>       // For inet_addr()
+#include <unistd.h>          // For close()
+#include <netinet/in.h>      // For sockaddr_in
+typedef void raw_type;
 
-Socket::Socket() :  m_sock ( -1 )
+// SocketException Code
+SocketException::SocketException(const string &message, bool inclSysMsg)
+  throw() : userMessage(message) 
 {
-	memset ( &m_addr, 0, sizeof ( m_addr ) );
+	if (inclSysMsg) 
+	{
+		userMessage.append(": ");
+		userMessage.append(strerror(errno));
+	}
 }
 
-Socket::~Socket()
+SocketException::~SocketException() throw() 
 {
-	if ( is_valid() ) 
-		::close ( m_sock );
 }
 
-void Socket::close()
+const char *SocketException::what() const throw() 
 {
-	if ( is_valid() ) 
-		::close ( m_sock );
+	return userMessage.c_str();
 }
 
-bool Socket::create()
+// Function to fill in address structure given an address and port
+static void fillAddr(const string &address, unsigned short port, 
+                     sockaddr_in &addr) 
 {
-	m_sock = socket ( AF_INET, SOCK_STREAM, 0 );
+	memset(&addr, 0, sizeof(addr));  // Zero out address structure
+	addr.sin_family = AF_INET;       // Internet address
 
-	if ( !is_valid() )
-		return false;
+	hostent *host;  // Resolve name
+	if ((host = gethostbyname(address.c_str())) == NULL) 
+	{
+		// strerror() will not work for gethostbyname() and hstrerror() 
+		// is supposedly obsolete
+		throw SocketException("Failed to resolve name (gethostbyname())");
+	}
+	addr.sin_addr.s_addr = *((unsigned long *) host->h_addr_list[0]);
 
-	// Wait
-	int on = 1;
-	if ( setsockopt ( m_sock, SOL_SOCKET, SO_REUSEADDR, ( const char* ) &on, sizeof ( on ) ) == -1 )
-		return false;
-
-	return true;
+	addr.sin_port = htons(port);     // Assign port in network byte order
 }
 
-bool Socket::bind ( const int port )
+// Socket Code
+
+Socket::Socket(int type, int protocol) throw(SocketException) 
 {
-	if ( !is_valid() )
-		return false;
-
-	m_addr.sin_family = AF_INET;
-	m_addr.sin_addr.s_addr = INADDR_ANY;
-	m_addr.sin_port = htons ( port );
-
-	int bind_return = ::bind ( m_sock, ( struct sockaddr * ) &m_addr, sizeof ( m_addr ) );
-
-	if ( bind_return == -1 )
-		return false;
-
-	return true;
+	// Make a new socket
+	if ((sockDesc = socket(PF_INET, type, protocol)) < 0) 
+	{
+		throw SocketException("Socket creation failed (socket())", true);
+	}
 }
 
-bool Socket::listen() const
+Socket::Socket(int sockDesc) 
 {
-	if ( !is_valid() )
-		return false;
-
-	int listen_return = ::listen ( m_sock, MAXCONNECTIONS );
-
-	if ( listen_return == -1 )
-		return false;
-
-	return true;
+	this->sockDesc = sockDesc;
 }
 
-bool Socket::accept ( Socket& new_socket ) const
+Socket::~Socket() 
 {
-	int addr_length = sizeof ( m_addr );
-	new_socket.m_sock = ::accept ( m_sock, ( sockaddr * ) &m_addr, ( socklen_t * ) &addr_length );
-
-	if ( new_socket.m_sock <= 0 )
-		return false;
-	else
-		return true;
+	::close(sockDesc);
+	sockDesc = -1;
 }
 
-bool Socket::send ( const std::string s ) const
+string Socket::getLocalAddress() throw(SocketException) 
 {
-	int status = ::send ( m_sock, s.c_str(), s.size(), MSG_NOSIGNAL );
-	if ( status == -1 )
-    {
-		return false;
-    }
-	else
-    {
-		return true;
-    }
+	sockaddr_in addr;
+	unsigned int addr_len = sizeof(addr);
+
+	if (getsockname(sockDesc, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0) 
+	{
+		throw SocketException("Fetch of local address failed (getsockname())", true);
+	}
+	return inet_ntoa(addr.sin_addr);
 }
 
-int Socket::recv ( std::string& s ) const
+unsigned short Socket::getLocalPort() throw(SocketException) 
 {
-	char buf [ MAXRECV + 1 ];
-	s = "";
-	memset ( buf, 0, MAXRECV + 1 );
-	int status = ::recv ( m_sock, buf, MAXRECV, 0 );
-	if ( status == -1 )
-    {		
-		std::string err << "status: -1   errno: " << errno << "  in Socket::recv";
-		SocketException sock_exc(err);
-		throw sock_exc;
-		
-		// Don't need
-		return 0;
-    }
-	else if ( status == 0 )
-    {
-		return 0;
-    }
-	else
-    {
-		s = buf;
-		return status;
-    }
+	sockaddr_in addr;
+	unsigned int addr_len = sizeof(addr);
+
+	if (getsockname(sockDesc, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0) 
+	{
+		throw SocketException("Fetch of local port failed (getsockname())", true);
+	}
+	return ntohs(addr.sin_port);
 }
 
-bool Socket::connect ( const std::string host, const int port )
+void Socket::setLocalPort(unsigned short localPort) throw(SocketException) 
 {
-	if ( !is_valid() ) 
-		return false;
+	// Bind the socket to its port
+	sockaddr_in localAddr;
+	memset(&localAddr, 0, sizeof(localAddr));
+	localAddr.sin_family = AF_INET;
+	localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	localAddr.sin_port = htons(localPort);
 
-	m_addr.sin_family = AF_INET;
-	m_addr.sin_port = htons ( port );
-
-	int status = inet_pton ( AF_INET, host.c_str(), &m_addr.sin_addr );
-
-	if ( errno == EAFNOSUPPORT ) 
-		return false;
-
-	status = ::connect ( m_sock, ( sockaddr * ) &m_addr, sizeof ( m_addr ) );
-
-	if ( status == 0 )
-		return true;
-	else		
-		return false;
+	if (bind(sockDesc, (sockaddr *) &localAddr, sizeof(sockaddr_in)) < 0) 
+	{
+		throw SocketException("Set of local port failed (bind())", true);
+	}
 }
 
-void Socket::set_non_blocking ( const bool b )
+void Socket::setLocalAddressAndPort(const string &localAddress,
+    unsigned short localPort) throw(SocketException) 
 {
-	int opts;
-	opts = fcntl ( m_sock, F_GETFL );
-	if ( opts < 0 )
-		return;
+	// Get the address of the requested host
+	sockaddr_in localAddr;
+	fillAddr(localAddress, localPort, localAddr);
 
-	if ( b )
-		opts = ( opts | O_NONBLOCK );
-	else
-		opts = ( opts & ~O_NONBLOCK );
+	if (bind(sockDesc, (sockaddr *) &localAddr, sizeof(sockaddr_in)) < 0) 
+	{
+		throw SocketException("Set of local address and port failed (bind())", true);
+	}
+}
 
-	fcntl ( m_sock, F_SETFL,opts );
+void Socket::cleanUp() throw(SocketException) 
+{
+}
+
+unsigned short Socket::resolveService(const string &service,
+                                      const string &protocol) 
+{
+	struct servent *serv;        /* Structure containing service information */
+
+	if ((serv = getservbyname(service.c_str(), protocol.c_str())) == NULL)
+		return atoi(service.c_str());  /* Service is port number */
+	else 
+		return ntohs(serv->s_port);    /* Found port (network byte order) by name */
+}
+
+// CommunicatingSocket Code
+CommunicatingSocket::CommunicatingSocket(int type, int protocol)  
+    throw(SocketException) : Socket(type, protocol) 
+{
+}
+
+CommunicatingSocket::CommunicatingSocket(int newConnSD) : Socket(newConnSD) 
+{
+}
+
+void CommunicatingSocket::connect(const string &foreignAddress,
+    unsigned short foreignPort) throw(SocketException) 
+{
+	// Get the address of the requested host
+	sockaddr_in destAddr;
+	fillAddr(foreignAddress, foreignPort, destAddr);
+
+	// Try to connect to the given port
+	if (::connect(sockDesc, (sockaddr *) &destAddr, sizeof(destAddr)) < 0) 
+	{
+		throw SocketException("Connect failed (connect())", true);
+	}
+}
+
+void CommunicatingSocket::send(const void *buffer, int bufferLen) 
+    throw(SocketException) 
+{
+	if (::send(sockDesc, (raw_type *) buffer, bufferLen, 0) < 0) 
+	{
+		throw SocketException("Send failed (send())", true);
+	}
+}
+
+int CommunicatingSocket::recv(void *buffer, int bufferLen) 
+    throw(SocketException) 
+{
+	int rtn;
+	if ((rtn = ::recv(sockDesc, (raw_type *) buffer, bufferLen, 0)) < 0) 
+	{
+		throw SocketException("Received failed (recv())", true);
+	}
+
+	return rtn;
+}
+
+string CommunicatingSocket::getForeignAddress() 
+    throw(SocketException) 
+{
+	sockaddr_in addr;
+	unsigned int addr_len = sizeof(addr);
+
+	if (getpeername(sockDesc, (sockaddr *) &addr,(socklen_t *) &addr_len) < 0) 
+	{
+		throw SocketException("Fetch of foreign address failed (getpeername())", true);
+	}
+	return inet_ntoa(addr.sin_addr);
+}
+
+unsigned short CommunicatingSocket::getForeignPort() throw(SocketException) 
+{
+	sockaddr_in addr;
+	unsigned int addr_len = sizeof(addr);
+
+	if (getpeername(sockDesc, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0) 
+	{
+		throw SocketException("Fetch of foreign port failed (getpeername())", true);
+	}
+	return ntohs(addr.sin_port);
+}
+
+// TCPSocket Code
+TCPSocket::TCPSocket() 
+    throw(SocketException) : CommunicatingSocket(SOCK_STREAM, IPPROTO_TCP) 
+{
+}
+
+TCPSocket::TCPSocket(const string &foreignAddress, unsigned short foreignPort)
+    throw(SocketException) : CommunicatingSocket(SOCK_STREAM, IPPROTO_TCP) 
+{
+	connect(foreignAddress, foreignPort);
+}
+
+TCPSocket::TCPSocket(int newConnSD) : CommunicatingSocket(newConnSD) 
+{
+}
+
+// TCPServerSocket Code
+
+TCPServerSocket::TCPServerSocket(unsigned short localPort, int queueLen) 
+    throw(SocketException) : Socket(SOCK_STREAM, IPPROTO_TCP) 
+{
+	setLocalPort(localPort);
+	setListen(queueLen);
+}
+
+TCPServerSocket::TCPServerSocket(const string &localAddress, 
+    unsigned short localPort, int queueLen) 
+    throw(SocketException) : Socket(SOCK_STREAM, IPPROTO_TCP) 
+{
+	setLocalAddressAndPort(localAddress, localPort);
+	setListen(queueLen);
+}
+
+TCPSocket *TCPServerSocket::accept() throw(SocketException) 
+{
+	int newConnSD;
+	if ((newConnSD = ::accept(sockDesc, NULL, 0)) < 0) 
+	{
+		throw SocketException("Accept failed (accept())", true);
+	}
+
+	return new TCPSocket(newConnSD);
+}
+
+void TCPServerSocket::setListen(int queueLen) throw(SocketException) 
+{
+	if (listen(sockDesc, queueLen) < 0) 
+	{
+		throw SocketException("Set listening socket failed (listen())", true);
+	}
 }

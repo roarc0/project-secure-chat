@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <cstdio>
 #include <cstdlib>
@@ -12,11 +13,17 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "typedefs.h"
+#include "utility/file.h"
+#include "../../config.h"
 
 #ifndef COMMON_H
 #define COMMON_H
+
+void   welcome();
+int    exec_command(const char *fmt, ...);
 
 #endif
 

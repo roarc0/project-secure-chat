@@ -87,22 +87,26 @@ int main(int argc, char** argv)
     GtkWidget *window; 
     GtkWidget *vbox_main; 
 
+    /* menubar */
     GtkWidget *menubar;
     GtkWidget *filemenu,*helpmenu;
     GtkWidget *file;
-    GtkWidget *new,*open,*sep,*quit;
+    GtkWidget *connect,*open,*sep,*quit;
     GtkWidget *help;
     GtkWidget *about;
     GtkAccelGroup *accel_group = NULL;
     
+    /* toolbar */
     GtkWidget *toolbar;
     GtkToolItem *toolbar_connect;
     GtkToolItem *toolbar_separator;
     GtkToolItem *toolbar_exit;
 
+    /* chat e userlist */
     GtkWidget *hbox_chat; 
+    GtkWidget *scrolledwindow_chat;
     GtkWidget *view_chat;
-    GtkTextBuffer *buffer;
+    GtkTextBuffer *view_chat_buffer;
     GtkTextIter start, end;
     GtkTextIter textiter;
 
@@ -162,7 +166,7 @@ int main(int argc, char** argv)
     helpmenu = gtk_menu_new();
 
     file = gtk_menu_item_new_with_label("File");
-    //new = gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW, NULL);
+    connect = gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW, NULL);
     //open = gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN, NULL);
     sep = gtk_separator_menu_item_new();
     quit = gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, accel_group);
@@ -217,31 +221,32 @@ int main(int argc, char** argv)
     gtk_widget_show (scrolledwindow);
 
     view_chat = gtk_text_view_new();
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(view_chat), false);
 
     gtk_container_add (GTK_CONTAINER (scrolledwindow), view_chat);
     //gtk_box_pack_start(GTK_BOX(hbox_chat), view_chat, TRUE, TRUE, 0);
 
 /*##############################################*/
-  buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view_chat));
+  view_chat_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view_chat));
 
-  gtk_text_buffer_create_tag(buffer, "gap", "pixels_above_lines", 30, NULL);
+  gtk_text_buffer_create_tag(view_chat_buffer, "gap", "pixels_above_lines", 30, NULL);
 
-  gtk_text_buffer_create_tag(buffer, "lmarg", "left_margin", 5, NULL);
+  gtk_text_buffer_create_tag(view_chat_buffer, "lmarg", "left_margin", 5, NULL);
 
-  gtk_text_buffer_create_tag(buffer, "black_fg", "foreground", "black", NULL);
-  gtk_text_buffer_create_tag(buffer, "green_fg", "background", "green", NULL);
-  gtk_text_buffer_create_tag(buffer, "red_fg", "background", "red", NULL);
+  gtk_text_buffer_create_tag(view_chat_buffer, "black_fg", "foreground", "black", NULL);
+  gtk_text_buffer_create_tag(view_chat_buffer, "green_fg", "background", "green", NULL);
+  gtk_text_buffer_create_tag(view_chat_buffer, "red_fg", "background", "red", NULL);
 
-  /*gtk_text_buffer_create_tag(buffer, "green_bg", "background", "green", NULL); 
-  gtk_text_buffer_create_tag(buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);*/
-  gtk_text_buffer_create_tag(buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
-  gtk_text_buffer_get_iter_at_offset(buffer, &textiter, 0);
+  /*gtk_text_buffer_create_tag(view_chat_buffer, "green_bg", "background", "green", NULL); 
+  gtk_text_buffer_create_tag(view_chat_buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);*/
+  gtk_text_buffer_create_tag(view_chat_buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
+  gtk_text_buffer_get_iter_at_offset(view_chat_buffer, &textiter, 0);
 
-  gtk_text_buffer_insert_with_tags_by_name (buffer, &textiter, "\"gufo\" has joined the chat\n", -1, "lmarg", "green_fg", "bold", NULL);
-  gtk_text_buffer_insert_with_tags_by_name(buffer, &textiter, "<gufo> salve buonuomo\n", -1, "black_fg", "lmarg", NULL);
-  gtk_text_buffer_insert_with_tags_by_name (buffer, &textiter, "<alec> ave!\n", -1, "black_fg", "lmarg",  NULL);
-  gtk_text_buffer_insert_with_tags_by_name (buffer, &textiter, "<furla> ciao!\n", -1, "black_fg", "lmarg",  NULL);
-  gtk_text_buffer_insert_with_tags_by_name (buffer, &textiter, "\"gufo\" has been kicked out by \"alec\"!\n", -1, "red_fg", "lmarg", "bold",  NULL);
+  gtk_text_buffer_insert_with_tags_by_name (view_chat_buffer, &textiter, "\"gufo\" has joined the chat\n", -1, "lmarg", "green_fg", "bold", NULL);
+  gtk_text_buffer_insert_with_tags_by_name(view_chat_buffer, &textiter, "<gufo> salve buonuomo\n", -1, "black_fg", "lmarg", NULL);
+  gtk_text_buffer_insert_with_tags_by_name (view_chat_buffer, &textiter, "<alec> ave!\n", -1, "black_fg", "lmarg",  NULL);
+  gtk_text_buffer_insert_with_tags_by_name (view_chat_buffer, &textiter, "<furla> ciao!\n", -1, "black_fg", "lmarg",  NULL);
+  gtk_text_buffer_insert_with_tags_by_name (view_chat_buffer, &textiter, "\"gufo\" has been kicked out by \"alec\"!\n", -1, "red_fg", "lmarg", "bold",  NULL);
 /*##############################################*/
 
   scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
@@ -280,9 +285,9 @@ int main(int argc, char** argv)
   gtk_container_set_border_width (GTK_CONTAINER (view), 0);
   gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view), TRUE);
 
-    add_list(view,"alec", 0);
-    add_list(view,"furla", 1);
-    add_list(view,"gufo", 2);
+    add_list(view, (gchar*) "alec", 0);
+    add_list(view, (gchar*) "furla", 1);
+    add_list(view, (gchar*) "gufo", 2);
 
     /* INPUTS */
     hbox_inputs = gtk_hbox_new (FALSE, 0);

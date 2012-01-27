@@ -14,7 +14,7 @@ int main(int argc, char** argv)
     conf = new config;
     conf->load_args(argc, argv);
     
-    //TCPClientSocket client(6666);
+    TCPSocket client(conf->get_string(CONFIG_SERVER_HOST), conf->get_int(CONFIG_SERVER_PORT));
 
     return 0;
 }

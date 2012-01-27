@@ -3,11 +3,12 @@
 cfg_opt_t opts[] =
 {   
     CFG_BOOL((char*)"debug", (cfg_bool_t)false, CFGF_NONE),
-    CFG_STR((char*)"conf_filename",(char*)"logs",CFGF_NONE),
+    CFG_STR((char*)"conf_filename",(char*)"pschat-client.conf",CFGF_NONE),
     CFG_BOOL((char*)"log_enable",(cfg_bool_t)true, CFGF_NONE),
     CFG_STR((char*)"log_path",(char*)"logs",CFGF_NONE),
-    CFG_INT((char*)"thread_slots",  4, CFGF_NONE),   
-
+    CFG_STR((char*)"server_host",(char*)"127.0.0.1",CFGF_NONE),
+    CFG_INT((char*)"server_port",  7777, CFGF_NONE),
+    CFG_STR((char*)"nickname",(char*)"user",CFGF_NONE),
     CFG_END()
 };
 
@@ -26,7 +27,7 @@ cfg_t* config::open_cfg()
 
 config::config()
 {
-    config_string[CONFIG_CONF_FILENAME] = "pschat-client.conf";
+    //config_string[CONFIG_CONF_FILENAME] = "pschat-client.conf";
     load_config();
 }
 
@@ -37,10 +38,12 @@ bool config::load_config()
 
     cfg_t *cfg = open_cfg();
 
-    config_bool[CONFIG_LOG]          = cfg_getbool(cfg, "log_enable");
-    config_string[CONFIG_LOG_PATH]   = cfg_getstr(cfg, "conf_filename");
-    config_string[CONFIG_LOG_PATH]   = cfg_getstr(cfg, "log_path");
     config_bool[CONFIG_DEBUG]        = cfg_getbool(cfg, "debug");
+    config_string[CONFIG_LOG_PATH]   = cfg_getstr(cfg, "conf_filename");
+    config_bool[CONFIG_LOG]          = cfg_getbool(cfg, "log_enable");
+    config_string[CONFIG_LOG_PATH]   = cfg_getstr(cfg, "log_path");
+    config_string[CONFIG_LOG_PATH]   = cfg_getstr(cfg, "server_host");
+    config_string[CONFIG_LOG_PATH]   = cfg_getstr(cfg, "server_port");
 
     cfg_free(cfg);
 
@@ -142,7 +145,7 @@ void config::check_config() // TODO inserire altri controlli
 
 }
 
-bool config::get_bool_config(enum config_bool e_conf)
+bool config::get_bool(enum config_bool e_conf)
 {
     if (e_conf >= CONFIG_MAX_BOOL)
         exit(1); // Errore
@@ -150,7 +153,7 @@ bool config::get_bool_config(enum config_bool e_conf)
     return config_bool[e_conf];
 }
 
-int config::get_int_config(enum config_int e_conf)
+int config::get_int(enum config_int e_conf)
 {
     if (e_conf >= CONFIG_MAX_INT)
         exit(1); // Errore
@@ -158,7 +161,7 @@ int config::get_int_config(enum config_int e_conf)
     return config_int[e_conf];
 }
 
-std::string config::get_string_config(enum config_string e_conf)
+std::string config::get_string(enum config_string e_conf)
 {
     if (e_conf >= CONFIG_MAX_STRING)
         exit(1); // Errore
@@ -166,7 +169,7 @@ std::string config::get_string_config(enum config_string e_conf)
     return config_string[e_conf];
 }
 
-float config::get_float_config(enum config_float e_conf)
+float config::get_float(enum config_float e_conf)
 {
     if (e_conf >= CONFIG_MAX_FLOAT)
         exit(1); // Errore

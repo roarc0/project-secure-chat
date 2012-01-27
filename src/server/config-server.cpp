@@ -146,7 +146,7 @@ void config::check_config() // TODO inserire altri controlli
 
 }
 
-bool config::get_bool_config(enum config_bool e_conf)
+bool config::get_bool(enum config_bool e_conf)
 {
     if (e_conf >= CONFIG_MAX_BOOL)
         exit(1); // Errore
@@ -154,7 +154,7 @@ bool config::get_bool_config(enum config_bool e_conf)
     return config_bool[e_conf];
 }
 
-int config::get_int_config(enum config_int e_conf)
+int config::get_int(enum config_int e_conf)
 {
     if (e_conf >= CONFIG_MAX_INT)
         exit(1); // Errore
@@ -162,7 +162,7 @@ int config::get_int_config(enum config_int e_conf)
     return config_int[e_conf];
 }
 
-std::string config::get_string_config(enum config_string e_conf)
+std::string config::get_string(enum config_string e_conf)
 {
     if (e_conf >= CONFIG_MAX_STRING)
         exit(1); // Errore
@@ -170,7 +170,7 @@ std::string config::get_string_config(enum config_string e_conf)
     return config_string[e_conf];
 }
 
-float config::get_float_config(enum config_float e_conf)
+float config::get_float(enum config_float e_conf)
 {
     if (e_conf >= CONFIG_MAX_FLOAT)
         exit(1); // Errore

@@ -16,7 +16,7 @@ enum config_bool
 
 enum config_int
 {
-    CONFIG_PORT = 0,
+    CONFIG_SERVER_PORT = 0,
     CONFIG_MAX_INT
 };
 
@@ -47,10 +47,10 @@ class config
     config();
     ~config();
 
-    bool        get_bool_config(enum config_bool);
-    int         get_int_config(enum config_int);
-    std::string get_string_config(enum config_string);
-    float       get_float_config(enum config_float);
+    bool        get_bool(enum config_bool);
+    int         get_int(enum config_int);
+    std::string get_string(enum config_string);
+    float       get_float(enum config_float);
 
     bool load_config();
     void post_init_config();

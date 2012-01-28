@@ -5,9 +5,8 @@
 
 typedef enum cmd_type
 {
-    CMD_QUIT,
     CMD_INFO,
-    CMD_CONNECT,
+    CMD_LOGIN,
     CMD_PING,
     CMD_ACK,
     CMD_ABORT,
@@ -29,11 +28,10 @@ class command
 
   public:
     char *forge_packet(int, const char *);
-    inline void execution_info(const char *name, client_slot *cli)
+    inline void execution_info()
     {
-        #if ENABLE_DEBUG
+           //LOG
            cout << "* <" << name << "> executed from " << cli->host << ":" << cli->port << endl << endl;
-        #endif
     }
 
 };

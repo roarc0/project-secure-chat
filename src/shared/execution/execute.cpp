@@ -1,18 +1,18 @@
 #include "execute.h"
 
-bool exec_thread(void *params)
+void *exec_thread(void *params)
 {
-    thread_params* t_param = (thread_params*) arg;
+    execute_thread_params* t_param = (execute_thread_params*) arg;
     
-    if(!param)
-        return 0; // pthread_exit();
+    if(!t_param)
+        pthread_exit(NULL);
 
     sigset_t mask;
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
     
-    sessions *sess = params->sess;
-    execute  *exec = params->exec;
+    sessions *sess = t_param->sess;
+    execute  *exec = t_param->exec;
     session  *temp_session = NULL;
     string   message;
 
@@ -58,7 +58,7 @@ execute::start_thread()
     ret = pthread_attr_init(&tattr);
     ret = pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED); //PTHREAD_CREATE_JOINABLE);
 
-    thread_params* t_params = new thread_params;
+    execute_thread_params* t_params = new execute_thread_params;
     t_params->exec = this;
     t_params->sess = session_pointer;
 

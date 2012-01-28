@@ -1,8 +1,5 @@
-#include <glib.h>
-#include <gtk/gtk.h> 
-#include <stdbool.h>
 
-#define VERSION "0.0.1"
+#include "gui.h"
 
 enum {
   COLUMN_STRING,
@@ -29,7 +26,7 @@ void show_about(GtkWidget *widget, gpointer data)
 
   GtkWidget *dialog = gtk_about_dialog_new();
   gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "psc");
-  gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), VERSION); 
+  gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), PACKAGE_VERSION); 
   gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog),"(c) Alessandro Rosetti");
   gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), 
      "project secure chat");
@@ -82,7 +79,7 @@ void add_list(gpointer data, gchar *str, gint num)
 }
 
 
-int main(int argc, char** argv)
+void main_gui(int argc, char **argv)
 {
     GtkWidget *window; 
     GtkWidget *vbox_main; 
@@ -316,7 +313,8 @@ int main(int argc, char** argv)
 
     /* end_widgets */
     gtk_widget_show_all(window);
-    gtk_main (); 
+    g_print ("starting gtk\n");   
+    gtk_main(); 
 
-    return 0;
+    return;
 }

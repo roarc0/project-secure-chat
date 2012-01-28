@@ -10,12 +10,24 @@ AC_CONFIG_HEADERS([config.h])
 AC_CHECK_HEADERS([signal.h fcntl.h locale.h stdint.h stdlib.h unistd.h math.h])
 AC_CHECK_FUNCS(gettimeofday chdir chmod getopt fmod)
 
-AC_CHECK_LIB(m, fmod)
+#AC_CHECK_LIB(m, fmod)
 AC_CHECK_LIB(pthread, pthread_create)
 AC_CHECK_LIB(archive, archive_write_open_filename)
 AC_CHECK_LIB(confuse, cfg_parse)
+AC_CHECK_LIB([gtk-x11-2.0], [gtk_main], [], [AC_MSG_ERROR([gtk+-2.x is missing or not built with X support])])
+AC_CHECK_LIB(glib-2.0, g_print)
 #AC_CHECK_LIB(ssl, SHA256_Init)
 #AC_CHECK_LIB(crypto, )
+
+# GLIB
+PKG_CHECK_MODULES(GLIB, glib-2.0 gobject-2.0)
+AC_SUBST(GLIB_LIBS)
+AC_SUBST(GLIB_CFLAGS)
+
+# GTK+2
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.8)
+AC_SUBST(GTK_CFLAGS)
+AC_SUBST(GTK_LIBS)
 
 #profile
 AC_ARG_ENABLE(

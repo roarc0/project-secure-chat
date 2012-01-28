@@ -3,14 +3,14 @@
 
 #include "../common.h"
 
-struct thread_params
+struct execute_thread_params
 {
     sessions   *sess;
     execute    *exec;
     pthread_t  tid;
 };
 
-bool exec_thread(void *params);
+void *exec_thread(void *params);
 
 class execute
 {

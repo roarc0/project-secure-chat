@@ -30,7 +30,8 @@ void *session_thread(void *arg)
     {
         cout << "connection attempt on " << CFG_GET_STRING("server_host") << ":" << CFG_GET_INT("server_port") << endl;
     }
-    cout << "connected " << CFG_GET_STRING("server_host") << ":" << CFG_GET_INT("server_port") << endl;
+
+    //cout << "connected " << CFG_GET_STRING("server_host") << ":" << CFG_GET_INT("server_port") << endl;
     while(1); // gestore comunicazione
 
     //if (t_param)

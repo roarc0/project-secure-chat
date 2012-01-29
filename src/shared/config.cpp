@@ -84,7 +84,7 @@ void config::add_int(const char *id, int value)
 
 void config::add_string(const char *id, string value)
 {
-    cfg_opt_t cfg_tmp = CFG_STR((char*)id,(char*)value.c_str(), CFGF_NONE);
+    cfg_opt_t cfg_tmp = CFG_STR((char*)id, (char*)value.c_str(), CFGF_NONE);
     l_cfgopt_t.push_back(cfg_tmp);
 }
 

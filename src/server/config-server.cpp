@@ -2,9 +2,10 @@
 
 void init_config(string filename)
 {
-    //if (!file_exists(filename.c_str()))
-    //    return false;
+    if (!file_exists(filename.c_str()))
+        cout << "config file <" << filename << "> does not exists!" << endl;
 
+    CFG->set_cfg_filename(filename);
     CFG->add_bool("debug", false);
     CFG->add_bool("log", false);
     CFG->add_string("log_path", "logs");

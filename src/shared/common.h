@@ -20,6 +20,7 @@
 #include "utility/file.h"
 #include "logger/logger.h"
 #include "../../config.h"
+#include "config.h"
 
 #ifndef COMMON_H
 #define COMMON_H

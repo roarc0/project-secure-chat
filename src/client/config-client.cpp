@@ -45,10 +45,24 @@ void init_log_profiles()
     else 
         return;
 
+    //if (CFG_GET_BOOL("verbose"))
+    //{
+        l_profile = new log_profile("info", "");
+        l_profile->set_opt(L_VERBOSE | L_COLOR);
+        LOG_PTR->add_profile(l_profile);
+    //}
+
     if (CFG_GET_BOOL("debug"))
     {
         l_profile = new log_profile("debug", "");
-        l_profile->set_opt(L_VERBOSE | L_DEBUG | L_COLOR);
+        l_profile->set_opt(L_VERBOSE | L_DEBUG);
+        LOG_PTR->add_profile(l_profile);
+    }
+    
+    if (CFG_GET_BOOL("log"))
+    {
+        l_profile = new log_profile("log", "");
+        l_profile->set_opt(L_APPEND);
         LOG_PTR->add_profile(l_profile);
     }
 }

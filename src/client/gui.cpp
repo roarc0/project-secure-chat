@@ -12,7 +12,9 @@ GdkPixbuf *create_pixbuf(const gchar * filename)
    GdkPixbuf *pixbuf;
    GError *error = NULL;
    pixbuf = gdk_pixbuf_new_from_file(filename, &error);
-   if(!pixbuf) {
+
+   if(!pixbuf)
+   {
       fprintf(stderr, "%s\n", error->message);
       g_error_free(error);
    }
@@ -22,18 +24,19 @@ GdkPixbuf *create_pixbuf(const gchar * filename)
 
 void show_about(GtkWidget *widget, gpointer data)
 {
-  //GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file("data/myma.png", NULL);
+  GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file("data/psc.png", NULL);
 
   GtkWidget *dialog = gtk_about_dialog_new();
   gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "psc");
   gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), PACKAGE_VERSION); 
-  gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog),"(c) Alessandro Rosetti");
-  gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), 
-     "project secure chat");
-  gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), 
+  gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog),
+      "(c) Alessandro Rosetti Daniele Lazzarini Alessandro Furlanetto");
+  gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog),
+      "project secure chat");
+  gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog),
       "http://code.google.com/p/project-secure-chat/");
-  //gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(dialog), pixbuf);
-  //g_object_unref(pixbuf), pixbuf = NULL;
+  gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(dialog), pixbuf);
+  g_object_unref(pixbuf), pixbuf = NULL;
   gtk_dialog_run(GTK_DIALOG (dialog));
   gtk_widget_destroy(dialog);
 }
@@ -134,19 +137,22 @@ void main_gui(int argc, char **argv)
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL); 
     gtk_container_set_border_width(GTK_CONTAINER(window),0); 
     gtk_window_set_urgency_hint (GTK_WINDOW(window), TRUE); 
-    gtk_window_set_title (GTK_WINDOW (window), "pschat");
+    gtk_window_set_title (GTK_WINDOW (window), PACKAGE_STRING);
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
-    //gtk_window_set_icon(GTK_WINDOW(window), create_pixbuf("data/psc.png"));
+    //setting window icon
+    GdkPixbuf *pixbuf = create_pixbuf("data/psc.png");
+    gtk_window_set_icon(GTK_WINDOW(window), pixbuf);
+    g_object_unref(pixbuf);
+    pixbuf = NULL;
 
     gtk_widget_show(window); 
-    
+
     g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(destroy), NULL); 
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(destroy), NULL); 
     
     /* vbox */
-
     vbox_main = gtk_vbox_new (FALSE, 1); 
     gtk_container_add(GTK_CONTAINER(window), vbox_main); 
     gtk_container_set_border_width(GTK_CONTAINER(vbox_main),0);

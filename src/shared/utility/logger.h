@@ -74,7 +74,7 @@ class logger
 {
     private:
 
-    static logger*          l_singleton;
+    static logger*          log_singleton;
     pthread_mutex_t  mutex_log;
     vector<log_profile*> vct_profiles;
     uint32 mask;
@@ -88,9 +88,9 @@ class logger
 
     static logger* get_instance()
     {
-        if(!l_singleton)
-            l_singleton = new logger();
-        return l_singleton;
+        if(!log_singleton)
+            log_singleton = new logger();
+        return log_singleton;
     };
 
     void          add_profile(log_profile *l_profile);

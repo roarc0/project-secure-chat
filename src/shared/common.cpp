@@ -1,6 +1,6 @@
 #include "common.h"
 
-logger* logger::l_singleton = NULL;
+logger* logger::log_singleton = NULL;
 config* config::cfg_singleton = NULL;
  
 void welcome()

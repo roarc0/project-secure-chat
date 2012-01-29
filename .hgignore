@@ -2,6 +2,7 @@ syntax: regex
 
 ^client$
 ^server$
+^config.h$
 
 syntax: glob
 *.o
@@ -16,7 +17,6 @@ aclocal.m4
 config.log
 configure
 config.status
-config.h
 config.h.in
 compile
 depcomp

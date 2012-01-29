@@ -9,6 +9,7 @@ client_SOURCES = src/shared/networks/socket.h src/shared/networks/socket.cpp   \
                  src/shared/logger/logger.h src/shared/logger/logger.cpp       \
                  src/shared/common.h src/shared/common.cpp                     \
                  src/shared/utility/file.h src/shared/utility/file.cpp         \
+                 src/shared/config.h src/shared/config.cpp                     \
                  src/client/config-client.h src/client/config-client.cpp       \
                  src/client/gui.h src/client/gui.cpp                           \
                  src/client/main.cpp
@@ -17,6 +18,7 @@ server_SOURCES = src/shared/networks/socket.h src/shared/networks/socket.cpp   \
                  src/shared/logger/logger.h src/shared/logger/logger.cpp       \
                  src/shared/common.h src/shared/common.cpp                     \
                  src/shared/utility/file.h src/shared/utility/file.cpp         \
+                 src/shared/config.h src/shared/config.cpp                     \
                  src/sever/config-server.h src/server/config-server.cpp        \
                  src/server/main.cpp
 

@@ -3,8 +3,6 @@
 #include "../shared/networks/socket.h"
 #include "config-server.h"
 
-config *conf = NULL;
-
 using namespace std;
 
 struct session_thread_params
@@ -38,10 +36,9 @@ int main(int argc, char** argv)
 {
     welcome();
 
-    conf = new config;
-    conf->load_args(argc, argv);
+    init_config("pschat-server.conf");
 
-    TCPServerSocket server(6666, 128);
+    TCPServerSocket server(CFG_GET_INT("port"), 128);
     TCPSocket *temp = NULL;
 
     int ret;

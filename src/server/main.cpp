@@ -1,6 +1,7 @@
 #include <iostream>
 
-#include "../shared/networks/socket.h"
+#include "../shared/networking/socket.h"
+#include "../shared/threading/thread.h"
 #include "config-server.h"
 
 using namespace std;
@@ -38,33 +39,18 @@ int main(int argc, char** argv)
 
     init_config("pschat-server.conf");
 
-    TCPServerSocket server(CFG_GET_INT("port"), 128);
+    TCPServerSocket server(CFG_GET_INT("server_port"), 128);
     TCPSocket *temp = NULL;
-
-    int ret;
+    cout << "listening on port: " << CFG_GET_INT("server_port") << endl;
 
     while(1)
-    {    
-        pthread_t      tid;
-        pthread_attr_t tattr;
-
+    {
         temp = server.accept();
-        cout << "connection!" << endl;
-        
-        ret = pthread_attr_init(&tattr);
-        ret = pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
+        cout << "client connection!" << endl;
 
         session_thread_params *t_params = new session_thread_params;
         t_params->sock = temp;
-
-        if (ret = pthread_create(&tid, &tattr, &session_thread, (void*)t_params))
-        {
-            perror("pthread_create");
-            delete t_params;
-        }
-
-        //tids.push_back(tid);
-        pthread_attr_destroy(&tattr);
+        start_thread(&session_thread, (void*)t_params);
     }
 
     return 0;

@@ -7,6 +7,16 @@ enum {
   COLUMNS
 };
 
+pthread_mutex_t  mutex_chat;
+pthread_mutex_t  mutex_user_list;
+
+struct button_send_widgets
+{
+    GtkTextBuffer *chat_buffer;
+    GtkWidget *text_entry;
+
+} button_send_w;
+
 GdkPixbuf *create_pixbuf(const gchar * filename)
 {
    GdkPixbuf *pixbuf;
@@ -41,12 +51,11 @@ void show_about(GtkWidget *widget, gpointer data)
   gtk_widget_destroy(dialog);
 }
 
-/*
-void show_message (gchar *message)
+void show_message(gchar *message)
 {
    GtkWidget *dialog, *label;
    
-   dialog = gtk_dialog_new_with_buttons ("pschat",
+   dialog = gtk_dialog_new_with_buttons (PACKAGE_VERSION,
                                          0,
                                          GTK_DIALOG_DESTROY_WITH_PARENT,
                                          GTK_STOCK_OK,
@@ -60,14 +69,13 @@ void show_message (gchar *message)
    gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),label);
    gtk_widget_show_all (dialog);
 }
-*/
 
-void destroy (GtkObject *object, gpointer user_data) 
+void destroy(GtkObject *object, gpointer user_data) 
 { 
-    gtk_main_quit(); 
+    gtk_main_quit();
 }
 
-void add_list(gpointer data, gchar *str, gint num)
+void add_user_to_list(gpointer data, gchar *str, gint num)
 {
   GtkTreeView *view = GTK_TREE_VIEW(data);
   GtkTreeModel *model;
@@ -75,12 +83,56 @@ void add_list(gpointer data, gchar *str, gint num)
 
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
 
+  pthread_mutex_lock(&mutex_user_list);
   gtk_list_store_append(GTK_LIST_STORE(model), &iter);
   gtk_list_store_set(GTK_LIST_STORE(model), &iter, 
-		     COLUMN_STRING, str, 
-		     COLUMN_INT, num, -1);
+             COLUMN_STRING, str, 
+             COLUMN_INT, num, -1);
+  pthread_mutex_unlock(&mutex_user_list);
 }
 
+void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizzare "..."
+{
+    GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(data);
+    GtkTextIter textiter;
+    //gtk_text_buffer_get_iter_at_offset(text_view_buffer, &textiter, 0);
+    gtk_text_buffer_get_end_iter(text_view_buffer, &textiter);
+    //int offset = gtk_text_iter_get_offset(&textiter);
+    //gtk_text_buffer_get_start_iter(buffer, &textiter);
+    //gtk_text_buffer_get_end_iter(buffer, &textiter);
+
+
+    switch(type) // metodo rozzo
+    {
+        case 'j': //join
+            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer, &textiter, str, -1, "lmarg", "green_fg", "bold", NULL);
+        break;
+        case 'l': //leave
+            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer, &textiter, str, -1, "lmarg", "red_fg", "bold", NULL);
+        break;
+        case 'm': //message
+            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer, &textiter, str, -1, "lmarg", "black_fg", NULL);
+        break;
+        default:
+        break;
+    }
+}
+
+void button_send_click(gpointer data, gchar *str, gchar type)
+{
+    stringstream ss;
+    gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(button_send_w.text_entry));
+    
+    if (!strcmp(text,""))
+        return;
+
+    ss << "<" << CFG_GET_STRING("nickname") << "> " << text << endl;
+
+    pthread_mutex_lock(&mutex_chat);
+    add_message_to_chat(button_send_w.chat_buffer, (gchar*) ss.str().c_str(), 'm');
+    pthread_mutex_unlock(&mutex_chat);
+    gtk_entry_set_text (GTK_ENTRY(button_send_w.text_entry), "");
+}
 
 void main_gui(int argc, char **argv)
 {
@@ -107,31 +159,32 @@ void main_gui(int argc, char **argv)
     GtkWidget *scrolledwindow_chat;
     GtkWidget *view_chat;
     GtkTextBuffer *view_chat_buffer;
-    GtkTextIter start, end;
-    GtkTextIter textiter;
 
+    /* lista utenti */
     GtkWidget *scrolledwindow;
-    GtkListStore *model;              /* oggetto model       */
-    GtkWidget *view;                  /* -\                  */ 
-    GtkCellRenderer *renderer;        /* ---> l'oggetto view */
-    GtkTreeSelection *selection;      /* -/                  */
+    GtkListStore *model;
+    GtkWidget *view;
+    GtkCellRenderer *renderer;
+    GtkTreeSelection *selection;
 
+    /* input della chat */
     GtkWidget *hbox_inputs;
     GtkWidget *vbox_inputs;
     GtkWidget *entry_command;
     GtkWidget *button_send;
 
+    /* status bar*/
     GtkWidget *status_bar;
     
     GtkWidget *dialog;
 
     GdkColor color;
     gdk_color_parse ("red", &color);
-    
-    /* inits */
-    gtk_init (&argc, &argv); 
 
-    //psc_init();
+    /* inits */
+    gtk_init (&argc, &argv);
+    pthread_mutex_init(&mutex_chat, NULL);
+    pthread_mutex_init(&mutex_user_list, NULL);
 
     /* window */
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL); 
@@ -149,10 +202,10 @@ void main_gui(int argc, char **argv)
 
     gtk_widget_show(window); 
 
-    g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(destroy), NULL); 
-    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(destroy), NULL); 
-    
-    /* vbox */
+    g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(destroy), NULL);
+    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(destroy), NULL);
+
+    /* vbox principale */
     vbox_main = gtk_vbox_new (FALSE, 1); 
     gtk_container_add(GTK_CONTAINER(window), vbox_main); 
     gtk_container_set_border_width(GTK_CONTAINER(vbox_main),0);
@@ -168,14 +221,14 @@ void main_gui(int argc, char **argv)
 
     file = gtk_menu_item_new_with_label("File");
     connect = gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW, NULL);
-    //open = gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN, NULL);
+    open = gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN, NULL);
     sep = gtk_separator_menu_item_new();
     quit = gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, accel_group);
     help = gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP, NULL);
     about = gtk_image_menu_item_new_from_stock(GTK_STOCK_ABOUT, NULL);
 
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(file), filemenu);
-    //gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), connect);
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), connect);
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep);
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), quit);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), file);
@@ -184,11 +237,10 @@ void main_gui(int argc, char **argv)
     gtk_menu_shell_append(GTK_MENU_SHELL(helpmenu), about);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), help);
 
-
     gtk_box_pack_start(GTK_BOX(vbox_main), menubar, FALSE, FALSE, 0);
 
-    g_signal_connect(G_OBJECT(quit), "activate", G_CALLBACK(gtk_main_quit), NULL); 
-    g_signal_connect(G_OBJECT(about), "activate", G_CALLBACK(show_about), NULL); 
+    g_signal_connect(G_OBJECT(quit), "activate", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(G_OBJECT(about), "activate", G_CALLBACK(show_about), NULL);
 
     /* toolbar */
     toolbar = gtk_toolbar_new();
@@ -207,7 +259,6 @@ void main_gui(int argc, char **argv)
 
     gtk_box_pack_start(GTK_BOX(vbox_main), toolbar, FALSE, FALSE, 0);
     g_signal_connect(G_OBJECT(toolbar_exit), "clicked", G_CALLBACK(gtk_main_quit), NULL);
-    
 
     /* CHAT */
     hbox_chat = gtk_hbox_new (FALSE, 0);
@@ -217,43 +268,33 @@ void main_gui(int argc, char **argv)
     gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow, TRUE, TRUE, 0);
     gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow), 2);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), 
-			      GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    gtk_widget_show (scrolledwindow);
+                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
     view_chat = gtk_text_view_new();
     gtk_text_view_set_editable(GTK_TEXT_VIEW(view_chat), false);
-
     gtk_container_add (GTK_CONTAINER (scrolledwindow), view_chat);
-    //gtk_box_pack_start(GTK_BOX(hbox_chat), view_chat, TRUE, TRUE, 0);
-
-    /*##############################################*/
     view_chat_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view_chat));
-
     gtk_text_buffer_create_tag(view_chat_buffer, "gap", "pixels_above_lines", 30, NULL);
-
     gtk_text_buffer_create_tag(view_chat_buffer, "lmarg", "left_margin", 5, NULL);
-
     gtk_text_buffer_create_tag(view_chat_buffer, "black_fg", "foreground", "black", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "green_fg", "background", "green", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "red_fg", "background", "red", NULL);
-
-    /*gtk_text_buffer_create_tag(view_chat_buffer, "green_bg", "background", "green", NULL); 
-    gtk_text_buffer_create_tag(view_chat_buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);*/
+    gtk_text_buffer_create_tag(view_chat_buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
-    gtk_text_buffer_get_iter_at_offset(view_chat_buffer, &textiter, 0);
 
-    gtk_text_buffer_insert_with_tags_by_name (view_chat_buffer, &textiter, "\"gufo\" has joined the chat\n", -1, "lmarg", "green_fg", "bold", NULL);
-    gtk_text_buffer_insert_with_tags_by_name(view_chat_buffer, &textiter, "<gufo> salve buonuomo\n", -1, "black_fg", "lmarg", NULL);
-    gtk_text_buffer_insert_with_tags_by_name (view_chat_buffer, &textiter, "<alec> ave!\n", -1, "black_fg", "lmarg",  NULL);
-    gtk_text_buffer_insert_with_tags_by_name (view_chat_buffer, &textiter, "<furla> ciao!\n", -1, "black_fg", "lmarg",  NULL);
-    gtk_text_buffer_insert_with_tags_by_name (view_chat_buffer, &textiter, "\"gufo\" has been kicked out by \"alec\"!\n", -1, "red_fg", "lmarg", "bold",  NULL);
+    /*############################################## message test */
+    add_message_to_chat(view_chat_buffer, "\"gufo\" has joined the chat\n", (gchar)'j');
+    add_message_to_chat(view_chat_buffer, "<gufo> salve buonuomo\n", (gchar)'m');
+    add_message_to_chat(view_chat_buffer, "<alec> ave!\n", (gchar)'m');
+    add_message_to_chat(view_chat_buffer, "<furla> ciao!\n", (gchar)'m');
+    add_message_to_chat(view_chat_buffer, "\"gufo\" has been kicked out by \"alec\"!\n", (gchar)'l');
     /*##############################################*/
 
     scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
     gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow, TRUE, TRUE, 0);
     gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow), 2);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), 
-			      GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     gtk_widget_show (scrolledwindow);
 
     model     = gtk_list_store_new(COLUMNS, G_TYPE_STRING, G_TYPE_INT);
@@ -274,9 +315,9 @@ void main_gui(int argc, char **argv)
 
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view), -1, 
-				          "?", renderer, 
-				          "text", COLUMN_INT, 
-				          NULL);          
+                          "?", renderer, 
+                          "text", COLUMN_INT, 
+                          NULL);          
 
     gtk_widget_show (view);
     g_object_unref(model);
@@ -285,9 +326,11 @@ void main_gui(int argc, char **argv)
     gtk_container_set_border_width (GTK_CONTAINER (view), 0);
     gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view), TRUE);
 
-    add_list(view, (gchar*) "alec", 0);
-    add_list(view, (gchar*) "furla", 1);
-    add_list(view, (gchar*) "gufo", 2);
+    /*############################################## user add test */
+    add_user_to_list(view, (gchar*) "alec", 0);
+    add_user_to_list(view, (gchar*) "furla", 1);
+    add_user_to_list(view, (gchar*) "gufo", 2);
+    /*##############################################*/
 
     /* INPUTS */
     hbox_inputs = gtk_hbox_new (FALSE, 0);
@@ -300,10 +343,14 @@ void main_gui(int argc, char **argv)
     button_send = gtk_button_new_with_label("Send");
     gtk_widget_set_size_request (GTK_WIDGET (button_send), 70, 30);
     gtk_box_pack_start(GTK_BOX (hbox_inputs), button_send, FALSE, FALSE, 0);
-    //g_signal_connect(G_OBJECT(button_add), "clicked", G_CALLBACK(add_item), &m_input);
+
+    button_send_w.text_entry = entry_command;
+    button_send_w.chat_buffer = view_chat_buffer;
+    g_signal_connect(G_OBJECT(entry_command), "activate", G_CALLBACK(button_send_click), NULL);
+    g_signal_connect(G_OBJECT(button_send), "clicked", G_CALLBACK(button_send_click), NULL);
 
     /* status_bar */
-    status_bar = gtk_statusbar_new();      
+    status_bar = gtk_statusbar_new();
     gtk_box_pack_start(GTK_BOX (vbox_main), status_bar, FALSE, FALSE, 0);
 
     g_object_set_data(G_OBJECT(status_bar), "info", (gpointer)"1");

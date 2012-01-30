@@ -1,4 +1,4 @@
-#include "config-server.h"
+#include "server-config.h"
 
 void init_config(string filename)
 {

@@ -11,7 +11,8 @@ client_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp
                  src/shared/utility/file.h src/shared/utility/file.cpp             \
                  src/shared/config.h src/shared/config.cpp                         \
                  src/shared/threading/thread.h src/shared/threading/thread.cpp     \
-                 src/client/config-client.h src/client/config-client.cpp           \
+                 src/client/client-config.h src/client/client-config.cpp           \
+                 src/client/client-core.h src/client/client-core.cpp               \
                  src/client/gui.h src/client/gui.cpp                               \
                  src/client/main.cpp
 
@@ -21,7 +22,8 @@ server_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp
                  src/shared/utility/file.h src/shared/utility/file.cpp             \
                  src/shared/config.h src/shared/config.cpp                         \
                  src/shared/threading/thread.h src/shared/threading/thread.cpp     \
-                 src/sever/config-server.h src/server/config-server.cpp            \
+                 src/server/server-config.h src/server/server-config.cpp           \
+                 src/server/server-core.h src/server/server-core.cpp               \
                  src/server/main.cpp
 
 dist_noinst_SCRIPTS = autogen.sh

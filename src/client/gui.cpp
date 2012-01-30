@@ -154,18 +154,18 @@ void main_gui(int argc, char **argv)
     GtkToolItem *toolbar_separator;
     GtkToolItem *toolbar_exit;
 
-    /* chat e userlist */
+    /* chat */
     GtkWidget *hbox_chat; 
     GtkWidget *scrolledwindow_chat;
     GtkWidget *view_chat;
     GtkTextBuffer *view_chat_buffer;
 
     /* lista utenti */
-    GtkWidget *scrolledwindow;
-    GtkListStore *model;
-    GtkWidget *view;
-    GtkCellRenderer *renderer;
-    GtkTreeSelection *selection;
+    GtkWidget *scrolledwindow_user_list;
+    GtkListStore *model_user_list;
+    GtkWidget *view_user_list;
+    GtkCellRenderer *renderer_user_list;
+    GtkTreeSelection *selection_user_list;
 
     /* input della chat */
     GtkWidget *hbox_inputs;
@@ -264,15 +264,15 @@ void main_gui(int argc, char **argv)
     hbox_chat = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox_main), hbox_chat, TRUE, TRUE, 0);
 
-    scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
-    gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow, TRUE, TRUE, 0);
-    gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow), 2);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), 
+    scrolledwindow_chat = gtk_scrolled_window_new (NULL, NULL);
+    gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow_chat, TRUE, TRUE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow_chat), 2);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow_chat),
                   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
     view_chat = gtk_text_view_new();
     gtk_text_view_set_editable(GTK_TEXT_VIEW(view_chat), false);
-    gtk_container_add (GTK_CONTAINER (scrolledwindow), view_chat);
+    gtk_container_add (GTK_CONTAINER (scrolledwindow_chat), view_chat);
     view_chat_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view_chat));
     gtk_text_buffer_create_tag(view_chat_buffer, "gap", "pixels_above_lines", 30, NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "lmarg", "left_margin", 5, NULL);
@@ -283,53 +283,52 @@ void main_gui(int argc, char **argv)
     gtk_text_buffer_create_tag(view_chat_buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 
     /*############################################## message test */
-    add_message_to_chat(view_chat_buffer, "\"gufo\" has joined the chat\n", (gchar)'j');
-    add_message_to_chat(view_chat_buffer, "<gufo> salve buonuomo\n", (gchar)'m');
-    add_message_to_chat(view_chat_buffer, "<alec> ave!\n", (gchar)'m');
-    add_message_to_chat(view_chat_buffer, "<furla> ciao!\n", (gchar)'m');
-    add_message_to_chat(view_chat_buffer, "\"gufo\" has been kicked out by \"alec\"!\n", (gchar)'l');
+    add_message_to_chat(view_chat_buffer, (gchar*) "\"gufo\" has joined the chat\n", (gchar)'j');
+    add_message_to_chat(view_chat_buffer, (gchar*) "<gufo> salve buonuomo\n", (gchar)'m');
+    add_message_to_chat(view_chat_buffer, (gchar*) "<alec> ave!\n", (gchar)'m');
+    add_message_to_chat(view_chat_buffer, (gchar*) "<furla> ciao!\n", (gchar)'m');
+    add_message_to_chat(view_chat_buffer, (gchar*) "\"gufo\" has been kicked out by \"alec\"!\n", (gchar)'l');
     /*##############################################*/
 
-    scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
-    gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow, TRUE, TRUE, 0);
-    gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow), 2);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow), 
+    scrolledwindow_user_list = gtk_scrolled_window_new (NULL, NULL);
+    gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow_user_list, TRUE, TRUE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow_user_list), 2);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow_user_list), 
                   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    gtk_widget_show (scrolledwindow);
+    gtk_widget_show (scrolledwindow_user_list);
 
-    model     = gtk_list_store_new(COLUMNS, G_TYPE_STRING, G_TYPE_INT);
-    view      = gtk_tree_view_new_with_model (GTK_TREE_MODEL(model));
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+    model_user_list     = gtk_list_store_new(COLUMNS, G_TYPE_STRING, G_TYPE_INT);
+    view_user_list      = gtk_tree_view_new_with_model (GTK_TREE_MODEL(model_user_list));
+    selection_user_list = gtk_tree_view_get_selection(GTK_TREE_VIEW(view_user_list));
 
-    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
-    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(view), TRUE);
+    gtk_tree_selection_set_mode(selection_user_list, GTK_SELECTION_SINGLE);
+    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(view_user_list), TRUE);
 
-    renderer = gtk_cell_renderer_text_new();
-    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view), /* vista */
+    renderer_user_list = gtk_cell_renderer_text_new();
+    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view_user_list), /* vista */
                        -1,                  /* posizione della colonna */
                        "Name",  /* titolo della colonna */
-                       renderer,            /* cella inserita nella colonna */
+                       renderer_user_list,            /* cella inserita nella colonna */
                        "text",              /* attributo colonna */
                        COLUMN_STRING,    /* colonna inserita  */
                        NULL);               /* fine ;-) */
 
-    renderer = gtk_cell_renderer_text_new();
-    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view), -1, 
-                          "?", renderer, 
+    renderer_user_list = gtk_cell_renderer_text_new();
+    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view_user_list), -1, 
+                          "?", renderer_user_list, 
                           "text", COLUMN_INT, 
                           NULL);          
 
-    gtk_widget_show (view);
-    g_object_unref(model);
+    gtk_widget_show (view_user_list);
+    g_object_unref(model_user_list);
 
-    gtk_container_add (GTK_CONTAINER (scrolledwindow), view);
-    gtk_container_set_border_width (GTK_CONTAINER (view), 0);
-    gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view), TRUE);
-
+    gtk_container_add (GTK_CONTAINER (scrolledwindow_user_list), view_user_list);
+    gtk_container_set_border_width (GTK_CONTAINER (view_user_list), 0);
+    gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view_user_list), TRUE);
     /*############################################## user add test */
-    add_user_to_list(view, (gchar*) "alec", 0);
-    add_user_to_list(view, (gchar*) "furla", 1);
-    add_user_to_list(view, (gchar*) "gufo", 2);
+    add_user_to_list(view_user_list, (gchar*) "alec", 0);
+    add_user_to_list(view_user_list, (gchar*) "furla", 1);
+    add_user_to_list(view_user_list, (gchar*) "gufo", 2);
     /*##############################################*/
 
     /* INPUTS */

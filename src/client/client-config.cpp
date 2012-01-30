@@ -1,4 +1,4 @@
-#include "config-client.h"
+#include "client-config.h"
 
 void init_config(string filename)
 {

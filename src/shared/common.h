@@ -19,7 +19,6 @@
 #include "typedefs.h"
 #include "utility/file.h"
 #include "utility/logger.h"
-#include "../../config.h"
 #include "config.h"
 
 #ifndef COMMON_H

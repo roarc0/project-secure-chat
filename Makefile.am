@@ -24,6 +24,8 @@ server_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp
                  src/shared/threading/thread.h src/shared/threading/thread.cpp     \
                  src/server/server-config.h src/server/server-config.cpp           \
                  src/server/server-core.h src/server/server-core.cpp               \
+                 src/server/server-core.h src/server/session/session.cpp           \
+                 src/server/server-core.h src/server/session/sessionsmanager.cpp   \
                  src/server/main.cpp
 
 dist_noinst_SCRIPTS = autogen.sh

@@ -5,7 +5,7 @@ config* config::cfg_singleton = NULL;
  
 void welcome()
 {
-    cout << "Project Secure Chat v" << "PACKAGE_VERSION" << " (waiting for a better name)" << endl;
+    cout << "Project Secure Chat v" << PACKAGE_VERSION << " (waiting for a better name)" << endl;
     cout << "Authors: Alessandro Rosetti - Daniele Lazzarini - Alessandro Furlanetto" << endl;
     cout << "Software is under license: GPLv3" << endl;
     cout << endl;

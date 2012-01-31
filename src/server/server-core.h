@@ -4,7 +4,7 @@
 #include "../shared/common.h"
 #include "../shared/networking/socket.h"
 #include "../shared/threading/thread.h"
-#include "session/sessionsmanager.h"
+#include "session/session-manager.h"
 
 struct core_thread_params
 {

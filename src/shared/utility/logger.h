@@ -103,7 +103,6 @@ class logger
     bool   log_static(string profile, string fname, const char *str);
     bool   info(string profile, const char *s_format, ...);
 
-
     inline void set_opt(uint32 msk)
     {
         mask |= msk;
@@ -123,6 +122,13 @@ class logger
     {
         pthread_mutex_unlock(&mutex_log);
     }
+
+    /*template <typename T>
+    logger& operator <<(logger& log, T const& value)
+    {
+        variabilestringstram << value;
+        return log;
+    }*/
 };
 
 #endif

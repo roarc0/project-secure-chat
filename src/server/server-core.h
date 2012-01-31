@@ -14,7 +14,7 @@ struct core_thread_params
 
 struct network_thread_params
 {
-    SessionsManager& sessions;
+    SessionManager& sessions;
 };
 
 void start_server_core();

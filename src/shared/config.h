@@ -6,7 +6,7 @@
 #include <list>
 #include <confuse.h>
 
-#define CFG              config::get_instance()
+#define CFG                  config::get_instance()
 #define CFG_GET_BOOL(_id)    config::get_instance()->get_bool(_id)
 #define CFG_GET_INT(_id)     config::get_instance()->get_int(_id)
 #define CFG_GET_STRING(_id)  config::get_instance()->get_string(_id)

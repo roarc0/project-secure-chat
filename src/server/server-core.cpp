@@ -27,7 +27,7 @@ void* network_thread(void* arg)
     if(!t_param)
         pthread_exit(NULL);
         
-    SessionsManager& s = t_param->sessions;
+    SessionManager& s = t_param->sessions;
     while (1)
      {
         s.getNextSessionToServe();

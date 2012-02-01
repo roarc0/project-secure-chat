@@ -23,8 +23,7 @@ const char *UserSessionException::what() const throw()
 UserSession::UserSession(uint32 id, TCPSocket* Socket) 
 { 
     m_id = id; 
-    m_Socket = Socket; 
-    m_deleted = false;
+    m_Socket = Socket;
     MutexInit();
 }
 
@@ -39,6 +38,20 @@ void UserSession::QueuePacketToSend(Packet* new_packet)
 {
     getlock_send();
     _sendQueue.push_back(new_packet);
+    releaselock_send();
+}
+
+int UserSession::RecvSize()
+{
+    getlock_recv();
+    int size = _recvQueue.size();
+    releaselock_recv();
+}
+
+int UserSession::SendSize()
+{
+    getlock_send();
+    int size = _sendQueue.size();
     releaselock_send();
 }
 

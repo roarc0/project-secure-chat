@@ -5,7 +5,7 @@
 #include "../../shared/networking/socket.h"
 //#include "../../shared/networking/packet/packet.h"
 
-class Packet
+class Packet // Per farlo compilare
 {
 
 };
@@ -42,8 +42,10 @@ class UserSession
         void UpdatePacket();
         
         void QueuePacketToRecv(Packet* new_packet);
+        int RecvSize();
         Packet* GetPacketFromRecv();
         void QueuePacketToSend(Packet* new_packet);
+        int SendSize();
         Packet* GetPacketFromSend();
         
         void SetSecurity(uint8 security) { m_security = security; };
@@ -57,16 +59,11 @@ class UserSession
 
         uint32 getId() const { return m_id; };
 
-        void SetDeleted(bool del) { m_deleted = del; }
-        bool GetDeleted() const { return m_deleted; }
-
     private:
         uint32 m_id;
         uint8 m_security;
         TCPSocket* m_Socket;
-        std::string m_Address;
-
-        bool m_deleted; // Schedulato per essere cancellato
+        std::string m_Address;       
 
         list<Packet*> _recvQueue;
         list<Packet*> _sendQueue;
@@ -75,15 +72,10 @@ class UserSession
         pthread_mutex_t    mutex_recv;
         pthread_mutex_t    mutex_send;
 
-        pthread_mutex_t    mutex_net;
-        pthread_mutex_t    mutex_exec;
-
         inline void MutexInit()
         {
             pthread_mutex_init(&mutex_recv, NULL);
-            pthread_mutex_init(&mutex_send, NULL);
-            pthread_mutex_init(&mutex_net, NULL);
-            pthread_mutex_init(&mutex_exec, NULL);
+            pthread_mutex_init(&mutex_send, NULL);            
         }
 
         inline void  getlock_recv() { pthread_mutex_lock(&mutex_recv); }
@@ -91,32 +83,7 @@ class UserSession
 
         inline void  getlock_send() { pthread_mutex_lock(&mutex_send); }
         inline void  releaselock_send() { pthread_mutex_unlock(&mutex_send); }  
-    
-    public: 
-           
-        // Non bloccante
-        int getlock_net()
-        {
-            if (GetDeleted())
-                return -1;
-            if (pthread_mutex_trylock (&mutex_net) != 0)
-                return  1;
-            else
-                return 0;
-        }
-        void  releaselock_net() { pthread_mutex_unlock(&mutex_net); }
 
-        // Non bloccante
-        int getlock_exec()
-        {
-            if (GetDeleted())
-                return -1;
-            if (pthread_mutex_trylock (&mutex_exec) != 0)
-                return  1;
-            else
-                return 0;
-        }
-        void  releaselock_exec() { pthread_mutex_unlock(&mutex_exec); }
 
     private:
         

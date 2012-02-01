@@ -1,7 +1,7 @@
 #ifndef _SESSION_MRG_H
 #define _SESSION_MRG_H
 
-#include "session.h"
+#include "../../shared/usersession/usersession.h"
 #include <map>
 #include <pthread.h>
 

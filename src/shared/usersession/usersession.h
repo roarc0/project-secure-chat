@@ -1,8 +1,8 @@
 #ifndef _USERSESSION_H
 #define _USERSESSION_H
 
-#include "../../shared/common.h"
-#include "../../shared/networking/socket.h"
+#include "../common.h"
+#include "../networking/socket.h"
 //#include "../../shared/networking/packet/packet.h"
 
 class Packet // Per farlo compilare

@@ -1,17 +1,18 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
-#include "common.h"
+#include "../common.h"
+#include "../networking/user-session.h"
 
 struct handler_params
 {
-    session *ss;
+    UserSession *ss;
     string  params;
 
-    command_params(session *cmd_ss, string cmd_params)
+    command_params(UserSession *u_session, string c_params)
     {
-        ss = cmd_ss;
-        params = cmd_params;
+        ss = u_session;
+        params = c_params;
     }
 };
 
@@ -38,7 +39,7 @@ class command
     command(string id, handler hnd);
     ~command();
 
-    bool execute(session *ss);
+    bool execute(UserSession*);
 
     inline string get_id() const
     {

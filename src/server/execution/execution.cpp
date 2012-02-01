@@ -1,6 +1,6 @@
 #include "execution.h"
 
-void *exec_thread(void *params)
+void *exec_thread(void *arg)
 {
     exec_thread_params* t_param = (exec_thread_params*) arg;
 
@@ -11,17 +11,17 @@ void *exec_thread(void *params)
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    command-manager  *c_manager = t_param->c_manager;
+    command_manager  *c_manager = t_param->c_manager;
     SessionManager   *s_manager = t_param->s_manager;
     UserSession      *temp_session = NULL;
     Packet           *pack;
 
     while(1)
     {
-        temp_session = s_manager->getNextSessionToExecute();
-        raw          = temp_session->GetPacketFromRecv();
-        c_manager->exec(pack->m_data);
-        sess->release_session();
+        temp_session  = s_manager->getNextSessionToExecute();
+        pack          = temp_session->GetPacketFromRecv();
+        c_manager->execute("", temp_session); //pack->m_data);
+        //s_manager->release_session();
     }
 
     if (t_param)
@@ -41,13 +41,13 @@ execution::~execution()
     //    pthread_join(tids[i], &status);
 }
 
-execution::start_threads(int n)
+void execution::start_exec_threads(command_manager *c_manager, SessionManager *s_manager, uint32 n)
 {
-    for (int i = 0 ; i<n ; i++)
-        start_thread();
+    for (uint32 i = 0 ; i<n ; i++)
+        start_exec_thread(c_manager, s_manager);
 }
 
-execution::start_thread(command-manager *c_manager, SessionManager *s_manager)
+void execution::start_exec_thread(command_manager *c_manager, SessionManager *s_manager)
 {
     pthread_t      tid;
 

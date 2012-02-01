@@ -25,14 +25,14 @@ server_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp
                  src/shared/utility/file.h src/shared/utility/file.cpp                            \
                  src/shared/config.h src/shared/config.cpp                                        \
                  src/shared/threading/thread.h src/shared/threading/thread.cpp                    \
-                 src/shared/execution/execution.h src/shared/execution/execution.cpp              \
                  src/shared/execution/command-manager.h src/shared/execution/command-manager.cpp  \
                  src/shared/execution/command.h src/shared/execution/command.cpp                  \
                  src/shared/execution/functions.h src/shared/execution/functions.cpp              \
+                 src/shared/session/user-session.h src/shared/session/user-session.cpp            \
+                 src/server/execution/execution.h src/server/execution/execution.cpp              \
                  src/server/server-config.h src/server/server-config.cpp                          \
                  src/server/server-core.h src/server/server-core.cpp                              \
-                 src/server/session.h src/server/session/session.cpp                              \
-                 src/server/session-manager.h src/server/session/session-manager.cpp              \
+                 src/server/session/session-manager.h src/server/session/session-manager.cpp      \
                  src/server/main.cpp
 
 dist_noinst_SCRIPTS = autogen.sh

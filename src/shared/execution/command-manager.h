@@ -3,31 +3,31 @@
 
 #include "command.h"
 
-class command-manager-exception : public exception
+class command_manager_exception : public exception
 {
     public:
-        command-manager-exception(const std::string &message) throw();
-        ~command-manager-exception() throw();
+        command_manager_exception(const std::string &message) throw();
+        ~command_manager_exception() throw();
 
         const char *what() const throw();
 
     private:
-        std::string user_meessage;
+        std::string user_message;
 };
 
-class command-manager
+class command_manager
 {
-    list<command>  commands;
+    list<command*>  commands;
 
-    string get_opcode(string raw)
-    string get_params(string raw)
+    string get_opcode(string raw);
+    string get_params(string raw);
 
   public:
-    command-manager(string id, handler hnd);
-    ~command-manager();
+    command_manager();
+    ~command_manager();
 
     void       add_command(string id, handler hnd);
-    bool       execute(string raw_plaintext);
+    bool       execute(string raw, UserSession *u_session);
 
 };
 #endif

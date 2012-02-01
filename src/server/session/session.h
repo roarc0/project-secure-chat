@@ -5,7 +5,13 @@
 #include "../../shared/networking/socket.h"
 //#include "../../shared/networking/packet/packet.h"
 
+class Packet
+{
+
+};
+
 #include <exception>         // For exception class
+#include <semaphore.h>       // For semaphore
 
 class UserSessionException : public exception 
 {
@@ -23,7 +29,7 @@ class UserSessionException : public exception
 class UserSession
 {
     public:
-        UserSession(uint32 id, TCPSocket* Socket) { m_id = id; m_Socket = Socket; }
+        UserSession(uint32 id, TCPSocket* Socket);
         ~UserSession()
         {
             delete m_Socket;
@@ -34,8 +40,11 @@ class UserSession
         }
 
         void UpdatePacket();
-        //void QueuePacket(Packet* new_packet);
-        //void SendPacket(Packet* packet);
+        
+        void QueuePacketToRecv(Packet* new_packet);
+        Packet* GetPacketFromRecv();
+        void QueuePacketToSend(Packet* new_packet);
+        Packet* GetPacketFromSend();
         
         void SetSecurity(uint8 security) { m_security = security; };
         uint8 GetSecurity() const { return m_security; };
@@ -53,9 +62,55 @@ class UserSession
         uint8 m_security;
         TCPSocket* m_Socket;
         std::string m_Address;
-        
-        //list<Packet*> _recvQueue;
-        //list<Packet*> _sendQueue;
+
+        list<Packet*> _recvQueue;
+        list<Packet*> _sendQueue;
+
+        // Mutex
+
+        pthread_mutex_t    mutex_recv;
+        pthread_mutex_t    mutex_send;
+
+        pthread_mutex_t    mutex_net;
+        pthread_mutex_t    mutex_exec;
+
+        inline void MutexInit()
+        {
+            pthread_mutex_init(&mutex_recv, NULL);
+            pthread_mutex_init(&mutex_send, NULL);
+            pthread_mutex_init(&mutex_net, NULL);
+            pthread_mutex_init(&mutex_exec, NULL);
+        }
+
+        inline void  getlock_recv() { pthread_mutex_lock(&mutex_recv); }
+        inline void  releaselock_recv() { pthread_mutex_unlock(&mutex_recv); }
+
+        inline void  getlock_send() { pthread_mutex_lock(&mutex_send); }
+        inline void  releaselock_send() { pthread_mutex_unlock(&mutex_send); }  
+    
+    public: 
+           
+        // Non bloccante
+        bool getlock_net()
+        {
+            if (pthread_mutex_trylock (&mutex_net) != 0)
+                return  false;
+            else
+                return true;
+        }
+        void  releaselock_net() { pthread_mutex_unlock(&mutex_net); }
+
+        // Non bloccante
+        bool getlock_exec()
+        {
+            if (pthread_mutex_trylock (&mutex_exec) != 0)
+                return  false;
+            else
+                return true;
+        }
+        void  releaselock_exec() { pthread_mutex_unlock(&mutex_exec); }
+
+    private:
         
         /// Class used for managing encryption
         //Crypt m_Crypt;

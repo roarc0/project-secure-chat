@@ -11,7 +11,7 @@ command::~command()
 
 }
 
-bool command::execute(session *ss, string params) // TODO try catch
+bool command::execute(UserSession *ss, string params)  // TODO try catch
 {
     handler_params hnd_params(ss, params);
 

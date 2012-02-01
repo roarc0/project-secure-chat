@@ -3,7 +3,7 @@
 
 #include "command.h"
 
-class command-manager-exception : public exception 
+class command-manager-exception : public exception
 {
     public:
         command-manager-exception(const std::string &message) throw();
@@ -19,12 +19,14 @@ class command-manager
 {
     list<command>  commands;
 
+    string get_opcode(string raw)
+    string get_params(string raw)
+
   public:
     command-manager(string id, handler hnd);
     ~command-manager();
 
     void       add_command(string id, handler hnd);
-    command*   get_command();
     bool       execute(string raw_plaintext);
 
 };

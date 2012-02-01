@@ -1,6 +1,23 @@
+#ifndef _USERSESSION_H
+#define _USERSESSION_H
+
 #include "../../shared/common.h"
 #include "../../shared/networking/socket.h"
 //#include "../../shared/networking/packet/packet.h"
+
+#include <exception>         // For exception class
+
+class UserSessionException : public exception 
+{
+	public:
+		UserSessionException(const std::string &message, bool inclSysMsg = false) throw();
+		~UserSessionException() throw();
+
+		const char *what() const throw();
+
+	private:
+		std::string userMessage;  // Exception message
+};
 
 // Classe di sessione dell'utente con i parametri di esso
 class UserSession
@@ -43,3 +60,5 @@ class UserSession
         /// Class used for managing encryption
         //Crypt m_Crypt;
 };
+
+#endif  /* _USERSESSION_H */

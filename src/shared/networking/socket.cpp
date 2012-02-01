@@ -37,8 +37,6 @@ static void fillAddr(const string &address, unsigned short port,
 	hostent *host;  // Resolve name
 	if ((host = gethostbyname(address.c_str())) == NULL) 
 	{
-		// strerror() will not work for gethostbyname() and hstrerror() 
-		// is supposedly obsolete
 		throw SocketException("Failed to resolve name (gethostbyname())");
 	}
 	addr.sin_addr.s_addr = *((unsigned long *) host->h_addr_list[0]);

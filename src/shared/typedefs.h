@@ -4,7 +4,7 @@
 typedef unsigned char uint8;
 typedef unsigned short int uint16;
 typedef unsigned long int uint32;
-typedef bool(*handler)(char *, void *); // esempio handler
+typedef bool(*handler)(void *);
 
 #endif
 

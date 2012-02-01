@@ -16,8 +16,8 @@
 #ifndef _SOCKET_H
 #define _SOCKET_H
 
-#include <string>            // For string
-#include <exception>         // For exception class
+#include <string>
+#include <exception>
 #include "../common.h"
 
 using namespace std;
@@ -26,89 +26,89 @@ using namespace std;
 
 class SocketException : public exception 
 {
-	public:
-		SocketException(const std::string &message, bool inclSysMsg = false) throw();
-		~SocketException() throw();
+    public:
+        SocketException(const std::string &message, bool inclSysMsg = false) throw();
+        ~SocketException() throw();
 
-		const char *what() const throw();
+        const char *what() const throw();
 
-	private:
-		std::string userMessage;  // Exception message
+    private:
+        std::string userMessage;  // Exception message
 };
 
 class Socket 
 {
-	public:
-		~Socket();
+    public:
+        ~Socket();
 
-		string getLocalAddress() throw(SocketException);
+        string getLocalAddress() throw(SocketException);
 
-		unsigned short getLocalPort() throw(SocketException);
+        unsigned short getLocalPort() throw(SocketException);
 
-		void setLocalPort(unsigned short localPort) throw(SocketException);
+        void setLocalPort(unsigned short localPort) throw(SocketException);
 
-		void setLocalAddressAndPort(const string &localAddress, 
-		unsigned short localPort = 0) throw(SocketException);
+        void setLocalAddressAndPort(const string &localAddress, 
+        unsigned short localPort = 0) throw(SocketException);
 
-		static unsigned short resolveService(const string &service,
-										   const string &protocol = "tcp");
-	private:
-		Socket(const Socket &sock);
-		void operator=(const Socket &sock);
+        static unsigned short resolveService(const string &service,
+                                           const string &protocol = "tcp");
+    private:
+        Socket(const Socket &sock);
+        void operator=(const Socket &sock);
 
-	protected:
-		int sockDesc;	// Socket descriptor
-		Socket(int type, int protocol) throw(SocketException);
-		Socket(int sockDesc);
+    protected:
+        int sockDesc;    // Socket descriptor
+        Socket(int type, int protocol) throw(SocketException);
+        Socket(int sockDesc);
 };
 
 class CommunicatingSocket : public Socket 
 {
-	public:
-		void connect(const string &foreignAddress, unsigned short foreignPort)
-		throw(SocketException);
+    public:
+        void connect(const string &foreignAddress, unsigned short foreignPort)
+        throw(SocketException);
 
-		void send(const void *buffer, int bufferLen) throw(SocketException);
+        void send(const void *buffer, int bufferLen) throw(SocketException);
 
-		int recv(void *buffer, int bufferLen) throw(SocketException);
-		
-		void setBlocking(const bool b) throw(SocketException);
+        int recv(void *buffer, int bufferLen) throw(SocketException);
+        
+        void setBlocking(const bool b) throw(SocketException);
 
-		string getForeignAddress() throw(SocketException);
+        string getForeignAddress() throw(SocketException);
 
-		unsigned short getForeignPort() throw(SocketException);
+        unsigned short getForeignPort() throw(SocketException);
 
-	protected:
-		CommunicatingSocket(int type, int protocol) throw(SocketException);
-		CommunicatingSocket(int newConnSD);
+    protected:
+        CommunicatingSocket(int type, int protocol) throw(SocketException);
+        CommunicatingSocket(int newConnSD);
 };
 
 class TCPSocket : public CommunicatingSocket 
 {
-	public:
-		TCPSocket() throw(SocketException);
+    public:
+        TCPSocket() throw(SocketException);
 
-		TCPSocket(const string &foreignAddress, unsigned short foreignPort)
-		  throw(SocketException);
+        TCPSocket(const string &foreignAddress, unsigned short foreignPort)
+          throw(SocketException);
 
-	private:
-		friend class TCPServerSocket;
-		TCPSocket(int newConnSD);
+    private:
+        friend class TCPServerSocket;
+        TCPSocket(int newConnSD);
 };
 
 class TCPServerSocket : public Socket 
 {
-	public:
-		TCPServerSocket(unsigned short localPort, int queueLen = MAX_QUEUE_CONNECTIONS) 
-		  throw(SocketException);
+    public:
+        TCPServerSocket(unsigned short localPort, int queueLen = MAX_QUEUE_CONNECTIONS) 
+          throw(SocketException);
 
-		TCPServerSocket(const string &localAddress, unsigned short localPort,
-		  int queueLen = MAX_QUEUE_CONNECTIONS) throw(SocketException);
+        TCPServerSocket(const string &localAddress, unsigned short localPort,
+          int queueLen = MAX_QUEUE_CONNECTIONS) throw(SocketException);
 
-		TCPSocket *accept() throw(SocketException);
+        TCPSocket *accept() throw(SocketException);
 
-	private:
-		void setListen(int queueLen) throw(SocketException);
+    private:
+        void setListen(int queueLen) throw(SocketException);
 };
 
 #endif  /* _SOCKET_H */

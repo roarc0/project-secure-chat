@@ -3,40 +3,47 @@
 
 #include "common.h"
 
-typedef enum cmd_type
+struct handler_params
 {
-    CMD_INFO,
-    CMD_LOGIN,
-    CMD_PING,
-    CMD_ACK,
-    CMD_ABORT,
-    CMD_SENDMSG,
-    CMD_SENDPRIVMSG
-    CMD_JOIN,
-    CMD_LEAVE,
-    CMD_USERINFO
-} cmd_type;
+    session *ss;
+    string  params;
 
-typedef bool(*handler)(char *, void *);
+    command_params(session *cmd_ss, string cmd_params)
+    {
+        ss = cmd_ss;
+        params = cmd_params;
+    }
+};
+
+class command-exception : public exception 
+{
+    public:
+        command-exception(const std::string &message) throw();
+        ~command-exception() throw();
+
+        const char *what() const throw();
+
+    private:
+        string user_message;
+};
+
 
 class command
 {
-    cmd_type    type;
-    char        *name;
-    bool        needparam;
-    handler     h;
+    string      cmd_id;
+    handler     hnd;
 
   public:
-    char *forge_packet(int, const char *);
-    inline void execution_info()
+
+    command(string id, handler hnd);
+    ~command();
+
+    bool execute(session *ss);
+
+    inline string get_id() const
     {
-           //LOG
-           cout << "* <" << name << "> executed from " << cli->host << ":" << cli->port << endl << endl;
+        return cmd_id;
     }
-
 };
-
-command *get_command_from_name(char *, command *);
-command *get_command_from_type(cmd_type, command *);
 
 #endif

@@ -1,9 +1,9 @@
-#ifndef _SESSION_MRG_H
-#define _SESSION_MRG_H
+#ifndef _SESSION_MANAGER_H
+#define _SESSION_MANAGER_H
 
-#include "../../shared/usersession/usersession.h"
 #include <map>
 #include <pthread.h>
+#include "../../shared/session/user-session.h"
 
 class Session
 {

@@ -1,4 +1,4 @@
-#include "usersession.h"
+#include "user-session.h"
 
 // SocketException Code
 UserSessionException::UserSessionException(const string &message, bool inclSysMsg)

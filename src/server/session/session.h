@@ -57,17 +57,21 @@ class UserSession
 
         uint32 getId() const { return m_id; };
 
+        void SetDeleted(bool del) { m_deleted = del; }
+        bool GetDeleted() const { return m_deleted; }
+
     private:
         uint32 m_id;
         uint8 m_security;
         TCPSocket* m_Socket;
         std::string m_Address;
 
+        bool m_deleted; // Schedulato per essere cancellato
+
         list<Packet*> _recvQueue;
         list<Packet*> _sendQueue;
 
         // Mutex
-
         pthread_mutex_t    mutex_recv;
         pthread_mutex_t    mutex_send;
 
@@ -91,22 +95,26 @@ class UserSession
     public: 
            
         // Non bloccante
-        bool getlock_net()
+        int getlock_net()
         {
+            if (GetDeleted())
+                return -1;
             if (pthread_mutex_trylock (&mutex_net) != 0)
-                return  false;
+                return  1;
             else
-                return true;
+                return 0;
         }
         void  releaselock_net() { pthread_mutex_unlock(&mutex_net); }
 
         // Non bloccante
-        bool getlock_exec()
+        int getlock_exec()
         {
+            if (GetDeleted())
+                return -1;
             if (pthread_mutex_trylock (&mutex_exec) != 0)
-                return  false;
+                return  1;
             else
-                return true;
+                return 0;
         }
         void  releaselock_exec() { pthread_mutex_unlock(&mutex_exec); }
 

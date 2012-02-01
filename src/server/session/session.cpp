@@ -24,6 +24,7 @@ UserSession::UserSession(uint32 id, TCPSocket* Socket)
 { 
     m_id = id; 
     m_Socket = Socket; 
+    m_deleted = false;
     MutexInit();
 }
 

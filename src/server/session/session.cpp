@@ -29,22 +29,41 @@ UserSession::UserSession(uint32 id, TCPSocket* Socket)
 
 void UserSession::QueuePacketToRecv(Packet* new_packet)
 {
+    getlock_recv();
     _recvQueue.push_back(new_packet);
+    releaselock_recv();
 }
 
 void UserSession::QueuePacketToSend(Packet* new_packet)
 {
+    getlock_send();
     _sendQueue.push_back(new_packet);
+    releaselock_send();
 }
 
 Packet* UserSession::GetPacketFromRecv()
 {
-    list<Packet*>::iterator itr = _recvQueue.begin();
-
+    getlock_recv();
+    Packet* pck = NULL;
+    if (!_recvQueue.empty())
+    {
+        pck = _recvQueue.front();
+        _recvQueue.pop_front();
+    }    
+    releaselock_recv();
+    return pck;
 }
 
 Packet* UserSession::GetPacketFromSend()
 {
-
+    getlock_send();
+    Packet* pck = NULL;
+    if (!_sendQueue.empty())
+    {
+        pck = _sendQueue.front();
+        _sendQueue.pop_front();
+    }    
+    releaselock_send();
+    return pck;
 }
 

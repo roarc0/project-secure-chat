@@ -2,25 +2,25 @@
 #define COMMAND_H
 
 #include "../common.h"
-#include "../networking/user-session.h"
+#include "../session/user-session.h"
 
 struct handler_params
 {
     UserSession *ss;
     string  params;
 
-    command_params(UserSession *u_session, string c_params)
+    handler_params(UserSession *u_session, string c_params)
     {
         ss = u_session;
         params = c_params;
     }
 };
 
-class command-exception : public exception 
+class command_exception : public exception
 {
     public:
-        command-exception(const std::string &message) throw();
-        ~command-exception() throw();
+        command_exception(const std::string &message) throw();
+        ~command_exception() throw();
 
         const char *what() const throw();
 
@@ -29,7 +29,7 @@ class command-exception : public exception
 };
 
 
-class command
+class command // gestire delete
 {
     string      cmd_id;
     handler     hnd;
@@ -39,7 +39,7 @@ class command
     command(string id, handler hnd);
     ~command();
 
-    bool execute(UserSession*);
+    bool execute(UserSession*, string params);
 
     inline string get_id() const
     {

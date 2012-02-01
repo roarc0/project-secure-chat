@@ -1,4 +1,4 @@
-#include "common.h"
+#include "../common.h"
 
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H

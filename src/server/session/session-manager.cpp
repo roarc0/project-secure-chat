@@ -52,13 +52,29 @@ UserSession* SessionManager::getNextSessionToServe()
 {
     UserSession* pUser = NULL;
     getlock_it_net(); // Get Mutex
-    if (it_net != sessions.end())
+    while (!pUser)
     {
         pUser = it_net->second;
+        int ret = pUser->getlock_net();
+        switch(ret)
+        {
+            case -1:
+                // provo a cansellare la session
+                pUser = NULL;
+                break;
+            case 1:
+                pUser = NULL; // session occupata
+                break;            
+            case 0:
+                // sessione libera
+                break;
+            default:
+                break;
+        }
         it_net++;
-    }
-    if (it_net == sessions.end())
-        it_net = sessions.begin();
+        if (it_net == sessions.end())
+            it_net = sessions.begin();
+    } 
     releaselock_it_net(); // End Mutex
     return pUser;         
 }
@@ -67,13 +83,29 @@ UserSession* SessionManager::getNextSessionToExecute()
 {
     UserSession* pUser = NULL;
     getlock_it_exec(); // Get Mutex
-    if (it_exec != sessions.end())
+    while (!pUser)
     {
         pUser = it_exec->second;
+        int ret = pUser->getlock_net();
+        switch(ret)
+        {
+            case -1:
+                // provo a cansellare la session
+                pUser = NULL;
+                break;
+            case 1:
+                pUser = NULL; // session occupata
+                break;            
+            case 0:
+                // sessione libera
+                break;
+            default:
+                break;
+        }
         it_exec++;
-    }
-    if (it_exec == sessions.end())
-        it_exec = sessions.begin();
+        if (it_exec == sessions.end())
+            it_exec = sessions.begin();
+    }    
     releaselock_it_exec(); // End Mutex
     return pUser; 
 }

@@ -16,8 +16,7 @@ class SessionManager
         ~SessionManager();
 
         void addSession (UserSession*);
-        void deleteSession (uint32 id);
-        
+        void deleteSession (uint32 id);        
         
         UserSession* getNextSessionToServe();
         UserSession* getNextSessionToExecute();

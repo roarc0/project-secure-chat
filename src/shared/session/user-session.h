@@ -33,10 +33,12 @@ class UserSession
         ~UserSession()
         {
             delete m_Socket;
-            //while (Packet* packet = _recvQueue.pop_front())
-            //    delete packet;
-            //while (Packet* packet = _sendQueue.pop_front())
-            //    delete packet;
+            pthread_mutex_destroy(&mutex_recv);
+            pthread_mutex_destroy(&mutex_send); 
+            while (Packet* packet = _recvQueue.pop_front())
+                delete packet;
+            while (Packet* packet = _sendQueue.pop_front())
+                delete packet;
         }
 
         void UpdatePacket();

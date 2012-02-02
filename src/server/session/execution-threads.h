@@ -1,10 +1,10 @@
-#ifndef EXECUTION_H
-#define EXECUTION_H
+#ifndef EXECUTION_THREADS_H
+#define EXECUTION_THREADS_H
 
-#include "../../shared/execution/command-manager.h"
+#include "../../shared/execution_threads/command-manager.h"
 #include "../../shared/threading/thread.h"
 #include "../../shared/common.h"
-#include "../session/session-manager.h"
+#include "session-manager.h"
 
 struct exec_thread_params
 {
@@ -14,11 +14,11 @@ struct exec_thread_params
 
 void *exec_thread(void *params);
 
-class execution
+class execution_threads
 {
   public:
-    execution();
-    ~execution();
+    execution_threads();
+    ~execution_threads();
 
     void    start_exec_threads(command_manager*, SessionManager*, uint32);
     void    start_exec_thread(command_manager*, SessionManager*);

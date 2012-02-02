@@ -35,10 +35,16 @@ class UserSession
             delete m_Socket;
             pthread_mutex_destroy(&mutex_recv);
             pthread_mutex_destroy(&mutex_send); 
-            while (Packet* packet = _recvQueue.pop_front())
-                delete packet;
-            while (Packet* packet = _sendQueue.pop_front())
-                delete packet;
+            while (!_recvQueue.empty())
+            {
+                delete _recvQueue.front();
+                _recvQueue.pop_front();
+            }
+            while (!_sendQueue.empty())
+            {
+                delete _sendQueue.front();
+                _sendQueue.pop_front();
+            }
         }
 
         void UpdatePacket();
@@ -60,7 +66,7 @@ class UserSession
         */
 
         uint32 getId() const { return m_id; };
-        void setId(unit32 id) { m_id = id; };
+        void setId(uint32 id) { m_id = id; };
 
     private:
         uint32 m_id;

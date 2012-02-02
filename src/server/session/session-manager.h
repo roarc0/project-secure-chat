@@ -17,7 +17,8 @@ class Session
             pthread_mutex_init(&mutex_net, NULL);
             pthread_mutex_init(&mutex_exec, NULL);
         }
-        ~SessionManager()
+
+        ~Session()
         {
             pthread_mutex_destroy(&mutex_session);
             pthread_mutex_destroy(&mutex_m_active);
@@ -26,7 +27,7 @@ class Session
         }
 
         // TODO Inserire tempo di creazione della session per controllo di pacchetti precedenti
-        void SetSession(UserSession* ses, uint32 id) { m_pUser = ses; m_active = 1; pUser->setId(id);}
+        void SetSession(UserSession* ses, uint32 id) { m_pUser = ses; m_active = 1; m_pUser->setId(id);}
         UserSession* GetUserSession() { return m_pUser; }
 
         bool IsActive() { return m_active == 1 ? true : false; }
@@ -79,7 +80,7 @@ class Session
                         return false;
                     }
                         
-            if (IsFree() || (IsActive() && pUser->RecvSize() == 0))     // Non e' valida se e' una sessione libera o se la coda di pacchetti 
+            if (IsFree() || (IsActive() && m_pUser->RecvSize() == 0))     // Non e' valida se e' una sessione libera o se la coda di pacchetti 
                  return  false;                                         // da servire e' vuota                
             if (pthread_mutex_trylock (&mutex_exec) != 0)               // Provo a prendere il mutex di exec
                 return  false;

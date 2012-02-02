@@ -1,4 +1,4 @@
-#include "execution_threads.h"
+#include "execution-threads.h"
 
 void *exec_thread(void *arg)
 {
@@ -11,7 +11,6 @@ void *exec_thread(void *arg)
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    command_manager  *c_manager = t_param->c_manager;
     SessionManager   *s_manager = t_param->s_manager;
     UserSession      *temp_session = NULL;
     Packet           *pack;
@@ -41,18 +40,17 @@ execution_threads::~execution_threads()
     //    pthread_join(tids[i], &status);
 }
 
-void execution_threads::start_exec_threads(command_manager *c_manager, SessionManager *s_manager, uint32 n)
+void execution_threads::start_exec_threads(SessionManager *s_manager, uint32 n)
 {
     for (uint32 i = 0 ; i<n ; i++)
-        start_exec_thread(c_manager, s_manager);
+        start_exec_thread(s_manager);
 }
 
-void execution_threads::start_exec_thread(command_manager *c_manager, SessionManager *s_manager)
+void execution_threads::start_exec_thread(SessionManager *s_manager)
 {
     pthread_t      tid;
 
     exec_thread_params* t_params = new exec_thread_params;
-    t_params->c_manager = c_manager;
     t_params->s_manager = s_manager;
 
     tid = start_thread(&exec_thread, t_params);

@@ -13,9 +13,7 @@ SessionManagerException::SessionManagerException (const string &message, bool in
 
 SessionManagerException::~SessionManagerException() throw() 
 {
-    pthread_mutex_destroy(&mutex_sessions);
-    pthread_mutex_destroy(&mutex_it_net);
-    pthread_mutex_destroy(&mutex_it_exec);
+
 }
 
 const char *SessionManagerException::what() const throw() 
@@ -35,6 +33,9 @@ SessionManager::SessionManager()
 
 SessionManager::~SessionManager()
 {
+    pthread_mutex_destroy(&mutex_sessions);
+    pthread_mutex_destroy(&mutex_it_net);
+    pthread_mutex_destroy(&mutex_it_exec);
 }
 
 void SessionManager::createSession (TCPSocket* sock) 
@@ -50,9 +51,9 @@ void SessionManager::createSession (TCPSocket* sock)
         itr->second->releaselock_session();
     }
     if (itr == sessions.end())
-    {
+    {   
+        us->setId(next_id);
         Session* ses = new Session(us);
-        ses->setId(next_id);
         sessions.insert(usersession_pair(next_id, ses));
         next_id++;
     }

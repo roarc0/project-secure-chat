@@ -1,4 +1,4 @@
-#include "execution.h"
+#include "execution_threads.h"
 
 void *exec_thread(void *arg)
 {
@@ -30,24 +30,24 @@ void *exec_thread(void *arg)
     pthread_exit(NULL);
 }
 
-execution::execution()
+execution_threads::execution_threads()
 {
 
 }
 
-execution::~execution()
+execution_threads::~execution_threads()
 {
     //for (int i = 0; i < tids.size(); i++)
     //    pthread_join(tids[i], &status);
 }
 
-void execution::start_exec_threads(command_manager *c_manager, SessionManager *s_manager, uint32 n)
+void execution_threads::start_exec_threads(command_manager *c_manager, SessionManager *s_manager, uint32 n)
 {
     for (uint32 i = 0 ; i<n ; i++)
         start_exec_thread(c_manager, s_manager);
 }
 
-void execution::start_exec_thread(command_manager *c_manager, SessionManager *s_manager)
+void execution_threads::start_exec_thread(command_manager *c_manager, SessionManager *s_manager)
 {
     pthread_t      tid;
 

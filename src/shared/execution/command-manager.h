@@ -3,6 +3,10 @@
 
 #include "command.h"
 
+#define c_manager          command_manager::get_instance()
+
+static command_manager*    cmd_singleton;
+
 class command_manager_exception : public exception
 {
     public:
@@ -17,17 +21,25 @@ class command_manager_exception : public exception
 
 class command_manager
 {
-    list<command*>  commands;
+    list<command*>             commands;
+    static command_manager*    cmd_singleton;
 
     string get_opcode(string raw);
     string get_params(string raw);
+    command_manager();
 
   public:
-    command_manager();
+
+    static command_manager* get_instance()
+    {
+        if(!cmd_singleton)
+            cmd_singleton = new config();
+        return cmd_singleton;
+    };
+
     ~command_manager();
 
-    void       add_command(string id, handler hnd);
-    bool       execute(string raw, UserSession *u_session);
-
+    void   add_command(string id, handler hnd);
+    bool   execute(string raw, UserSession *u_session);
 };
 #endif

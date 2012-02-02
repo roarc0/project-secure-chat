@@ -4,20 +4,28 @@ void* net_thread(void* arg)
 {
     net_thread_params* t_param = (net_thread_params*) arg;
 
-    //if(!t_param)
-    //    pthread_exit(NULL);
-        
-    //SessionManager* s = t_param->sessions;
+    if(!t_param)
+        pthread_exit(NULL);
+    
+    SessionManager* s = t_param->s_manager;    
+    UserSession      *session = NULL;
+    Packet           *pack;
+    
     while (1)
-     {
-        //s->getNextSessionToServe();
-        // verifica se ci sono pacchetti in arrivo
+    {     
+        session = s->getNextSessionToServe();
+        pack = session->GetPacketFromSend();
+        
+        switch (session->GetSecurity()) 
+        {     
         // decripta
+        // o effettua il login
+        }
         // mette in coda per il thread di esecuzione
     }
 
-    //if (t_param)
-    //    delete t_param;
+    if (t_param)
+        delete t_param;
 
     pthread_exit(NULL);
 }
@@ -46,7 +54,7 @@ void network_threads::start_net_thread(SessionManager *s_manager)
 
     net_thread_params* t_params = new net_thread_params;
     //t_params->c_manager = c_manager;
-    //t_params->s_manager = s_manager;
+    t_params->s_manager = s_manager;
 
     tid = start_thread(&net_thread, t_params);
 

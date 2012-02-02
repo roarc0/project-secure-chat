@@ -13,6 +13,9 @@ SessionManagerException::SessionManagerException (const string &message, bool in
 
 SessionManagerException::~SessionManagerException() throw() 
 {
+    pthread_mutex_destroy(&mutex_sessions);
+    pthread_mutex_destroy(&mutex_it_net);
+    pthread_mutex_destroy(&mutex_it_exec);
 }
 
 const char *SessionManagerException::what() const throw() 

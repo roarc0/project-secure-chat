@@ -17,22 +17,22 @@ class Session
             pthread_mutex_init(&mutex_net, NULL);
             pthread_mutex_init(&mutex_exec, NULL);
         }
+        ~SessionManager()
+        {
+            pthread_mutex_destroy(&mutex_session);
+            pthread_mutex_destroy(&mutex_m_active);
+            pthread_mutex_destroy(&mutex_net);
+            pthread_mutex_destroy(&mutex_exec);
+        }
 
         // TODO Inserire tempo di creazione della session per controllo di pacchetti precedenti
         void SetSession(UserSession* ses, uint32 id) { m_pUser = ses; m_active = 1; pUser->setId(id);}
         UserSession* GetUserSession() { return m_pUser; }
 
-        bool IsActive()
-        {
-            return m_active == 1 ? true : false;
-        }     
-
-        bool IsFree()
-        {
-            return m_active == 0 ? true : false;
-        }
-        
-        bool Free()
+        bool IsActive() { return m_active == 1 ? true : false; }
+        bool IsFree() { return m_active == 0 ? true : false; }
+        bool IsToDelete() { return m_active == -1 ? true : false; }      
+        void Free() 
         {
             delete m_pUser;
             m_pUser = NULL;        
@@ -40,12 +40,6 @@ class Session
             releaselock_exec();
             releaselock_net();
         }
-
-        bool IsToDelete()
-        {
-            return m_active == -1 ? true : false;
-        }
-
         void ToDelete()
         {
             m_active = -1;
@@ -72,22 +66,22 @@ class Session
         // Non bloccante
         bool getlock_exec()
         {
-            if (IsToDelete())
-                if (pthread_mutex_trylock (&mutex_exec) == 0)
-                    if (pthread_mutex_trylock (&mutex_net) == 0)
+            if (IsToDelete())                                           // E' da cancellare
+                if (pthread_mutex_trylock (&mutex_exec) == 0)           // Cerco di ottenere il mutex di exec
+                    if (pthread_mutex_trylock (&mutex_net) == 0)        // Cerco di ottenere il mutex di net
                     {
-                        Free();
+                        Free();                                         // Cancello
                         return false;
                     }
                     else
                     {
-                        releaselock_exec();
+                        releaselock_exec();                             // Non ho ottenuto il mutex di net, rilascio quello di exec
                         return false;
                     }
                         
-            if (IsFree() || (IsActive() && pUser->RecvSize() == 0))
-                return  false;
-            if (pthread_mutex_trylock (&mutex_exec) != 0)
+            if (IsFree() || (IsActive() && pUser->RecvSize() == 0))     // Non e' valida se e' una sessione libera o se la coda di pacchetti 
+                 return  false;                                         // da servire e' vuota                
+            if (pthread_mutex_trylock (&mutex_exec) != 0)               // Provo a prendere il mutex di exec
                 return  false;
             else
                 return true;
@@ -148,8 +142,8 @@ class SessionManager
 
         pthread_mutex_t    mutex_sessions;
 
-        pthread_mutex_t    mutex_it_net;
-        pthread_mutex_t    mutex_it_exec;        
+        pthread_mutex_t    mutex_it_net;    // Mutex su usersession_map::iterator it_net
+        pthread_mutex_t    mutex_it_exec;   // Mutex su usersession_map::iterator it_exec     
 
         inline void  MutexInit()
         {

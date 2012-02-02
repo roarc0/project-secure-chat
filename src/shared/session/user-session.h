@@ -58,6 +58,7 @@ class UserSession
         */
 
         uint32 getId() const { return m_id; };
+        void setId(unit32 id) { m_id = id; };
 
     private:
         uint32 m_id;

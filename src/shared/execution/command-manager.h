@@ -5,8 +5,6 @@
 
 #define c_manager          command_manager::get_instance()
 
-static command_manager*    cmd_singleton;
-
 class command_manager_exception : public exception
 {
     public:
@@ -26,14 +24,17 @@ class command_manager
 
     string get_opcode(string raw);
     string get_params(string raw);
-    command_manager();
+    command_manager()
+    {
+    
+    }
 
   public:
 
     static command_manager* get_instance()
     {
         if(!cmd_singleton)
-            cmd_singleton = new config();
+            cmd_singleton = new command_manager();
         return cmd_singleton;
     };
 

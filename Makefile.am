@@ -29,7 +29,8 @@ server_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp
                  src/shared/execution/command.h src/shared/execution/command.cpp                  \
                  src/shared/execution/functions.h src/shared/execution/functions.cpp              \
                  src/shared/session/user-session.h src/shared/session/user-session.cpp            \
-                 src/server/execution/execution.h src/server/execution/execution.cpp              \
+                 src/server/session/execution-threads.h src/server/session/execution-threads.cpp  \
+                 src/server/session/network-threads.h src/server/session/network-threads.cpp      \
                  src/server/server-config.h src/server/server-config.cpp                          \
                  src/server/server-core.h src/server/server-core.cpp                              \
                  src/server/session/session-manager.h src/server/session/session-manager.cpp      \

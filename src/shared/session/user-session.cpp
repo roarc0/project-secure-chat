@@ -22,7 +22,6 @@ const char *UserSessionException::what() const throw()
 
 UserSession::UserSession(TCPSocket* Socket) 
 { 
-    m_id = id; 
     m_Socket = Socket;
     MutexInit();
 }

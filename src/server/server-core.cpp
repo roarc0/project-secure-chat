@@ -14,13 +14,18 @@ void start_server_core()
 
     init_commands();
 
-    execution exec;
-    exec.start_threads(c_manager, s_manager, 4);
+    SessionManager s_manager;
+
+    network_threads net;
+    net.start_net_threads(&s_manager, 4);
+
+    execution_threads exec;
+    exec.start_exec_threads(&s_manager, 4);
 
     while(1)
     {
         temp_sock = server.accept();
-        s_manager->createSession(temp_sock);
+        s_manager.createSession(temp_sock);
         cout << "client connected!" << endl;
     }
 }

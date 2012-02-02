@@ -1,9 +1,6 @@
 #include "command-manager.h"
 
-command_manager::command_manager()
-{
-
-}
+command_manager* command_manager::cmd_singleton = NULL;
 
 command_manager::~command_manager()
 {

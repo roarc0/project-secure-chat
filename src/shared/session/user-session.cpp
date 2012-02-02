@@ -20,7 +20,7 @@ const char *UserSessionException::what() const throw()
 	return userMessage.c_str();
 }
 
-UserSession::UserSession(uint32 id, TCPSocket* Socket) 
+UserSession::UserSession(TCPSocket* Socket) 
 { 
     m_id = id; 
     m_Socket = Socket;

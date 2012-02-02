@@ -25,6 +25,8 @@ SessionManager::SessionManager()
     it_net = sessions.begin();
     it_exec = sessions.begin();
 
+    next_id = 1;
+
     MutexInit();
 }
 
@@ -32,25 +34,30 @@ SessionManager::~SessionManager()
 {
 }
 
-void SessionManager::addSession (UserSession* us) 
-{
+void SessionManager::createSession (TCPSocket* sock) 
+{    
     getlock_sessions();
+    UserSession* us = new UserSession(sock);
     usersession_map::iterator itr = sessions.begin();
     for (; itr != sessions.end(); itr++)
     {
         itr->second->getlock_session();
         if (itr->second->IsFree())
-            itr->second->SetSession(us);
+            itr->second->SetSession(us, itr->first);
         itr->second->releaselock_session();
     }
     if (itr == sessions.end())
-        sessions.insert(usersession_pair(us->getId(), new Session(us)));
+    {
+        Session* ses = new Session(us);
+        ses->setId(next_id);
+        sessions.insert(usersession_pair(next_id, ses));
+        next_id++;
+    }
     releaselock_sessions();
 }
 
 void SessionManager::deleteSession (uint32 id)
 {
-    getlock_sessions();
     usersession_map::iterator itr = sessions.find(id);
     if (itr != sessions.end())
     {        
@@ -59,7 +66,6 @@ void SessionManager::deleteSession (uint32 id)
             itr->second->ToDelete();
         itr->second->releaselock_session();
     }
-    releaselock_sessions();
 }
 
 UserSession* SessionManager::getNextSessionToServe()
@@ -71,10 +77,10 @@ UserSession* SessionManager::getNextSessionToServe()
         it_exec->second->getlock_session();
         if (it_exec->second->getlock_net())
             pUser = it_exec->second->GetUserSession();
+        it_exec->second->releaselock_session();
         it_net++;
         if (it_net == sessions.end())
             it_net = sessions.begin();
-        it_exec->second->releaselock_session();
     } 
     releaselock_it_net(); // End Mutex
     return pUser;         
@@ -89,13 +95,36 @@ UserSession* SessionManager::getNextSessionToExecute()
         it_exec->second->getlock_session();
         if (it_exec->second->getlock_exec())
             pUser = it_exec->second->GetUserSession();
+        it_exec->second->releaselock_session();
         it_exec++;
         if (it_exec == sessions.end())
             it_exec = sessions.begin();
-        it_exec->second->releaselock_session();
+        
     }    
     releaselock_it_exec(); // End Mutex
     return pUser; 
+}
+
+void SessionManager::endSessionServe(uint32 id)
+{
+    usersession_map::iterator itr = sessions.find(id);
+    if (itr != sessions.end())
+    {
+        itr->second->getlock_session();
+        itr->second->releaselock_net();
+        itr->second->releaselock_session();
+    }
+}
+
+void SessionManager::endSessionExecute(uint32 id)
+{
+    usersession_map::iterator itr = sessions.find(id);
+    if (itr != sessions.end())
+    {
+        itr->second->getlock_session();
+        itr->second->releaselock_exec();
+        itr->second->releaselock_session();
+    }
 }
 
 void SessionManager::SendPacketTo (uint32 id, Packet* new_packet) throw(SessionManagerException)

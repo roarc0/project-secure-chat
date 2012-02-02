@@ -10,6 +10,7 @@ class Session
     public:
         Session(UserSession* pUser)
         {
+            m_pUser = pUser;
             m_active = 0;
             pthread_mutex_init(&mutex_session, NULL);
             pthread_mutex_init(&mutex_m_active, NULL);
@@ -18,8 +19,8 @@ class Session
         }
 
         // TODO Inserire tempo di creazione della session per controllo di pacchetti precedenti
-        void SetSession(UserSession* ses) { pUser = ses; m_active = 1;}
-        UserSession* GetUserSession() { return pUser; }
+        void SetSession(UserSession* ses, uint32 id) { m_pUser = ses; m_active = 1; pUser->setId(id);}
+        UserSession* GetUserSession() { return m_pUser; }
 
         bool IsActive()
         {
@@ -29,6 +30,15 @@ class Session
         bool IsFree()
         {
             return m_active == 0 ? true : false;
+        }
+        
+        bool Free()
+        {
+            delete m_pUser;
+            m_pUser = NULL;        
+            m_active = 0;
+            releaselock_exec();
+            releaselock_net();
         }
 
         bool IsToDelete()
@@ -46,27 +56,43 @@ class Session
         void  getlock_active() { pthread_mutex_lock(&mutex_m_active); }
         void  releaselock_actives() { pthread_mutex_unlock(&mutex_m_active); }
 
+        void  releaselock_net() { pthread_mutex_unlock(&mutex_net); }
         // Non bloccante
         bool getlock_net()
         {
+            if (!IsActive())
+                return  false;
             if (pthread_mutex_trylock (&mutex_net) != 0)
                 return  false;
             else
                 return true;
-        }
-        void  releaselock_net() { pthread_mutex_unlock(&mutex_net); }
+        }        
 
+        void  releaselock_exec() { pthread_mutex_unlock(&mutex_exec); }
         // Non bloccante
         bool getlock_exec()
         {
-            if (IsActive() && pUser->RecvSize() == 0)
+            if (IsToDelete())
+                if (pthread_mutex_trylock (&mutex_exec) == 0)
+                    if (pthread_mutex_trylock (&mutex_net) == 0)
+                    {
+                        Free();
+                        return false;
+                    }
+                    else
+                    {
+                        releaselock_exec();
+                        return false;
+                    }
+                        
+            if (IsFree() || (IsActive() && pUser->RecvSize() == 0))
                 return  false;
             if (pthread_mutex_trylock (&mutex_exec) != 0)
                 return  false;
             else
                 return true;
         }
-        void  releaselock_exec() { pthread_mutex_unlock(&mutex_exec); }
+        
 
     private:
         pthread_mutex_t    mutex_session;
@@ -76,7 +102,7 @@ class Session
         pthread_mutex_t    mutex_exec;
 
         int m_active;
-        UserSession* pUser;     
+        UserSession* m_pUser;     
 };
 
 typedef std::map<uint32, Session*>  usersession_map;
@@ -101,16 +127,19 @@ class SessionManager
 	    SessionManager();
         ~SessionManager();
 
-        void addSession (UserSession* us);
+        void createSession (TCPSocket* sock);
         void deleteSession (uint32 id);        
         
         UserSession* getNextSessionToServe();
         UserSession* getNextSessionToExecute();
+        void endSessionServe(uint32 id);
+        void endSessionExecute(uint32 id);
 
         void SendPacketTo(uint32 id, Packet* new_packet) throw(SessionManagerException);
         
     private:
         usersession_map sessions;
+        uint32 next_id;
 
 	    usersession_map::iterator it_net;
         usersession_map::iterator it_exec;

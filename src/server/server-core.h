@@ -12,6 +12,8 @@ struct core_thread_params
     //?
 };
 
+
+
 struct network_thread_params
 {
     SessionManager& sessions;

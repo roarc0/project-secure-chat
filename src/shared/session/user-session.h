@@ -29,7 +29,7 @@ class UserSessionException : public exception
 class UserSession
 {
     public:
-        UserSession(uint32 id, TCPSocket* Socket);
+        UserSession(TCPSocket* Socket);
         ~UserSession()
         {
             delete m_Socket;

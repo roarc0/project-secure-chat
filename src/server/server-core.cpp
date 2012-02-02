@@ -43,17 +43,21 @@ void* network_thread(void* arg)
 
 void start_server_core()
 {
+
     TCPServerSocket server(CFG_GET_INT("server_port"), 128);
-    TCPSocket *temp = NULL;
+    TCPSocket *temp_sock = NULL;
+    UserSession *temp_session = NULL;
     cout << "listening on port: " << CFG_GET_INT("server_port") << endl;
 
     while(1)
     {
-        temp = server.accept();
+        temp_sock = server.accept();
+        temp_session = new UserSession(temp_sock);
         cout << "client connection!" << endl;
-
-        core_thread_params *t_params = new core_thread_params;
-        t_params->sock = temp;
-        start_thread(&core_thread, (void*)t_params);
+        //core_thread_params *t_params = new core_thread_params;
+        //t_params->sock = temp;
+        //start_thread(&core_thread, (void*)t_params);
+        s_manager->addSession(temp_session);
+        
     }
 }

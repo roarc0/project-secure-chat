@@ -3,12 +3,7 @@
 
 #include "../common.h"
 #include "../networking/socket.h"
-//#include "../../shared/networking/packet/packet.h"
-
-class Packet // Per farlo compilare
-{
-
-};
+#include "../../shared/networking/packet/packet.h"
 
 #include <exception>         // For exception class
 #include <semaphore.h>       // For semaphore
@@ -59,6 +54,14 @@ class UserSession
         void SetSecurity(uint8 security) { m_security = security; };
         uint8 GetSecurity() const { return m_security; };
 
+        void ResetTime() { gettimeofday(&m_createTime, NULL); } 
+        uint32 GetTime() // In millisecondi
+        {
+            uint32 seconds  = m_createTime.tv_sec;  // - start.tv_sec;  TODO Quando è stato avviato il programma
+            uint32 useconds = m_createTime.tv_usec; // - start.tv_usec; TODO Quando è stato avviato il programma
+            return ((seconds) * 1000 + useconds/1000.0) + 0.5;
+        }
+
         /*
 
         Funzioni elaborazione pacchetto specifiche sull'utente, tipo cambio livello moderazione ecc..
@@ -95,6 +98,7 @@ class UserSession
 
 
     private:
+        timeval m_createTime;
         
         /// Class used for managing encryption
         //Crypt m_Crypt;

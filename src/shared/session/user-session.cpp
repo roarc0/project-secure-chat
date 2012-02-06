@@ -22,8 +22,9 @@ const char *UserSessionException::what() const throw()
 
 UserSession::UserSession(TCPSocket* Socket) 
 { 
-    m_Socket = Socket;
+    m_Socket = Socket;    
     MutexInit();
+    ResetTime();
 }
 
 void UserSession::QueuePacketToRecv(Packet* new_packet)

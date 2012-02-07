@@ -14,6 +14,9 @@ void start_server_core()
 
     init_commands();
 
+    db_manager->set_dbfilename(CFG_GET_STRING("db_filename"));
+    db_manager->init_db();
+
     network_threads net;
     net.start_net_threads(4);
 

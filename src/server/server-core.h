@@ -8,6 +8,7 @@
 #include "session/execution-threads.h"
 #include "session/network-threads.h"
 #include "execution/functions-server.h"
+#include "database/database-manager.h"
 
 void  start_server_core();
 

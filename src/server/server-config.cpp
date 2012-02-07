@@ -11,6 +11,7 @@ void init_config(string filename)
     CFG->add_string("log_path", "logs");
     CFG->add_int("server_port", 7777);
     CFG->add_int("thread_slots", 4);
+    CFG->add_string("db_filename", "server.db");
     CFG->open_cfg();
     post_init_config();
 }

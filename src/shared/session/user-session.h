@@ -1,12 +1,16 @@
+#include "../../server/session/session-manager.h"
+
 #ifndef _USERSESSION_H
 #define _USERSESSION_H
 
 #include "../common.h"
 #include "../networking/socket.h"
-#include "../../shared/networking/packet/packet.h"
+#include "../networking/packet/packet.h"
 
 #include <exception>         // For exception class
 #include <semaphore.h>       // For semaphore
+
+class Session;
 
 class UserSessionException : public exception 
 {
@@ -24,7 +28,7 @@ class UserSessionException : public exception
 class UserSession
 {
     public:
-        UserSession(TCPSocket* Socket);
+        UserSession(TCPSocket* Socket, Session* pSes = NULL);
         ~UserSession()
         {
             delete m_Socket;
@@ -62,6 +66,9 @@ class UserSession
             return ((seconds) * 1000 + useconds/1000.0) + 0.5;
         }
 
+        void releaselock_net();
+        void releaselock_exec();
+
         /*
 
         Funzioni elaborazione pacchetto specifiche sull'utente, tipo cambio livello moderazione ecc..
@@ -70,12 +77,14 @@ class UserSession
 
         uint32 getId() const { return m_id; };
         void setId(uint32 id) { m_id = id; };
+        void setSession(Session* pSes) { m_pSes = pSes; };
 
     private:
         uint32 m_id;
         uint8 m_security;
         TCPSocket* m_Socket;
-        std::string m_Address;       
+        std::string m_Address;
+        Session* m_pSes;
 
         list<Packet*> _recvQueue;
         list<Packet*> _sendQueue;

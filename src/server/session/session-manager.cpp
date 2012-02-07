@@ -137,7 +137,7 @@ void SessionManager::SendPacketTo (uint32 id, Packet* new_packet) throw(SessionM
     if (itr == sessions.end())
         throw SessionManagerException("Id not found (SendPacketTo(uint32 id, Packet* new_packet))");
     itr->second->getlock_session();
-    if (itr->second->IsActive() /* && controllo temporizzazione pacchetto rispetto alla session*/)
+    if (itr->second->IsActive() && (itr->second->GetUserSession()->GetTime() > new_packet->GetTime()))
         itr->second->GetUserSession()->QueuePacketToSend(new_packet);
     else
         delete new_packet;

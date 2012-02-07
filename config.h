@@ -46,6 +46,9 @@
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #define HAVE_LIBPTHREAD 1
 
+/* Define to 1 if you have the `sqlite3' library (-lsqlite3). */
+#define HAVE_LIBSQLITE3 1
+
 /* Define to 1 if you have the <locale.h> header file. */
 #define HAVE_LOCALE_H 1
 

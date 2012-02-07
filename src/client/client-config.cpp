@@ -37,32 +37,17 @@ void init_log_profiles()
 {
     log_profile *l_profile;
 
-    if (CFG_GET_BOOL("debug"))  // deprecated
-        LOG_PTR->set_opt(L_DEBUG);
-
-    if (CFG_GET_BOOL("log")) // deprecated
-        LOG_PTR->set_opt(L_LOG);
-    else 
-        return;
-
-    //if (CFG_GET_BOOL("verbose"))
-    //{
-        l_profile = new log_profile("info", "");
-        l_profile->set_opt(L_VERBOSE | L_COLOR);
-        LOG_PTR->add_profile(l_profile);
-    //}
-
     if (CFG_GET_BOOL("debug"))
     {
         l_profile = new log_profile("debug", "");
-        l_profile->set_opt(L_VERBOSE | L_DEBUG);
+        l_profile->set_opt(LOG_NONE);
         LOG_PTR->add_profile(l_profile);
     }
     
     if (CFG_GET_BOOL("log"))
     {
         l_profile = new log_profile("log", "");
-        l_profile->set_opt(L_APPEND);
+        l_profile->set_opt(LOG_APPEND);
         LOG_PTR->add_profile(l_profile);
     }
 }

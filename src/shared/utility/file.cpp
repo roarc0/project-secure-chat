@@ -5,18 +5,18 @@ void* my_malloc(int n)
       return malloc(n);
 }
 
-int file_size(const char *filename)
+int file_size(string filename)
 {
       struct stat file_info;
-      if (!stat (filename, &file_info))
+      if (!stat (filename.c_str(), &file_info))
           return file_info.st_size;
       return -1;
 }
 
-bool file_exists (const char * filename)
+bool file_exists (string filename)
 {
     struct stat file_info;
-    if (stat (filename, &file_info ) == 0)
+    if (stat (filename.c_str(), &file_info ) == 0)
         return true;
     return false;
 }
@@ -32,23 +32,20 @@ bool dir_exists(string dirname)
     return true;
 }
 
-int is_dir(const char *path)
+int is_dir(string path)
 {
     struct stat stats;
-    return stat(path, &stats) == 0 && S_ISDIR(stats.st_mode);
+    return stat(path.c_str(), &stats) == 0 && S_ISDIR(stats.st_mode);
 }
 
-bool is_dir_empty(const char *dir)
+bool is_dir_empty(string dir)
 {
     struct dirent *pdir;
     DIR *d;
     char *path;
 
-    if (!dir)
-        return true;
-
-    path=(char *)malloc(sizeof(char)*1024);
-    d=opendir(dir);
+    path=(char *)malloc(sizeof(char)*1024); // horror
+    d=opendir(dir.c_str());
 
     while( (pdir=readdir(d)) )
     {

@@ -67,7 +67,7 @@ string logger::get_filename(string profile, string fname)
     file  = l_profile->path;
     file += "/";
     file += fname;
-    if (l_profile->get_opt(L_INCREMENTAL))
+    if (l_profile->get_opt(LOG_INCREMENTAL))
     {
         stringstream str;
         
@@ -82,25 +82,8 @@ void logger::set_count(string profile, unsigned int val)
 {
     log_profile *l_profile = get_profile(profile);
 
-    if (l_profile && l_profile->get_opt(L_INCREMENTAL))
+    if (l_profile && l_profile->get_opt(LOG_INCREMENTAL))
         l_profile->count = val;
-}
-
-bool logger::check_profile(log_profile *l_profile)
-{
-    if (!l_profile)
-        return false;
-
-    if (!get_opt(L_LOG) && l_profile->get_opt(L_LOG))
-        return false;
-
-    if (!get_opt(L_DEBUG) && l_profile->get_opt(L_DEBUG))
-        return false;
-
-    if (!get_opt(L_VERBOSE) && l_profile->get_opt(L_VERBOSE))
-        return false;
-
-    return true;
 }
 
 bool logger::log(string profile, string fname, const char *fmt, ...)
@@ -108,7 +91,7 @@ bool logger::log(string profile, string fname, const char *fmt, ...)
     static char buffer[BSIZE];
     int ret;
 
-    if(!check_profile(get_profile(profile)))
+    if(!get_profile(profile))
         return false;
 
     va_list ap;
@@ -130,13 +113,13 @@ bool logger::log_static(string profile, string fname, const char *str)
 {
     log_profile *l_profile = get_profile(profile);
 
-    if (!check_profile(l_profile))
+    if (!l_profile)
         return false;
     
     l_profile->lock();
     if (!l_profile->ff.is_open())
     {
-        if (l_profile->get_opt(L_APPEND))
+        if (l_profile->get_opt(LOG_APPEND))
             l_profile->ff.open(get_filename(profile, fname).c_str(), ios::out | ios::app);
         else
             l_profile->ff.open(get_filename(profile, fname).c_str(), ios::out);
@@ -145,7 +128,7 @@ bool logger::log_static(string profile, string fname, const char *str)
     if (l_profile->ff.is_open())
     {        
         l_profile->ff << str << endl;
-        if (l_profile->get_opt(L_CLOSE))
+        if (l_profile->get_opt(LOG_CLOSE))
             l_profile->ff.close();        
     }
     else
@@ -165,7 +148,7 @@ bool logger::info(string profile, const char *fmt, ...)
     static char buffer[BSIZE];
     int ret;
 
-    if(!check_profile(l_profile))
+    if(!l_profile)
         return false;
 
     va_list ap;

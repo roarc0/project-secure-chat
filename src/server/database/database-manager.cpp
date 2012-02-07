@@ -17,16 +17,18 @@ void database_manager::init_db()
     int ret;
     bool new_db = false;
 
-    if (!file_exists(db_filename.c_str()))
+    /*if (!file_exists(db_filename.c_str()))
     {
         new_db = true;
-        INFO("debug", "\ncreating new db ... %s\n", db_filename.c_str());
+        INFO("debug", "* creating new db ... %s\n", db_filename.c_str());
     }
-
+    else
+        INFO("debug", "* opening db ... %s\n", db_filename.c_str());
+*/
     ret = sqlite3_open(db_filename.c_str(), &db);
     if (ret)
     { 
-        INFO("debug", "Can't open database_manager: %s\n", sqlite3_errmsg(db));
+        INFO("debug", "* can't open db ... %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
         exit(1);
     }

@@ -18,15 +18,14 @@
 
 using namespace std;
 
-int  file_size(const char *);
-bool file_exists (const char *);
+int  file_size(string);
+bool file_exists (string);
 bool dir_exists(string dirname);
-int  is_dir(const char *);
-bool is_dir_empty(const char *);
+int  is_dir(string);
+bool is_dir_empty(string);
 void add_slash(string&);
 void deltree(const char *);
 char *list_files(const char *);
-
 void   info_file(const char *,int ,const char *);
 char*  read_file(const char *filename);
 

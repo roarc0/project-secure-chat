@@ -1,0 +1,24 @@
+syntax: glob
+^client/
+^server/
+^config.h/
+*.o
+*~
+*.Po
+*.dirstamp
+autom4te.cache/*
+stamp-h1
+config.status
+install-sh
+aclocal.m4
+config.log
+configure
+config.status
+config.h.in
+compile
+depcomp
+missing
+Makefile
+Makefile.in
+INSTALL
+

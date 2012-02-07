@@ -1,7 +1,7 @@
-^client$
-^server$
-^config.h$
 syntax: glob
+^client/
+^server/
+^config.h/
 *.o
 *~
 *.Po

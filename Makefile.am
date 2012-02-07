@@ -31,7 +31,7 @@ server_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp
                  src/shared/session/user-session.h src/shared/session/user-session.cpp            \
                  src/server/session/execution-threads.h src/server/session/execution-threads.cpp  \
                  src/server/session/network-threads.h src/server/session/network-threads.cpp      \
-                 src/server/channel/channel-manager.h src/server/channel-manager.cpp              \
+                 src/server/channel/channel-manager.h src/server/channel/channel-manager.cpp      \
                  src/server/database/database-manager.h src/server/database/database-manager.cpp  \
                  src/server/server-config.h src/server/server-config.cpp                          \
                  src/server/server-core.h src/server/server-core.cpp                              \

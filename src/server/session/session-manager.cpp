@@ -1,5 +1,7 @@
 #include "session-manager.h"
 
+SessionManager* SessionManager::smgr_singleton = NULL;
+
 // SocketException Code
 SessionManagerException::SessionManagerException (const string &message, bool inclSysMsg)
   throw() : userMessage(message) 

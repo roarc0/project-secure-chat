@@ -8,7 +8,7 @@
 
 struct net_thread_params
 {
-    SessionManager    *s_manager;
+    void    *dummy;
 };
 
 void* net_thread(void*);
@@ -19,8 +19,8 @@ class network_threads
     network_threads();
     ~network_threads();
 
-    void    start_net_threads(SessionManager*, uint32);
-    void    start_net_thread(SessionManager*);
+    void    start_net_threads(uint32);
+    void    start_net_thread();
 
   private:
     vector<pthread_t> tids;

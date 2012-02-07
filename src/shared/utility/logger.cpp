@@ -1,5 +1,7 @@
 #include "logger.h"
 
+logger* logger::log_singleton = NULL;
+
 logger::logger()
 {
     pthread_mutex_init(&mutex_log, NULL);

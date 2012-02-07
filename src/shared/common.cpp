@@ -1,8 +1,5 @@
 #include "common.h"
 
-logger* logger::log_singleton = NULL;
-config* config::cfg_singleton = NULL;
- 
 void welcome()
 {
     cout << "Project Secure Chat v" << PACKAGE_VERSION << " (waiting for a better name)" << endl;

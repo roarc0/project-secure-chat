@@ -1,5 +1,7 @@
 #include "config.h"
 
+config* config::cfg_singleton = NULL;
+
 config::config()
 {
     cfg = NULL;

@@ -8,7 +8,7 @@
 
 struct exec_thread_params
 {
-    SessionManager    *s_manager;
+    void    *dummy;
 };
 
 void *exec_thread(void *params);
@@ -19,8 +19,8 @@ class execution_threads
     execution_threads();
     ~execution_threads();
 
-    void    start_exec_threads(SessionManager*, uint32);
-    void    start_exec_thread(SessionManager*);
+    void    start_exec_threads(uint32);
+    void    start_exec_thread();
 
   private:
     vector<pthread_t> tids;

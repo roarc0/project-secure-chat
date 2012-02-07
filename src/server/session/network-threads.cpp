@@ -7,16 +7,15 @@ void* net_thread(void* arg)
     if(!t_param)
         pthread_exit(NULL);
     
-    SessionManager* s = t_param->s_manager;    
-    UserSession      *session = NULL;
+    UserSession      *usession = NULL;
     Packet           *pack;
     
     while (1)
     {     
-        session = s->getNextSessionToServe();
-        pack = session->GetPacketFromSend();
+        usession = s_manager->getNextSessionToServe();
+        pack = usession->GetPacketFromSend();
         
-        switch (session->GetSecurity()) 
+        switch (usession->GetSecurity()) 
         {     
         // decripta
         // o effettua il login
@@ -42,19 +41,16 @@ network_threads::~network_threads()
     //    pthread_join(tids[i], &status);
 }
 
-void network_threads::start_net_threads(SessionManager *s_manager, uint32 n)
+void network_threads::start_net_threads(uint32 n)
 {
     for (uint32 i = 0 ; i<n ; i++)
-        start_net_thread(s_manager);
+        start_net_thread();
 }
 
-void network_threads::start_net_thread(SessionManager *s_manager)
+void network_threads::start_net_thread()
 {
     pthread_t      tid;
-
     net_thread_params* t_params = new net_thread_params;
-    //t_params->c_manager = c_manager;
-    t_params->s_manager = s_manager;
 
     tid = start_thread(&net_thread, t_params);
 

@@ -11,7 +11,6 @@ void *exec_thread(void *arg)
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    SessionManager   *s_manager = t_param->s_manager;
     UserSession      *temp_session = NULL;
     Packet           *pack;
 
@@ -40,18 +39,16 @@ execution_threads::~execution_threads()
     //    pthread_join(tids[i], &status);
 }
 
-void execution_threads::start_exec_threads(SessionManager *s_manager, uint32 n)
+void execution_threads::start_exec_threads(uint32 n)
 {
     for (uint32 i = 0 ; i<n ; i++)
-        start_exec_thread(s_manager);
+        start_exec_thread();
 }
 
-void execution_threads::start_exec_thread(SessionManager *s_manager)
+void execution_threads::start_exec_thread()
 {
     pthread_t      tid;
-
     exec_thread_params* t_params = new exec_thread_params;
-    t_params->s_manager = s_manager;
 
     tid = start_thread(&exec_thread, t_params);
 

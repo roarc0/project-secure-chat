@@ -5,6 +5,8 @@
 #include <pthread.h>
 #include "../../shared/session/user-session.h"
 
+#define s_manager      SessionManager::GetInstance()
+
 class Session
 {
     public:
@@ -119,7 +121,14 @@ class SessionManagerException : public exception
 class SessionManager
 {
     public:
-	    SessionManager();
+	    
+        static SessionManager* GetInstance()
+        {
+            if (!smgr_singleton)
+                smgr_singleton = new SessionManager();
+            return smgr_singleton;
+        };
+
         ~SessionManager();
 
         void createSession (TCPSocket* sock);
@@ -141,11 +150,13 @@ class SessionManager
 
         // MUTEX
 
-        pthread_mutex_t    mutex_sessions;
+        pthread_mutex_t           mutex_sessions;
 
-        pthread_mutex_t    mutex_it_net;    // Mutex su usersession_map::iterator it_net
-        pthread_mutex_t    mutex_it_exec;   // Mutex su usersession_map::iterator it_exec     
+        pthread_mutex_t           mutex_it_net;    // Mutex su usersession_map::iterator it_net
+        pthread_mutex_t           mutex_it_exec;   // Mutex su usersession_map::iterator it_exec     
+        static SessionManager*    smgr_singleton;
 
+        SessionManager();
         inline void  MutexInit()
         {
             pthread_mutex_init(&mutex_sessions, NULL);

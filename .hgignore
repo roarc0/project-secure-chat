@@ -1,9 +1,6 @@
-syntax: regex
-
 ^client$
 ^server$
 ^config.h$
-
 syntax: glob
 *.o
 *~

@@ -1,0 +1,3 @@
+#pacchetti debian-like (comando non testato)
+
+apt-get install libsqlite3-dev libopenssl-dev libconfuse-dev libarchive-dev libgtk-2.0-dev libglib-2.0-dev build-essential

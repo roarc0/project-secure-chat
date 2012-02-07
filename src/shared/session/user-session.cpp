@@ -20,9 +20,10 @@ const char *UserSessionException::what() const throw()
 	return userMessage.c_str();
 }
 
-UserSession::UserSession(TCPSocket* Socket) 
+UserSession::UserSession(TCPSocket* Socket, Session* pSes) 
 { 
-    m_Socket = Socket;    
+    m_Socket = Socket;
+    m_pSes = pSes;   
     MutexInit();
     ResetTime();
 }
@@ -79,5 +80,25 @@ Packet* UserSession::GetPacketFromSend()
     }    
     releaselock_send();
     return pck;
+}
+
+void UserSession::releaselock_net() 
+{
+    if (m_pSes)
+    {
+        m_pSes->getlock_session();
+        m_pSes->releaselock_net();
+        m_pSes->releaselock_session();
+    }
+}
+
+void UserSession::releaselock_exec()
+{
+    if (m_pSes)
+    {
+        m_pSes->getlock_session();
+        m_pSes->releaselock_exec();
+        m_pSes->releaselock_session();
+    }
 }
 

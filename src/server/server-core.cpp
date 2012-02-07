@@ -1,6 +1,6 @@
 #include "server-core.h"
 
-void init_commands()
+void init_commands() // va in un file commands-server.cpp/h che include functions
 {
    //qui da aggiungere tutti i comandi con handler ecc
 }
@@ -10,7 +10,7 @@ void start_server_core()
     TCPServerSocket server(CFG_GET_INT("server_port"), 128);
     TCPSocket *temp_sock = NULL;
     UserSession *temp_session = NULL;
-    cout << "listening on port: " << CFG_GET_INT("server_port") << endl;
+    INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
 
     init_commands();
 
@@ -27,6 +27,6 @@ void start_server_core()
     {
         temp_sock = server.accept();
         s_manager->createSession(temp_sock);
-        cout << "client connected!" << endl;
+        INFO("debug", "* new client session created!\n");
     }
 }

@@ -21,14 +21,13 @@ using namespace std;
 
 enum logger_mask
 {
-    L_APPEND      = 0x00001,
-    L_DEBUG       = 0x00002,
-    L_VERBOSE     = 0x00004,
-    L_INCREMENTAL = 0x00008,
-    L_COLOR       = 0x00010,
-    L_TIMESTAMP   = 0x00020,
-    L_CLOSE       = 0x00040,
-    L_LOG         = 0X00080
+    LOG_NONE        = 0X00001,
+    LOG_APPEND      = 0x00002,
+    LOG_INCREMENTAL = 0x00004,
+    LOG_COLOR       = 0x00008,
+    LOG_TIMESTAMP   = 0x00010,
+    LOG_CLOSE       = 0x00020,
+
 };
 
 struct log_profile
@@ -80,7 +79,6 @@ class logger
     uint32 mask;
 
     logger();
-    bool  check_profile(log_profile *l_profile);
 
     public:
 
@@ -102,16 +100,6 @@ class logger
     bool   log(string profile, string fname, const char *s_format, ...);
     bool   log_static(string profile, string fname, const char *str);
     bool   info(string profile, const char *s_format, ...);
-
-    inline void set_opt(uint32 msk)
-    {
-        mask |= msk;
-    }
-
-    inline bool get_opt(uint32 msk)
-    {
-        return mask & msk;
-    }
 
     inline void  getlock()
     {

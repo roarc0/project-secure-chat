@@ -19,7 +19,7 @@ class Packet
         
 		// costruttore di copia
         Packet(const Packet &packet) : m_opcode(packet.m_opcode), m_createTime(packet.m_createTime), 
-                                       data(packet.data){}
+                                       m_data(packet.m_data){}
 
         uint16 GetOpcode() const { return m_opcode; }
         void SetOpcode(uint16 opcode) { m_opcode = opcode; }
@@ -31,7 +31,7 @@ class Packet
             return ((seconds) * 1000 + useconds/1000.0) + 0.5;
         }
 
-        string data;       
+        string m_data;       
 
     protected:
         uint16 m_opcode;        

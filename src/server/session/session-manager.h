@@ -13,6 +13,7 @@ class Session
         Session(UserSession* pUser)
         {
             m_pUser = pUser;
+            m_pUser->setSession(this);
             m_active = 0;
             pthread_mutex_init(&mutex_session, NULL);
             pthread_mutex_init(&mutex_m_active, NULL);
@@ -29,7 +30,7 @@ class Session
         }
 
         // TODO Inserire tempo di creazione della session per controllo di pacchetti precedenti
-        void SetSession(UserSession* ses, uint32 id) { m_pUser = ses; m_active = 1; m_pUser->setId(id);}
+        void SetSession(UserSession* pUser, uint32 id) { m_pUser = pUser; m_active = 1; m_pUser->setId(id); m_pUser->setSession(this);}
         UserSession* GetUserSession() { return m_pUser; }
 
         bool IsActive() { return m_active == 1 ? true : false; }

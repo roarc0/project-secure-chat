@@ -74,17 +74,20 @@ class UserSession
         Funzioni elaborazione pacchetto specifiche sull'utente, tipo cambio livello moderazione ecc..
 
         */
-
+        std::string GetChannel() const { return m_channel; }
+        void SetChannel(std::string channel) { channel = m_channel; }
         uint32 getId() const { return m_id; };
         void setId(uint32 id) { m_id = id; };
         void setSession(Session* pSes) { m_pSes = pSes; };
 
     private:
+        Session* m_pSes;
+
         uint32 m_id;
         uint8 m_security;
         TCPSocket* m_Socket;
-        std::string m_Address;
-        Session* m_pSes;
+        std::string m_Address;        
+        std::string m_channel;
 
         list<Packet*> _recvQueue;
         list<Packet*> _sendQueue;

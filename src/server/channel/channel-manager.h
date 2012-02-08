@@ -50,9 +50,11 @@ class Channel
     
         bool IsSecure() { return m_secure != 0; }
         uint32 GetOwner() { return m_owner; }
+        void SetOwner(uint32 owner)  { m_owner = owner; }
 
         bool Access(uint32 id, std::string password, uint8 secure) throw(ChannelException);
         bool Exit(uint32 id, uint32& new_owner);
+        bool SendPacketToAll(uint32 exclude_id = 0);
     private:
         timeval m_createTime;
         std::string m_password;
@@ -77,11 +79,11 @@ class ChannelManager
 		~ChannelManager();
 
         bool CreateChannel(uint32 id, std::string name, std::string password = "", 
-                           uint8 secure = 0, bool persistent = false) throw(ChannelException);
+                           uint8 secure = 0, bool persistent = false);
         bool AccessChannel(uint32 id, std::string name, std::string password = "", uint8 secure = 0);
         uint32 ExitChannel(uint32 id, std::string name);
 
-        bool SendPacketToChannel(std::string name, uint32 exclude_id = 0);
+        void SendPacketToChannel(std::string name, uint32 exclude_id = 0);
 
     private:
         mapChannel m_mapChannel;

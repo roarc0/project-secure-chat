@@ -145,3 +145,16 @@ void SessionManager::SendPacketTo (uint32 id, Packet* new_packet) throw(SessionM
         delete new_packet;
     itr->second->releaselock_session();
 }
+
+std::string SessionManager::GetNameFromId(uint32 id)
+{
+    usersession_map::iterator itr = sessions.find(id);
+    if (itr == sessions.end())
+        throw SessionManagerException("Id not found (GetNameFromId(uint32 id))");
+    std::string name = "";
+    itr->second->getlock_session();
+        if (itr->second->IsActive())
+            name = itr->second->GetUserSession()->GetName();
+    itr->second->releaselock_session();
+    return name;
+}

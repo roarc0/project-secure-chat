@@ -113,12 +113,12 @@ bool Channel::Exit(uint32 id, uint32& new_owner)
     return true;   
 }
 
-bool Channel::SendPacketToAll(uint32 exclude_id)
+bool Channel::SendPacketToAll(Packet* new_packet, uint32 exclude_id)
 {
     getlock_Channel();
     for (std::list<uint32>::iterator itr = user_list.begin(); itr!= user_list.end(); itr++)
         if (*itr != exclude_id)
-            // Invio pacchetto alla session manager
+            s_manager->SendPacketTo(*itr, new_packet);
 
     releaselock_Channel();
 }
@@ -165,16 +165,19 @@ bool ChannelManager::AccessChannel(uint32 id, std::string name, std::string pass
 
     try
     {
-        (*itr).second->Access(id, password, secure);
-        releaselock_mapChannel();
-        return true;        
+        try
+        {
+            (*itr).second->Access(id, password, secure);
+            releaselock_mapChannel();
+            return true;        
+        }
+        catch (ChannelException& exc)
+        {
+            releaselock_mapChannel();
+            throw exc;
+        }
     }
-    catch (ChannelException exc)
-    {
-        releaselock_mapChannel();
-        throw exc;
-    }
-    catch (ChannelManagerException exc)
+    catch (ChannelManagerException& exc)
     {
         releaselock_mapChannel();
         throw exc;
@@ -194,27 +197,30 @@ uint32 ChannelManager::ExitChannel(uint32 id, std::string name)
     uint32 new_owner = 0;
     try
     {
-        if (!(*itr).second->Exit(id, new_owner))
+        try
         {
-            delete (*itr).second;
-            m_mapChannel.erase(itr);            
+            if (!(*itr).second->Exit(id, new_owner))
+            {
+                delete (*itr).second;
+                m_mapChannel.erase(itr);            
+            }
+            releaselock_mapChannel();
+            return new_owner;        
         }
-        releaselock_mapChannel();
-        return new_owner;        
+        catch (ChannelException& exc)
+        {
+            releaselock_mapChannel();
+            throw exc;
+        }
     }
-    catch (ChannelException exc)
-    {
-        releaselock_mapChannel();
-        throw exc;
-    }
-    catch (ChannelManagerException exc)
+    catch (ChannelManagerException& exc)
     {
         releaselock_mapChannel();
         throw exc;
     }
 }
 
-void ChannelManager::SendPacketToChannel(std::string name, uint32 exclude_id)
+void ChannelManager::SendPacketToChannel(std::string name, Packet* new_packet, uint32 exclude_id)
 {
     getlock_mapChannel();
     mapChannel::iterator itr = m_mapChannel.find(name);
@@ -226,15 +232,18 @@ void ChannelManager::SendPacketToChannel(std::string name, uint32 exclude_id)
 
     try
     {
-        (*itr).second->SendPacketToAll(exclude_id);
-        releaselock_mapChannel();     
+        try
+        {
+            (*itr).second->SendPacketToAll(new_packet, exclude_id);
+            releaselock_mapChannel();     
+        }
+        catch (ChannelException& exc)
+        {
+            releaselock_mapChannel();
+            throw exc;
+        }
     }
-    catch (ChannelException exc)
-    {
-        releaselock_mapChannel();
-        throw exc;
-    }
-    catch (ChannelManagerException exc)
+    catch (ChannelManagerException& exc)
     {
         releaselock_mapChannel();
         throw exc;

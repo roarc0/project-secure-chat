@@ -2,6 +2,7 @@
 #define _CHANNEL_H
 
 #include "../../shared/common.h"
+#include "../session/session-manager.h"
 
 #include <list>
 #include <map>
@@ -54,7 +55,7 @@ class Channel
 
         bool Access(uint32 id, std::string password, uint8 secure) throw(ChannelException);
         bool Exit(uint32 id, uint32& new_owner);
-        bool SendPacketToAll(uint32 exclude_id = 0);
+        bool SendPacketToAll(Packet* new_packet, uint32 exclude_id = 0);
     private:
         timeval m_createTime;
         std::string m_password;
@@ -83,7 +84,7 @@ class ChannelManager
         bool AccessChannel(uint32 id, std::string name, std::string password = "", uint8 secure = 0);
         uint32 ExitChannel(uint32 id, std::string name);
 
-        void SendPacketToChannel(std::string name, uint32 exclude_id = 0);
+        void SendPacketToChannel(std::string name, Packet* new_packet, uint32 exclude_id = 0);
 
     private:
         mapChannel m_mapChannel;

@@ -140,6 +140,8 @@ class SessionManager
         void endSessionServe(uint32 id);
         void endSessionExecute(uint32 id);
 
+        std::string GetNameFromId(uint32 id);
+
         void SendPacketTo(uint32 id, Packet* new_packet) throw(SessionManagerException);
         
     private:

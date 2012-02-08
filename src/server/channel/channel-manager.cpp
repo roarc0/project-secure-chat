@@ -113,6 +113,16 @@ bool Channel::Exit(uint32 id, uint32& new_owner)
     return true;   
 }
 
+bool Channel::SendPacketToAll(uint32 exclude_id)
+{
+    getlock_Channel();
+    for (std::list<uint32>::iterator itr = user_list.begin(); itr!= user_list.end(); itr++)
+        if (*itr != exclude_id)
+            // Invio pacchetto alla session manager
+
+    releaselock_Channel();
+}
+
 uint32 Channel::GetTime() // In millisecondi
 {
     uint32 seconds  = m_createTime.tv_sec;  // - start.tv_sec;  TODO Quando è stato avviato il programma
@@ -130,7 +140,7 @@ ChannelManager::~ChannelManager()
     pthread_mutex_destroy(&mutex_mapChannel);
 }
 
-bool ChannelManager::CreateChannel(uint32 id, std::string name, std::string password, uint8 secure, bool persistent) throw(ChannelException)
+bool ChannelManager::CreateChannel(uint32 id, std::string name, std::string password, uint8 secure, bool persistent)
 {
     getlock_mapChannel();
     if (m_mapChannel.find(name) != m_mapChannel.end())
@@ -139,7 +149,7 @@ bool ChannelManager::CreateChannel(uint32 id, std::string name, std::string pass
         throw ChannelException("There is a Channel with some Name");
     }
 
-    m_mapChannel.insert (std::make_pair(name, new Channel(id, name, password, secure, persistent)));        
+    m_mapChannel.insert (std::make_pair(name, new Channel(id, name, password, secure, persistent)));
     releaselock_mapChannel();
 }
 
@@ -180,23 +190,53 @@ uint32 ChannelManager::ExitChannel(uint32 id, std::string name)
         releaselock_mapChannel();
         throw ChannelManagerException("Channel Name not Found");
     }
+
     uint32 new_owner = 0;
     try
     {
         if (!(*itr).second->Exit(id, new_owner))
         {
-            m_mapChannel.erase(itr);
-            releaselock_mapChannel();
+            delete (*itr).second;
+            m_mapChannel.erase(itr);            
         }
+        releaselock_mapChannel();
+        return new_owner;        
     }
     catch (ChannelException exc)
     {
         releaselock_mapChannel();
         throw exc;
     }
+    catch (ChannelManagerException exc)
+    {
+        releaselock_mapChannel();
+        throw exc;
+    }
 }
 
-bool ChannelManager::SendPacketToChannel(std::string name, uint32 exclude_id)
+void ChannelManager::SendPacketToChannel(std::string name, uint32 exclude_id)
 {
+    getlock_mapChannel();
+    mapChannel::iterator itr = m_mapChannel.find(name);
+    if (itr == m_mapChannel.end())
+    {
+        releaselock_mapChannel();
+        throw ChannelManagerException("Channel Name not Found");
+    }
 
+    try
+    {
+        (*itr).second->SendPacketToAll(exclude_id);
+        releaselock_mapChannel();     
+    }
+    catch (ChannelException exc)
+    {
+        releaselock_mapChannel();
+        throw exc;
+    }
+    catch (ChannelManagerException exc)
+    {
+        releaselock_mapChannel();
+        throw exc;
+    }
 }

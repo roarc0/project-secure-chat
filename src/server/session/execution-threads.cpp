@@ -29,6 +29,7 @@ void *exec_thread(void *arg)
             c_manager->execute("", usession); //pack->m_data);
             usession->releaselock_exec();
         }
+        usleep(5);
     }
 
     if (t_param)

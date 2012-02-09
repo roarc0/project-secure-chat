@@ -17,7 +17,8 @@ class database_manager
 
     static database_manager*    db_singleton;
     string              db_filename;
-    sqlite3*            db;
+    sqlite3*            handle;
+    sqlite3_stmt*       res;
 
   public:
 

@@ -29,10 +29,10 @@ cfg_opt_t *config::build_cfg_opt_t()
         delete[] opts;
 
     opts = new cfg_opt_t[l_cfgopt_t.size() + 1];
-    list<cfg_opt_t>::iterator itr;
+    list<cfg_opt_t>::iterator itr = l_cfgopt_t.begin();
     int i = 0;
 
-    for (itr = l_cfgopt_t.begin(); itr != l_cfgopt_t.end(); itr++)
+    for (; itr != l_cfgopt_t.end(); itr++)
     {
         opts[i] = *(itr);
         i++;

@@ -17,10 +17,12 @@ void* net_thread(void* arg)
     INFO("debug", "* net thread %d started \n", pthread_self());
 
     while (1)
-    {     
+    {
+        cout << "LOOP " << endl;
         usession = s_manager->getNextSessionToServe();        
         if (!usession)
             continue;
+        cout << "got session!" << endl;
         
         for (int i = NSEND; i--;) 
         {             
@@ -99,6 +101,7 @@ void* net_thread(void* arg)
                     buffer = NULL;
                 }
             } 
+            usession->releaselock_net();
         }
         
         //if (s_manager->MoreThreadsThanClients) // i'm useless

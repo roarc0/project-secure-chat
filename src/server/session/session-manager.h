@@ -42,7 +42,7 @@ class Session
             m_pUser = NULL;        
             m_active = 0;
             releaselock_exec();
-            releaselock_net();
+            releaselock_net();  
         }
         void ToDelete()
         {

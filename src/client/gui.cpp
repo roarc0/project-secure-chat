@@ -120,13 +120,16 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
 
 void button_send_click(gpointer data, gchar *str, gchar type)
 {
-    stringstream ss;
+    stringstream ss, ss_m;
     gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(button_send_w.text_entry));
     
     if (!strcmp(text,""))
         return;
 
     ss << "<" << CFG_GET_STRING("nickname") << "> " << text << endl;
+    ss_m << "\\send "  << CFG_GET_STRING("nickname") << " " << text << endl;
+
+    //send_message(ss_m.str());
 
     pthread_mutex_lock(&mutex_chat);
     add_message_to_chat(button_send_w.chat_buffer, (gchar*) ss.str().c_str(), 'm');

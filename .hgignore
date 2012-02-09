@@ -1,7 +1,4 @@
 syntax: glob
-^client/
-^server/
-^config.h/
 *.o
 *~
 *.Po
@@ -11,7 +8,6 @@ stamp-h1
 config.status
 install-sh
 aclocal.m4
-config.log
 configure
 config.status
 config.h.in
@@ -21,4 +17,4 @@ missing
 Makefile
 Makefile.in
 INSTALL
-
+*.log

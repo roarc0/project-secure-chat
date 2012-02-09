@@ -84,10 +84,10 @@ UserSession* SessionManager::getNextSessionToServe()
             it_net = sessions.begin();  
         while (!pUser)
         {            
-            it_exec->second->getlock_session();
-            if (it_exec->second->getlock_net())
-                pUser = it_exec->second->GetUserSession();
-            it_exec->second->releaselock_session();
+            it_net->second->getlock_session();
+            if (it_net->second->getlock_net())
+                pUser = it_net->second->GetUserSession();
+            it_net->second->releaselock_session();
             it_net++;
             if (it_net == sessions.end())
                 it_net = sessions.begin();        

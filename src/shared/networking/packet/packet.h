@@ -7,6 +7,12 @@
 #include "../../common.h"
 using namespace std;
 
+enum eOpcode
+{
+    OP_NULL = 0,
+    OP_LOGIN = 1,
+    MAX_OPCODE = 2
+};
 
 class Packet
 {
@@ -16,11 +22,17 @@ class Packet
         {
             gettimeofday(&m_createTime, NULL);
         }
+
+        Packet() : m_opcode(OP_NULL) 
+        {
+            gettimeofday(&m_createTime, NULL);
+        }
         
 		// costruttore di copia
         Packet(const Packet &packet) : m_opcode(packet.m_opcode), m_createTime(packet.m_createTime), 
                                        m_data(packet.m_data){}
 
+        uint16* GetOpcodePointer() { return &m_opcode; }
         uint16 GetOpcode() const { return m_opcode; }
         void SetOpcode(uint16 opcode) { m_opcode = opcode; }
         void ResetTime() { gettimeofday(&m_createTime, NULL); }        

@@ -53,21 +53,36 @@ void* net_thread(void* arg)
         } 
         
         for (int i = NRECV; i--;) 
-        { 
-            pack = new Packet;
+        {
             char* buffer = NULL;  
             try 
             {
-                usession->GetSocket()->recv(pack->GetOpcodePointer(),2);
+                pack = new Packet;
+                if (usession->GetSocket()->recv(pack->GetOpcodePointer(),2) == -1)
+                {
+                    delete pack;
+                    break; // Niente da leggere nel socket
+                }
                 int len;
-                usession->GetSocket()->recv(&len,4);            
+                if (usession->GetSocket()->recv(&len,4) == -1)
+                {
+                    delete pack;
+                    break; // Errore inatteso
+                }    
                 buffer = new char[len+1];
-                usession->GetSocket()->recv(buffer,len);
+                if (usession->GetSocket()->recv(buffer,len) == -1)
+                {
+                    delete pack;
+                    delete buffer;
+                    buffer = NULL;
+                    break; // Errore inatteso
+                }
                 
                 //if (usession->GetSecurity())
                     // decripta (buffer,len)                
                     
                 buffer[len] = '\0';
+
                 pack->m_data = buffer;
                 delete buffer;
                 buffer = NULL;

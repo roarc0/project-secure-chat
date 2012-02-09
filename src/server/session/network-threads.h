@@ -3,7 +3,6 @@
 
 #include "../../shared/execution/command-manager.h"
 #include "../../shared/threading/thread.h"
-#include "../../shared/common.h"
 #include "session-manager.h"
 
 struct net_thread_params

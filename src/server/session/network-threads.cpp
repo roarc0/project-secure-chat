@@ -1,4 +1,7 @@
 #include "network-threads.h"
+#define NSEND 2
+#define NRECV 1
+
 
 void* net_thread(void* arg)
 {
@@ -13,14 +16,46 @@ void* net_thread(void* arg)
     while (1)
     {     
         usession = s_manager->getNextSessionToServe();
-        pack = usession->GetPacketFromSend();
+        for (int i = NSEND; i--;) 
+        {             
+            int len;
+            char* buffer;
+            pack = usession->GetPacketFromSend();
+            
+            //if (usession->GetSecurity())
+                // buffer = cripta (buffer + 6,len)
+            //else 
+            { 
+                len = 6 + pack->m_data.size() +1;
+                buffer = new char[len];
+                memcpy(buffer, pack->GetOpcodePointer(), 2);
+                memcpy(buffer, &len, 4);
+                strcpy(buffer + 6, pack->m_data.c_str());
+            }            
+            
+            usession->GetSocket()->send(buffer,len);
+        } 
         
-        switch (usession->GetSecurity()) 
-        {     
-        // decripta
-        // o effettua il login
+        for (int i = NRECV; i--;) 
+        { 
+            pack = new Packet;
+            usession->GetSocket()->recv(pack->GetOpcodePointer(),2);
+            int len;
+            usession->GetSocket()->recv(&len,4);            
+            char* buffer = new char[len+1];
+            usession->GetSocket()->recv(buffer,len);
+            
+            //if (usession->GetSecurity())
+                // decripta (buffer,len)                
+                
+            buffer[len] = '\0';
+            pack->m_data = buffer;
+            
+            usession->QueuePacketToRecv(pack);
         }
-        // mette in coda per il thread di esecuzione
+        
+        //if (s_manager->MoreThreadsThanClients) // i'm useless
+        //    break; //harakiri
     }
 
     if (t_param)

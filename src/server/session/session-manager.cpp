@@ -77,9 +77,11 @@ void SessionManager::deleteSession (uint32 id)
 UserSession* SessionManager::getNextSessionToServe()
 {
     UserSession* pUser = NULL;
-    getlock_it_net(); // Get Mutex
+    getlock_it_net(); // Get Mutex    
     if (!sessions.empty())
-    { 
+    {
+        if (it_net == sessions.end())
+            it_net = sessions.begin();  
         while (!pUser)
         {            
             it_exec->second->getlock_session();
@@ -101,6 +103,8 @@ UserSession* SessionManager::getNextSessionToExecute()
     getlock_it_exec(); // Get Mutex
     if (!sessions.empty())
     {
+        if (it_exec == sessions.end())
+            it_exec = sessions.begin();
         while (!pUser)
         {            
             it_exec->second->getlock_session();

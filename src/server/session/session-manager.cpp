@@ -54,7 +54,7 @@ void SessionManager::createSession (TCPSocket* sock)
     }
     if (itr == sessions.end())
     {   
-        us->setId(next_id);
+        us->SetId(next_id);
         Session* ses = new Session(us);
         sessions.insert(usersession_pair(next_id, ses));
         next_id++;

@@ -55,8 +55,8 @@ class UserSession
         int SendSize();
         Packet* GetPacketFromSend();
         
-        void SetSecurity(uint8 security) { m_security = security; };
-        uint8 GetSecurity() const { return m_security; };
+        void SetSecurity(uint8 security) { m_security = security; }
+        uint8 GetSecurity() const { return m_security; }
 
         void ResetTime() { gettimeofday(&m_createTime, NULL); } 
         uint32 GetTime() // In millisecondi
@@ -80,9 +80,12 @@ class UserSession
         std::string GetChannel() const { return m_Channel; }
         void SetChannel(std::string channel) { channel = m_Channel; }
 
-        uint32 getId() const { return m_id; };
-        void setId(uint32 id) { m_id = id; };
-        void setSession(Session* pSes) { m_pSes = pSes; };
+        uint32 GetId() const { return m_id; }
+        void SetId(uint32 id) { m_id = id; }
+
+        void SetSession(Session* pSes) { m_pSes = pSes; }
+
+        TCPSocket* GetSocket() { return m_Socket; }
 
     private:
         Session* m_pSes;

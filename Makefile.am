@@ -14,14 +14,12 @@ client_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp
                  src/shared/execution/command-manager.h src/shared/execution/command-manager.cpp  \
                  src/shared/execution/command.h src/shared/execution/command.cpp                  \
                  src/shared/execution/functions.h src/shared/execution/functions.cpp              \
-                 src/shared/cryptography/crypto.h src/shared/cryptography/crypto.cpp              \
                  src/client/client-config.h src/client/client-config.cpp                          \
                  src/client/client-core.h src/client/client-core.cpp                              \
                  src/client/gui.h src/client/gui.cpp                                              \
                  src/client/main.cpp
 
 server_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp                  \
-                 src/shared/cryptography/crypto.h src/shared/cryptography/crypto.cpp              \
                  src/shared/utility/logger.h src/shared/utility/logger.cpp                        \
                  src/shared/common.h src/shared/common.cpp                                        \
                  src/shared/utility/file.h src/shared/utility/file.cpp                            \

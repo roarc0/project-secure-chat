@@ -127,9 +127,9 @@ void button_send_click(gpointer data, gchar *str, gchar type)
         return;
 
     ss << "<" << CFG_GET_STRING("nickname") << "> " << text << endl;
-    ss_m << "\\send "  << CFG_GET_STRING("nickname") << " " << text << endl;
+    ss_m << "\\send "  << CFG_GET_STRING("nickname") << " " << text;
 
-    //send_message(ss_m.str());
+    send_message((char*)ss_m.str().c_str());
 
     pthread_mutex_lock(&mutex_chat);
     add_message_to_chat(button_send_w.chat_buffer, (gchar*) ss.str().c_str(), 'm');

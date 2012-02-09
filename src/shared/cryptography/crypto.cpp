@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "crypt.h"
+#include <cstring>
+#include "crypto.h"
 #include <openssl/evp.h>
 
 void printbyte(char b)
@@ -18,7 +19,7 @@ void printbyte(char b)
 void select_random_key(char *k, int b)
 {
     int i;
-    //RAND_bytes(k, b);
+    //RAND_bytes(k, b); // qualcuno richiami il mersenne twister!
     for (i = 0; i < b - 1; i++)
         printbyte(k[i]);
     printbyte(k[b-1]);
@@ -106,7 +107,7 @@ unsigned char *decrypt(const unsigned char *ciphertext, int ct_len,
     EVP_CIPHER_CTX *ctx = init_ctx(key);
 
     plaintext = (unsigned char *)malloc(ct_len);
-    //bzero(plaintext, ct_len); // undeclared
+     memset (plaintext, 0, ct_len); // undeclared
 
     EVP_CIPHER_CTX_init(ctx);
     EVP_DecryptInit(ctx, EVP_des_ecb(), key, NULL);

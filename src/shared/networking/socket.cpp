@@ -93,17 +93,11 @@ unsigned short Socket::getLocalPort() throw(SocketException)
 void Socket::setLocalPort(unsigned short localPort) throw(SocketException) 
 {
 	// Bind the socket to its port
-    int val = 1;
 	sockaddr_in localAddr;
 	memset(&localAddr, 0, sizeof(localAddr));
 	localAddr.sin_family = AF_INET;
 	localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	localAddr.sin_port = htons(localPort);
-
-	if (setsockopt(sockDesc, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val)) < 0)
-    {
-		throw SocketException("Setting socket options (setsockopt())", true);
-	}
 
 	if (bind(sockDesc, (sockaddr *) &localAddr, sizeof(sockaddr_in)) < 0) 
 	{
@@ -173,8 +167,13 @@ int CommunicatingSocket::recv(void *buffer, int bufferLen)
 {
 	int rtn;
 	if ((rtn = ::recv(sockDesc, (raw_type *) buffer, bufferLen, 0)) < 0) 
-	{
-		throw SocketException("Received failed (recv())", true);
+	{        
+        if ((rtn == -1) && (errno == EAGAIN))
+        {
+            return rtn;
+        }
+        else
+		    throw SocketException("Received failed (recv())", true);
 	}
 
 	return rtn;

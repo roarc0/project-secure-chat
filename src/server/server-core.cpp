@@ -30,9 +30,12 @@ void start_server_core()
             try
             {
                 temp_sock = server.accept();
+                temp_sock->setBlocking(false);
                 s_manager->createSession(temp_sock);
+
                 net.start_net_thread();
                 exec.start_exec_thread();
+
                 INFO("debug", "* new client session created!\n");
             }
             catch(SocketException &e)

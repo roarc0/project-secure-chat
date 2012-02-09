@@ -11,15 +11,24 @@ void *exec_thread(void *arg)
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    UserSession      *temp_session = NULL;
+    UserSession      *usession = NULL;
     Packet           *pack;
+
+    INFO("debug", "* exec thread %d started \n", pthread_self());
 
     while(1)
     {
-        temp_session  = s_manager->getNextSessionToExecute();
-        pack          = temp_session->GetPacketFromRecv();
-        c_manager->execute("", temp_session); //pack->m_data);
-        //s_manager->release_session();
+        usession = s_manager->getNextSessionToExecute();
+        if (usession)
+        {
+            pack     = usession->GetPacketFromRecv();
+            if (pack)
+                cout << "INCOMING MESSAGE: " << pack->m_data << endl;
+            //else
+            //    cout << "NULL MESSAGE" << endl;
+            c_manager->execute("", usession); //pack->m_data);
+            usession->releaselock_exec();
+        }
     }
 
     if (t_param)
@@ -51,7 +60,5 @@ void execution_threads::start_exec_thread()
     exec_thread_params* t_params = new exec_thread_params;
 
     tid = start_thread(&exec_thread, t_params);
-
     tids.push_back(tid);
-    INFO("verbose", "* exec thread %d started \n", tid);
 }

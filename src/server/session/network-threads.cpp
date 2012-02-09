@@ -14,6 +14,8 @@ void* net_thread(void* arg)
     UserSession      *usession = NULL;
     Packet           *pack;
     
+    INFO("debug", "* net thread %d started \n", pthread_self());
+
     while (1)
     {     
         usession = s_manager->getNextSessionToServe();        
@@ -120,5 +122,4 @@ void network_threads::start_net_thread()
     tid = start_thread(&net_thread, t_params);
 
     tids.push_back(tid);
-    INFO("verbose", "* net thread %d started \n", tid);
 }

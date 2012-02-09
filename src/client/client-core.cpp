@@ -1,5 +1,13 @@
 #include "client-core.h"
 
+TCPSocket *temp = NULL; // horror^n!
+
+void send_message(char* msg) // horror^n
+{
+    if(temp)
+        temp->send(msg, strlen(msg));
+}
+
 struct core_thread_params
 {
     int foo;
@@ -18,6 +26,8 @@ void* core_thread(void* arg)
     try
     {
         TCPSocket client(CFG_GET_STRING("server_host"), CFG_GET_INT("server_port"));
+        temp=&client;
+        while(1); // gestore comunicazione
     }
     catch(...)
     {
@@ -25,7 +35,7 @@ void* core_thread(void* arg)
     }
 
     //cout << "connected " << CFG_GET_STRING("server_host") << ":" << CFG_GET_INT("server_port") << endl;
-    while(1); // gestore comunicazione
+    
 
     //if (arg)
     //    delete arg;

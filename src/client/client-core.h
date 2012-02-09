@@ -5,6 +5,7 @@
 #include "../shared/networking/socket.h"
 #include "../shared/threading/thread.h"
 
+void  send_message(char*);
 void* core_thread(void*);
 
 #endif

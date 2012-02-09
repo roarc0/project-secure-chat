@@ -1,4 +1,5 @@
 #include "network-threads.h"
+#include "../../shared/cryptography/crypto.h"
 #define NSEND 2
 #define NRECV 1
 
@@ -15,12 +16,17 @@ void* net_thread(void* arg)
     
     while (1)
     {     
-        usession = s_manager->getNextSessionToServe();
+        usession = s_manager->getNextSessionToServe();        
+        if (!usession)
+            continue;
+        
         for (int i = NSEND; i--;) 
         {             
             int len;
             char* buffer;
             pack = usession->GetPacketFromSend();
+            if (!pack)
+                continue;
             
             //if (usession->GetSecurity())
                 // buffer = cripta (buffer + 6,len)
@@ -31,27 +37,51 @@ void* net_thread(void* arg)
                 memcpy(buffer, pack->GetOpcodePointer(), 2);
                 memcpy(buffer, &len, 4);
                 strcpy(buffer + 6, pack->m_data.c_str());
-            }            
-            
-            usession->GetSocket()->send(buffer,len);
+            }   
+                     
+            try 
+            {
+                usession->GetSocket()->send(buffer,len);
+            } 
+            catch (SocketException e)
+            {
+                cout<<e.what();
+            } 
+            delete buffer;
         } 
         
         for (int i = NRECV; i--;) 
         { 
             pack = new Packet;
-            usession->GetSocket()->recv(pack->GetOpcodePointer(),2);
-            int len;
-            usession->GetSocket()->recv(&len,4);            
-            char* buffer = new char[len+1];
-            usession->GetSocket()->recv(buffer,len);
-            
-            //if (usession->GetSecurity())
-                // decripta (buffer,len)                
+            char* buffer = NULL;  
+            try 
+            {
+                usession->GetSocket()->recv(pack->GetOpcodePointer(),2);
+                int len;
+                usession->GetSocket()->recv(&len,4);            
+                buffer = new char[len+1];
+                usession->GetSocket()->recv(buffer,len);
                 
-            buffer[len] = '\0';
-            pack->m_data = buffer;
-            
-            usession->QueuePacketToRecv(pack);
+                //if (usession->GetSecurity())
+                    // decripta (buffer,len)                
+                    
+                buffer[len] = '\0';
+                pack->m_data = buffer;
+                delete buffer;
+                buffer = NULL;
+                
+                usession->QueuePacketToRecv(pack);            
+            } 
+            catch (SocketException e)
+            {
+                cout<<e.what();
+                delete pack;
+                if (buffer)
+                {
+                    delete buffer;
+                    buffer = NULL;
+                }
+            } 
         }
         
         //if (s_manager->MoreThreadsThanClients) // i'm useless

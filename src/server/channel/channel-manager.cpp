@@ -48,7 +48,8 @@ Channel::Channel(uint32 owner, std::string name, std::string password, uint8 sec
     m_secure = secure;
     m_persistent = persistent;
 
-    user_list.push_back(owner);
+    if (owner)
+        user_list.push_back(owner);
 
     gettimeofday(&m_createTime, NULL);
     pthread_mutex_init(&mutex_Channel, NULL);
@@ -101,7 +102,7 @@ bool Channel::Exit(uint32 id, uint32& new_owner)
     if (user_list.empty() && !m_persistent)
     {
         releaselock_Channel();
-        return false;
+        return false;  // delete channel
     }
 
     if (m_owner == id && !user_list.empty())
@@ -131,8 +132,10 @@ uint32 Channel::GetTime() // In millisecondi
 }
 
 ChannelManager::ChannelManager()
-{
+{    
     pthread_mutex_init(&mutex_mapChannel, NULL);
+
+    m_mapChannel.insert (std::make_pair("default", new Channel(0, "default", "", 0, true)));
 }
 
 ChannelManager::~ChannelManager()
@@ -162,31 +165,23 @@ bool ChannelManager::AccessChannel(uint32 id, std::string name, std::string pass
         releaselock_mapChannel();
         throw ChannelException("Channel Name not Found");
     }
-
     try
     {
-        try
-        {
-            (*itr).second->Access(id, password, secure);
-            releaselock_mapChannel();
-            return true;        
-        }
-        catch (ChannelException& exc)
-        {
-            releaselock_mapChannel();
-            throw exc;
-        }
+        (*itr).second->Access(id, password, secure);
+        releaselock_mapChannel();
+        return true;        
     }
-    catch (ChannelManagerException& exc)
+    catch (...)
     {
         releaselock_mapChannel();
-        throw exc;
+            throw;
     }
     return false;
 }
 
 uint32 ChannelManager::ExitChannel(uint32 id, std::string name)
 {
+    getlock_mapChannel();
     mapChannel::iterator itr = m_mapChannel.find(name);
     if (itr == m_mapChannel.end())
     {
@@ -197,26 +192,18 @@ uint32 ChannelManager::ExitChannel(uint32 id, std::string name)
     uint32 new_owner = 0;
     try
     {
-        try
+        if (!(*itr).second->Exit(id, new_owner))
         {
-            if (!(*itr).second->Exit(id, new_owner))
-            {
-                delete (*itr).second;
-                m_mapChannel.erase(itr);            
-            }
-            releaselock_mapChannel();
-            return new_owner;        
+            delete (*itr).second;
+            m_mapChannel.erase(itr);            
         }
-        catch (ChannelException& exc)
-        {
-            releaselock_mapChannel();
-            throw exc;
-        }
-    }
-    catch (ChannelManagerException& exc)
-    {
         releaselock_mapChannel();
-        throw exc;
+        return new_owner;        
+    }
+    catch (...)
+    {
+      releaselock_mapChannel();
+      throw;
     }
 }
 
@@ -230,22 +217,23 @@ void ChannelManager::SendPacketToChannel(std::string name, Packet* new_packet, u
         throw ChannelManagerException("Channel Name not Found");
     }
 
+    
     try
     {
-        try
-        {
-            (*itr).second->SendPacketToAll(new_packet, exclude_id);
-            releaselock_mapChannel();     
-        }
-        catch (ChannelException& exc)
-        {
-            releaselock_mapChannel();
-            throw exc;
-        }
+        (*itr).second->SendPacketToAll(new_packet, exclude_id);
+        releaselock_mapChannel();     
     }
-    catch (ChannelManagerException& exc)
+    catch (...)
     {
-        releaselock_mapChannel();
-        throw exc;
+      releaselock_mapChannel();
+      throw;
     }
+}
+
+void ChannelManager::ChannelList(std::vector<std::string>& v_name)
+{
+    getlock_mapChannel();
+    for (mapChannel::iterator itr = m_mapChannel.begin(); itr != m_mapChannel.end(); itr++)        
+        v_name.push_back((*itr).first);
+    releaselock_mapChannel();
 }

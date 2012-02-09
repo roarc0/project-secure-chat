@@ -83,6 +83,7 @@ class ChannelManager
                            uint8 secure = 0, bool persistent = false);
         bool AccessChannel(uint32 id, std::string name, std::string password = "", uint8 secure = 0);
         uint32 ExitChannel(uint32 id, std::string name);
+        void ChannelList(std::vector<std::string>& v_name);
 
         void SendPacketToChannel(std::string name, Packet* new_packet, uint32 exclude_id = 0);
 

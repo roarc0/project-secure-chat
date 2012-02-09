@@ -77,16 +77,19 @@ void SessionManager::deleteSession (uint32 id)
 UserSession* SessionManager::getNextSessionToServe()
 {
     UserSession* pUser = NULL;
-    getlock_it_net(); // Get Mutex
+    getlock_it_net(); // Get Mutex    
     while (!pUser)
     {
-        it_exec->second->getlock_session();
-        if (it_exec->second->getlock_net())
-            pUser = it_exec->second->GetUserSession();
-        it_exec->second->releaselock_session();
-        it_net++;
-        if (it_net == sessions.end())
-            it_net = sessions.begin();
+        if (!sessions.empty())
+        {
+            it_exec->second->getlock_session();
+            if (it_exec->second->getlock_net())
+                pUser = it_exec->second->GetUserSession();
+            it_exec->second->releaselock_session();
+            it_net++;
+            if (it_net == sessions.end())
+                it_net = sessions.begin();
+        }
     } 
     releaselock_it_net(); // End Mutex
     return pUser;         
@@ -98,14 +101,16 @@ UserSession* SessionManager::getNextSessionToExecute()
     getlock_it_exec(); // Get Mutex
     while (!pUser)
     {
-        it_exec->second->getlock_session();
-        if (it_exec->second->getlock_exec())
-            pUser = it_exec->second->GetUserSession();
-        it_exec->second->releaselock_session();
-        it_exec++;
-        if (it_exec == sessions.end())
-            it_exec = sessions.begin();
-        
+        if (!sessions.empty())
+        {
+            it_exec->second->getlock_session();
+            if (it_exec->second->getlock_exec())
+                pUser = it_exec->second->GetUserSession();
+            it_exec->second->releaselock_session();
+            it_exec++;
+            if (it_exec == sessions.end())
+                it_exec = sessions.begin();
+        }        
     }    
     releaselock_it_exec(); // End Mutex
     return pUser; 

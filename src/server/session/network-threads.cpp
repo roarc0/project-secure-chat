@@ -18,45 +18,44 @@ void* net_thread(void* arg)
 
     while (1)
     {
-        cout << "LOOP " << endl;
-        usession = s_manager->getNextSessionToServe();        
+        usession = s_manager->getNextSessionToServe();
         if (!usession)
             continue;
         cout << "got session!" << endl;
         
-        for (int i = NSEND; i--;) 
-        {             
+        for (int i = NSEND; i--;)
+        {
             int len;
             char* buffer;
             pack = usession->GetPacketFromSend();
             if (!pack)
                 continue;
-            
+
             //if (usession->GetSecurity())
                 // buffer = cripta (buffer + 6,len)
             //else 
-            { 
+            {
                 len = 6 + pack->m_data.size() +1;
                 buffer = new char[len];
                 memcpy(buffer, pack->GetOpcodePointer(), 2);
                 memcpy(buffer, &len, 4);
                 strcpy(buffer + 6, pack->m_data.c_str());
-            }   
-                     
-            try 
+            }
+
+            try
             {
                 usession->GetSocket()->send(buffer,len);
             } 
             catch (SocketException e)
             {
                 cout<<e.what();
-            } 
+            }
             delete buffer;
-        } 
+        }
         
-        for (int i = NRECV; i--;) 
+        for (int i = NRECV; i--;)
         {
-            char* buffer = NULL;  
+            char* buffer = NULL;
             try 
             {
                 pack = new Packet;
@@ -70,7 +69,7 @@ void* net_thread(void* arg)
                 {
                     delete pack;
                     break; // Errore inatteso
-                }    
+                }
                 buffer = new char[len+1];
                 if (usession->GetSocket()->recv(buffer,len) == -1)
                 {
@@ -79,17 +78,17 @@ void* net_thread(void* arg)
                     buffer = NULL;
                     break; // Errore inatteso
                 }
-                
+
                 //if (usession->GetSecurity())
-                    // decripta (buffer,len)                
-                    
+                    // decripta (buffer,len)
+
                 buffer[len] = '\0';
 
                 pack->m_data = buffer;
                 delete buffer;
                 buffer = NULL;
-                
-                usession->QueuePacketToRecv(pack);            
+
+                usession->QueuePacketToRecv(pack);
             } 
             catch (SocketException e)
             {
@@ -100,7 +99,7 @@ void* net_thread(void* arg)
                     delete buffer;
                     buffer = NULL;
                 }
-            } 
+            }
             usession->releaselock_net();
         }
         

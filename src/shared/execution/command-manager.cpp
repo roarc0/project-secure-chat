@@ -14,14 +14,14 @@ void command_manager::add_command(string id, handler hnd)
     commands.push_back(cmd);
 }
 
-string command_manager::get_opcode(string raw)
+string command_manager::get_message_type(string raw)
 {
     size_t pos;
     pos = raw.find_first_of(" ");
     return raw.substr(0, pos);
 }
 
-string command_manager::get_params(string raw)
+string command_manager::get_message_params(string raw)
 {
     size_t pos;
     pos = raw.find_first_of(" ");
@@ -34,7 +34,7 @@ bool command_manager::execute(string raw, UserSession *u_session) // se non trov
 
     for (; itr != commands.end(); ++itr)
     {
-        if(itr != commands.end() && (*itr)->get_id() == get_opcode(raw))
-            (*itr)->execute(u_session, get_params(raw));
+        if(itr != commands.end() && (*itr)->get_id() == get_message_type(raw))
+            (*itr)->execute(u_session, get_message_params(raw));
     }
 }

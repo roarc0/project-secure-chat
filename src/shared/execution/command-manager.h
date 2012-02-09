@@ -22,8 +22,9 @@ class command_manager
     list<command*>             commands;
     static command_manager*    cmd_singleton;
 
-    string get_opcode(string raw);
-    string get_params(string raw);
+    string get_message_type(string raw);
+    string get_message_params(string raw);
+
     command_manager()
     {
     

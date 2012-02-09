@@ -1,11 +1,6 @@
 #include "server-core.h"
 
-void init_commands() // va in un file commands-server.cpp/h che include functions
-{
-   //qui da aggiungere tutti i comandi con handler ecc
-}
-
-void start_server_core()
+void server_core()
 {
     try
     {   

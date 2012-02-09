@@ -13,8 +13,8 @@ class Session
         Session(UserSession* pUser)
         {
             m_pUser = pUser;
-            m_pUser->SetSession(this);
             m_active = 0;
+            m_pUser->SetSession(this);            
             pthread_mutex_init(&mutex_session, NULL);
             pthread_mutex_init(&mutex_m_active, NULL);
             pthread_mutex_init(&mutex_net, NULL);

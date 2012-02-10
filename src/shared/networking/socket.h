@@ -23,6 +23,7 @@
 using namespace std;
 
 #define MAX_QUEUE_CONNECTIONS 5
+#define INVALID_SOCKET 0
 
 class SocketException : public exception 
 {
@@ -36,7 +37,7 @@ class SocketException : public exception
         std::string userMessage;  // Exception message
 };
 
-class Socket 
+class Socket
 {
     public:
         ~Socket();
@@ -58,6 +59,9 @@ class Socket
 
     protected:
         int sockDesc;    // Socket descriptor
+        fd_set fd_sock;
+        bool block;
+
         Socket(int type, int protocol) throw(SocketException);
         Socket(int sockDesc);
 };
@@ -67,11 +71,11 @@ class CommunicatingSocket : public Socket
     public:
         void connect(const string &foreignAddress, unsigned short foreignPort)
         throw(SocketException);
+        void disconnect() throw(SocketException);
 
         void send(const void *buffer, int bufferLen) throw(SocketException);
-
         int recv(void *buffer, int bufferLen) throw(SocketException);
-        
+
         void setBlocking(const bool b) throw(SocketException);
 
         string getForeignAddress() throw(SocketException);

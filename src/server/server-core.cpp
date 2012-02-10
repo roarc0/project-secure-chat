@@ -25,15 +25,14 @@ void server_core()
                 temp_sock = server.accept();
                 temp_sock->setBlocking(false);
                 s_manager->createSession(temp_sock);
+                INFO("debug", "* new client session created!\n");
 
                 net.start_net_thread();
                 exec.start_exec_thread();
-
-                INFO("debug", "* new client session created!\n");
             }
             catch(SocketException &e)
             {
-                INFO("debug", "%s\n", e.what());
+                INFO("debug", "[servercore] %s\n", e.what());
             }
             catch(...)
             {

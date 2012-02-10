@@ -125,13 +125,14 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
 
 void button_send_click(gpointer data, gchar *str, gchar type)
 {
-    stringstream ss;
+    stringstream ss, ss_h;
     gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(button_send_w.text_entry));
 
     if (!strcmp(text,"")) // controllare lunghezza messaggio e che non sia costituito solo da spazi
         return;
 
-    handle_message((char*)text);
+    ss_h << text;
+    handle_message((char*)ss_h.str().c_str());
 
     if (text[0] != '\\')
     {

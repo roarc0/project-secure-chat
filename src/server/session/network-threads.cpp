@@ -60,6 +60,7 @@ void* net_thread(void* arg)
                     delete pack;
                     break; // Niente da leggere nel socket
                 }
+                INFO("debug","recv message!\n");
                 int len;
                 if (usession->GetSocket()->recv(&len,4) == -1)
                 {
@@ -85,7 +86,6 @@ void* net_thread(void* arg)
                 buffer = NULL;
 
                 usession->QueuePacketToRecv(pack);
-                INFO("debug","recv message!\n");
             } 
             catch (SocketException e)
             {

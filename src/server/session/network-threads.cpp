@@ -23,7 +23,7 @@ void* net_thread(void* arg)
             char* buffer;
             pack = usession->GetPacketFromSend();
             if (!pack)
-                continue;
+                break;
 
             INFO("debug","send message!\n");
 
@@ -55,20 +55,21 @@ void* net_thread(void* arg)
             try 
             {
                 pack = new Packet;
-                if (usession->GetSocket()->recv(pack->GetOpcodePointer(),2) == -1)
+
+                if (usession->GetSocket()->recv(pack->GetOpcodePointer(),2) <= 0)
                 {
                     delete pack;
                     break; // Niente da leggere nel socket
                 }
                 INFO("debug","recv message!\n");
                 int len;
-                if (usession->GetSocket()->recv(&len,4) == -1)
+                if (usession->GetSocket()->recv(&len,4) <= 0)
                 {
                     delete pack;
                     break; // Errore inatteso
                 }
                 buffer = new char[len+1];
-                if (usession->GetSocket()->recv(buffer,len) == -1)
+                if (usession->GetSocket()->recv(buffer,len) <= 0)
                 {
                     delete pack;
                     delete buffer;

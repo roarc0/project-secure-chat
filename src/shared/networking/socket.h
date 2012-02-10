@@ -18,6 +18,7 @@
 
 #include <string>
 #include <exception>
+#include <sys/ioctl.h>
 #include "../common.h"
 
 using namespace std;
@@ -61,12 +62,12 @@ class Socket
         void operator=(const Socket &sock);
 
     protected:
-        int sockDesc;    // Socket descriptor
-        fd_set fd_sock;
+        int sockDesc, sockDescMax;    // Socket descriptors
+        fd_set fd_sock, fd_temp;
         bool block;
 
-        Socket(int type, int protocol) throw(SocketException);
-        Socket(int sockDesc);
+        Socket(int type, int protocol, bool block) throw(SocketException);
+        Socket(int sockDesc, bool block);
 };
 
 class CommunicatingSocket : public Socket 
@@ -86,8 +87,8 @@ class CommunicatingSocket : public Socket
         unsigned short getForeignPort() throw(SocketException);
 
     protected:
-        CommunicatingSocket(int type, int protocol) throw(SocketException);
-        CommunicatingSocket(int newConnSD);
+        CommunicatingSocket(int type, int protocol, bool block) throw(SocketException);
+        CommunicatingSocket(int newConnSD, bool block);
 };
 
 class TCPSocket : public CommunicatingSocket 
@@ -95,12 +96,12 @@ class TCPSocket : public CommunicatingSocket
     public:
         TCPSocket() throw(SocketException);
 
-        TCPSocket(const string &foreignAddress, unsigned short foreignPort)
+        TCPSocket(const string &foreignAddress, unsigned short foreignPort, bool block)
           throw(SocketException);
 
     private:
         friend class TCPServerSocket;
-        TCPSocket(int newConnSD);
+        TCPSocket(int newConnSD, bool block);
 };
 
 class TCPServerSocket : public Socket 

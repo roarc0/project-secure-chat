@@ -8,7 +8,7 @@ void* net_thread(void* arg)
 {
     UserSession      *usession = NULL;
     Packet           *pack;
-    
+
     INFO("debug", "* net thread %d started \n", pthread_self());
 
     while (1)

@@ -145,7 +145,7 @@ bool logger::log_static(string profile, string fname, const char *str)
 bool logger::info(string profile, const char *fmt, ...)
 {
     log_profile *l_profile = get_profile(profile);
-    static char buffer[BSIZE];
+    char buffer[BSIZE];
     int ret;
 
     if(!l_profile)

@@ -66,14 +66,17 @@ void* core_thread(void* arg)
     {
         TCPSocket client(CFG_GET_STRING("server_host"), CFG_GET_INT("server_port"));
         INFO("debug", "[connection]       success %s:%d\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"));
+
         csock=&client;
+
+        while(1) usleep(1000); // gestore comunicazione in uscita
     }
     catch(SocketException &e)
     {
         INFO("debug", "[disconnection] failed  %s:%d (%s)\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"), e.what());
     }
 
-    while(1); // gestore comunicazione in uscita
+
 
     pthread_exit(NULL);
 }

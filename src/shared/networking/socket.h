@@ -53,6 +53,9 @@ class Socket
 
         static unsigned short resolveService(const string &service,
                                            const string &protocol = "tcp");
+
+        void setBlocking(const bool b) throw(SocketException);
+
     private:
         Socket(const Socket &sock);
         void operator=(const Socket &sock);
@@ -76,7 +79,7 @@ class CommunicatingSocket : public Socket
         void send(const void *buffer, int bufferLen) throw(SocketException);
         int recv(void *buffer, int bufferLen) throw(SocketException);
 
-        void setBlocking(const bool b) throw(SocketException);
+
 
         string getForeignAddress() throw(SocketException);
 
@@ -103,11 +106,11 @@ class TCPSocket : public CommunicatingSocket
 class TCPServerSocket : public Socket 
 {
     public:
-        TCPServerSocket(unsigned short localPort, int queueLen = MAX_QUEUE_CONNECTIONS) 
+        TCPServerSocket(unsigned short localPort, bool block, int queueLen = MAX_QUEUE_CONNECTIONS) 
           throw(SocketException);
 
-        TCPServerSocket(const string &localAddress, unsigned short localPort,
-          int queueLen = MAX_QUEUE_CONNECTIONS) throw(SocketException);
+        TCPServerSocket(const string &localAddress, unsigned short localPort, 
+          bool block, int queueLen = MAX_QUEUE_CONNECTIONS) throw(SocketException);
 
         TCPSocket *accept() throw(SocketException);
 

@@ -10,7 +10,7 @@ void server_core()
         s_manager;
         init_commands();
 
-        TCPServerSocket server(CFG_GET_INT("server_port"), 128);
+        TCPServerSocket server(CFG_GET_INT("server_port"), false, 128);
         TCPSocket *temp_sock = NULL;
         UserSession *temp_session = NULL;
         INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
@@ -38,6 +38,7 @@ void server_core()
             {
                 INFO("debug", "default exception");
             }
+            usleep(50);
         }
 
     }

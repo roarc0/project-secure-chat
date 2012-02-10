@@ -120,21 +120,22 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
 
 void button_send_click(gpointer data, gchar *str, gchar type)
 {
-    stringstream ss, ss_m;
+    stringstream ss;
     gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(button_send_w.text_entry));
-    
-    if (!strcmp(text,""))
+
+    if (!strcmp(text,"")) // controllare lunghezza messaggio e che non sia costituito solo da spazi
         return;
 
-    ss << "<" << CFG_GET_STRING("nickname") << "> " << text << endl;
-    ss_m << "\\send "  << CFG_GET_STRING("nickname") << " " << text;
+    handle_message((char*)text);
 
-    send_message((char*)ss_m.str().c_str());
-
-    pthread_mutex_lock(&mutex_chat);
-    add_message_to_chat(button_send_w.chat_buffer, (gchar*) ss.str().c_str(), 'm');
-    pthread_mutex_unlock(&mutex_chat);
-    gtk_entry_set_text (GTK_ENTRY(button_send_w.text_entry), "");
+    if (text[0] != '\\')
+    {
+        ss << "<" << CFG_GET_STRING("nickname") << "> " << text << endl;
+        pthread_mutex_lock(&mutex_chat);
+        add_message_to_chat(button_send_w.chat_buffer, (gchar*) ss.str().c_str(), 'm');
+        pthread_mutex_unlock(&mutex_chat);
+        gtk_entry_set_text (GTK_ENTRY(button_send_w.text_entry), "");
+    }
 }
 
 void main_gui(int argc, char **argv)

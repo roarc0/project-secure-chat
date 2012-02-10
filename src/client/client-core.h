@@ -4,8 +4,9 @@
 #include "../shared/common.h"
 #include "../shared/networking/socket.h"
 #include "../shared/threading/thread.h"
+//#include "../shared/session/user-session.h"
 
-void  send_message(char*);
+void  handle_message(char*);
 void* core_thread(void*);
 
 #endif

@@ -22,6 +22,11 @@ class execution_threads
     void    start_exec_threads(uint32);
     void    start_exec_thread();
 
+    uint32  count() const
+    {
+        return tids.size();
+    }
+
   private:
     vector<pthread_t> tids;
 };

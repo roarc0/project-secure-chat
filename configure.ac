@@ -1,5 +1,5 @@
 AC_PREREQ(2.61)
-AC_INIT([pschat], [0.0.1])
+AC_INIT([pschat], [0.0.2])
 AC_PROG_CXX
 
 AC_CONFIG_MACRO_DIR([m4])

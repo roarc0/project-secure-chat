@@ -6,11 +6,6 @@
 
 void* net_thread(void* arg)
 {
-    net_thread_params* t_param = (net_thread_params*) arg;
-
-    if(!t_param)
-        pthread_exit(NULL);
-    
     UserSession      *usession = NULL;
     Packet           *pack;
     
@@ -106,9 +101,6 @@ void* net_thread(void* arg)
         //if (s_manager->MoreThreadsThanClients) // i'm useless
         //    break; //harakiri
     }
-
-    if (t_param)
-        delete t_param;
 
     pthread_exit(NULL);
 }

@@ -2,11 +2,6 @@
 
 void *exec_thread(void *arg)
 {
-    exec_thread_params* t_param = (exec_thread_params*) arg;
-
-    if(!t_param)
-        pthread_exit(NULL);
-
     sigset_t mask;
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
@@ -19,21 +14,19 @@ void *exec_thread(void *arg)
     while(1)
     {
         usession = s_manager->getNextSessionToExecute();
-        if (usession)
-        {
-            pack     = usession->GetPacketFromRecv();
-            if (pack)
-                cout << "INCOMING MESSAGE: " << pack->m_data << endl;
-            //else
-            //    cout << "NULL MESSAGE" << endl;
-            c_manager->execute("", usession); //pack->m_data);
-            usession->releaselock_exec();
-        }
-        usleep(5);
-    }
+        if (!usession)
+            continue;
 
-    if (t_param)
-        delete t_param;
+        pack = usession->GetPacketFromRecv();
+        if (pack)
+        {
+            INFO("debug","INCOMING MESSAGE: \"%s\"\n", pack->m_data.c_str());
+            c_manager->execute(pack->m_data, usession);
+        }
+
+        usession->releaselock_exec();
+        usleep(1);
+    }
 
     pthread_exit(NULL);
 }

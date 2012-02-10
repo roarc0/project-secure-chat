@@ -21,6 +21,11 @@ class network_threads
     void    start_net_threads(uint32);
     void    start_net_thread();
 
+    uint32  count() const
+    {
+        return tids.size();
+    }
+
   private:
     vector<pthread_t> tids;
 };

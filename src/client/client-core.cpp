@@ -1,11 +1,14 @@
 #include "client-core.h"
 
-TCPSocket *temp = NULL; // horror^n!
+TCPSocket *csock = NULL;
 
-void send_message(char* msg) // horror^n
+void handle_message(char* msg)  // comunicazione in ingresso dall'utente
 {
-    if(temp)
-        temp->send(msg, strlen(msg));
+    if(!csock)
+        return;
+
+    
+    csock->send(msg, strlen(msg));
 }
 
 struct core_thread_params
@@ -16,29 +19,21 @@ struct core_thread_params
 
 void* core_thread(void* arg)
 {
-    //if(!arg)
-    //    pthread_exit(NULL);
-
     sigset_t mask;
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
-    
+
     try
     {
         TCPSocket client(CFG_GET_STRING("server_host"), CFG_GET_INT("server_port"));
-        temp=&client;
-        while(1); // gestore comunicazione
+        INFO("debug", "connected on %s:%d\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"));
+        csock=&client;
+        while(1); // gestore comunicazione in uscita
     }
     catch(...)
     {
-        cout << "connection attempt on " << CFG_GET_STRING("server_host") << ":" << CFG_GET_INT("server_port") << endl;
+        INFO("debug", "connection failed on %s:%d\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"));
     }
-
-    //cout << "connected " << CFG_GET_STRING("server_host") << ":" << CFG_GET_INT("server_port") << endl;
-    
-
-    //if (arg)
-    //    delete arg;
 
     pthread_exit(NULL);
 }

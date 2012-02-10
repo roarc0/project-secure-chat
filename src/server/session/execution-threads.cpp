@@ -18,14 +18,14 @@ void *exec_thread(void *arg)
             continue;
 
         pack = usession->GetPacketFromRecv();
-        if (pack)
+        if (pack && pack->m_data != "")
         {
             INFO("debug","INCOMING MESSAGE: \"%s\"\n", pack->m_data.c_str());
-            c_manager->execute(pack->m_data, usession);
+            //c_manager->execute(pack->m_data, usession);
         }
 
         usession->releaselock_exec();
-        usleep(1);
+        usleep(5);
     }
 
     pthread_exit(NULL);

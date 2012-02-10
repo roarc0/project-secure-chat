@@ -16,8 +16,7 @@ void* net_thread(void* arg)
         usession = s_manager->getNextSessionToServe();
         if (!usession)
             continue;
-        cout << "got session!" << endl;
-        
+
         for (int i = NSEND; i--;)
         {
             int len;
@@ -25,6 +24,8 @@ void* net_thread(void* arg)
             pack = usession->GetPacketFromSend();
             if (!pack)
                 continue;
+
+            INFO("debug","send message!\n");
 
             //if (usession->GetSecurity())
                 // buffer = cripta (buffer + 6,len)
@@ -84,6 +85,7 @@ void* net_thread(void* arg)
                 buffer = NULL;
 
                 usession->QueuePacketToRecv(pack);
+                INFO("debug","recv message!\n");
             } 
             catch (SocketException e)
             {
@@ -100,6 +102,7 @@ void* net_thread(void* arg)
         
         //if (s_manager->MoreThreadsThanClients) // i'm useless
         //    break; //harakiri
+        usleep(5);
     }
 
     pthread_exit(NULL);

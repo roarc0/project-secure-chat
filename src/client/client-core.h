@@ -6,7 +6,10 @@
 #include "../shared/threading/thread.h"
 //#include "../shared/session/user-session.h"
 
+bool  connect();
+bool  disconnect();
 void  handle_message(char*);
+
 void* core_thread(void*);
 
 #endif

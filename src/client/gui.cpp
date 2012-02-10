@@ -17,6 +17,8 @@ struct button_send_widgets
 
 } button_send_w;
 
+GtkWidget *status_bar;
+
 GdkPixbuf *create_pixbuf(const gchar * filename)
 {
    GdkPixbuf *pixbuf;
@@ -102,7 +104,7 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
     //gtk_text_buffer_get_end_iter(buffer, &textiter);
 
 
-    switch(type) // metodo rozzo
+    switch(type)
     {
         case 'j': //join
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer, &textiter, str, -1, "lmarg", "green_fg", "bold", NULL);
@@ -112,6 +114,9 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
         break;
         case 'm': //message
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer, &textiter, str, -1, "lmarg", "black_fg", NULL);
+        break;
+        case 's': //server
+            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer, &textiter, str, -1, "lmarg", "yellow_fg", NULL);
         break;
         default:
         break;
@@ -135,6 +140,31 @@ void button_send_click(gpointer data, gchar *str, gchar type)
         add_message_to_chat(button_send_w.chat_buffer, (gchar*) ss.str().c_str(), 'm');
         pthread_mutex_unlock(&mutex_chat);
         gtk_entry_set_text (GTK_ENTRY(button_send_w.text_entry), "");
+    }
+}
+
+void push_status_bar(const gchar *str)
+{
+    guint id = gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar), "info");
+    gtk_statusbar_pop(GTK_STATUSBAR(status_bar),id);
+    gtk_statusbar_push(GTK_STATUSBAR(status_bar), id, str);
+}
+
+void toolbar_connect_click(gpointer data, gchar *str, gchar type)
+{
+    GtkToolButton *toolbar_connect = GTK_TOOL_BUTTON(data);
+    if ((strcmp(gtk_tool_button_get_label(toolbar_connect), "Connect") == 0) && connect())
+    {
+        push_status_bar("Connected with server!");
+        gtk_tool_button_set_label(toolbar_connect,"Disconnect");
+    }
+    else
+        push_status_bar("Connection with server failed!");
+
+    if((strcmp(gtk_tool_button_get_label(toolbar_connect), "Disconnect") == 0) && disconnect())
+    {
+        push_status_bar("Disconnected with server!");
+        gtk_tool_button_set_label(toolbar_connect,"Connect");
     }
 }
 
@@ -177,9 +207,6 @@ void main_gui(int argc, char **argv)
     GtkWidget *entry_command;
     GtkWidget *button_send;
 
-    /* status bar*/
-    GtkWidget *status_bar;
-    
     GtkWidget *dialog;
 
     GdkColor color;
@@ -248,21 +275,23 @@ void main_gui(int argc, char **argv)
 
     /* toolbar */
     toolbar = gtk_toolbar_new();
-    gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_ICONS);
+    gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_BOTH);
 
     gtk_container_set_border_width(GTK_CONTAINER(toolbar), 2);
 
     toolbar_connect = gtk_tool_button_new_from_stock(GTK_STOCK_NEW);
+    gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolbar_connect), "Connect");
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_connect, -1);
+    g_signal_connect(G_OBJECT(toolbar_connect), "clicked", G_CALLBACK(toolbar_connect_click), NULL);
 
     toolbar_separator = gtk_separator_tool_item_new();
-    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_separator, -1); 
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_separator, -1);
 
     toolbar_exit = gtk_tool_button_new_from_stock(GTK_STOCK_QUIT);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_exit, -1);
+    g_signal_connect(G_OBJECT(toolbar_exit), "clicked", G_CALLBACK(gtk_main_quit), NULL);
 
     gtk_box_pack_start(GTK_BOX(vbox_main), toolbar, FALSE, FALSE, 0);
-    g_signal_connect(G_OBJECT(toolbar_exit), "clicked", G_CALLBACK(gtk_main_quit), NULL);
 
     /* CHAT */
     hbox_chat = gtk_hbox_new (FALSE, 0);
@@ -283,12 +312,14 @@ void main_gui(int argc, char **argv)
     gtk_text_buffer_create_tag(view_chat_buffer, "black_fg", "foreground", "black", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "green_fg", "background", "green", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "red_fg", "background", "red", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "yellow_fg", "background", "yellow", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 
     /*############################################## message test */
     add_message_to_chat(view_chat_buffer, (gchar*) "\"gufo\" has joined the chat\n", (gchar)'j');
     add_message_to_chat(view_chat_buffer, (gchar*) "<gufo> salve buonuomo\n", (gchar)'m');
+    add_message_to_chat(view_chat_buffer, (gchar*) "<server> reboot in 5 minutes!\n", (gchar)'s');
     add_message_to_chat(view_chat_buffer, (gchar*) "<alec> ave!\n", (gchar)'m');
     add_message_to_chat(view_chat_buffer, (gchar*) "<furla> ciao!\n", (gchar)'m');
     add_message_to_chat(view_chat_buffer, (gchar*) "\"gufo\" has been kicked out by \"alec\"!\n", (gchar)'l');
@@ -364,12 +395,12 @@ void main_gui(int argc, char **argv)
     g_object_set_data(G_OBJECT(status_bar), "warning", (gpointer) "B");
     g_object_set_data(G_OBJECT(status_bar), "warning", (gpointer) "C");
 
-    guint id = gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar), "info");
-    gtk_statusbar_push(GTK_STATUSBAR(status_bar), id, "* uninitialized");
+    //guint id = gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar), "info");
+    //gtk_statusbar_push(GTK_STATUSBAR(status_bar), id, "* uninitialized");
 
     /* end_widgets */
     gtk_widget_show_all(window);
-    g_print ("starting gtk\n");   
+    g_print ("starting gtk\n");
     gtk_main(); 
 
     return;

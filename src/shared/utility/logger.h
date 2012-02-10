@@ -15,8 +15,6 @@
 #define LOG_STATIC(_profile, _fname, _str) logger::get_instance()->log_static(_profile, _fname, _str)
 #define INFO(_profile, _fmt, ...) logger::get_instance()->info(_profile, _fmt, ##__VA_ARGS__)
 
-#define BSIZE 4096
-
 using namespace std;
 
 enum logger_mask

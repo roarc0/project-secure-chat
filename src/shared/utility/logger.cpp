@@ -88,7 +88,8 @@ void logger::set_count(string profile, unsigned int val)
 
 bool logger::log(string profile, string fname, const char *fmt, ...)
 {
-    static char buffer[BSIZE];
+    char* buffer;
+    string str;
     int ret;
 
     if(!get_profile(profile))
@@ -96,15 +97,19 @@ bool logger::log(string profile, string fname, const char *fmt, ...)
 
     va_list ap;
     va_start(ap, fmt);
-    ret = vsnprintf(buffer, BSIZE, fmt, ap);
+    ret = vasprintf(&buffer, fmt, ap);
     va_end(ap);
 
     if (ret)
-        return log_static(profile, fname, buffer);
+    {
+        str = buffer;
+        delete[] buffer;
+        return log_static(profile, fname, str.c_str());
+    }
     else
     {
-        perror("vsnprintf");
-        return 0;
+        perror("vasprintf");
+        return false;
     }
 }
 
@@ -115,7 +120,7 @@ bool logger::log_static(string profile, string fname, const char *str)
 
     if (!l_profile)
         return false;
-    
+
     l_profile->lock();
     if (!l_profile->ff.is_open())
     {
@@ -129,7 +134,7 @@ bool logger::log_static(string profile, string fname, const char *str)
     {        
         l_profile->ff << str << endl;
         if (l_profile->get_opt(LOG_CLOSE))
-            l_profile->ff.close();        
+            l_profile->ff.close();
     }
     else
     {
@@ -145,7 +150,7 @@ bool logger::log_static(string profile, string fname, const char *str)
 bool logger::info(string profile, const char *fmt, ...)
 {
     log_profile *l_profile = get_profile(profile);
-    char buffer[BSIZE];
+    char* buffer;
     int ret;
 
     if(!l_profile)
@@ -153,19 +158,21 @@ bool logger::info(string profile, const char *fmt, ...)
 
     va_list ap;
     va_start(ap, fmt);
-    ret = vsnprintf(buffer, BSIZE, fmt, ap);
+    ret = vasprintf(&buffer, fmt, ap);
     va_end(ap);
 
     if (ret)
     {
         l_profile->lock();
         cout << buffer;
-        cout.flush();
+        //cout.flush();
         l_profile->unlock();
+        delete[] buffer;
+        return true;
     }
     else
     {
-        perror("vsnprintf");
-        return 0;
+        perror("vasprintf");
+        return false;
     }
 }

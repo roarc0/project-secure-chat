@@ -44,7 +44,7 @@ void* net_thread(void* arg)
             } 
             catch (SocketException e)
             {
-                cout<<e.what();
+                INFO("debug","%s\n", e.what());
             }
             delete buffer;
         }
@@ -56,20 +56,20 @@ void* net_thread(void* arg)
             {
                 pack = new Packet;
 
-                if (usession->GetSocket()->recv(pack->GetOpcodePointer(),2) <= 0)
+                if (usession->GetSocket()->recv(pack->GetOpcodePointer(),2) < 0)
                 {
                     delete pack;
                     break; // Niente da leggere nel socket
                 }
                 INFO("debug","recv message!\n");
                 int len;
-                if (usession->GetSocket()->recv(&len,4) <= 0)
+                if (usession->GetSocket()->recv(&len,4) < 0)
                 {
                     delete pack;
                     break; // Errore inatteso
                 }
                 buffer = new char[len+1];
-                if (usession->GetSocket()->recv(buffer,len) <= 0)
+                if (usession->GetSocket()->recv(buffer,len) < 0)
                 {
                     delete pack;
                     delete buffer;
@@ -90,13 +90,14 @@ void* net_thread(void* arg)
             } 
             catch (SocketException e)
             {
-                cout<<e.what();
+                INFO("debug","%s\n", e.what());
                 delete pack;
                 if (buffer)
                 {
                     delete buffer;
                     buffer = NULL;
                 }
+                s_manager->deleteSession(usession->GetId());                // UCCIDERE LA SESSIONE
             }
             usession->releaselock_net();
         }

@@ -35,11 +35,11 @@ class Session
 
         bool IsActive() { return m_active == 1 ? true : false; }
         bool IsFree() { return m_active == 0 ? true : false; }
-        bool IsToDelete() { return m_active == -1 ? true : false; }      
+        bool IsToDelete() { return m_active == -1 ? true : false; }
         void Free() 
         {
             delete m_pUser;
-            m_pUser = NULL;        
+            m_pUser = NULL;
             m_active = 0;
             releaselock_exec();
             releaselock_net();  
@@ -58,7 +58,7 @@ class Session
         // Non bloccante
         bool getlock_net()
         {
-            if (!IsActive()){ cout << "not active" << endl;
+            if (!IsActive()){
                 return  false;}
             if (pthread_mutex_trylock (&mutex_net) != 0)
                 return  false;
@@ -84,7 +84,7 @@ class Session
                     }
                         
            // if (IsFree() || (IsActive() && m_pUser->RecvSize() == 0))     // Non e' valida se e' una sessione libera o se la coda di pacchetti 
-           //      return  false;                                         // da servire e' vuota                
+           //      return  false;                                         // da servire e' vuota
             if (pthread_mutex_trylock (&mutex_exec) != 0)               // Provo a prendere il mutex di exec
                 return  false;
             else
@@ -100,7 +100,7 @@ class Session
         pthread_mutex_t    mutex_exec;
 
         int m_active;
-        UserSession* m_pUser;     
+        UserSession* m_pUser;
 };
 
 typedef std::map<uint32, Session*>  usersession_map;
@@ -133,7 +133,7 @@ class SessionManager
         ~SessionManager();
 
         void createSession (TCPSocket* sock);
-        void deleteSession (uint32 id);        
+        void deleteSession (uint32 id);
         
         UserSession* getNextSessionToServe();
         UserSession* getNextSessionToExecute();

@@ -228,15 +228,16 @@ int CommunicatingSocket::recv(void *buffer, int bufferLen)
         FD_ZERO(&fd_sock);
         FD_SET(sockDesc, &fd_sock);
 
-        //if((ret = select(sockDesc+1, &fd_sock, NULL, NULL, &tv)) < 0)
-        //    throw SocketException("Receive failed (select())", true);
-
-        if (FD_ISSET(sockDesc, &fd_sock) == 0)
+        if (FD_ISSET(sockDesc, &fd_sock) != 1)
             throw SocketException("Receive failed (FD_ISSET())", true);         // connessione fallita client disconnesso
     }
 
-    if ((ret = ::recv(sockDesc, (raw_type *) buffer, bufferLen, 0)) < 0)
+    if ((ret = ::recv(sockDesc, (raw_type *) buffer, bufferLen, 0)) <= 0)
+    {
+        close(sockDesc);
+        sockDesc = INVALID_SOCKET;
         throw SocketException("Receive failed (recv())", true);
+    }
 
     if (!block)
     {

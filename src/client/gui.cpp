@@ -281,7 +281,10 @@ void main_gui(int argc, char **argv)
     gtk_container_set_border_width(GTK_CONTAINER(toolbar), 2);
 
     toolbar_connect = gtk_tool_button_new_from_stock(GTK_STOCK_NEW);
-    gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolbar_connect), "Connect");
+    if (connected)
+        gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolbar_connect), "Connect");
+    else
+        gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolbar_connect), "Disconnect");
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_connect, -1);
     g_signal_connect(G_OBJECT(toolbar_connect), "clicked", G_CALLBACK(toolbar_connect_click), NULL);
 

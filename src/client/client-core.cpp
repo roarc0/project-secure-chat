@@ -33,11 +33,11 @@ bool  disconnect()
     }
     catch(SocketException &e)
     {
-        INFO("debug", "connection failed     %s:%d (%s)\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"), e.what());
+        INFO("debug", "disconnection failed     %s:%d (%s)\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"), e.what());
         return false;
     }
 
-    INFO("debug", "connection successful %s:%d\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"));
+    INFO("debug", "disconnection successful %s:%d\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"));
 
     return true;
 }
@@ -66,11 +66,11 @@ void* core_thread(void* arg)
     {
         TCPSocket client(CFG_GET_STRING("server_host"), CFG_GET_INT("server_port"), false);
         INFO("debug", "connection successful %s:%d\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"));
-        usleep(1000);
+        connected = true;
+
         csock=&client;
 
         while(1) {
-            //client.send("ciao",4);
             usleep(1000);
         } // gestore comunicazione in uscita
     }

@@ -6,6 +6,8 @@
 #include "../shared/threading/thread.h"
 //#include "../shared/session/user-session.h"
 
+static bool connected = false;  // WARNING TEMP
+
 bool  connect();
 bool  disconnect();
 void  handle_message(char*);

@@ -20,6 +20,8 @@ void   time_start(timer*);
 void   time_stop(timer*);
 double time_diff(timer*);
 
-void print_time_format(float sec);
+void   print_time_format(float sec);
+
+int    msleep(unsigned long milisec);
 
 #endif

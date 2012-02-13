@@ -90,7 +90,7 @@ void* net_thread(void* arg)
             } 
             catch (SocketException e)
             {
-                INFO("debug","%s\n", e.what());
+                INFO("debug","Client Connection error, killing session\n%s\n", e.what());
                 delete pack;
                 if (buffer)
                 {

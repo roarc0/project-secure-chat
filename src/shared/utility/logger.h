@@ -78,6 +78,7 @@ class logger
 
     logger();
 
+
     public:
 
     ~logger();

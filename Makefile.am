@@ -8,6 +8,7 @@ client_LDADD = $(GLIB_LIBS) $(GTK_LIBS)
 client_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp                                \
                  src/shared/utility/logger.h src/shared/utility/logger.cpp                                      \
                  src/shared/common.h src/shared/common.cpp                                                      \
+                 src/shared/utility/time.h src/shared/utility/time.cpp                                          \
                  src/shared/utility/file.h src/shared/utility/file.cpp                                          \
                  src/shared/config.h src/shared/config.cpp                                                      \
                  src/shared/threading/thread.h src/shared/threading/thread.cpp                                  \
@@ -22,6 +23,7 @@ client_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp
 server_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp                                \
                  src/shared/utility/logger.h src/shared/utility/logger.cpp                                      \
                  src/shared/common.h src/shared/common.cpp                                                      \
+                 src/shared/utility/time.h src/shared/utility/time.cpp                                          \
                  src/shared/utility/file.h src/shared/utility/file.cpp                                          \
                  src/shared/config.h src/shared/config.cpp                                                      \
                  src/shared/threading/thread.h src/shared/threading/thread.cpp                                  \

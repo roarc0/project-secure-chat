@@ -6,7 +6,6 @@ enum {
   COLUMN_INT,
   COLUMNS
 };
-
 pthread_mutex_t  mutex_chat;
 pthread_mutex_t  mutex_user_list;
 
@@ -18,6 +17,37 @@ struct button_send_widgets
 } button_send_w;
 
 GtkWidget *status_bar;
+
+struct gui_thread_widgets
+{
+    GtkToolItem *toolbar_connect;
+} gui_thread_w;
+
+void* gui_thread(void* arg)
+{
+    sigset_t mask;
+    sigfillset(&mask);
+    pthread_sigmask(SIG_BLOCK, &mask, NULL);
+
+    gui_thread_widgets * gui_thread_w = (gui_thread_widgets*) arg;
+
+    while(1)
+    {
+        if(c_core->is_connected() && strcmp(gtk_tool_button_get_label(GTK_TOOL_BUTTON(gui_thread_w->toolbar_connect)), "Connect") == 0)
+        {
+            gtk_tool_button_set_label(GTK_TOOL_BUTTON(gui_thread_w->toolbar_connect),"Disconnect");
+        }
+
+        if(!c_core->is_connected() && strcmp(gtk_tool_button_get_label(GTK_TOOL_BUTTON(gui_thread_w->toolbar_connect)), "Disconnect") == 0)
+        {
+            gtk_tool_button_set_label(GTK_TOOL_BUTTON(gui_thread_w->toolbar_connect),"Connect");
+        }
+
+        msleep(1000);
+    }
+
+    pthread_exit(NULL);
+}
 
 GdkPixbuf *create_pixbuf(const gchar * filename)
 {
@@ -132,7 +162,7 @@ void button_send_click(gpointer data, gchar *str, gchar type)
         return;
 
     ss_h << text;
-    handle_message((char*)ss_h.str().c_str());
+    c_core->handle_message((char*)ss_h.str().c_str());
 
     if (text[0] != '\\')
     {
@@ -154,15 +184,13 @@ void push_status_bar(const gchar *str)
 void toolbar_connect_click(gpointer data, gchar *str, gchar type)
 {
     GtkToolButton *toolbar_connect = GTK_TOOL_BUTTON(data);
-    if ((strcmp(gtk_tool_button_get_label(toolbar_connect), "Connect") == 0) && connect())
+    if (!c_core->is_connected() && c_core->connect())
     {
         push_status_bar("Connected with server!");
         gtk_tool_button_set_label(toolbar_connect,"Disconnect");
     }
-    else
-        push_status_bar("Connection with server failed!");
 
-    if((strcmp(gtk_tool_button_get_label(toolbar_connect), "Disconnect") == 0) && disconnect())
+    if(c_core->is_connected() && c_core->disconnect())
     {
         push_status_bar("Disconnected with server!");
         gtk_tool_button_set_label(toolbar_connect,"Connect");
@@ -281,7 +309,7 @@ void main_gui(int argc, char **argv)
     gtk_container_set_border_width(GTK_CONTAINER(toolbar), 2);
 
     toolbar_connect = gtk_tool_button_new_from_stock(GTK_STOCK_NEW);
-    if (connected)
+    if (!c_core->is_connected())
         gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolbar_connect), "Connect");
     else
         gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolbar_connect), "Disconnect");
@@ -404,7 +432,9 @@ void main_gui(int argc, char **argv)
 
     /* end_widgets */
     gtk_widget_show_all(window);
-    g_print ("starting gtk\n");
+    gui_thread_w.toolbar_connect = toolbar_connect;
+    start_thread(&gui_thread, (void*)&gui_thread_w);
+    g_print ("* starting gtk\n");
     gtk_main(); 
 
     return;

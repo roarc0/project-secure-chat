@@ -20,10 +20,14 @@
 #include "typedefs.h"
 #include "utility/file.h"
 #include "utility/logger.h"
+#include "utility/time.h"
 #include "config.h"
 #include "../../config.h"
 
-#ifndef COMMON_H
+#define DEBUG printf ("* Line %d of file %s (function <%s>)\n",\
+                      __LINE__, __FILE__, __func__)
+
+#ifndef  COMMON_H
 #define COMMON_H
 
 void   welcome();

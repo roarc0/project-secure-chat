@@ -1,7 +1,6 @@
 #include "functions-server.h"
 
-bool send_message(void* p)
+bool send_message(void* params)
 {
-    cout << "send message executed" << endl;
     return true;
 }

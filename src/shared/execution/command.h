@@ -9,10 +9,10 @@ struct handler_params
     UserSession *ss;
     string  params;
 
-    handler_params(UserSession *u_session, string c_params)
+    handler_params(UserSession *usession, string uparams)
     {
-        ss = u_session;
-        params = c_params;
+        ss = usession;
+        params = uparams;
     }
 };
 
@@ -25,7 +25,7 @@ class command_exception : public exception
         const char *what() const throw();
 
     private:
-        string user_message;
+        string u_message;
 };
 
 
@@ -39,7 +39,7 @@ class command // gestire delete
     command(string id, handler hnd);
     ~command();
 
-    bool execute(UserSession*, string params);
+    bool execute(string params, UserSession*);
 
     inline string get_id() const
     {

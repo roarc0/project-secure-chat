@@ -1,6 +1,7 @@
 #include "functions.h"
 
-bool dummy()
+bool dummy(void* params)
 {
-   return false;
+   INFO("debug","received dummy message!\n");
+   return true;
 }

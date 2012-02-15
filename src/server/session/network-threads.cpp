@@ -54,28 +54,16 @@ void* net_thread(void* arg)
             char* buffer = NULL;
             try 
             {
+                int len;
                 pack = new Packet;
 
-                if (usession->GetSocket()->recv(pack->GetOpcodePointer(),2) < 0)
-                {
-                    delete pack;
-                    break; // Niente da leggere nel socket
-                }
-                INFO("debug","recv message!\n");
-                int len;
-                if (usession->GetSocket()->recv(&len,4) < 0)
-                {
-                    delete pack;
-                    break; // Errore inatteso
-                }
+                usession->GetSocket()->recv(pack->GetOpcodePointer(),2);
+                INFO("debug","opcode : x\n");
+                usession->GetSocket()->recv(&len,4);
+                INFO("debug","len    : %d\n", len);
                 buffer = new char[len+1];
-                if (usession->GetSocket()->recv(buffer,len) < 0)
-                {
-                    delete pack;
-                    delete buffer;
-                    buffer = NULL;
-                    break; // Errore inatteso
-                }
+                usession->GetSocket()->recv(buffer,len);
+                INFO("debug","msg    : \"%s\"\n", buffer);
 
                 //if (usession->GetSecurity())
                     // decripta (buffer,len)
@@ -90,21 +78,22 @@ void* net_thread(void* arg)
             } 
             catch (SocketException e)
             {
-                INFO("debug","Client Connection error, killing session\n%s\n", e.what());
+                INFO("debug","* client connection error, killing session [%s]\n", e.what());
                 delete pack;
                 if (buffer)
                 {
                     delete buffer;
                     buffer = NULL;
                 }
-                s_manager->deleteSession(usession->GetId());                // UCCIDERE LA SESSIONE
+                s_manager->deleteSession(usession->GetId());                // UCCIDO LA SESSIONE
             }
             usession->releaselock_net();
         }
-        
+
         //if (s_manager->MoreThreadsThanClients) // i'm useless
         //    break; //harakiri
-        usleep(5);
+
+        msleep(5);
     }
 
     pthread_exit(NULL);

@@ -35,6 +35,9 @@ bool command_manager::execute(string raw, UserSession *u_session) // se non trov
     for (; itr != commands.end(); ++itr)
     {
         if(itr != commands.end() && (*itr)->get_id() == get_message_type(raw))
-            (*itr)->execute(u_session, get_message_params(raw));
+            return (*itr)->execute(get_message_params(raw), u_session);
     }
+
+    INFO("debug","* command not found!\n");
+    return false;
 }

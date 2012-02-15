@@ -11,11 +11,19 @@ command::~command()
 
 }
 
-bool command::execute(UserSession *ss, string params)  // TODO try catch
+bool command::execute(string params, UserSession *usession)  // TODO try catch
 {
-    handler_params hnd_params(ss, params);
+    if(!usession)
+        return false;
 
-    cout << "* <" << cmd_id << "> executed from " << "ss->get_ip()" << ":" << "ss->get_port()" << endl;
+    TCPSocket *sock = usession->GetSocket();
+
+    if(!sock)
+        return false;
+
+    handler_params hnd_params(usession, params);
+
+    cout << "* <" << cmd_id << "> executed from " << sock->getForeignAddress() << ":" << sock->getForeignPort() << endl;
 
     return (*hnd)((void*)&hnd_params);
 }

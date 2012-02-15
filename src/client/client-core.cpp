@@ -18,11 +18,13 @@ void* core_thread(void* arg)
 
         csock=&client;
 
-        while(c_core->is_connected()) {
+        while(c_core->is_connected())
+        {
             msleep(1000); // gestore comunicazione in uscita
         }
         c_core->set_connected(false);
         msleep(6000);   // segnale di wait, quando si clicca su connect si fa il signal
+        INFO("debug", "restarting client connection\n");
     }
     catch(SocketException &e)
     {

@@ -2,6 +2,7 @@
 #define COMMAND_MANAGER_H
 
 #include "command.h"
+#include "functions.h"
 
 #define c_manager          command_manager::get_instance()
 
@@ -27,7 +28,7 @@ class command_manager
 
     command_manager()
     {
-    
+        add_command("\\dummy", &dummy);
     }
 
   public:

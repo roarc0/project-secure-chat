@@ -14,14 +14,14 @@ class Session;
 
 class UserSessionException : public exception 
 {
-	public:
-		UserSessionException(const std::string &message, bool inclSysMsg = false) throw();
-		~UserSessionException() throw();
+    public:
+        UserSessionException(const std::string &message, bool inclSysMsg = false) throw();
+        ~UserSessionException() throw();
 
-		const char *what() const throw();
+        const char *what() const throw();
 
-	private:
-		std::string userMessage;  // Exception message
+    private:
+        std::string userMessage;  // Exception message
 };
 
 // Classe di sessione dell'utente con i parametri di esso
@@ -93,8 +93,8 @@ class UserSession
         uint32 m_id;
         uint8 m_security;
         TCPSocket* m_Socket;
-        std::string m_Name;  
-        std::string m_Address;        
+        std::string m_Name;
+        std::string m_Address;
         std::string m_Channel;
 
         list<Packet*> _recvQueue;

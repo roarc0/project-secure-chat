@@ -2,6 +2,14 @@
 
 command_manager* command_manager::cmd_singleton = NULL;
 
+command_manager::command_manager()
+{
+    add_command("\\dummy", &dummy);
+    add_command("\\ping",  &ping);
+    add_command("\\pong",  &pong);
+}
+
+
 command_manager::~command_manager()
 {
     for (list<command*>::iterator itr = commands.begin(); itr != commands.end(); ++itr)

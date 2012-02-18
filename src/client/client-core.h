@@ -4,8 +4,11 @@
 #include "../shared/common.h"
 #include "../shared/networking/socket.h"
 #include "../shared/threading/thread.h"
+#include "../shared/execution/command-manager.h"
 
 #define c_core       client_core::get_instance()
+
+#undef  SERVER
 
 void* core_thread(void*);
 

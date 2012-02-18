@@ -21,5 +21,7 @@ class function_exception : public exception
 
 
 bool dummy(void*);
+bool ping(void*);
+bool pong(void*);
 
 #endif

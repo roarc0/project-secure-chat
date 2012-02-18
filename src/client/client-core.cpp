@@ -38,6 +38,8 @@ client_core::client_core()
 {
     connected = false;
     start_thread(&core_thread, (void*)NULL);
+    whoami = "client";
+    dummy(NULL);
 }
 
 bool client_core::connect()

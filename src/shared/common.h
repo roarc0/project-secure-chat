@@ -30,6 +30,11 @@
 #ifndef  COMMON_H
 #define COMMON_H
 
+static string whoami;
+
+#define IS_SERVER  (whoami == "server")
+#define IS_CLIENT  (whoami == "client")
+
 void   welcome();
 int    exec_command(const char *fmt, ...);
 

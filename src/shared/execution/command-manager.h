@@ -26,10 +26,7 @@ class command_manager
     string get_message_type(string raw);
     string get_message_params(string raw);
 
-    command_manager()
-    {
-        add_command("\\dummy", &dummy);
-    }
+    command_manager();
 
   public:
 

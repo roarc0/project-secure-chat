@@ -3,7 +3,8 @@
 void server_core()
 {
     try
-    {   
+    {
+        whoami = "server";
         db_manager->set_dbfilename(CFG_GET_STRING("db_filename"));
         db_manager->init_db();
 

@@ -6,13 +6,13 @@
 
 struct handler_params
 {
-    UserSession *ss;
+    UserSession *usession;
     string  params;
 
-    handler_params(UserSession *usession, string uparams)
+    handler_params(UserSession *u_session, string u_params)
     {
-        ss = usession;
-        params = uparams;
+        usession = u_session;
+        params = u_params;
     }
 };
 

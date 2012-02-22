@@ -31,7 +31,7 @@ void* gui_thread(void* arg)
 
     gui_thread_widgets * gui_thread_w = (gui_thread_widgets*) arg;
 
-    while(1)
+    while(1)  // è un polling sarebbe meglio usare dei segnali/semafori ecc..
     {
         if(c_core->is_connected() && strcmp(gtk_tool_button_get_label(GTK_TOOL_BUTTON(gui_thread_w->toolbar_connect)), "Connect") == 0)
         {
@@ -43,7 +43,7 @@ void* gui_thread(void* arg)
             gtk_tool_button_set_label(GTK_TOOL_BUTTON(gui_thread_w->toolbar_connect),"Connect");
         }
 
-        msleep(1000);
+        msleep(200);
     }
 
     pthread_exit(NULL);

@@ -48,36 +48,21 @@ static void fillAddr(const string &address, unsigned short port,
 
 Socket::Socket(int type, int protocol, bool block) throw(SocketException) 
 {
-    int ret, val = 1;
-
-    // Make a new socket
-    if ((sockDesc = socket(PF_INET, type, protocol)) < 0)
-    {
-        throw SocketException("Socket creation failed (socket())", true);
-    }
-
+    domain = PF_INET;
+    Socket::type = type;
+    Socket:: protocol = protocol;
     Socket::block = block;
-    setBlocking(block);
-    if(!block)
-    {
-        FD_ZERO(&fd_sock); // per usare la select
-    }
-
-    if (setsockopt(sockDesc, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(int)) < 0)
-    {
-        throw SocketException("Set of socket options failed (setsockopt())", true);
-    }
-
+    initSocket();
 }
 
-Socket::Socket(int sockDesc,  bool block)
+Socket::Socket(int sockDesc, bool block)
 {
     this->sockDesc = sockDesc;
     Socket::block = block;
     setBlocking(block);
 }
 
-Socket::~Socket() 
+Socket::~Socket()
 {
     if (!block)
     {
@@ -88,7 +73,22 @@ Socket::~Socket()
 
     ::close(sockDesc);
     sockDesc = INVALID_SOCKET;
+}
 
+void Socket::initSocket() throw(SocketException)
+{
+    int ret, val = 1;
+
+    // Make a new socket
+    if ((sockDesc = socket(PF_INET, type, protocol)) < 0)
+        throw SocketException("Socket creation failed (socket())", true);
+
+    setBlocking(block);
+    if(!block)
+        FD_ZERO(&fd_sock); // per usare la select
+
+    if (setsockopt(sockDesc, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(int)) < 0)
+        throw SocketException("Set of socket options failed (setsockopt())", true);
 }
 
 string Socket::getLocalAddress() throw(SocketException) 
@@ -160,9 +160,8 @@ void Socket::setBlocking(const bool b)
     int opts;
     opts = fcntl (sockDesc, F_GETFL);
     if (opts < 0)
-    {
         throw SocketException("Get opts failed (setBlocking())", true);
-    }
+
     if (b)
         opts |= O_NONBLOCK;
     else
@@ -204,6 +203,7 @@ void CommunicatingSocket::disconnect() throw(SocketException)
         throw SocketException("Socket close failed (close())", true);
     }
     sockDesc = INVALID_SOCKET;
+    initSocket();
 }
 
 void CommunicatingSocket::send(const void *buffer, int bufferLen) 
@@ -221,14 +221,16 @@ int CommunicatingSocket::recv(void *buffer, int bufferLen)
     int ret;
     struct timeval tv;
     tv.tv_sec = 0;
-    tv.tv_usec = 100;
+    tv.tv_usec = 300;
 
     if (!block)
     {
         FD_ZERO(&fd_sock);
         FD_SET(sockDesc, &fd_sock);
-
-        if (FD_ISSET(sockDesc, &fd_sock) != 1)
+        ret = FD_ISSET(sockDesc, &fd_sock);
+        if (ret == 0)
+            return 0;
+        if (ret < 0)
             throw SocketException("Receive failed (FD_ISSET())", true);         // connessione fallita client disconnesso
     }
 
@@ -244,6 +246,7 @@ int CommunicatingSocket::recv(void *buffer, int bufferLen)
         FD_CLR(sockDesc, &fd_sock);
         FD_ZERO(&fd_sock);
     }
+
     return ret;
 }
 
@@ -278,8 +281,8 @@ TCPSocket::TCPSocket()
 {
 }
 
-TCPSocket::TCPSocket(const string &foreignAddress, unsigned short foreignPort,  bool block)
-    throw(SocketException) : CommunicatingSocket(SOCK_STREAM, IPPROTO_TCP,block) 
+TCPSocket::TCPSocket(const string &foreignAddress, unsigned short foreignPort, bool block)
+    throw(SocketException) : CommunicatingSocket(SOCK_STREAM, IPPROTO_TCP, block)
 {
     connect(foreignAddress, foreignPort);
 }
@@ -309,13 +312,13 @@ TCPServerSocket::TCPServerSocket(const string &localAddress,
 
 TCPSocket *TCPServerSocket::accept() throw(SocketException) 
 {
-    int newConnSD;
-    if ((newConnSD = ::accept(sockDesc, NULL, 0)) < 0) 
+    int newSockDesc;
+    if ((newSockDesc = ::accept(sockDesc, NULL, 0)) < 0) 
     {
         throw SocketException("Accept failed (accept())", true);
     }
 
-    return new TCPSocket(newConnSD, block);
+    return new TCPSocket(newSockDesc, block);
 }
 
 void TCPServerSocket::setListen(int queueLen) throw(SocketException) 
@@ -323,7 +326,7 @@ void TCPServerSocket::setListen(int queueLen) throw(SocketException)
     if (!block)
         FD_SET(sockDesc, &fd_sock);
 
-    if (listen(sockDesc, queueLen) < 0) 
+    if (listen(sockDesc, queueLen) < 0)
     {
         throw SocketException("Set listening socket failed (listen())", true);
     }

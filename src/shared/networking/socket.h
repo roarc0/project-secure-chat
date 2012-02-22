@@ -23,7 +23,7 @@
 
 using namespace std;
 
-#define MAX_QUEUE_CONNECTIONS 5
+#define MAX_QUEUE_CONNECTIONS 16
 #define INVALID_SOCKET 0
 
 class SocketException : public exception 
@@ -43,19 +43,25 @@ class Socket
     public:
         ~Socket();
 
-        string getLocalAddress() throw(SocketException);
+        string           getLocalAddress()
+                         throw(SocketException);
+        unsigned short   getLocalPort()
+                         throw(SocketException);
 
-        unsigned short getLocalPort() throw(SocketException);
-
-        void setLocalPort(unsigned short localPort) throw(SocketException);
-
-        void setLocalAddressAndPort(const string &localAddress, 
-        unsigned short localPort = 0) throw(SocketException);
+        void             setLocalPort(unsigned short localPort)
+                         throw(SocketException);
+        void             setLocalAddressAndPort(const string &localAddress, 
+                                                unsigned short localPort = 0)
+                         throw(SocketException);
 
         static unsigned short resolveService(const string &service,
-                                           const string &protocol = "tcp");
+                                             const string &protocol = "tcp");
 
-        void setBlocking(const bool b) throw(SocketException);
+        void             initSocket()
+                         throw(SocketException);
+
+        void             setBlocking(const bool b)
+                         throw(SocketException);
 
     private:
         Socket(const Socket &sock);
@@ -64,6 +70,7 @@ class Socket
     protected:
         int sockDesc, sockDescMax;    // Socket descriptors
         fd_set fd_sock, fd_temp;
+        int domain, type, protocol;
         bool block;
 
         Socket(int type, int protocol, bool block) throw(SocketException);
@@ -73,31 +80,37 @@ class Socket
 class CommunicatingSocket : public Socket 
 {
     public:
-        void connect(const string &foreignAddress, unsigned short foreignPort)
+        void             connect(const string &foreignAddress,
+                                 unsigned short foreignPort)
         throw(SocketException);
-        void disconnect() throw(SocketException);
+        void             disconnect()
+                         throw(SocketException);
 
-        void send(const void *buffer, int bufferLen) throw(SocketException);
-        int recv(void *buffer, int bufferLen) throw(SocketException);
+        void             send(const void *buffer, int bufferLen)
+                         throw(SocketException);
+        int              recv(void *buffer, int bufferLen)
+                         throw(SocketException);
 
-
-
-        string getForeignAddress() throw(SocketException);
-
-        unsigned short getForeignPort() throw(SocketException);
+        string           getForeignAddress()
+                         throw(SocketException);
+        unsigned short   getForeignPort()
+                         throw(SocketException);
 
     protected:
-        CommunicatingSocket(int type, int protocol, bool block) throw(SocketException);
+        CommunicatingSocket(int type, int protocol, bool block)
+                         throw(SocketException);
         CommunicatingSocket(int newConnSD, bool block);
 };
 
 class TCPSocket : public CommunicatingSocket 
 {
     public:
-        TCPSocket() throw(SocketException);
+        TCPSocket()
+                         throw(SocketException);
 
-        TCPSocket(const string &foreignAddress, unsigned short foreignPort, bool block)
-          throw(SocketException);
+        TCPSocket(const string &foreignAddress,
+                  unsigned short foreignPort, bool block)
+                         throw(SocketException);
 
     private:
         friend class TCPServerSocket;
@@ -107,16 +120,20 @@ class TCPSocket : public CommunicatingSocket
 class TCPServerSocket : public Socket 
 {
     public:
-        TCPServerSocket(unsigned short localPort, bool block, int queueLen = MAX_QUEUE_CONNECTIONS) 
-          throw(SocketException);
+        TCPServerSocket(unsigned short localPort, bool block,
+                        int queueLen = MAX_QUEUE_CONNECTIONS) 
+                        throw(SocketException);
 
         TCPServerSocket(const string &localAddress, unsigned short localPort, 
-          bool block, int queueLen = MAX_QUEUE_CONNECTIONS) throw(SocketException);
+                        bool block, int queueLen = MAX_QUEUE_CONNECTIONS)
+                        throw(SocketException);
 
-        TCPSocket *accept() throw(SocketException);
+        TCPSocket *accept()
+                        throw(SocketException);
 
     private:
-        void setListen(int queueLen) throw(SocketException);
+        void setListen(int queueLen)
+                        throw(SocketException);
 };
 
 #endif  /* _SOCKET_H */

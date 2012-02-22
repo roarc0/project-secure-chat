@@ -1,8 +1,8 @@
 #include "network-threads.h"
 #include "../../shared/cryptography/crypto.h"
-#define NSEND 2
-#define NRECV 1
 
+#define   NSEND         2
+#define   NRECV         1
 
 void* net_thread(void* arg)
 {
@@ -20,7 +20,8 @@ void* net_thread(void* arg)
         for (int i = NSEND; i--;)
         {
             int len;
-            char* buffer;
+            char* buffer = NULL;
+
             pack = usession->GetPacketFromSend();
             if (!pack)
                 break;
@@ -31,22 +32,21 @@ void* net_thread(void* arg)
                 // buffer = cripta (buffer + 6,len)
             //else 
             {
-                len = 6 + pack->m_data.size() +1;
-                buffer = new char[len];
-                memcpy(buffer, pack->GetOpcodePointer(), 2);
-                memcpy(buffer, &len, 4);
-                strcpy(buffer + 6, pack->m_data.c_str());
+                buffer = new char[pack->GetRawLength() + 1]; // + 1 ? 
+                pack->GetRawData((unsigned char*)buffer);
             }
 
             try
             {
                 usession->GetSocket()->send(buffer,len);
-            } 
+            }
             catch (SocketException e)
             {
+                delete[] buffer;
                 INFO("debug","%s\n", e.what());
             }
-            delete buffer;
+
+            delete[] buffer;
         }
         
         for (int i = NRECV; i--;)
@@ -54,21 +54,20 @@ void* net_thread(void* arg)
             char* buffer = NULL;
             try 
             {
-                int len;
+                unsigned short len = 0;
                 pack = new Packet;
 
-                usession->GetSocket()->recv(pack->GetOpcodePointer(),2);
-                INFO("debug","opcode : x\n");
-                usession->GetSocket()->recv(&len,4);
+                usession->GetSocket()->recv(pack->GetOpcodePointer(), OPCODE_SIZE);
+                INFO("debug","opcode : %d\n", pack->GetOpcode());
+                usession->GetSocket()->recv(&len, LENGTH_SIZE);
                 INFO("debug","len    : %d\n", len);
                 buffer = new char[len+1];
-                usession->GetSocket()->recv(buffer,len);
+                usession->GetSocket()->recv(buffer, len);
+                buffer[len] = '\0';
                 INFO("debug","msg    : \"%s\"\n", buffer);
 
                 //if (usession->GetSecurity())
                     // decripta (buffer,len)
-
-                buffer[len] = '\0';
 
                 pack->m_data = buffer;
                 delete buffer;

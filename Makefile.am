@@ -6,6 +6,7 @@ AM_CPPFLAGS = $(GLIB_CFLAGS) $(GTK_CFLAGS)
 
 client_LDADD = $(GLIB_LIBS) $(GTK_LIBS)
 client_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp                                \
+                 src/shared/networking/packet.h src/shared/networking/packet.cpp                                \
                  src/shared/utility/logger.h src/shared/utility/logger.cpp                                      \
                  src/shared/common.h src/shared/common.cpp                                                      \
                  src/shared/utility/time.h src/shared/utility/time.cpp                                          \
@@ -21,6 +22,7 @@ client_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp
                  src/client/main.cpp
 
 server_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp                                \
+                 src/shared/networking/packet.h src/shared/networking/packet.cpp                                \
                  src/shared/utility/logger.h src/shared/utility/logger.cpp                                      \
                  src/shared/common.h src/shared/common.cpp                                                      \
                  src/shared/utility/time.h src/shared/utility/time.cpp                                          \

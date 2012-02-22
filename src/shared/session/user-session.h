@@ -5,7 +5,7 @@
 
 #include "../common.h"
 #include "../networking/socket.h"
-#include "../networking/packet/packet.h"
+#include "../networking/packet.h"
 
 #include <exception>         // For exception class
 #include <semaphore.h>       // For semaphore

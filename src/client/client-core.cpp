@@ -87,8 +87,12 @@ bool client_core::disconnect()
 
 void client_core::handle_message(const char* msg)  // comunicazione in ingresso dall'utente
 {
-    if(!csock)
+    if(!csock || !msg)
         return;
 
-    csock->send(msg, strlen(msg));
+    Packet pack = ForgePacket(OP_NULL, msg);
+    unsigned char* rawData = new unsigned char[pack.GetRawLength() + 1];
+    pack.GetRawData(rawData);
+    csock->send(rawData, pack.GetRawLength());
+    delete[] rawData;
 }

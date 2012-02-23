@@ -1,4 +1,3 @@
-
 #include "gui.h"
 
 enum {
@@ -43,7 +42,7 @@ void* gui_thread(void* arg)
             gtk_tool_button_set_label(GTK_TOOL_BUTTON(gui_thread_w->toolbar_connect),"Connect");
         }
 
-        msleep(200);
+        msleep(500);
     }
 
     pthread_exit(NULL);
@@ -86,7 +85,7 @@ void show_about(GtkWidget *widget, gpointer data)
 void show_message(gchar *message)
 {
    GtkWidget *dialog, *label;
-   
+
    dialog = gtk_dialog_new_with_buttons (PACKAGE_VERSION,
                                          0,
                                          GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -103,7 +102,7 @@ void show_message(gchar *message)
 }
 
 void destroy(GtkObject *object, gpointer user_data) 
-{ 
+{
     gtk_main_quit();
 }
 
@@ -133,6 +132,7 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
     //gtk_text_buffer_get_start_iter(buffer, &textiter);
     //gtk_text_buffer_get_end_iter(buffer, &textiter);
 
+    pthread_mutex_lock(&mutex_chat);
 
     switch(type)
     {
@@ -151,6 +151,8 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
         default:
         break;
     }
+
+    pthread_mutex_unlock(&mutex_chat);
 }
 
 void button_send_click(gpointer data, gchar *str, gchar type)
@@ -167,33 +169,46 @@ void button_send_click(gpointer data, gchar *str, gchar type)
     if (text[0] != '\\')
     {
         ss << "<" << CFG_GET_STRING("nickname") << "> " << text << endl;
-        pthread_mutex_lock(&mutex_chat);
         add_message_to_chat(button_send_w.chat_buffer, (gchar*) ss.str().c_str(), 'm');
-        pthread_mutex_unlock(&mutex_chat);
-        gtk_entry_set_text (GTK_ENTRY(button_send_w.text_entry), "");
     }
+
+    gtk_entry_set_text (GTK_ENTRY(button_send_w.text_entry), "");
 }
 
 void push_status_bar(const gchar *str)
 {
     guint id = gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar), "info");
-    gtk_statusbar_pop(GTK_STATUSBAR(status_bar),id);
+    gtk_statusbar_pop(GTK_STATUSBAR(status_bar), id);
     gtk_statusbar_push(GTK_STATUSBAR(status_bar), id, str);
 }
 
 void toolbar_connect_click(gpointer data, gchar *str, gchar type)
 {
     GtkToolButton *toolbar_connect = GTK_TOOL_BUTTON(data);
-    if (!c_core->is_connected() && c_core->connect())
+    if (!c_core->is_connected())
     {
-        push_status_bar("Connected with server!");
-        gtk_tool_button_set_label(toolbar_connect,"Disconnect");
+        if(c_core->connect())
+        {
+            push_status_bar("Connected with server!");
+            add_message_to_chat(button_send_w.chat_buffer, (gchar*) "Connected!\n", 's');
+            gtk_tool_button_set_label(toolbar_connect,"Disconnect");
+        }
+        else
+            push_status_bar("Connection failed!");
+
+        return;
     }
 
-    if(c_core->is_connected() && c_core->disconnect())
+    if(c_core->is_connected())
     {
-        push_status_bar("Disconnected with server!");
-        gtk_tool_button_set_label(toolbar_connect,"Connect");
+        if(c_core->disconnect())
+        {
+            push_status_bar("Disconnected with server!");
+            add_message_to_chat(button_send_w.chat_buffer, (gchar*) "Disconnected!\n", 's');
+            gtk_tool_button_set_label(toolbar_connect,"Connect");
+        }
+        else
+            push_status_bar("Disconnection failed!?");
     }
 }
 

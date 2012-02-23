@@ -37,7 +37,7 @@ static void fillAddr(const string &address, unsigned short port,
     hostent *host;  // Resolve name
     if ((host = gethostbyname(address.c_str())) == NULL) 
     {
-        throw SocketException("Failed to resolve name (gethostbyname())");
+        throw SocketException("Failed to resolve name [gethostbyname()]");
     }
     addr.sin_addr.s_addr = *((unsigned long *) host->h_addr_list[0]);
 
@@ -81,14 +81,14 @@ void Socket::initSocket() throw(SocketException)
 
     // Make a new socket
     if ((sockDesc = socket(PF_INET, type, protocol)) < 0)
-        throw SocketException("Socket creation failed (socket())", true);
+        throw SocketException("Socket creation failed [socket()]", true);
 
     setBlocking(block);
     if(!block)
         FD_ZERO(&fd_sock); // per usare la select
 
     if (setsockopt(sockDesc, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(int)) < 0)
-        throw SocketException("Set of socket options failed (setsockopt())", true);
+        throw SocketException("Set of socket options failed [setsockopt()]", true);
 }
 
 string Socket::getLocalAddress() throw(SocketException) 
@@ -98,7 +98,7 @@ string Socket::getLocalAddress() throw(SocketException)
 
     if (getsockname(sockDesc, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0) 
     {
-        throw SocketException("Fetch of local address failed (getsockname())", true);
+        throw SocketException("Fetch of local address failed [getsockname()]", true);
     }
     return inet_ntoa(addr.sin_addr);
 }
@@ -110,7 +110,7 @@ unsigned short Socket::getLocalPort() throw(SocketException)
 
     if (getsockname(sockDesc, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0) 
     {
-        throw SocketException("Fetch of local port failed (getsockname())", true);
+        throw SocketException("Fetch of local port failed [getsockname()]", true);
     }
     return ntohs(addr.sin_port);
 }
@@ -126,7 +126,7 @@ void Socket::setLocalPort(unsigned short localPort) throw(SocketException)
 
     if (bind(sockDesc, (sockaddr *) &localAddr, sizeof(sockaddr_in)) < 0) 
     {
-        throw SocketException("Set of local port failed (bind())", true);
+        throw SocketException("Set of local port failed [bind()]", true);
     }
 }
 
@@ -139,7 +139,7 @@ void Socket::setLocalAddressAndPort(const string &localAddress,
 
     if (bind(sockDesc, (sockaddr *) &localAddr, sizeof(sockaddr_in)) < 0) 
     {
-        throw SocketException("Set of local address and port failed (bind())", true);
+        throw SocketException("Set of local address and port failed [bind()]", true);
     }
 }
 
@@ -160,7 +160,7 @@ void Socket::setBlocking(const bool b)
     int opts;
     opts = fcntl (sockDesc, F_GETFL);
     if (opts < 0)
-        throw SocketException("Get opts failed (setBlocking())", true);
+        throw SocketException("Get opts failed [setBlocking()]", true);
 
     if (b)
         opts |= O_NONBLOCK;
@@ -192,7 +192,7 @@ void CommunicatingSocket::connect(const string &foreignAddress,
     if (::connect(sockDesc, (sockaddr *) &destAddr, sizeof(destAddr)) < 0)
     {
         //close(sockDesc); // per la riconnessione
-        throw SocketException("Connect failed (connect())", true);
+        throw SocketException("Connect failed [connect()]", true);
     }
 }
 
@@ -200,7 +200,7 @@ void CommunicatingSocket::disconnect() throw(SocketException)
 {
     if (close(sockDesc) < 0)
     {
-        throw SocketException("Socket close failed (close())", true);
+        throw SocketException("Socket close failed [close()]", true);
     }
     sockDesc = INVALID_SOCKET;
     initSocket();
@@ -211,7 +211,7 @@ void CommunicatingSocket::send(const void *buffer, int bufferLen)
 {
     if (::send(sockDesc, (raw_type *) buffer, bufferLen, 0) < 0) 
     {
-        throw SocketException("Send failed (send())", true);
+        throw SocketException("Send failed [send()]", true);
     }
 }
 
@@ -231,14 +231,18 @@ int CommunicatingSocket::recv(void *buffer, int bufferLen)
         if (ret == 0)
             return 0;
         if (ret < 0)
-            throw SocketException("Receive failed (FD_ISSET())", true);         // connessione fallita client disconnesso
+            throw SocketException("Receive failed [FD_ISSET()]", true);         // connessione fallita client disconnesso
     }
 
     if ((ret = ::recv(sockDesc, (raw_type *) buffer, bufferLen, 0)) <= 0)
     {
         close(sockDesc);
         sockDesc = INVALID_SOCKET;
-        throw SocketException("Receive failed (recv())", true);
+
+        if (ret == 0)
+            throw SocketException("Receive failed [recv()]", false);
+        else
+            throw SocketException("Receive failed [recv()]", true);
     }
 
     if (!block)
@@ -258,7 +262,7 @@ string CommunicatingSocket::getForeignAddress()
 
     if (getpeername(sockDesc, (sockaddr *) &addr,(socklen_t *) &addr_len) < 0) 
     {
-        throw SocketException("Fetch of foreign address failed (getpeername())", true);
+        throw SocketException("Fetch of foreign address failed [getpeername()]", true);
     }
     return inet_ntoa(addr.sin_addr);
 }
@@ -270,7 +274,7 @@ unsigned short CommunicatingSocket::getForeignPort() throw(SocketException)
 
     if (getpeername(sockDesc, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0) 
     {
-        throw SocketException("Fetch of foreign port failed (getpeername())", true);
+        throw SocketException("Fetch of foreign port failed [getpeername()]", true);
     }
     return ntohs(addr.sin_port);
 }
@@ -315,7 +319,7 @@ TCPSocket *TCPServerSocket::accept() throw(SocketException)
     int newSockDesc;
     if ((newSockDesc = ::accept(sockDesc, NULL, 0)) < 0) 
     {
-        throw SocketException("Accept failed (accept())", true);
+        throw SocketException("Accept failed [accept()]", true);
     }
 
     return new TCPSocket(newSockDesc, block);
@@ -328,6 +332,6 @@ void TCPServerSocket::setListen(int queueLen) throw(SocketException)
 
     if (listen(sockDesc, queueLen) < 0)
     {
-        throw SocketException("Set listening socket failed (listen())", true);
+        throw SocketException("Set listening socket failed [listen()]", true);
     }
 }

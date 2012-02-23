@@ -9,7 +9,6 @@ void* core_thread(void* arg)
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    while(1)
     try
     {
         TCPSocket client(CFG_GET_STRING("server_host"), CFG_GET_INT("server_port"), false);
@@ -17,14 +16,16 @@ void* core_thread(void* arg)
         c_core->set_connected(true);
 
         csock=&client;
-
-        while(c_core->is_connected())
+        while(1)
         {
-            msleep(1000); // gestore comunicazione in uscita
+            while(c_core->is_connected())
+            {
+                msleep(1000); // gestore comunicazione in uscita
+            }
+            c_core->set_connected(false);
+            msleep(6000);   // segnale di wait, quando si clicca su connect si fa il signal
+            //INFO("debug", "restarting client connection\n");
         }
-        c_core->set_connected(false);
-        msleep(6000);   // segnale di wait, quando si clicca su connect si fa il signal
-        INFO("debug", "restarting client connection\n");
     }
     catch(SocketException &e)
     {
@@ -90,7 +91,16 @@ void client_core::handle_message(const char* msg)  // comunicazione in ingresso 
     if(!csock || !msg)
         return;
 
-    Packet pack = ForgePacket(OP_NULL, msg);
+    string str_msg;
+
+    if (msg[0] != '\\')
+    {
+        str_msg = "\\send ";
+    }
+
+    str_msg += msg;
+
+    Packet pack = ForgePacket(OP_NULL, str_msg.c_str());
     unsigned char* rawData = new unsigned char[pack.GetRawLength() + 1];
     pack.GetRawData(rawData);
     csock->send(rawData, pack.GetRawLength());

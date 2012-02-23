@@ -107,7 +107,7 @@ class UserSession
         inline void MutexInit()
         {
             pthread_mutex_init(&mutex_recv, NULL);
-            pthread_mutex_init(&mutex_send, NULL);            
+            pthread_mutex_init(&mutex_send, NULL);
         }
 
         inline void  getlock_recv() { pthread_mutex_lock(&mutex_recv); }

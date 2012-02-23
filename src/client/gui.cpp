@@ -182,6 +182,18 @@ void push_status_bar(const gchar *str)
     gtk_statusbar_push(GTK_STATUSBAR(status_bar), id, str);
 }
 
+void toolbar_reset_click(gpointer data)
+{
+    GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(button_send_w.chat_buffer);
+    GtkTextIter textiter;
+
+    gtk_text_buffer_get_end_iter(text_view_buffer, &textiter);
+
+    pthread_mutex_lock(&mutex_chat);
+    gtk_text_buffer_set_text(text_view_buffer, "", 0);
+    pthread_mutex_unlock(&mutex_chat);
+}
+
 void toolbar_connect_click(gpointer data, gchar *str, gchar type)
 {
     GtkToolButton *toolbar_connect = GTK_TOOL_BUTTON(data);
@@ -229,6 +241,7 @@ void main_gui(int argc, char **argv)
     /* toolbar */
     GtkWidget *toolbar;
     GtkToolItem *toolbar_connect;
+    GtkToolItem *toolbar_reset;
     GtkToolItem *toolbar_separator;
     GtkToolItem *toolbar_exit;
 
@@ -323,13 +336,17 @@ void main_gui(int argc, char **argv)
 
     gtk_container_set_border_width(GTK_CONTAINER(toolbar), 2);
 
-    toolbar_connect = gtk_tool_button_new_from_stock(GTK_STOCK_NEW);
+    toolbar_connect = gtk_tool_button_new_from_stock(GTK_STOCK_NETWORK);
     if (!c_core->is_connected())
         gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolbar_connect), "Connect");
     else
         gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolbar_connect), "Disconnect");
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_connect, -1);
     g_signal_connect(G_OBJECT(toolbar_connect), "clicked", G_CALLBACK(toolbar_connect_click), NULL);
+    
+    toolbar_reset = gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR);
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_reset, -1);
+    g_signal_connect(G_OBJECT(toolbar_reset), "clicked", G_CALLBACK(toolbar_reset_click), NULL);
 
     toolbar_separator = gtk_separator_tool_item_new();
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_separator, -1);

@@ -1,11 +1,10 @@
 #include "../../server/session/session-manager.h"
-
-#ifndef _USERSESSION_H
-#define _USERSESSION_H
-
 #include "../common.h"
 #include "../networking/socket.h"
 #include "../networking/packet.h"
+
+#ifndef _USERSESSION_H
+#define _USERSESSION_H
 
 #include <exception>         // For exception class
 #include <semaphore.h>       // For semaphore

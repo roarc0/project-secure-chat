@@ -164,7 +164,7 @@ void button_send_click(gpointer data, gchar *str, gchar type)
         return;
 
     ss_h << text;
-    c_core->handle_message((char*)ss_h.str().c_str());
+    c_core->handle_send((char*)ss_h.str().c_str());
 
     if (text[0] != '\\')
     {

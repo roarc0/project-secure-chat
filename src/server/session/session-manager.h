@@ -7,6 +7,9 @@
 
 #define s_manager      SessionManager::GetInstance()
 
+typedef std::map<uint32, Session*>  usersession_map;
+typedef std::pair<uint32, Session*> usersession_pair;
+
 class Session
 {
     public:
@@ -42,7 +45,7 @@ class Session
             m_pUser = NULL;
             m_active = 0;
             releaselock_exec();
-            releaselock_net();  
+            releaselock_net();
         }
         void ToDelete()
         {
@@ -103,26 +106,23 @@ class Session
         UserSession* m_pUser;
 };
 
-typedef std::map<uint32, Session*>  usersession_map;
-typedef std::pair<uint32, Session*> usersession_pair;
-
 class SessionManagerException : public exception 
 {
-	public:
-		SessionManagerException(const std::string &message, bool inclSysMsg = false) throw();
-		~SessionManagerException() throw();
+    public:
+        SessionManagerException(const std::string &message, bool inclSysMsg = false) throw();
+        ~SessionManagerException() throw();
 
-		const char *what() const throw();
+        const char *what() const throw();
 
-	private:
-		std::string userMessage;  // Exception message
+    private:
+        std::string userMessage;  // Exception message
 };
 
 // Classe di gestione delle sessioni aperte
 class SessionManager
 {
     public:
-	    
+
         static SessionManager* GetInstance()
         {
             if (!smgr_singleton)
@@ -141,14 +141,16 @@ class SessionManager
         void endSessionExecute(uint32 id);
 
         std::string GetNameFromId(uint32 id);
+        void        GetIdList(std::list<uint32>*);
+        uint32      GetUsersessionId(UserSession*);
 
         void SendPacketTo(uint32 id, Packet* new_packet) throw(SessionManagerException);
-        
+
     private:
         usersession_map sessions;
         uint32 next_id;
 
-	    usersession_map::iterator it_net;
+        usersession_map::iterator it_net;
         usersession_map::iterator it_exec;
 
         // MUTEX
@@ -156,7 +158,7 @@ class SessionManager
         pthread_mutex_t           mutex_sessions;
 
         pthread_mutex_t           mutex_it_net;    // Mutex su usersession_map::iterator it_net
-        pthread_mutex_t           mutex_it_exec;   // Mutex su usersession_map::iterator it_exec     
+        pthread_mutex_t           mutex_it_exec;   // Mutex su usersession_map::iterator it_exec
         static SessionManager*    smgr_singleton;
 
         SessionManager();

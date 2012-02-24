@@ -21,9 +21,7 @@ void* core_thread(void* arg)
                 c_core->handle_recv(); // gestore comunicazione in ingresso
                 msleep(5); 
             }
-            c_core->set_connected(false);
-            msleep(6000);                                          // realizzare un segnale di wait, quando si clicca su connect si fa il signal
-            INFO("debug", "restarting client connection\n");
+            msleep(300);                                          // realizzare un segnale di wait, quando si clicca su connect si fa il signal
         }
     }
     catch(SocketException &e)
@@ -111,13 +109,13 @@ void client_core::handle_send(const char* msg)  // comunicazione in ingresso dal
 void client_core::handle_recv()
 {
     char *buffer = NULL;
-    unsigned short len = 0;
-    Packet* pack = new Packet;
+    unsigned short len = 0,opcode;
 
     try
     {
-        csock->recv(pack->GetOpcodePointer(), OPCODE_SIZE);
-        INFO("debug","opcode : %d\n", pack->GetOpcode());
+        if (csock->recv(&opcode, OPCODE_SIZE) == 0);
+            return;
+        INFO("debug","opcode : %d\n", opcode);
         csock->recv(&len, LENGTH_SIZE);
         INFO("debug","len    : %d\n", len);
         buffer = new char[len+1];
@@ -125,21 +123,18 @@ void client_core::handle_recv()
         buffer[len] = '\0';
         INFO("debug","msg    : \"%s\"\n", buffer);
 
-        //if (usession->GetSecurity())
-            // decripta (buffer,len)
-
-        pack->m_data = buffer;
         delete buffer;
         buffer = NULL;
     } 
     catch (SocketException e)
     {
         INFO("debug","* client session error, %s\n", e.what());
-        delete pack;
         if (buffer)
         {
             delete buffer;
             buffer = NULL;
         }
+        c_core->set_connected(false);
+        csock->initSocket();
     }
 }

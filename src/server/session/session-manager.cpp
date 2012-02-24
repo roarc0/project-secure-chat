@@ -167,10 +167,12 @@ void SessionManager::SendPacketTo (uint32 id, Packet* new_packet) throw(SessionM
     if (itr == sessions.end())
         throw SessionManagerException("Id not found (SendPacketTo(uint32 id, Packet* new_packet))");
     itr->second->getlock_session();
-    if (itr->second->IsActive() && (itr->second->GetUserSession()->GetTime() > new_packet->GetTime()))
+
+    // per ora voglio vedere se arriva
+    //if (itr->second->IsActive() && (itr->second->GetUserSession()->GetTime() > new_packet->GetTime()))
         itr->second->GetUserSession()->QueuePacketToSend(new_packet);
-    else
-        delete new_packet;
+    //else  // il delete va fatto quando possibile nella funzione che ha fatto la new
+    //    delete new_packet;
     itr->second->releaselock_session();
 }
 

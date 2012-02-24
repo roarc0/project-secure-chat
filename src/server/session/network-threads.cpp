@@ -26,7 +26,7 @@ void* net_thread(void* arg)
             if (!pack)
                 break;
 
-            INFO("debug","send message!\n");
+            INFO("debug","sending message!\n");
 
             //if (usession->GetSecurity())
                 // buffer = cripta (buffer + 6,len)
@@ -57,13 +57,29 @@ void* net_thread(void* arg)
                 unsigned short len = 0;
                 pack = new Packet;
 
-                usession->GetSocket()->recv(pack->GetOpcodePointer(), OPCODE_SIZE);
+                if (usession->GetSocket()->recv(pack->GetOpcodePointer(), OPCODE_SIZE) == 0)
+                {
+                    delete pack;
+                    break;
+                }
+
                 INFO("debug","opcode : %d\n", pack->GetOpcode());
-                usession->GetSocket()->recv(&len, LENGTH_SIZE);
+                if (usession->GetSocket()->recv(&len, LENGTH_SIZE) == 0)
+                {
+                    delete pack;
+                    break;
+                }
+
                 INFO("debug","len    : %d\n", len);
                 buffer = new char[len+1];
-                usession->GetSocket()->recv(buffer, len);
-                buffer[len] = '\0';
+                if (usession->GetSocket()->recv(buffer, len) == 0)
+                {
+                    delete pack;
+                    break;
+                }
+
+                if (len > 1)
+                    buffer[len] = '\0';
                 INFO("debug","msg    : \"%s\"\n", buffer);
 
                 //if (usession->GetSecurity())

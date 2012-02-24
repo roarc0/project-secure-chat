@@ -14,10 +14,11 @@ void* core_thread(void*);
 
 class client_core
 {
-    bool connected;
-    static client_core*    ccore_singleton;
+    TCPSocket*            csock;   // si dovrebbe usare UserSession ma al momento la classe include Session...
+    bool                  connected;
+    static client_core*   ccore_singleton;
 
-          client_core();
+    client_core();
 
   public:
 
@@ -27,12 +28,13 @@ class client_core
             ccore_singleton = new client_core();
         return ccore_singleton;
     };
-    
-          ~client_core();
+
+    ~client_core();
 
     bool  connect();
     bool  disconnect();
-    void  handle_message(const char*);
+    void  handle_send(const char*);
+    void  handle_recv();
 
     void  gui_update_status_bar(const char*);
     

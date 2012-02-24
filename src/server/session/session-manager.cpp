@@ -40,8 +40,8 @@ SessionManager::~SessionManager()
     pthread_mutex_destroy(&mutex_it_exec);
 }
 
-void SessionManager::createSession (TCPSocket* sock) 
-{    
+void SessionManager::createSession (TCPSocket* sock)
+{
     getlock_sessions();
     UserSession* us = new UserSession(sock);
     usersession_map::iterator itr = sessions.begin();
@@ -77,20 +77,20 @@ void SessionManager::deleteSession (uint32 id)
 UserSession* SessionManager::getNextSessionToServe()
 {
     UserSession* pUser = NULL;
-    getlock_it_net(); // Get Mutex    
+    getlock_it_net(); // Get Mutex
     if (!sessions.empty())
     {
         if (it_net == sessions.end())
-            it_net = sessions.begin();  
+            it_net = sessions.begin();
         while (!pUser)
-        {            
+        {
             it_net->second->getlock_session();
             if (it_net->second->getlock_net())
                 pUser = it_net->second->GetUserSession();
             it_net->second->releaselock_session();
             it_net++;
             if (it_net == sessions.end())
-                it_net = sessions.begin();        
+                it_net = sessions.begin();
         } 
     }
     releaselock_it_net(); // End Mutex
@@ -106,7 +106,7 @@ UserSession* SessionManager::getNextSessionToExecute()
         if (it_exec == sessions.end())
             it_exec = sessions.begin();
         while (!pUser)
-        {            
+        {
             it_exec->second->getlock_session();
             if (it_exec->second->getlock_exec())
                 pUser = it_exec->second->GetUserSession();
@@ -115,7 +115,7 @@ UserSession* SessionManager::getNextSessionToExecute()
             if (it_exec == sessions.end())
                 it_exec = sessions.begin();
         }
-    }    
+    }
     releaselock_it_exec(); // End Mutex
     return pUser; 
 }
@@ -140,6 +140,25 @@ void SessionManager::endSessionExecute(uint32 id)
         itr->second->releaselock_exec();
         itr->second->releaselock_session();
     }
+}
+
+void SessionManager::GetIdList(std::list<uint32>* ulist)
+{
+    usersession_map::iterator itr = sessions.begin();
+
+    for(;itr!=sessions.end();itr++)
+        ulist->push_back(itr->first);
+}
+
+uint32 SessionManager::GetUsersessionId(UserSession* usession)
+{
+    usersession_map::iterator itr = sessions.begin();
+
+    for(;itr!=sessions.end();itr++)
+        if (itr->second->GetUserSession() == usession)
+            return itr->first;
+
+    return 0;
 }
 
 void SessionManager::SendPacketTo (uint32 id, Packet* new_packet) throw(SessionManagerException)

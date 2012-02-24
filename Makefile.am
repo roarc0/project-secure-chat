@@ -32,10 +32,10 @@ server_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp
                  src/shared/execution/command-manager.h src/shared/execution/command-manager.cpp                \
                  src/shared/execution/command.h src/shared/execution/command.cpp                                \
                  src/shared/execution/functions.h src/shared/execution/functions.cpp                            \
-                 src/shared/session/user-session.h src/shared/session/user-session.cpp                          \
-                 src/server/session/execution-threads.h src/server/session/execution-threads.cpp                \
                  src/server/execution/command-manager-server.h src/server/execution/command-manager-server.cpp  \
                  src/server/execution/functions-server.h src/server/execution/functions-server.cpp              \
+                 src/shared/session/user-session.h src/shared/session/user-session.cpp                          \
+                 src/server/session/execution-threads.h src/server/session/execution-threads.cpp                \
                  src/server/session/network-threads.h src/server/session/network-threads.cpp                    \
                  src/server/session/session-manager.h src/server/session/session-manager.cpp                    \
                  src/server/channel/channel-manager.h src/server/channel/channel-manager.cpp                    \

@@ -46,14 +46,14 @@ class UserSession
         }
 
         void UpdatePacket();
-        
+
         void QueuePacketToRecv(Packet* new_packet);
         int RecvSize();
         Packet* GetPacketFromRecv();
         void QueuePacketToSend(Packet* new_packet);
         int SendSize();
         Packet* GetPacketFromSend();
-        
+
         void SetSecurity(uint8 security) { m_security = security; }
         uint8 GetSecurity() const { return m_security; }
 

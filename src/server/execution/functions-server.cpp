@@ -9,9 +9,8 @@ bool send_message(void* params)
     if (sender_id == 0)
         return false;
 
-    Packet pack;
-    pack.SetOpcode(0);
-    pack.m_data = hpar->params;
+    Packet* pack = new Packet(0);
+    pack->m_data = hpar->params;
 
     INFO("debug", "sender id is %d\n", sender_id);
 
@@ -21,7 +20,7 @@ bool send_message(void* params)
         if (*(itr) != sender_id)
         {
             INFO("debug", "sending msg to id %d\n", *(itr));
-            s_manager->SendPacketTo(*(itr), &pack);
+            s_manager->SendPacketTo(*(itr), pack);
         }
     return true;
 }

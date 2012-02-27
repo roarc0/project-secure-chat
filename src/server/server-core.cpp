@@ -24,7 +24,6 @@ void server_core()
             try
             {
                 temp_sock = server.accept();
-                temp_sock->setBlocking(false);
                 s_manager->createSession(temp_sock);
                 INFO("debug", "* client session created! %s:%d\n", 
                      temp_sock->getForeignAddress().c_str(),

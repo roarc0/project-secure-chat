@@ -29,11 +29,13 @@ class Packet
         Packet(uint16 opcode) : m_opcode(opcode) 
         {
             gettimeofday(&m_createTime, NULL);
+            m_data = "";
         }
 
         Packet() : m_opcode(OP_NULL) 
         {
             gettimeofday(&m_createTime, NULL);
+            m_data = "";
         }
 
         // costruttore di copia

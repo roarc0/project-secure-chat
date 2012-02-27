@@ -26,14 +26,14 @@ void* net_thread(void* arg)
             if (!pack)
                 break;
 
-            INFO("debug","sending message!\n");
-
             //if (usession->GetSecurity())
                 // buffer = cripta (buffer + 6,len)
             //else 
             {
-                buffer = new char[pack->GetRawLength() + 1]; // + 1 ? 
+                len = pack->GetRawLength();
+                buffer = new char[len + 1];
                 pack->GetRawData((unsigned char*)buffer);
+                buffer[len] = '\0';
             }
 
             try
@@ -78,6 +78,8 @@ void* net_thread(void* arg)
                     break;
                 }
 
+
+
                 if (len > 1)
                     buffer[len] = '\0';
                 INFO("debug","msg    : \"%s\"\n", buffer);
@@ -102,8 +104,12 @@ void* net_thread(void* arg)
                 }
                 s_manager->deleteSession(usession->GetId());                // UCCIDO LA SESSIONE
             }
-            usession->releaselock_net();
+
+msleep(500);
+usession->GetSocket()->send("hello server",12);
         }
+
+        usession->releaselock_net();
 
         //if (s_manager->MoreThreadsThanClients) // i'm useless
         //    break; //harakiri

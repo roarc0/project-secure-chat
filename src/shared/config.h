@@ -12,6 +12,9 @@
 #define CFG_GET_STRING(_id)  config::get_instance()->get_string(_id)
 #define CFG_GET_FLOAT(_id)   config::get_instance()->get_float(_id)
 
+#define WHERE_AM_I() printf ("* Line %d of file %s (function <%s>)\n",\
+                      __LINE__, __FILE__, __func__)
+
 using namespace std;
 
 class config

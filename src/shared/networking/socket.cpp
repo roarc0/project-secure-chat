@@ -32,7 +32,7 @@ static void fillAddr(const string &address, unsigned short port,
                      sockaddr_in &addr) 
 {
     memset(&addr, 0, sizeof(addr));  // Zero out address structure
-    addr.sin_family = AF_INET;       // Internet address
+    addr.sin_family = PF_INET;       // Internet address
 
     hostent *host;  // Resolve name
     if ((host = gethostbyname(address.c_str())) == NULL) 
@@ -46,20 +46,23 @@ static void fillAddr(const string &address, unsigned short port,
 
 // Socket Code
 
-Socket::Socket(int type, int protocol, bool block) throw(SocketException) 
+Socket::Socket(int type, int protocol, bool s_block) throw(SocketException) 
 {
     domain = PF_INET;
     Socket::type = type;
     Socket:: protocol = protocol;
-    Socket::block = block;
+    block = s_block;
     initSocket();
 }
 
-Socket::Socket(int sockDesc, bool block)
+Socket::Socket(int sockDesc, int type, int protocol, bool s_block)
 {
+    domain = PF_INET;
+    Socket::type = type;
+    Socket:: protocol = protocol;
     this->sockDesc = sockDesc;
-    Socket::block = block;
-    setBlocking(block);
+    block = s_block;
+    //setBlocking(block);
 }
 
 Socket::~Socket()
@@ -83,12 +86,14 @@ void Socket::initSocket() throw(SocketException)
     if ((sockDesc = socket(PF_INET, type, protocol)) < 0)
         throw SocketException("Socket creation failed [socket()]", true);
 
-    setBlocking(block);
-    if(!block)
-        FD_ZERO(&fd_sock); // per usare la select
-
     if (setsockopt(sockDesc, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(int)) < 0)
         throw SocketException("Set of socket options failed [setsockopt()]", true);
+
+    setBlocking(block);
+    if(!block)
+        FD_ZERO(&fd_sock); // per usare la select    
+
+    INFO("debug", "* init socket=%d block=%d\n", sockDesc, block);
 }
 
 string Socket::getLocalAddress() throw(SocketException) 
@@ -120,7 +125,7 @@ void Socket::setLocalPort(unsigned short localPort) throw(SocketException)
     // Bind the socket to its port
     sockaddr_in localAddr;
     memset(&localAddr, 0, sizeof(localAddr));
-    localAddr.sin_family = AF_INET;
+    localAddr.sin_family = PF_INET;
     localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     localAddr.sin_port = htons(localPort);
 
@@ -157,6 +162,8 @@ unsigned short Socket::resolveService(const string &service,
 void Socket::setBlocking(const bool b)
     throw(SocketException)
 {
+    INFO("debug", "* setting blocking socket=%d block=%d\n",sockDesc, block);
+
     int opts;
     opts = fcntl (sockDesc, F_GETFL);
     if (opts < 0)
@@ -172,12 +179,12 @@ void Socket::setBlocking(const bool b)
 }
 
 // CommunicatingSocket Code
-CommunicatingSocket::CommunicatingSocket(int type, int protocol, bool block)
-    throw(SocketException) : Socket(type, protocol, block) 
+CommunicatingSocket::CommunicatingSocket(int type, int protocol, bool s_block)
+    throw(SocketException) : Socket(type, protocol, s_block) 
 {
 }
 
-CommunicatingSocket::CommunicatingSocket(int newConnSD, bool block) : Socket(newConnSD, block) 
+CommunicatingSocket::CommunicatingSocket(int newConnSD, int type, int protocol, bool s_block) : Socket(newConnSD, type, protocol, s_block) 
 {
 }
 
@@ -213,6 +220,9 @@ void CommunicatingSocket::send(const void *buffer, int bufferLen)
     {
         throw SocketException("Send failed [send()]", true);
     }
+
+    INFO("debug", "* %d bytes sent\n", bufferLen);
+
 }
 
 int CommunicatingSocket::recv(void *buffer, int bufferLen) 
@@ -221,15 +231,26 @@ int CommunicatingSocket::recv(void *buffer, int bufferLen)
     int ret;
     struct timeval tv;
     tv.tv_sec = 0;
-    tv.tv_usec = 300;
+    tv.tv_usec = 30;
 
     if (!block)
     {
         FD_ZERO(&fd_sock);
         FD_SET(sockDesc, &fd_sock);
-        ret = FD_ISSET(sockDesc, &fd_sock);
+
+        ret = select(sockDesc + 1, &fd_sock, NULL, NULL, &tv);
+
         if (ret == 0)
             return 0;
+
+        if (ret < 0)
+            throw SocketException("Receive failed [Select()]", true);         // connessione fallita client disconnesso
+
+        ret = FD_ISSET(sockDesc, &fd_sock);
+
+        if (ret == 0)
+            return 0;
+
         if (ret < 0)
             throw SocketException("Receive failed [FD_ISSET()]", true);         // connessione fallita client disconnesso
     }
@@ -238,6 +259,7 @@ int CommunicatingSocket::recv(void *buffer, int bufferLen)
     {
         close(sockDesc);
         sockDesc = INVALID_SOCKET;
+        //initSocket();
 
         if (ret == 0)
             throw SocketException("Receive failed [recv()]", false);
@@ -247,7 +269,7 @@ int CommunicatingSocket::recv(void *buffer, int bufferLen)
 
     if (!block)
     {
-        FD_CLR(sockDesc, &fd_sock);
+        //FD_CLR(sockDesc, &fd_sock);
         FD_ZERO(&fd_sock);
     }
 
@@ -281,37 +303,35 @@ unsigned short CommunicatingSocket::getForeignPort() throw(SocketException)
 
 // TCPSocket Code
 TCPSocket::TCPSocket() 
-    throw(SocketException) : CommunicatingSocket(SOCK_STREAM, IPPROTO_TCP) 
+    throw(SocketException) : CommunicatingSocket(SOCK_STREAM, IPPROTO_TCP, block) 
 {
 }
 
-TCPSocket::TCPSocket(const string &foreignAddress, unsigned short foreignPort, bool block)
-    throw(SocketException) : CommunicatingSocket(SOCK_STREAM, IPPROTO_TCP, block)
+TCPSocket::TCPSocket(const string &foreignAddress, unsigned short foreignPort, bool s_block)
+    throw(SocketException) : CommunicatingSocket(SOCK_STREAM, IPPROTO_TCP, s_block)
 {
     connect(foreignAddress, foreignPort);
 }
 
-TCPSocket::TCPSocket(int newConnSD, bool block) : CommunicatingSocket(newConnSD, block) 
+TCPSocket::TCPSocket(int newConnSD, bool s_block) : CommunicatingSocket(newConnSD, SOCK_STREAM, IPPROTO_TCP, s_block) 
 {
 }
 
 // TCPServerSocket Code
 
-TCPServerSocket::TCPServerSocket(unsigned short localPort, bool block, int queueLen)
-    throw(SocketException) : Socket(SOCK_STREAM, IPPROTO_TCP, block) 
+TCPServerSocket::TCPServerSocket(unsigned short localPort, bool s_block, int queueLen)
+    throw(SocketException) : Socket(SOCK_STREAM, IPPROTO_TCP, s_block) 
 {
     setLocalPort(localPort);
     setListen(queueLen);
-    setBlocking(block);
 }
 
 TCPServerSocket::TCPServerSocket(const string &localAddress, 
-    unsigned short localPort, bool block, int queueLen) 
-    throw(SocketException) : Socket(SOCK_STREAM, IPPROTO_TCP, block) 
+    unsigned short localPort, bool s_block, int queueLen) 
+    throw(SocketException) : Socket(SOCK_STREAM, IPPROTO_TCP, s_block) 
 {
     setLocalAddressAndPort(localAddress, localPort);
     setListen(queueLen);
-    setBlocking(block);
 }
 
 TCPSocket *TCPServerSocket::accept() throw(SocketException) 
@@ -321,6 +341,8 @@ TCPSocket *TCPServerSocket::accept() throw(SocketException)
     {
         throw SocketException("Accept failed [accept()]", true);
     }
+
+    INFO("debug", "* accepting new socket=%d block=%d\n",newSockDesc, block);
 
     return new TCPSocket(newSockDesc, block);
 }

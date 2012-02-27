@@ -24,9 +24,6 @@
 #include "config.h"
 #include "../../config.h"
 
-#define DEBUG printf ("* Line %d of file %s (function <%s>)\n",\
-                      __LINE__, __FILE__, __func__)
-
 #ifndef  COMMON_H
 #define COMMON_H
 

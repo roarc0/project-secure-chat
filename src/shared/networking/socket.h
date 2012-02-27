@@ -74,7 +74,7 @@ class Socket
         bool block;
 
         Socket(int type, int protocol, bool block) throw(SocketException);
-        Socket(int sockDesc, bool block);
+        Socket(int sockDesc, int type, int protocol, bool block);
 };
 
 class CommunicatingSocket : public Socket 
@@ -99,7 +99,7 @@ class CommunicatingSocket : public Socket
     protected:
         CommunicatingSocket(int type, int protocol, bool block)
                          throw(SocketException);
-        CommunicatingSocket(int newConnSD, bool block);
+        CommunicatingSocket(int newConnSD, int type, int protocol, bool block);
 };
 
 class TCPSocket : public CommunicatingSocket 

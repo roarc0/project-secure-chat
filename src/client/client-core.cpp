@@ -11,6 +11,7 @@ void* core_thread(void* arg)
 
     try
     {
+        msleep(500);
         INFO("debug", "connection successful %s:%d\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"));
         c_core->set_connected(true);
 
@@ -19,7 +20,7 @@ void* core_thread(void* arg)
             while(c_core->is_connected())
             {
                 c_core->handle_recv(); // gestore comunicazione in ingresso
-                msleep(5); 
+                msleep(3); 
             }
             msleep(300);                                          // realizzare un segnale di wait, quando si clicca su connect si fa il signal
         }
@@ -109,7 +110,7 @@ void client_core::handle_send(const char* msg)  // comunicazione in ingresso dal
 void client_core::handle_recv()
 {
     char *buffer = NULL;
-    unsigned short len = 0,opcode;
+    unsigned short len = 0, opcode;
 
     try
     {

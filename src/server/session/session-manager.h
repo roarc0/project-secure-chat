@@ -144,21 +144,33 @@ class SessionManager
         void        GetIdList(std::list<uint32>*);
         uint32      GetUsersessionId(UserSession*);
 
+        void IncNetThread();
+        void IncExecThread();
+        void DecNetThread();
+        void DecExecThread();
+
+        bool IsMoreNetThreadsThanClients();
+        bool IsMoreExecThreadsThanClients();
+
         void SendPacketTo(uint32 id, Packet* new_packet) throw(SessionManagerException);
 
     private:
         usersession_map sessions;
         uint32 next_id;
+        uint32 net_number;
+        uint32 exec_number;
 
         usersession_map::iterator it_net;
         usersession_map::iterator it_exec;
-
         // MUTEX
 
         pthread_mutex_t           mutex_sessions;
 
         pthread_mutex_t           mutex_it_net;    // Mutex su usersession_map::iterator it_net
         pthread_mutex_t           mutex_it_exec;   // Mutex su usersession_map::iterator it_exec
+
+        pthread_mutex_t           mutex_net_number;    // Mutex su net_number
+        pthread_mutex_t           mutex_exec_number;   // Mutex su exec_number
         static SessionManager*    smgr_singleton;
 
         SessionManager();
@@ -167,6 +179,8 @@ class SessionManager
             pthread_mutex_init(&mutex_sessions, NULL);
             pthread_mutex_init(&mutex_it_net, NULL);
             pthread_mutex_init(&mutex_it_exec, NULL);
+            pthread_mutex_init(&mutex_exec_number, NULL);
+            pthread_mutex_init(&mutex_net_number, NULL);            
         }
 
         inline void  getlock_sessions() { pthread_mutex_lock(&mutex_sessions); }
@@ -175,8 +189,10 @@ class SessionManager
         inline void  getlock_it_net() { pthread_mutex_lock(&mutex_it_net); }
         inline void  releaselock_it_net() { pthread_mutex_unlock(&mutex_it_net); }  
   
-        inline void  getlock_it_exec() { pthread_mutex_lock(&mutex_it_exec); }
-        inline void  releaselock_it_exec() { pthread_mutex_unlock(&mutex_it_exec); }  
+        inline void  getlock_net_number() { pthread_mutex_lock(&mutex_net_number); }
+        inline void  releaselock_net_number() { pthread_mutex_unlock(&mutex_net_number); }
+        inline void  getlock_exec_number() { pthread_mutex_lock(&mutex_exec_number); }
+        inline void  releaselock_exec_number() { pthread_mutex_unlock(&mutex_exec_number); } 
 };
 
 #endif  /* _SESSION_MRG_H */

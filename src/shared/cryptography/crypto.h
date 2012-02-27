@@ -1,16 +1,20 @@
 #ifndef CRYPT_H
 #define CRYPT_H
-#include <openssl/evp.h>
+#include <iostream>
 #include <string>
+#include <openssl/evp.h>
 
 typedef unsigned char Buffer;
+
 using namespace std;
 //{}
 void printbyte(char);
 
-struct smartBuffer { // not so smart
+class smartBuffer { // not so smart
+    public:
     Buffer *const val;
     int len;
+
     smartBuffer(int l) : val(new Buffer[l]), len(l) { random(); };
     smartBuffer(char* v) : val((Buffer*)v), len(strlen(v)){};
     smartBuffer(string v) : val((Buffer*)v.c_str()), len(v.size()){};
@@ -18,6 +22,11 @@ struct smartBuffer { // not so smart
     
     void print();
     void random();
+
+    std::ostream& operator<<(std::ostream& os) // non mi compilava
+    {
+       return cout << val;
+    }
 };
 
 class CryptoException{};
@@ -28,17 +37,15 @@ class Crypto
     
     public:
     Crypto (smartBuffer k = smartBuffer()): symKey(k){};
+
+    void setSymKey(smartBuffer);
+    smartBuffer getSymKey();
     
     smartBuffer sym_encrypt(smartBuffer);
     smartBuffer sym_decrypt(smartBuffer);
     smartBuffer asym_encrypt(smartBuffer);
     smartBuffer asym_decrypt(smartBuffer);
 };
-
-ostream& operator<<(ostream& o, smartBuffer s)
-{
-   o<<s.val;
-}
 
 #endif
 

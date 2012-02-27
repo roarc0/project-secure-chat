@@ -1,9 +1,9 @@
-#include <iostream>
 #include <cstring>
 #include <openssl/evp.h>
 #include <openssl/rand.h>
-#include "crypto.h"
 #include <vector>
+
+#include "crypto.h"
 
 using namespace std;
 
@@ -24,6 +24,18 @@ void smartBuffer::print()
     printf("\n");
 }
 
+/******************* crypto *******************/
+
+void Crypto::setSymKey(smartBuffer key)
+{
+    // symKey = key; // ridefinire operator =
+}
+
+smartBuffer Crypto::getSymKey()
+{
+    return symKey;
+}
+    
 smartBuffer Crypto::sym_encrypt (smartBuffer plaintext)
 {
 	EVP_CIPHER_CTX* ctx = (EVP_CIPHER_CTX*)malloc(sizeof(EVP_CIPHER_CTX));     

@@ -16,6 +16,7 @@ client_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp
                  src/shared/execution/command-manager.h src/shared/execution/command-manager.cpp                \
                  src/shared/execution/command.h src/shared/execution/command.cpp                                \
                  src/shared/execution/functions.h src/shared/execution/functions.cpp                            \
+                 src/shared/cryptography/crypto.h src/shared/cryptography/crypto.cpp                            \
                  src/client/client-config.h src/client/client-config.cpp                                        \
                  src/client/client-core.h src/client/client-core.cpp                                            \
                  src/client/gui.h src/client/gui.cpp                                                            \
@@ -32,6 +33,7 @@ server_SOURCES = src/shared/networking/socket.h src/shared/networking/socket.cpp
                  src/shared/execution/command-manager.h src/shared/execution/command-manager.cpp                \
                  src/shared/execution/command.h src/shared/execution/command.cpp                                \
                  src/shared/execution/functions.h src/shared/execution/functions.cpp                            \
+                 src/shared/cryptography/crypto.h src/shared/cryptography/crypto.cpp                            \
                  src/server/execution/command-manager-server.h src/server/execution/command-manager-server.cpp  \
                  src/server/execution/functions-server.h src/server/execution/functions-server.cpp              \
                  src/shared/session/user-session.h src/shared/session/user-session.cpp                          \

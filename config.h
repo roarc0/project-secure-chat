@@ -37,6 +37,9 @@
 /* Define to 1 if you have the `confuse' library (-lconfuse). */
 #define HAVE_LIBCONFUSE 1
 
+/* Define to 1 if you have the `crypto' library (-lcrypto). */
+#define HAVE_LIBCRYPTO 1
+
 /* Define to 1 if you have the `glib-2.0' library (-lglib-2.0). */
 #define HAVE_LIBGLIB_2_0 1
 

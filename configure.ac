@@ -19,7 +19,7 @@ AC_CHECK_LIB(sqlite3, sqlite3_exec)
 AC_CHECK_LIB([gtk-x11-2.0], [gtk_main], [], [AC_MSG_ERROR([gtk+-2.x is missing or not built with X support])])
 AC_CHECK_LIB(glib-2.0, g_print)
 AC_CHECK_LIB(ssl, EVP_EncryptInit)
-#AC_CHECK_LIB(crypto, )
+AC_CHECK_LIB(crypto, EVP_EncryptFinal )
 
 # GLIB
 PKG_CHECK_MODULES(GLIB, glib-2.0 gobject-2.0)

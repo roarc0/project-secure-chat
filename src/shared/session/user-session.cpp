@@ -4,11 +4,11 @@
 UserSessionException::UserSessionException(const string &message, bool inclSysMsg)
   throw() : userMessage(message) 
 {
-	if (inclSysMsg) 
-	{
-		userMessage.append(": ");
-		userMessage.append(strerror(errno));
-	}
+    if (inclSysMsg) 
+    {
+        userMessage.append(": ");
+        userMessage.append(strerror(errno));
+    }
 }
 
 UserSessionException::~UserSessionException() throw() 
@@ -17,13 +17,13 @@ UserSessionException::~UserSessionException() throw()
 
 const char *UserSessionException::what() const throw() 
 {
-	return userMessage.c_str();
+    return userMessage.c_str();
 }
 
 UserSession::UserSession(TCPSocket* Socket, Session* pSes) 
 { 
     m_Socket = Socket;
-    m_pSes = pSes;   
+    m_pSes = pSes;
     MutexInit();
     ResetTime();
 }
@@ -77,7 +77,7 @@ Packet* UserSession::GetPacketFromSend()
     {
         pck = _sendQueue.front();
         _sendQueue.pop_front();
-    }    
+    }
     releaselock_send();
     return pck;
 }

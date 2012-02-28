@@ -31,6 +31,7 @@ SessionManager::SessionManager()
     next_id = 1;
     net_number = 0;
     exec_number = 0;
+    active_sessions = 0;
 
     MutexInit();
 }
@@ -63,6 +64,7 @@ void SessionManager::createSession (TCPSocket* sock)
         sessions.insert(usersession_pair(next_id, ses));
         next_id++;
     }
+    active_sessions++;
     releaselock_sessions();
 }
 
@@ -73,7 +75,11 @@ void SessionManager::deleteSession (uint32 id)
     {        
         itr->second->getlock_session();
         if (itr->second->IsActive())
+        {
             itr->second->ToDelete();
+            if (active_sessions > 0)
+                active_sessions--;
+        }
         itr->second->releaselock_session();
     }
 }
@@ -197,12 +203,28 @@ std::string SessionManager::GetNameFromId(uint32 id)
 
 bool SessionManager::IsMoreNetThreadsThanClients()
 {
-    return false;
+    bool b_temp = false;
+    getlock_sessions();    
+    if (net_number > active_sessions)
+    {
+        b_temp = true;
+        DecNetThread();
+    }
+    releaselock_sessions();
+    return b_temp;
 }
 
 bool SessionManager::IsMoreExecThreadsThanClients()
 {
-    return false;
+    bool b_temp = false;
+    getlock_sessions();    
+    if (exec_number > active_sessions)
+    {
+        b_temp = true;
+        DecExecThread();
+    }
+    releaselock_sessions();
+    return b_temp;
 }
 
 void SessionManager::IncNetThread()

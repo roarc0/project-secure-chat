@@ -157,6 +157,7 @@ class SessionManager
     private:
         usersession_map sessions;
         uint32 next_id;
+        uint32 active_sessions;
         uint32 net_number;
         uint32 exec_number;
 
@@ -187,7 +188,9 @@ class SessionManager
         inline void  releaselock_sessions() { pthread_mutex_unlock(&mutex_sessions); }
 
         inline void  getlock_it_net() { pthread_mutex_lock(&mutex_it_net); }
-        inline void  releaselock_it_net() { pthread_mutex_unlock(&mutex_it_net); }  
+        inline void  releaselock_it_net() { pthread_mutex_unlock(&mutex_it_net); }
+        inline void  getlock_it_exec() { pthread_mutex_lock(&mutex_it_exec); }
+        inline void  releaselock_it_exec() { pthread_mutex_unlock(&mutex_it_exec); }  
   
         inline void  getlock_net_number() { pthread_mutex_lock(&mutex_net_number); }
         inline void  releaselock_net_number() { pthread_mutex_unlock(&mutex_net_number); }

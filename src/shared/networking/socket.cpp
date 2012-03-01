@@ -32,7 +32,7 @@ static void fillAddr(const string &address, unsigned short port,
                      sockaddr_in &addr) 
 {
     memset(&addr, 0, sizeof(addr));  // Zero out address structure
-    addr.sin_family = PF_INET;       // Internet address
+    addr.sin_family = AF_INET;       // Internet address
 
     hostent *host;  // Resolve name
     if ((host = gethostbyname(address.c_str())) == NULL) 
@@ -40,7 +40,6 @@ static void fillAddr(const string &address, unsigned short port,
         throw SocketException("Failed to resolve name [gethostbyname()]");
     }
     addr.sin_addr.s_addr = *((unsigned long *) host->h_addr_list[0]);
-
     addr.sin_port = htons(port);     // Assign port in network byte order
 }
 
@@ -48,7 +47,7 @@ static void fillAddr(const string &address, unsigned short port,
 
 Socket::Socket(int type, int protocol, bool s_block) throw(SocketException) 
 {
-    domain = PF_INET;
+    domain = AF_INET;
     Socket::type = type;
     Socket:: protocol = protocol;
     block = s_block;
@@ -57,7 +56,7 @@ Socket::Socket(int type, int protocol, bool s_block) throw(SocketException)
 
 Socket::Socket(int sockDesc, int type, int protocol, bool s_block)
 {
-    domain = PF_INET;
+    domain = AF_INET;
     Socket::type = type;
     Socket:: protocol = protocol;
     this->sockDesc = sockDesc;
@@ -83,7 +82,7 @@ void Socket::initSocket() throw(SocketException)
     int ret, val = 1;
 
     // Make a new socket
-    if ((sockDesc = socket(PF_INET, type, protocol)) < 0)
+    if ((sockDesc = socket(AF_INET, type, protocol)) < 0)
         throw SocketException("Socket creation failed [socket()]", true);
 
     if (setsockopt(sockDesc, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(int)) < 0)
@@ -125,7 +124,7 @@ void Socket::setLocalPort(unsigned short localPort) throw(SocketException)
     // Bind the socket to its port
     sockaddr_in localAddr;
     memset(&localAddr, 0, sizeof(localAddr));
-    localAddr.sin_family = PF_INET;
+    localAddr.sin_family = AF_INET;
     localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     localAddr.sin_port = htons(localPort);
 

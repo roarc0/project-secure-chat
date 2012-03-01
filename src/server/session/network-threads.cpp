@@ -11,12 +11,11 @@ void* net_thread(void* arg)
 
     INFO("debug", "* net thread %d started \n", pthread_self());
 
-    s_manager->IncNetThread(); // Incrementa il numero dei thread attivi
     while (1)
     {
-        usession = s_manager->getNextSessionToServe(); // Se ritorna NULL il thread deve morire
+        usession = s_manager->getNextSessionToServe();
         if (!usession)
-            break; //harakiri
+            continue;
 
         for (int i = NSEND; i--;)
         {
@@ -93,6 +92,9 @@ void* net_thread(void* arg)
                 buffer = NULL;
 
                 usession->QueuePacketToRecv(pack);
+
+msleep(500);
+usession->GetSocket()->send("hello server",12);
             } 
             catch (SocketException e)
             {
@@ -105,12 +107,12 @@ void* net_thread(void* arg)
                 }
                 s_manager->deleteSession(usession->GetId());                // UCCIDO LA SESSIONE
             }
-
-            msleep(500);
-            usession->GetSocket()->send("hello server",12);
         }
 
         usession->releaselock_net();
+
+        //if (s_manager->MoreThreadsThanClients) // i'm useless
+        //    break; //harakiri
 
         msleep(5);
     }

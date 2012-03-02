@@ -19,7 +19,7 @@
 
 using namespace std;
 
-#define MAX_CONNECTIONS (1200)
+#define MAX_CONNECTIONS (64)
 
 class SocketException : public exception 
 {

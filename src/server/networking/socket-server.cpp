@@ -44,23 +44,23 @@ void SocketServer::init(int port) throw(SocketException)
 inline void SocketServer::setBlocking(int sock, const bool block)
     throw(SocketException)
 {
-    int opts;
-    opts = fcntl (sock, F_GETFL);
-    if (opts < 0)
+    int flags;
+
+    if ((flags = fcntl (sock, F_GETFL, 0)) < 0)
         throw SocketException("[setBlocking() -> fnctl()]", true);
 
-    if (block)
-        opts |= O_NONBLOCK;
+    if (!block)
+        flags |= O_NONBLOCK;
     else
-        opts &= ~O_NONBLOCK ;
+        flags &= ~O_NONBLOCK ;
 
-    if(fcntl (sock, F_SETFL, opts) < 0)
+    if(fcntl (sock, F_SETFL, flags) < 0)
         throw SocketException("[setBlocking() -> fnctl()]", true);
 }
 
 inline void SocketServer::setupAddrInfo(int family, int socktype, int protocol)
 {
-    memset(&serverinfo, 0, sizeof(serverinfo));
+    memset(&serverinfo, 0, sizeof(struct addrinfo));
     serverinfo.ai_family   = family;
     serverinfo.ai_socktype = socktype;
     //serverinfo.ai_protocol = protocol;
@@ -80,18 +80,18 @@ void SocketServer::setupSocket(int port) throw(SocketException)
 
     for (ai_res = serverinfo_res; ai_res != NULL; ai_res = ai_res->ai_next)
     {
-        if ((sock_listen = ::socket(ai_res->ai_family, ai_res->ai_socktype, ai_res->ai_protocol)) < 0)
+        if ((sock_listen = socket(ai_res->ai_family, ai_res->ai_socktype, ai_res->ai_protocol)) < 0)
             continue;
 
         //if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0)
         //    throw SocketException("[setsockopt()]", true);
 
-        if (bind(sock_listen, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) == 0)
+        if (bind(sock_listen, ai_res->ai_addr, ai_res->ai_addrlen) == 0)
             break;
 
         close(sock_listen);
     }
-    
+
     if (serverinfo_res == NULL)
         throw SocketException("bind failed!", false);
     
@@ -126,11 +126,11 @@ void* epoll_thread(void* arg)
     {
         try
         {
-            if ((res = epoll_wait(srv->epoll_fd, srv->events, MAX_CONNECTIONS, -1) < 0))
+            if ((res = epoll_wait(srv->epoll_fd, srv->events, MAX_CONNECTIONS, -1)) < 0)
                 throw SocketException("[epoll_wait()]", true);
 
             for (i = 0; i < res; i++)
-            {   
+            {
                 if ((srv->events[i].events & EPOLLERR) ||
                     (srv->events[i].events & EPOLLHUP) ||
                     (!(srv->events[i].events & EPOLLIN)))
@@ -141,7 +141,7 @@ void* epoll_thread(void* arg)
                 }
 
                 if (srv->sock_listen == srv->events[i].data.fd)
-	            {
+                {
                     while (1)
                     {
                         struct sockaddr in_addr;
@@ -161,15 +161,16 @@ void* epoll_thread(void* arg)
                             }
                         }
 
-                        res = getnameinfo (&in_addr, in_len,
-                                           hbuf, sizeof hbuf,
-                                           sbuf, sizeof sbuf,
-                                           NI_NUMERICHOST | NI_NUMERICSERV);
-                        if (res == 0)
+                        if (getnameinfo(&in_addr, in_len,
+                                        hbuf, sizeof hbuf,
+                                        sbuf, sizeof sbuf,
+                                        NI_NUMERICHOST | NI_NUMERICSERV) == 0)
                         {
-                            printf("new connection on descriptor %d "
+                            printf("client %d "
                                    "(host=%s, port=%s)\n", sock_new, hbuf, sbuf);
                         }
+                        else
+                            throw SocketException("[getnameinfo()]", true);
 
                         srv->setBlocking(sock_new, false);
 
@@ -184,25 +185,24 @@ void* epoll_thread(void* arg)
 	            }
                 else
                 {
-                    bool done = 0;
+                    bool end = 0;
                     while (1)
                     {
                       ssize_t nbytes;
                       char buf[512];
 
-                      nbytes = read (srv->events[i].data.fd, buf, sizeof buf);
-                      if (nbytes == -1)
+                      if ((nbytes = read (srv->events[i].data.fd, buf, sizeof buf)) < 0)
                       {
                         if (errno != EAGAIN)  /* If errno == EAGAIN, that means we have read all data.*/
                         {
                           perror ("read");
-                          done = true;
+                          end = true;
                         }
                         break;
                       }
-                      else if (nbytes == 0)
+                      if (nbytes == 0)
                       {
-                          done = true;
+                          end = true;
                           break;
                       }
 
@@ -211,9 +211,9 @@ void* epoll_thread(void* arg)
                              srv->events[i].data.fd, buf);
                     }
 
-                    if (done)
+                    if (end)
                     {
-                        printf("client connection %d closed\n",
+                        printf("client %d connection closed\n",
                                srv->events[i].data.fd);
                         close(srv->events[i].data.fd);
                     }

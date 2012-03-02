@@ -36,121 +36,186 @@ SocketServer::~SocketServer()
 
 void SocketServer::init(int port) throw(SocketException)
 {
-    setupAddrInfo(AF_INET, SOCK_STREAM , 0);
+    setupAddrInfo(AF_UNSPEC, SOCK_STREAM , 0);
     setupSocket(port);
     setupEpoll();
 }
 
-void SocketServer::setupAddrInfo(int family, int socktype, int protocol)
+inline void SocketServer::setBlocking(int sock, const bool block)
+    throw(SocketException)
+{
+    int opts;
+    opts = fcntl (sock, F_GETFL);
+    if (opts < 0)
+        throw SocketException("[setBlocking() -> fnctl()]", true);
+
+    if (block)
+        opts |= O_NONBLOCK;
+    else
+        opts &= ~O_NONBLOCK ;
+
+    if(fcntl (sock, F_SETFL, opts) < 0)
+        throw SocketException("[setBlocking() -> fnctl()]", true);
+}
+
+inline void SocketServer::setupAddrInfo(int family, int socktype, int protocol)
 {
     memset(&serverinfo, 0, sizeof(serverinfo));
     serverinfo.ai_family   = family;
     serverinfo.ai_socktype = socktype;
-    serverinfo.ai_protocol = protocol;
+    //serverinfo.ai_protocol = protocol;
+    serverinfo.ai_flags    = AI_PASSIVE;
 }
 
 void SocketServer::setupSocket(int port) throw(SocketException)
 {
+    stringstream s_port;
     int yes = 1;
+    struct addrinfo *ai_res;
 
-    if ((sock_listen = ::socket(serverinfo.ai_family, serverinfo.ai_socktype, serverinfo.ai_protocol)) < 0)
-        throw SocketException("[socket()]", true);
+    s_port << port;
 
-    if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0)
-        throw SocketException("[setsockopt()]", true);
+    if (getaddrinfo (NULL, s_port.str().c_str(), &serverinfo, &serverinfo_res) < 0)
+        throw SocketException("[getaddrinfo()]", true);
 
-    serveraddr.sin_family = AF_UNSPEC;
-    serveraddr.sin_addr.s_addr = INADDR_ANY;
-    serveraddr.sin_port = htons(port);
-    memset(&(serveraddr.sin_zero), '\0', 8); // ipv6
+    for (ai_res = serverinfo_res; ai_res != NULL; ai_res = ai_res->ai_next)
+    {
+        if ((sock_listen = ::socket(ai_res->ai_family, ai_res->ai_socktype, ai_res->ai_protocol)) < 0)
+            continue;
 
-    if (bind(sock_listen, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) < 0)
-        throw SocketException("[bind()]", true);
+        //if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0)
+        //    throw SocketException("[setsockopt()]", true);
 
-    if (listen(sock_listen, MAX_LISTEN_QUEUE) < 0)
+        if (bind(sock_listen, (struct sockaddr *)&serveraddr, sizeof(serveraddr)) == 0)
+            break;
+
+        close(sock_listen);
+    }
+    
+    if (serverinfo_res == NULL)
+        throw SocketException("bind failed!", false);
+    
+    freeaddrinfo (serverinfo_res);
+
+    setBlocking(sock_listen, false);
+
+    if (listen(sock_listen, SOMAXCONN) < 0)
         throw SocketException("[listen()]", true);
-
-    sock_max = sock_listen;
 }
 
 void SocketServer::setupEpoll() throw(SocketException)
 {
-    epoll_fd = -1;
-
     events = (struct epoll_event*) calloc(MAX_CONNECTIONS, sizeof(struct epoll_event));
 
-    if ((epoll_fd = epoll_create(MAX_CONNECTIONS)) < 0)
+    if ((epoll_fd = epoll_create1(0)) < 0)
         throw SocketException("[epoll_create()]", true);
 
-    listen_event.events = EPOLLIN;
-    listen_event.data.fd = sock_max;
+    event.events = EPOLLIN | EPOLLET;
+    event.data.fd = sock_listen;
 
-    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, sock_max, &listen_event) < 0)
+    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, sock_listen, &event) < 0)
         throw SocketException("[epoll_ctl()]", true);
 }
 
 void* epoll_thread(void* arg)
 {
     SocketServer *srv = (SocketServer*) arg;
-    int res = -1, addrlen, sock_client, new_fd, nbytes, i = 0;
-    char buf[1024]; // temp
+    int res = -1, sock_new, nbytes, i = 0;
 
     while(1)
     {
         try
         {
-            res = epoll_wait(srv->epoll_fd, srv->events, MAX_CONNECTIONS, -1);
-
+            if ((res = epoll_wait(srv->epoll_fd, srv->events, MAX_CONNECTIONS, -1) < 0))
+                throw SocketException("[epoll_wait()]", true);
 
             for (i = 0; i < res; i++)
             {   
-                sock_client = srv->events[i].data.fd;
-
-                if(sock_client == srv->sock_listen)
+                if ((srv->events[i].events & EPOLLERR) ||
+                    (srv->events[i].events & EPOLLHUP) ||
+                    (!(srv->events[i].events & EPOLLIN)))
                 {
-                    addrlen = sizeof(srv->clientaddr);
-                    if((new_fd = accept(srv->sock_listen, (struct sockaddr *)&srv->clientaddr, (socklen_t*)&addrlen)) < 0)
-                        throw SocketException("[accept()]", true);
-                    else
+                    fprintf(stderr, "epoll error\n");
+                    close(srv->events[i].data.fd);
+                    continue;
+                }
+
+                if (srv->sock_listen == srv->events[i].data.fd)
+	            {
+                    while (1)
                     {
-                        srv->listen_event.events = EPOLLIN | EPOLLET;
-                        srv->listen_event.data.fd = new_fd;
-                        if (epoll_ctl(srv->epoll_fd, EPOLL_CTL_ADD, new_fd, &srv->listen_event) < 0)
+                        struct sockaddr in_addr;
+                        socklen_t       in_len;
+                        char hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
+
+                        in_len = sizeof in_addr;
+                        ;
+                        if ((sock_new = accept (srv->sock_listen, &in_addr, &in_len)) < 0)
+                        {
+                            if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
+                                break;
+                            else
+                            {
+                                perror("accept");
+                                break;
+                            }
+                        }
+
+                        res = getnameinfo (&in_addr, in_len,
+                                           hbuf, sizeof hbuf,
+                                           sbuf, sizeof sbuf,
+                                           NI_NUMERICHOST | NI_NUMERICSERV);
+                        if (res == 0)
+                        {
+                            printf("new connection on descriptor %d "
+                                   "(host=%s, port=%s)\n", sock_new, hbuf, sbuf);
+                        }
+
+                        srv->setBlocking(sock_new, false);
+
+                        srv->event.data.fd = sock_new;
+                        srv->event.events = EPOLLIN | EPOLLET;
+
+                        if (epoll_ctl (srv->epoll_fd, EPOLL_CTL_ADD, sock_new, &srv->event) < 0)
                             throw SocketException("[epoll_ctl()]", true);
                     }
-                    break;
-                }
+
+                    continue;
+	            }
                 else
                 {
-                    if (srv->events[i].events & EPOLLHUP == EPOLLHUP)
+                    bool done = 0;
+                    while (1)
                     {
-                        if (epoll_ctl(srv->epoll_fd, EPOLL_CTL_DEL, sock_client, &srv->listen_event) < 0)
-                            throw SocketException("[epoll_ctl()]", true);
-                        close(sock_client);
+                      ssize_t nbytes;
+                      char buf[512];
+
+                      nbytes = read (srv->events[i].data.fd, buf, sizeof buf);
+                      if (nbytes == -1)
+                      {
+                        if (errno != EAGAIN)  /* If errno == EAGAIN, that means we have read all data.*/
+                        {
+                          perror ("read");
+                          done = true;
+                        }
                         break;
+                      }
+                      else if (nbytes == 0)
+                      {
+                          done = true;
+                          break;
+                      }
+
+                      buf[nbytes] = '\0';
+                      printf("client %d : %s", 
+                             srv->events[i].data.fd, buf);
                     }
 
-                    if (srv->events[i].events & EPOLLIN == EPOLLIN)
+                    if (done)
                     {
-                        if((nbytes = recv(sock_client, buf, sizeof(buf), 0)) <= 0)  // read header, len, msg
-                        {
-                            if(nbytes == 0)
-                                printf("recv() hung up on socket %d\n", sock_client);
-                            else
-                                printf("recv() error on socket %d", sock_client);
-
-                            if (epoll_ctl(srv->epoll_fd, EPOLL_CTL_DEL, sock_client, &srv->listen_event) < 0)
-                                throw SocketException("[epoll_ctl()]", true);
-                            close(sock_client);
-                            printf("killing client\n");
-                        }
-                        else
-                        {
-                            buf[nbytes] = '\0';
-                            printf("[client %d] %s",sock_client, buf);
-                            // notify bufmsg
-                        }
-                        break;
+                        printf("client connection %d closed\n",
+                               srv->events[i].data.fd);
+                        close(srv->events[i].data.fd);
                     }
                 }
             }
@@ -160,5 +225,6 @@ void* epoll_thread(void* arg)
             cout << e.what() << endl;
         }
     }
+
     pthread_exit(NULL);
 }

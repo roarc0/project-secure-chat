@@ -11,8 +11,8 @@ int main(int argc, char **argv)
 
     threads = (pthread_t *) malloc(sizeof(*threads) * 6);
 
-    for (int i = 0, cpu = 0; i < 6; ++i)
-        pthread_create(&threads[i], NULL, epoll_thread, (void*)&srv);
+    //for (int i = 0, cpu = 0; i < 6; ++i)
+        pthread_create(&threads[0], NULL, epoll_thread, (void*)&srv);
 
     cout << "running..." << endl;
     while(1);

@@ -132,7 +132,7 @@ class SessionManager
 
         ~SessionManager();
 
-        void createSession (TCPSocket* sock);
+        void createSession (SocketServer* sock);
         void deleteSession (uint32 id);
         
         UserSession* getNextSessionToServe();

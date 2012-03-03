@@ -6,11 +6,11 @@ SessionManager* SessionManager::smgr_singleton = NULL;
 SessionManagerException::SessionManagerException (const string &message, bool inclSysMsg)
   throw() : userMessage(message) 
 {
-	if (inclSysMsg) 
-	{
-		userMessage.append(": ");
-		userMessage.append(strerror(errno));
-	}
+    if (inclSysMsg) 
+    {
+        userMessage.append(": ");
+        userMessage.append(strerror(errno));
+    }
 }
 
 SessionManagerException::~SessionManagerException() throw() 
@@ -20,7 +20,7 @@ SessionManagerException::~SessionManagerException() throw()
 
 const char *SessionManagerException::what() const throw() 
 {
-	return userMessage.c_str();
+    return userMessage.c_str();
 }
 
 SessionManager::SessionManager()
@@ -45,7 +45,7 @@ SessionManager::~SessionManager()
     pthread_mutex_destroy(&mutex_net_number);
 }
 
-void SessionManager::createSession (TCPSocket* sock)
+void SessionManager::createSession (SocketServer* sock)
 {
     getlock_sessions();
     UserSession* us = new UserSession(sock);
@@ -204,7 +204,7 @@ std::string SessionManager::GetNameFromId(uint32 id)
 bool SessionManager::IsMoreNetThreadsThanClients()
 {
     bool b_temp = false;
-    getlock_sessions();    
+    getlock_sessions();
     if (net_number > active_sessions)
     {
         b_temp = true;
@@ -217,7 +217,7 @@ bool SessionManager::IsMoreNetThreadsThanClients()
 bool SessionManager::IsMoreExecThreadsThanClients()
 {
     bool b_temp = false;
-    getlock_sessions();    
+    getlock_sessions();
     if (exec_number > active_sessions)
     {
         b_temp = true;
@@ -231,7 +231,7 @@ void SessionManager::IncNetThread()
 {
     getlock_net_number();
     net_number++;
-    releaselock_net_number();    
+    releaselock_net_number();
 }
 
 void SessionManager::DecNetThread()
@@ -239,14 +239,14 @@ void SessionManager::DecNetThread()
     getlock_net_number();
     if (net_number > 0)
         net_number--;
-    releaselock_net_number();    
+    releaselock_net_number();
 }
 
 void SessionManager::IncExecThread()
 {
     getlock_exec_number();
     exec_number++;
-    releaselock_exec_number();    
+    releaselock_exec_number(); 
 }
 
 void SessionManager::DecExecThread()
@@ -254,5 +254,5 @@ void SessionManager::DecExecThread()
     getlock_exec_number();
     if (exec_number > 0)
         exec_number--;
-    releaselock_exec_number();    
+    releaselock_exec_number();
 }

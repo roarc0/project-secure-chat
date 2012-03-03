@@ -38,7 +38,7 @@ void* net_thread(void* arg)
 
             try
             {
-                usession->GetSocket()->send(buffer,len);
+                //usession->GetSocket()->send(buffer,len);
             }
             catch (SocketException e)
             {
@@ -57,14 +57,14 @@ void* net_thread(void* arg)
                 unsigned short len = 0;
                 pack = new Packet;
 
-                if (usession->GetSocket()->recv(pack->GetOpcodePointer(), OPCODE_SIZE) == 0)
+                //if (usession->GetSocket()->recv(pack->GetOpcodePointer(), OPCODE_SIZE) == 0)
                 {
                     delete pack;
                     break;
                 }
 
                 INFO("debug","opcode : %d\n", pack->GetOpcode());
-                if (usession->GetSocket()->recv(&len, LENGTH_SIZE) == 0)
+                //if (usession->GetSocket()->recv(&len, LENGTH_SIZE) == 0)
                 {
                     delete pack;
                     break;
@@ -72,7 +72,7 @@ void* net_thread(void* arg)
 
                 INFO("debug","len    : %d\n", len);
                 buffer = new char[len+1];
-                if (usession->GetSocket()->recv(buffer, len) == 0)
+                //if (usession->GetSocket()->recv(buffer, len) == 0)
                 {
                     delete pack;
                     break;
@@ -92,9 +92,6 @@ void* net_thread(void* arg)
                 buffer = NULL;
 
                 usession->QueuePacketToRecv(pack);
-
-msleep(500);
-usession->GetSocket()->send("hello server",12);
             } 
             catch (SocketException e)
             {

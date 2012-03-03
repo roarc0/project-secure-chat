@@ -1,3 +1,6 @@
+#ifndef SOCKET_SERVER_H
+#define SOCKET_SERVER_H
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -17,21 +20,11 @@
 #include <exception>
 #include <string>
 
+#include "../../shared/networking/socket-exception.h"
+
 using namespace std;
 
 #define MAX_CONNECTIONS (64)
-
-class SocketException : public exception 
-{
-  public:
-    SocketException(const std::string &message, bool inclSysMsg = false) throw();
-    ~SocketException() throw();
-
-    const char *what() const throw();
-
-  private:
-    std::string userMessage;
-};
 
 void* epoll_thread(void* arg);
 
@@ -58,3 +51,5 @@ class SocketServer
 
     void init(int) throw(SocketException);
 };
+
+#endif

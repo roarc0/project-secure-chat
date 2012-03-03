@@ -7,7 +7,7 @@ void* core_thread(void* arg)
     sigset_t mask;
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
-    TCPSocket* csock = (TCPSocket*)arg;
+    SocketClient* csock = (SocketClient*)arg;
 
     try
     {
@@ -36,7 +36,7 @@ void* core_thread(void* arg)
 client_core::client_core()
 {
     connected = false;
-    csock = new TCPSocket(CFG_GET_STRING("server_host"), CFG_GET_INT("server_port"), false);
+    csock = new SocketClient(SOCK_STREAM, 0);
     start_thread(&core_thread, (void*)csock);
     whoami = "client";
 }

@@ -20,7 +20,7 @@ const char *UserSessionException::what() const throw()
     return userMessage.c_str();
 }
 
-UserSession::UserSession(TCPSocket* Socket, Session* pSes) 
+UserSession::UserSession(SocketServer* Socket, Session* pSes) 
 { 
     m_Socket = Socket;
     m_pSes = pSes;

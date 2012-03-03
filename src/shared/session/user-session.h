@@ -1,6 +1,6 @@
 #include "../../server/session/session-manager.h"
 #include "../common.h"
-#include "../networking/socket.h"
+#include "../../server/networking/socket-server.h"
 #include "../networking/packet.h"
 
 #ifndef _USERSESSION_H
@@ -27,7 +27,7 @@ class UserSessionException : public exception
 class UserSession
 {
     public:
-        UserSession(TCPSocket* Socket, Session* pSes = NULL);
+        UserSession(SocketServer* Socket, Session* pSes = NULL);
         ~UserSession()
         {
             delete m_Socket;
@@ -84,14 +84,14 @@ class UserSession
 
         void SetSession(Session* pSes) { m_pSes = pSes; }
 
-        TCPSocket* GetSocket() { return m_Socket; }
+        SocketServer* GetSocket() { return m_Socket; }
 
     private:
         Session* m_pSes;
 
         uint32 m_id;
         uint8 m_security;
-        TCPSocket* m_Socket;
+        SocketServer* m_Socket;
         std::string m_Name;
         std::string m_Address;
         std::string m_Channel;

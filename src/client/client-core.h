@@ -2,7 +2,7 @@
 #define CORE_CLIENT_H
 
 #include "../shared/common.h"
-#include "../shared/networking/socket.h"
+#include "networking/socket-client.h"
 #include "../shared/threading/thread.h"
 #include "../shared/execution/command-manager.h"
 
@@ -14,7 +14,7 @@ void* core_thread(void*);
 
 class client_core
 {
-    TCPSocket*            csock;   // si dovrebbe usare UserSession ma al momento la classe include Session...
+    SocketClient*         csock;   // si dovrebbe usare UserSession ma al momento la classe include Session...
     bool                  connected;
     static client_core*   ccore_singleton;
 

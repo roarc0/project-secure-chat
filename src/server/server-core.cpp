@@ -11,9 +11,10 @@ void server_core()
         s_manager;
         init_commands();
 
-        TCPServerSocket server(CFG_GET_INT("server_port"), false, 128);
-        TCPSocket *temp_sock = NULL;
-        UserSession *temp_session = NULL;
+        SocketServer server;
+        server.init(CFG_GET_INT("server_port"));
+
+        //UserSession *temp_session = NULL;
         INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
 
         network_threads net;
@@ -21,7 +22,7 @@ void server_core()
 
         while(1)
         {
-            try
+            /*try
             {
                 temp_sock = server.accept();
                 s_manager->createSession(temp_sock);
@@ -39,7 +40,7 @@ void server_core()
             catch(...)
             {
                 INFO("debug", "default exception");
-            }
+            }*/
             usleep(50);
         }
 

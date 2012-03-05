@@ -4,10 +4,13 @@
 #include "session.h"
 #include "../../shared/utility/mt_queue.h"
 
+class Packet;
+
 enum e_net_task
 {
     SEND = 1,
     RECV,
+    NEW,
     KILL,
     MAX_NET_TASK
 };
@@ -38,15 +41,27 @@ class NetQueue : public mt_queue<net_task>
         std::list<net_task>::iterator itr = m_list.begin();
         for ( ; itr!=m_list.end() ; itr++)
         {
-            ses = (Session*)itr->ptr;
-            ses->getlock_session();
-            if (ses->getlock_net())
+            ses = (Session*)itr->ptr; 
+            ses->getlock_session();         
+            if (itr->type_task == KILL)
             {
-                uses = ses->GetUserSession();
-                erase(itr);  
+                if (!ses->TryDelete())                
+                    push_l(*itr);
+                erase_l(itr);
+                ses->releaselock_session();
+                break;
+            }
+            switch (ses->getlock_net())
+            {
+                case 1: 
+                    uses = ses->GetUserSession();
+                    break;
+                default:
+                    erase_l(itr);
+                    break;
             }
             ses->releaselock_session();
-        }
+        }        
         release_lock();
         return uses;
     }
@@ -58,7 +73,7 @@ class ExecQueue : public mt_queue<exec_task>
     ExecQueue(): mt_queue<exec_task>() {};
     UserSession* NextUserSessionToServe()
     {
-        get_lock();
+        get_lock();            
         UserSession* uses = NULL;
         Session* ses = NULL;
         std::list<exec_task>::iterator itr = m_list.begin();
@@ -69,10 +84,10 @@ class ExecQueue : public mt_queue<exec_task>
             if (ses->getlock_exec())
             {
                 uses = ses->GetUserSession();
-                erase(itr);
+                erase_l(itr);  
             }
             ses->releaselock_session();
-        }
+        }        
         release_lock();
         return uses;
     }

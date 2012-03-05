@@ -85,6 +85,8 @@ class UserSession
         void SetSession(Session* pSes) { m_pSes = pSes; }
 
         SocketServer* GetSocket() { return m_Socket; }
+        
+        Session* getSession() { return m_pSes; }
 
     private:
         Session* m_pSes;
@@ -115,8 +117,6 @@ class UserSession
         inline void  getlock_send() { pthread_mutex_lock(&mutex_send); }
         inline void  releaselock_send() { pthread_mutex_unlock(&mutex_send); }  
 
-
-    private:
         timeval m_createTime;
         
         /// Class used for managing encryption

@@ -19,6 +19,9 @@ class mt_queue
         void  get_lock() { pthread_mutex_lock(&m_mut); }
         void  release_lock() { pthread_mutex_unlock(&m_mut); }
 
+        void push_l(T);        
+        void erase_l(typename std::list<T>::iterator);
+
         std::list<T>       m_list;
         pthread_mutex_t    m_mut;     
 
@@ -60,6 +63,18 @@ void mt_queue<T>::erase(typename std::list<T>::iterator it)
     get_lock();
     m_list.erase(it);
     release_lock();
+}
+
+template <typename T>
+void mt_queue<T>::push_l(T a)
+{
+    m_list.push_back(a);
+}
+
+template <typename T>
+void mt_queue<T>::erase_l(typename std::list<T>::iterator it)
+{
+    m_list.erase(it);
 }
 
 #endif

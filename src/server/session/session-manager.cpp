@@ -23,24 +23,14 @@ const char *SessionManagerException::what() const throw()
     return userMessage.c_str();
 }
 
-SessionManager::SessionManager()
+SessionManager::SessionManager(): next_id(1), net_number(0), exec_number(0), active_sessions(0)
 {
-    it_net = sessions.begin();
-    it_exec = sessions.begin();
-
-    next_id = 1;
-    net_number = 0;
-    exec_number = 0;
-    active_sessions = 0;
-
     MutexInit();
 }
 
 SessionManager::~SessionManager()
 {
     pthread_mutex_destroy(&mutex_sessions);
-    pthread_mutex_destroy(&mutex_it_net);
-    pthread_mutex_destroy(&mutex_it_exec);
     pthread_mutex_destroy(&mutex_exec_number);
     pthread_mutex_destroy(&mutex_net_number);
 }
@@ -87,71 +77,43 @@ void SessionManager::deleteSession (uint32 id)
 UserSession* SessionManager::getNextSessionToServe()
 {
     UserSession* pUser = NULL;
-    getlock_it_net(); // Get Mutex
-    if (!IsMoreNetThreadsThanClients())
-        if (!sessions.empty())
-        {
-            if (it_net == sessions.end())
-                it_net = sessions.begin();
-            while (!pUser)
-            {
-                it_net->second->getlock_session();
-                if (it_net->second->getlock_net())
-                    pUser = it_net->second->GetUserSession();
-                it_net->second->releaselock_session();
-                it_net++;
-                if (it_net == sessions.end())
-                    it_net = sessions.begin();
-            } 
-        }
-    releaselock_it_net(); // End Mutex
-    return pUser;         
+    if (!sessions.empty())
+        if (!IsMoreNetThreadsThanClients())        
+            pUser = n_queue.NextUserSessionToServe();        
+    return pUser;        
+}
+
+void SessionManager::addTaskToServe(net_task* ntask)
+{
+    n_queue.push(*ntask);  
 }
 
 UserSession* SessionManager::getNextSessionToExecute()
 {
     UserSession* pUser = NULL;
-    getlock_it_exec(); // Get Mutex
-    if (!IsMoreExecThreadsThanClients())
-        if (!sessions.empty())
-        {
-            if (it_exec == sessions.end())
-                it_exec = sessions.begin();
-            while (!pUser)
-            {
-                it_exec->second->getlock_session();
-                if (it_exec->second->getlock_exec())
-                    pUser = it_exec->second->GetUserSession();
-                it_exec->second->releaselock_session();
-                it_exec++;
-                if (it_exec == sessions.end())
-                    it_exec = sessions.begin();
-            }
-        }
-    releaselock_it_exec(); // End Mutex
+    if (!sessions.empty())
+        if (!IsMoreExecThreadsThanClients())        
+            pUser = e_queue.NextUserSessionToServe();        
     return pUser; 
+}
+
+void SessionManager::addTaskToExecute(exec_task* etask)
+{
+    e_queue.push(*etask);       
 }
 
 void SessionManager::endSessionServe(uint32 id)
 {
     usersession_map::iterator itr = sessions.find(id);
     if (itr != sessions.end())
-    {
-        itr->second->getlock_session();
         itr->second->releaselock_net();
-        itr->second->releaselock_session();
-    }
 }
 
 void SessionManager::endSessionExecute(uint32 id)
 {
     usersession_map::iterator itr = sessions.find(id);
     if (itr != sessions.end())
-    {
-        itr->second->getlock_session();
         itr->second->releaselock_exec();
-        itr->second->releaselock_session();
-    }
 }
 
 void SessionManager::GetIdList(std::list<uint32>* ulist)
@@ -179,7 +141,6 @@ void SessionManager::SendPacketTo (uint32 id, Packet* new_packet) throw(SessionM
     if (itr == sessions.end())
         throw SessionManagerException("Id not found (SendPacketTo(uint32 id, Packet* new_packet))");
     itr->second->getlock_session();
-
     // per ora voglio vedere se arriva
     //if (itr->second->IsActive() && (itr->second->GetUserSession()->GetTime() > new_packet->GetTime()))
         itr->second->GetUserSession()->QueuePacketToSend(new_packet);

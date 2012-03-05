@@ -41,7 +41,10 @@ class NetQueue : public mt_queue<net_task>
             ses = (Session*)itr->ptr;
             ses->getlock_session();
             if (ses->getlock_net())
+            {
                 uses = ses->GetUserSession();
+                erase(itr);  
+            }
             ses->releaselock_session();
         }
         release_lock();
@@ -64,7 +67,10 @@ class ExecQueue : public mt_queue<exec_task>
             ses = (Session*)itr->ptr;
             ses->getlock_session();
             if (ses->getlock_exec())
+            {
                 uses = ses->GetUserSession();
+                erase(itr);
+            }
             ses->releaselock_session();
         }
         release_lock();

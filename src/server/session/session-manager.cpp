@@ -35,7 +35,7 @@ SessionManager::~SessionManager()
     pthread_mutex_destroy(&mutex_net_number);
 }
 
-void SessionManager::createSession (SocketServer* sock)
+void SessionManager::CreateSession (SocketServer* sock)
 {
     getlock_sessions();
     UserSession* us = new UserSession(sock);
@@ -58,7 +58,7 @@ void SessionManager::createSession (SocketServer* sock)
     releaselock_sessions();
 }
 
-void SessionManager::deleteSession (uint32 id)
+void SessionManager::DeleteSession (uint32 id)
 {
     usersession_map::iterator itr = sessions.find(id);
     if (itr != sessions.end())
@@ -67,6 +67,11 @@ void SessionManager::deleteSession (uint32 id)
         if (itr->second->IsActive())
         {
             itr->second->ToDelete();
+            net_task task;
+            task.ptr = (void*)itr->second;
+            task.p_pack = NULL;
+            task.type_task = KILL;
+            n_queue.push(task);
             if (active_sessions > 0)
                 active_sessions--;
         }
@@ -74,21 +79,38 @@ void SessionManager::deleteSession (uint32 id)
     }
 }
 
-UserSession* SessionManager::getNextSessionToServe()
+void SessionManager::DeleteSession (Session* ses)
+{
+    ses->getlock_session();
+    if (ses->IsActive())
+    {
+        ses->ToDelete();
+        net_task task;
+        task.ptr = (void*)ses;
+        task.p_pack = NULL;
+        task.type_task = KILL;
+        n_queue.push(task);
+        if (active_sessions > 0)
+            active_sessions--;
+    }
+    ses->releaselock_session();
+}
+
+UserSession* SessionManager::GetNextSessionToServe()
 {
     UserSession* pUser = NULL;
     if (!sessions.empty())
         if (!IsMoreNetThreadsThanClients())        
             pUser = n_queue.NextUserSessionToServe();        
-    return pUser;        
+    return pUser;
 }
 
-void SessionManager::addTaskToServe(net_task* ntask)
+void SessionManager::AddTaskToServe(net_task* ntask)
 {
     n_queue.push(*ntask);  
 }
 
-UserSession* SessionManager::getNextSessionToExecute()
+UserSession* SessionManager::GetNextSessionToExecute()
 {
     UserSession* pUser = NULL;
     if (!sessions.empty())
@@ -97,19 +119,19 @@ UserSession* SessionManager::getNextSessionToExecute()
     return pUser; 
 }
 
-void SessionManager::addTaskToExecute(exec_task* etask)
+void SessionManager::AddTaskToExecute(exec_task* etask)
 {
     e_queue.push(*etask);       
 }
 
-void SessionManager::endSessionServe(uint32 id)
+void SessionManager::EndSessionServe(uint32 id)
 {
     usersession_map::iterator itr = sessions.find(id);
     if (itr != sessions.end())
         itr->second->releaselock_net();
 }
 
-void SessionManager::endSessionExecute(uint32 id)
+void SessionManager::EndSessionExecute(uint32 id)
 {
     usersession_map::iterator itr = sessions.find(id);
     if (itr != sessions.end())
@@ -140,13 +162,34 @@ void SessionManager::SendPacketTo (uint32 id, Packet* new_packet) throw(SessionM
     usersession_map::iterator itr = sessions.find(id);
     if (itr == sessions.end())
         throw SessionManagerException("Id not found (SendPacketTo(uint32 id, Packet* new_packet))");
-    itr->second->getlock_session();
-    // per ora voglio vedere se arriva
-    //if (itr->second->IsActive() && (itr->second->GetUserSession()->GetTime() > new_packet->GetTime()))
-        itr->second->GetUserSession()->QueuePacketToSend(new_packet);
-    //else  // il delete va fatto quando possibile nella funzione che ha fatto la new
-    //    delete new_packet;
+    itr->second->getlock_session(); 
+    if (itr->second->IsActive() && (itr->second->GetUserSession()->GetTime() > new_packet->GetTime()))
+    {  
+        net_task task;
+        task.ptr = (void*)itr->second;
+        task.p_pack = new_packet;
+        task.type_task = SEND;
+        n_queue.push(task);        
+    }
+    else
+        delete new_packet;
     itr->second->releaselock_session();
+}
+
+void SessionManager::SendPacketTo (UserSession* uses, Packet* new_packet)
+{
+    uses->getSession()->getlock_session(); 
+    if (uses->getSession()->IsActive() && (uses->GetTime() > new_packet->GetTime()))
+    {  
+        net_task task;
+        task.ptr = (void*)uses->getSession();
+        task.p_pack = new_packet;
+        task.type_task = SEND;
+        n_queue.push(task);        
+    }
+    else
+        delete new_packet;
+    uses->getSession()->releaselock_session();
 }
 
 std::string SessionManager::GetNameFromId(uint32 id)

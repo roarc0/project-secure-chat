@@ -13,7 +13,7 @@ void* net_thread(void* arg)
 
     while (1)
     {
-        usession = s_manager->getNextSessionToServe();
+        usession = s_manager->GetNextSessionToServe();
         if (!usession)
             continue;
 
@@ -102,7 +102,7 @@ void* net_thread(void* arg)
                     delete buffer;
                     buffer = NULL;
                 }
-                s_manager->deleteSession(usession->GetId());                // UCCIDO LA SESSIONE
+                s_manager->DeleteSession(usession->GetId());                // UCCIDO LA SESSIONE
             }
         }
 

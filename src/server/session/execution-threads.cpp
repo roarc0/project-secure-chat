@@ -13,7 +13,7 @@ void *exec_thread(void *arg)
 
     while(1)
     {
-        usession = s_manager->getNextSessionToExecute();
+        usession = s_manager->GetNextSessionToExecute();
         if (!usession)
             continue;
 

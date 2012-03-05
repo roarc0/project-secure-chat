@@ -37,15 +37,16 @@ class SessionManager
 
         ~SessionManager();
 
-        void createSession (SocketServer* sock);
-        void deleteSession (uint32 id);
+        void CreateSession (SocketServer* sock);
+        void DeleteSession (uint32 id);
+        void DeleteSession (Session* ses);
 
-        void addTaskToServe(net_task* ntask);
-        void addTaskToExecute(exec_task* etask);        
-        UserSession* getNextSessionToServe();
-        UserSession* getNextSessionToExecute();
-        void endSessionServe(uint32 id);
-        void endSessionExecute(uint32 id);
+        void AddTaskToServe(net_task* ntask);
+        void AddTaskToExecute(exec_task* etask);        
+        UserSession* GetNextSessionToServe();
+        UserSession* GetNextSessionToExecute();
+        void EndSessionServe(uint32 id);
+        void EndSessionExecute(uint32 id);
 
         std::string GetNameFromId(uint32 id);
         void        GetIdList(std::list<uint32>*);
@@ -60,10 +61,11 @@ class SessionManager
         bool IsMoreExecThreadsThanClients();
 
         void SendPacketTo(uint32 id, Packet* new_packet) throw(SessionManagerException);
+        void SendPacketTo(UserSession* uses, Packet* new_packet);
 
     private:
         usersession_map sessions;
-
+        
         NetQueue n_queue;
         ExecQueue e_queue;
 

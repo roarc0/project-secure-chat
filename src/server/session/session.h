@@ -49,7 +49,20 @@ class Session
 
         void  releaselock_net() { pthread_mutex_unlock(&mutex_net); }
         // Non bloccante
-        bool getlock_net()
+        int getlock_net()
+        {
+            if (IsToDelete() || IsFree())
+                return -1;
+            if (pthread_mutex_trylock (&mutex_exec) != 0)
+                return 0;
+            else
+                return 1;
+            
+        }        
+
+        void  releaselock_exec() { pthread_mutex_unlock(&mutex_exec); }
+        // Non bloccante
+        bool getlock_exec()
         {
             if (!IsActive())
                 return  false;
@@ -57,31 +70,23 @@ class Session
                 return  false;
             else
                 return true;
-        }        
+        }
 
-        void  releaselock_exec() { pthread_mutex_unlock(&mutex_exec); }
-        // Non bloccante
-        bool getlock_exec()
+        bool TryDelete()
         {
-            if (IsToDelete())                                           // E' da cancellare
+            if (IsToDelete())
                 if (pthread_mutex_trylock (&mutex_exec) == 0)           // Cerco di ottenere il mutex di exec
                     if (pthread_mutex_trylock (&mutex_net) == 0)        // Cerco di ottenere il mutex di net
                     {
                         Free();                                         // Cancello
-                        return false;
+                        return true;
                     }
                     else
                     {
                         releaselock_exec();                             // Non ho ottenuto il mutex di net, rilascio quello di exec
                         return false;
                     }
-                        
-           // if (IsFree() || (IsActive() && m_pUser->RecvSize() == 0))     // Non e' valida se e' una sessione libera o se la coda di pacchetti 
-           //      return  false;                                         // da servire e' vuota
-            if (pthread_mutex_trylock (&mutex_exec) != 0)               // Provo a prendere il mutex di exec
-                return  false;
-            else
-                return true;
+            return false;
         }
         
 

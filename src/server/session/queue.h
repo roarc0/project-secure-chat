@@ -42,13 +42,12 @@ class NetQueue : public mt_queue<net_task>
         for ( ; itr!=_list.end() ; itr++)
         {
             ses = (Session*)itr->ptr; 
-            ses->getlock_session();         
+            Lock guard(ses->mutex_session);        
             if (itr->type_task == KILL)
             {
                 if (!ses->TryDelete())                
                     push_l(*itr);
                 erase_l(itr);
-                ses->releaselock_session();
                 break;
             }
             switch (ses->getlock_net())
@@ -60,7 +59,6 @@ class NetQueue : public mt_queue<net_task>
                     erase_l(itr);
                     break;
             }
-            ses->releaselock_session();
         }
         return uses;
     }
@@ -79,13 +77,12 @@ class ExecQueue : public mt_queue<exec_task>
         for ( ; itr!=_list.end() ; itr++)
         {
             ses = (Session*)itr->ptr;
-            ses->getlock_session();
+            Lock guard(ses->mutex_session);
             if (ses->getlock_exec())
             {
                 uses = ses->GetUserSession();
                 erase_l(itr);  
             }
-            ses->releaselock_session();
         }
         return uses;
     }

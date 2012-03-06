@@ -27,7 +27,7 @@ class SessionManagerException : public exception
 
 // Classe di gestione delle sessioni aperte
 class SessionManager : public Singleton
-{
+{    
     public:
 
         ~SessionManager();
@@ -70,9 +70,7 @@ class SessionManager : public Singleton
         uint32 exec_number;
 
         // MUTEX
-
         Mutex   mutex_sessions;
-
         Mutex   mutex_net_number;    // Mutex su net_number
         Mutex   mutex_exec_number;   // Mutex su exec_number
 

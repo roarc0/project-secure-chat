@@ -40,10 +40,9 @@ void SessionManager::CreateSession (SocketServer* sock)
     usersession_map::iterator itr = sessions.begin();
     for (; itr != sessions.end(); itr++)
     {
-        itr->second->getlock_session();
+        Lock guard(itr->second->mutex_session);
         if (itr->second->IsFree())
             itr->second->SetSession(us, itr->first);
-        itr->second->releaselock_session();
     }
     if (itr == sessions.end())
     {   
@@ -60,25 +59,27 @@ void SessionManager::DeleteSession (uint32 id)
     usersession_map::iterator itr = sessions.find(id);
     if (itr != sessions.end())
     {        
-        itr->second->getlock_session();
+        Lock guard(itr->second->mutex_session);
         if (itr->second->IsActive())
         {
             itr->second->ToDelete();
+
             net_task task;
             task.ptr = (void*)itr->second;
             task.p_pack = NULL;
             task.type_task = KILL;
+
             n_queue.push(task);
+
             if (active_sessions > 0)
                 active_sessions--;
         }
-        itr->second->releaselock_session();
     }
 }
 
 void SessionManager::DeleteSession (Session* ses)
 {
-    ses->getlock_session();
+    Lock guard(ses->mutex_session);
     if (ses->IsActive())
     {
         ses->ToDelete();
@@ -159,7 +160,7 @@ void SessionManager::SendPacketTo (uint32 id, Packet* new_packet) throw(SessionM
     usersession_map::iterator itr = sessions.find(id);
     if (itr == sessions.end())
         throw SessionManagerException("Id not found (SendPacketTo(uint32 id, Packet* new_packet))");
-    itr->second->getlock_session(); 
+    Lock guard(itr->second->mutex_session);
     if (itr->second->IsActive() && (itr->second->GetUserSession()->GetTime() > new_packet->GetTime()))
     {  
         net_task task;
@@ -170,12 +171,11 @@ void SessionManager::SendPacketTo (uint32 id, Packet* new_packet) throw(SessionM
     }
     else
         delete new_packet;
-    itr->second->releaselock_session();
 }
 
 void SessionManager::SendPacketTo (UserSession* uses, Packet* new_packet)
 {
-    uses->getSession()->getlock_session(); 
+    Lock guard(uses->getSession()->mutex_session);
     if (uses->getSession()->IsActive() && (uses->GetTime() > new_packet->GetTime()))
     {  
         net_task task;
@@ -186,7 +186,6 @@ void SessionManager::SendPacketTo (UserSession* uses, Packet* new_packet)
     }
     else
         delete new_packet;
-    uses->getSession()->releaselock_session();
 }
 
 std::string SessionManager::GetNameFromId(uint32 id)
@@ -195,10 +194,9 @@ std::string SessionManager::GetNameFromId(uint32 id)
     if (itr == sessions.end())
         throw SessionManagerException("Id not found (GetNameFromId(uint32 id))");
     std::string name = "";
-    itr->second->getlock_session();
+    Lock guard(itr->second->mutex_session);
         if (itr->second->IsActive())
             name = itr->second->GetUserSession()->GetName();
-    itr->second->releaselock_session();
     return name;
 }
 

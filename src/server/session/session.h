@@ -1,12 +1,11 @@
 #include "../../shared/session/user-session.h"
+#include "../../shared/threading/mutex.h"
 
 class Session
 {
     public:
         Session(UserSession* pUser)
         {
-            pthread_mutex_init(&mutex_session, NULL);
-            pthread_mutex_init(&mutex_m_active, NULL);
             pthread_mutex_init(&mutex_net, NULL);
             pthread_mutex_init(&mutex_exec, NULL);
             m_pUser = pUser;
@@ -16,8 +15,6 @@ class Session
 
         ~Session()
         {
-            pthread_mutex_destroy(&mutex_session);
-            pthread_mutex_destroy(&mutex_m_active);
             pthread_mutex_destroy(&mutex_net);
             pthread_mutex_destroy(&mutex_exec);
         }
@@ -37,15 +34,11 @@ class Session
             releaselock_exec();
             releaselock_net();
         }
+
         void ToDelete()
         {
             m_active = -1;
         }
-        
-        void  getlock_session() { pthread_mutex_lock(&mutex_session); }
-        void  releaselock_session() { pthread_mutex_unlock(&mutex_session); }
-        void  getlock_active() { pthread_mutex_lock(&mutex_m_active); }
-        void  releaselock_actives() { pthread_mutex_unlock(&mutex_m_active); }
 
         void  releaselock_net() { pthread_mutex_unlock(&mutex_net); }
         // Non bloccante
@@ -89,10 +82,9 @@ class Session
             return false;
         }
         
+        Mutex mutex_session;        
 
     private:
-        pthread_mutex_t    mutex_session;
-        pthread_mutex_t    mutex_m_active;
 
         pthread_mutex_t    mutex_net;
         pthread_mutex_t    mutex_exec;

@@ -4,6 +4,8 @@
 #include <map>
 #include <pthread.h>
 #include "queue.h"
+#include "../../shared/threading/mutex.h"
+#include "../../shared/utility/singleton.h"
 //#include "../../shared/session/user-session.h"
 
 #define s_manager      SessionManager::GetInstance()
@@ -24,16 +26,9 @@ class SessionManagerException : public exception
 };
 
 // Classe di gestione delle sessioni aperte
-class SessionManager
+class SessionManager : Singleton
 {
     public:
-
-        static SessionManager* GetInstance()
-        {
-            if (!smgr_singleton)
-                smgr_singleton = new SessionManager();
-            return smgr_singleton;
-        };
 
         ~SessionManager();
 
@@ -76,27 +71,12 @@ class SessionManager
 
         // MUTEX
 
-        pthread_mutex_t           mutex_sessions;
+        Mutex   mutex_sessions;
 
-        pthread_mutex_t           mutex_net_number;    // Mutex su net_number
-        pthread_mutex_t           mutex_exec_number;   // Mutex su exec_number
-        static SessionManager*    smgr_singleton;
+        Mutex   mutex_net_number;    // Mutex su net_number
+        Mutex   mutex_exec_number;   // Mutex su exec_number
 
         SessionManager();
-        inline void  MutexInit()
-        {
-            pthread_mutex_init(&mutex_sessions, NULL);
-            pthread_mutex_init(&mutex_exec_number, NULL);
-            pthread_mutex_init(&mutex_net_number, NULL);            
-        }
-
-        inline void  getlock_sessions() { pthread_mutex_lock(&mutex_sessions); }
-        inline void  releaselock_sessions() { pthread_mutex_unlock(&mutex_sessions); }
-  
-        inline void  getlock_net_number() { pthread_mutex_lock(&mutex_net_number); }
-        inline void  releaselock_net_number() { pthread_mutex_unlock(&mutex_net_number); }
-        inline void  getlock_exec_number() { pthread_mutex_lock(&mutex_exec_number); }
-        inline void  releaselock_exec_number() { pthread_mutex_unlock(&mutex_exec_number); } 
 };
 
 #endif  /* _SESSION_MRG_H */

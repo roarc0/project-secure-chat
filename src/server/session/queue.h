@@ -35,11 +35,11 @@ class NetQueue : public mt_queue<net_task>
     NetQueue(): mt_queue<net_task>() {};
     UserSession* NextUserSessionToServe()
     {
-        get_lock();
+        Lock guard(_mutex);
         UserSession* uses = NULL;
         Session* ses = NULL;
-        std::list<net_task>::iterator itr = m_list.begin();
-        for ( ; itr!=m_list.end() ; itr++)
+        std::list<net_task>::iterator itr = _list.begin();
+        for ( ; itr!=_list.end() ; itr++)
         {
             ses = (Session*)itr->ptr; 
             ses->getlock_session();         
@@ -61,8 +61,7 @@ class NetQueue : public mt_queue<net_task>
                     break;
             }
             ses->releaselock_session();
-        }        
-        release_lock();
+        }
         return uses;
     }
 };
@@ -73,11 +72,11 @@ class ExecQueue : public mt_queue<exec_task>
     ExecQueue(): mt_queue<exec_task>() {};
     UserSession* NextUserSessionToServe()
     {
-        get_lock();            
+        Lock guard(_mutex);            
         UserSession* uses = NULL;
         Session* ses = NULL;
-        std::list<exec_task>::iterator itr = m_list.begin();
-        for ( ; itr!=m_list.end() ; itr++)
+        std::list<exec_task>::iterator itr = _list.begin();
+        for ( ; itr!=_list.end() ; itr++)
         {
             ses = (Session*)itr->ptr;
             ses->getlock_session();
@@ -87,8 +86,7 @@ class ExecQueue : public mt_queue<exec_task>
                 erase_l(itr);  
             }
             ses->releaselock_session();
-        }        
-        release_lock();
+        }
         return uses;
     }
 };

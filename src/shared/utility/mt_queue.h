@@ -2,7 +2,7 @@
 #define MT_QUEUE_H
 
 #include <list>
-#include <pthread.h>
+#include "../threading/mutex.h"
 
 template <typename T>
 class mt_queue
@@ -16,65 +16,59 @@ class mt_queue
         void erase(typename std::list<T>::iterator);
 
     protected:
-        void  get_lock() { pthread_mutex_lock(&m_mut); }
-        void  release_lock() { pthread_mutex_unlock(&m_mut); }
-
         void push_l(T);        
         void erase_l(typename std::list<T>::iterator);
 
-        std::list<T>       m_list;
-        pthread_mutex_t    m_mut;     
+        std::list<T>   _list;
+        Mutex          _mutex;     
 
 };
 
 template <typename T>
 mt_queue<T>::mt_queue()
 {
-    pthread_mutex_init(&m_mut, NULL);
+
 }
 
 template <typename T>
 mt_queue<T>::~mt_queue()
 {
-    pthread_mutex_destroy(&m_mut);
+
 }
 
 template <typename T>
 T mt_queue<T>::front_and_pop()
 {
-    get_lock();
-    T temp = m_list.front();
-    m_list.pop_front();
-    release_lock();
+    Lock guard(_mutex);
+    T temp = _list.front();
+    _list.pop_front();
     return temp;
 }
 
 template <typename T>
 void mt_queue<T>::push(T a)
 {
-    get_lock();
-    m_list.push_back(a);
-    release_lock();
+    Lock guard(_mutex);
+    _list.push_back(a);
 }
 
 template <typename T>
 void mt_queue<T>::erase(typename std::list<T>::iterator it)
 {
-    get_lock();
-    m_list.erase(it);
-    release_lock();
+    Lock guard(_mutex);
+    _list.erase(it);
 }
 
 template <typename T>
 void mt_queue<T>::push_l(T a)
 {
-    m_list.push_back(a);
+    _list.push_back(a);
 }
 
 template <typename T>
 void mt_queue<T>::erase_l(typename std::list<T>::iterator it)
 {
-    m_list.erase(it);
+    _list.erase(it);
 }
 
 #endif

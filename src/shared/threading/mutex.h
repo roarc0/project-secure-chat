@@ -3,17 +3,17 @@
 
 #include <pthread>
 
-class Guard
+class Lock
 {
     public:
         // Acquire the state of the semaphore
-        Guard ( Mutex & mutex )
+        Lock ( Mutex & mutex )
             : _mutex(mutex)
         {
             _mutex.Acquire();
         }
         // Release the state of the semaphore
-        ~Guard ()
+        ~Lock ()
         {
             _mutex.Release();
         }

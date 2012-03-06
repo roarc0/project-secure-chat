@@ -2,13 +2,15 @@
 
 SocketServer::SocketServer() throw(SocketException)
 {
-
+    new_connection_init();
 }
 
 SocketServer::~SocketServer()
 {
-    //::close(sock_listen);
-    //sock_listen = INVALID_SOCKET;
+    pthread_mutex_destroy(&m_new_connection_enter);
+    pthread_mutex_destroy(&m_new_connection_exit);
+    ::close(sock_listen);
+    sock_listen = INVALID_SOCKET;
 }
 
 void SocketServer::init(int port) throw(SocketException)
@@ -156,6 +158,8 @@ void* epoll_thread(void* arg)
 
                         if (epoll_ctl (srv->epoll_fd, EPOLL_CTL_ADD, sock_new, &srv->event) < 0)
                             throw SocketException("[epoll_ctl()]", true);
+
+                        cb_notify(new_connection_net_task());
                     }
 
                     continue;

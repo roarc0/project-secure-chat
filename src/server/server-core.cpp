@@ -1,5 +1,10 @@
 #include "server-core.h"
 
+void handle_session_manager_task(void *ptr)
+{
+    s_manager->addTaskToServe(ptr);
+}
+
 void server_core()
 {
     try
@@ -13,6 +18,7 @@ void server_core()
 
         SocketServer server;
         server.init(CFG_GET_INT("server_port"));
+        server.init_callback(&handle_session_manager_task);       
 
         //UserSession *temp_session = NULL;
         INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
@@ -20,29 +26,25 @@ void server_core()
         network_threads net;
         execution_threads exec;
 
-        while(1)
+        //while(1)
         {
-            /*try
+            try
             {
-                temp_sock = server.accept();
-                s_manager->createSession(temp_sock);
-                INFO("debug", "* client session created! %s:%d\n", 
-                     temp_sock->getForeignAddress().c_str(),
-                     temp_sock->getForeignPort());
+                //INFO("debug", "* client session created! %s:%d\n", 
+                //     temp_sock->getForeignAddress().c_str(),
+                //     temp_sock->getForeignPort());
 
                 net.start_net_thread();
                 exec.start_exec_thread();
             }
-            catch(SocketException &e)
-            {
-                INFO("debug", "[servercore] %s\n", e.what());
-            }
             catch(...)
             {
                 INFO("debug", "default exception");
-            }*/
-            usleep(50);
+            }
+            msleep(1000);
         }
+
+        while(1);
 
     }
     catch(SocketException &e)

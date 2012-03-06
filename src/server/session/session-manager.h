@@ -26,7 +26,7 @@ class SessionManagerException : public exception
 };
 
 // Classe di gestione delle sessioni aperte
-class SessionManager : Singleton
+class SessionManager : public Singleton
 {
     public:
 

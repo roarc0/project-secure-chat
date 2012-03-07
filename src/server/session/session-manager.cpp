@@ -42,28 +42,6 @@ SessionManager::~SessionManager()
         delete pSes;
 }
 
-/*
-void SessionManager::CreateSession (SocketServer* sock)
-{
-    Lock guard(mutex_m_sessions);
-    UserSession* us = new UserSession(sock);
-    SessionMap::iterator itr = m_sessions.begin();
-    for (; itr != m_sessions.end(); itr++)
-    {
-        Lock guard(itr->second->mutex_session);
-        if (itr->second->IsFree())
-            itr->second->SetSession(us, itr->first);
-    }
-    if (itr == m_sessions.end())
-    {   
-        us->SetId(next_id);
-        Session* ses = new Session(us);
-        m_sessions.insert(usersession_pair(next_id, ses));
-        next_id++;
-    }
-    active_m_sessions++;    
-}*/
-
 bool SessionManager::RemoveSession(uint32 id)
 {
     SessionMap::const_iterator itr = m_sessions.find(id);
@@ -100,39 +78,6 @@ uint32 SessionManager::GetUsersessionId(UserSession* usession)
             return itr->first;
 
     return 0;
-}
-
-void SessionManager::SendPacketTo (uint32 id, Packet* new_packet) throw(SessionManagerException)
-{
-    SessionMap::iterator itr = m_sessions.find(id);
-    if (itr == m_sessions.end())
-        throw SessionManagerException("Id not found (SendPacketTo(uint32 id, Packet* new_packet))");
-    Lock guard(itr->second->mutex_session);
-    if (itr->second->IsActive() && (itr->second->GetUserSession()->GetTime() > new_packet->GetTime()))
-    {  
-        net_task task;
-        task.ptr = (void*)itr->second;
-        task.p_pack = new_packet;
-        task.type_task = SEND;
-        n_queue.push(task);        
-    }
-    else
-        delete new_packet;
-}
-
-void SessionManager::SendPacketTo (UserSession* uses, Packet* new_packet)
-{
-    Lock guard(uses->getSession()->mutex_session);
-    if (uses->getSession()->IsActive() && (uses->GetTime() > new_packet->GetTime()))
-    {  
-        net_task task;
-        task.ptr = (void*)uses->getSession();
-        task.p_pack = new_packet;
-        task.type_task = SEND;
-        n_queue.push(task);        
-    }
-    else
-        delete new_packet;
 }
 
 std::string SessionManager::GetNameFromId(uint32 id)
@@ -205,9 +150,8 @@ void SessionManager::DecExecThread()
 }
 
 void SessionManager::AddSession(Socket* sock)
-{    
-    UserSession* us = new UserSession(sock);
-    Session* sess = new Session(us);
+{
+    Session* sess = new Session(sock);
     uint32 sessions = GetActiveSessionCount();
 
     if ((!m_sessionLimit || sessions < m_sessionLimit))
@@ -313,8 +257,8 @@ void SessionManager::AddSession_()
         {
             if (next_id != (itr->first-1))
             {
-                us->SetId(next_id);
-                m_sessions.insert(usersession_pair(sess->GetId(), sess));
+                sess->SetId(next_id);
+                m_sessions.insert(usersession_pair(next_id, sess));
                 RemoveQueuedSession(sess);           
                 break;
             }

@@ -1,5 +1,3 @@
-#include "../../shared/session/user-session.h"
-#include "../../shared/threading/mutex.h"
 #include "../../shared/networking/packetfilter.h"
 #include "../../shared/networking/packet.h"
 #include "../../shared/utility/lockedqueue.h"
@@ -7,25 +5,26 @@
 class Session
 {
     public:
-        Session(UserSession* pUser);
+        Session(Socket* pSock);
         ~Session();
 
-        bool Update(PacketFilter& updater);
-
-        // TODO Inserire tempo di creazione della session per controllo di pacchetti precedenti
-        void SetSession(UserSession* pUser, uint32 id) { m_pUser = pUser; m_pUser->SetId(id); m_pUser->SetSession(this);}
-        UserSession* GetUserSession() { return m_pUser; }
+        bool Update(int diff, PacketFilter& updater);
 
         bool IsInCell() { return m_incell; }
-        void SetInCell(bool b_incell) { m_incell = b_incell; }
-
+        void SetInCell(bool state) { m_incell = state; }
+        void IsInQueue() { return m_inQueue; }
         void SetInQueue(bool state) { m_inQueue = state; }
-        void QueuePacket(Packet* new_packet);        
+
+        void KickSession();
+
+        void QueuePacket(Packet* new_packet);  
+
+        void SetId(uint32 id) { m_id = id; }
+        uint32 GetId() { return m_id; }
   
     private:
+        uint32 m_id;
 
-        UserSession* m_pUser;
-            
         LockedQueue<Packet*> _recvQueue;
         // If we are in a Cell
         bool m_incell;

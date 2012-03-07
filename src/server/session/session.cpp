@@ -1,9 +1,9 @@
 #include "session.h"
 
-Session::Session(UserSession* pUser) : m_inQueue(false)
+Session::Session(UserSession* pUser) : 
+m_id(0), m_inQueue(false), m_incell(false)
 {
-    m_pUser = pUser;
-    m_pUser->SetSession(this);
+    m_Socket = pSock;
 }
 
 Session::~Session()
@@ -14,7 +14,7 @@ Session::~Session()
         delete packet;
 }
 
-bool Session::Update(PacketFilter& updater)
+bool Session::Update(int diff, PacketFilter& updater)
 {
     Packet* packet = NULL;
     // To prevent infinite loop
@@ -76,6 +76,11 @@ bool Session::Update(PacketFilter& updater)
         if (deletePacket)
             delete packet;
     }
+}
+
+bool Session::KickSession()
+{
+    // TODO
 }
 
 void WorldSession::QueuePacket(Packet* new_packet)

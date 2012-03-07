@@ -8,11 +8,7 @@ bool CellSessionFilter::Process(Packet* packet)
     if (opHandle.packetProcessing == PROCESS_THREADUNSAFE)
         return false;
 
-    UserSession* m_pUses = m_pSession->GetUserSession();
-    if (!m_pUses)
-        return false;
-
-    return m_pUses->IsInInstance();
+    return m_pSession->IsInCell();
 }
 
 bool SingleSessionFilter::Process(Packet* packet)
@@ -25,9 +21,5 @@ bool SingleSessionFilter::Process(Packet* packet)
     if (opHandle.packetProcessing == PROCESS_THREADUNSAFE)
         return true;
 
-    UserSession* m_pUses = m_pSession->GetUserSession();
-    if (!m_pUses)
-        return true;
-
-    return (m_pUses->IsInInstance() == false);
+    return (m_pSession->IsInCell() == false);
 }

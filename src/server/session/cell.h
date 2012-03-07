@@ -4,7 +4,7 @@ class Cell
         Cell() {};
         ~Cell() {};
 
-        virtual bool Update();
+        virtual bool Update(int diff = 0);
         void Insert(Session* m_pSes);
         void Remove(Session* m_pSes);
     private:

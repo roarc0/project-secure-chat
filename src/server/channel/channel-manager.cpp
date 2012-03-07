@@ -1,45 +1,5 @@
 #include "channel-manager.h"
 
-// ChannelException Code
-ChannelException::ChannelException(const string &message, bool inclSysMsg)
-  throw() : userMessage(message) 
-{
-	if (inclSysMsg) 
-	{
-		userMessage.append(": ");
-		userMessage.append(strerror(errno));
-	}
-}
-
-ChannelException::~ChannelException() throw() 
-{
-}
-
-const char *ChannelException::what() const throw() 
-{
-	return userMessage.c_str();
-}
-
-// ChannelManagerException Code
-ChannelManagerException::ChannelManagerException(const string &message, bool inclSysMsg)
-  throw() : userMessage(message) 
-{
-	if (inclSysMsg) 
-	{
-		userMessage.append(": ");
-		userMessage.append(strerror(errno));
-	}
-}
-
-ChannelManagerException::~ChannelManagerException() throw() 
-{
-}
-
-const char *ChannelManagerException::what() const throw() 
-{
-	return userMessage.c_str();
-}
-
 Channel::Channel(uint32 owner, std::string name, std::string password, uint8 secure, bool persistent)
 {    
     m_name = name;

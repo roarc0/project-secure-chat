@@ -15,17 +15,7 @@
 #define UNORDERED_MAP std::tr1::unordered_map
 typedef UNORDERED_MAP<std::string, Channel>
 
-class ChannelException : public exception 
-{
-	public:
-		ChannelException(const std::string &message, bool inclSysMsg = false) throw();
-		~ChannelException() throw();
-
-		const char *what() const throw();
-
-	private:
-		std::string userMessage;  // Exception message
-};
+class ChannelException : public Exception;
 
 class Channel
 {

@@ -14,29 +14,8 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-class ChannelException : public exception 
-{
-	public:
-		ChannelException(const std::string &message, bool inclSysMsg = false) throw();
-		~ChannelException() throw();
-
-		const char *what() const throw();
-
-	private:
-		std::string userMessage;  // Exception message
-};
-
-class ChannelManagerException : public exception 
-{
-	public:
-		ChannelManagerException(const std::string &message, bool inclSysMsg = false) throw();
-		~ChannelManagerException() throw();
-
-		const char *what() const throw();
-
-	private:
-		std::string userMessage;  // Exception message
-};
+class ChannelException : public Exception;
+class ChannelManagerException : public Exception;
 
 class Channel
 {

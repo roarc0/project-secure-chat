@@ -1,22 +1,4 @@
-// ChannelException Code
-ChannelException::ChannelException(const string &message, bool inclSysMsg)
-  throw() : userMessage(message) 
-{
-	if (inclSysMsg) 
-	{
-		userMessage.append(": ");
-		userMessage.append(strerror(errno));
-	}
-}
-
-ChannelException::~ChannelException() throw() 
-{
-}
-
-const char *ChannelException::what() const throw() 
-{
-	return userMessage.c_str();
-}
+#include "channel.h"
 
 Channel::Channel(std::string name, std::string password, uint8 secure, bool persistent)
 {

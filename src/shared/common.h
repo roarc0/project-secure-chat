@@ -27,7 +27,7 @@
 #ifndef  COMMON_H
 #define COMMON_H
 
-static string whoami;
+string whoami;
 
 #define IS_SERVER  (whoami == "server")
 #define IS_CLIENT  (whoami == "client")

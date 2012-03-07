@@ -20,7 +20,7 @@
 #include <exception>
 #include <string>
 
-#include "../../shared/networking/socket-exception.h"
+#include "../../shared/utility/exception.h"
 #include "../../shared/callback/callback.h"
 #include "../session/queue.h"
 
@@ -38,6 +38,8 @@ net_task new_connection_net_task(int sock)
     n_task.type_task = NEW;
     return n_task;
 }
+
+class SocketServerException : public Exception;
 
 class SocketServer
 {

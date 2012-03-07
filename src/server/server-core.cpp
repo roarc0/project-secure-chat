@@ -14,7 +14,7 @@ void server_core()
         db_manager->init_db();
 
         s_manager;
-        init_commands();
+        InitCommands();
 
         SocketServer server;
         server.init(CFG_GET_INT("server_port"));

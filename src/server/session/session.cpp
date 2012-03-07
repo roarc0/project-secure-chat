@@ -1,6 +1,6 @@
 #include "session.h"
 
-Session::Session(UserSession* pUser) : 
+Session::Session(Socket* pSock) : 
 m_id(0), m_inQueue(false), m_incell(false)
 {
     m_Socket = pSock;
@@ -83,7 +83,12 @@ bool Session::KickSession()
     // TODO
 }
 
-void WorldSession::QueuePacket(Packet* new_packet)
+void Session::QueuePacket(Packet* new_packet)
 {
     _recvQueue.add(new_packet);
+}
+
+void Session::SendWaitQueue(int position)
+{
+    //TODO
 }

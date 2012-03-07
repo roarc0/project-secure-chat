@@ -1,13 +1,13 @@
 #include "cell.h"
 
-void Cell::Insert(Session* m_pSes)
+virtual void Cell::Insert(Session* m_pSes)
 {
     //Lock guard(_lock_list);
     c_sessions.insert(m_pSes);
     m_pSes->SetInCell(true);
 }
 
-void Cell::Remove(Session* m_pSes)
+virtual void Cell::Remove(Session* m_pSes)
 {
     //Lock guard(_lock_list);
     c_sessions.remove(m_pSes);

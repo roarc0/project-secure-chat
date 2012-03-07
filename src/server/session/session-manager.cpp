@@ -13,7 +13,7 @@ SessionManagerException::SessionManagerException (const string &message, bool in
     }
 }
 
-SessionManagerException::~SessionManagerException() throw() 
+SessionManagerException::~SessionManagerException() throw()
 {
 
 }
@@ -24,7 +24,7 @@ const char *SessionManagerException::what() const throw()
 }
 
 SessionManager::SessionManager(): 
-next_id(0), m_sessionLimit(0), net_number(0), exec_number(0)
+next_id(0),  m_sessionActiveLimit(0), m_sessionLimit(0), net_number(0), exec_number(0)
 {
 
 }
@@ -69,97 +69,17 @@ void SessionManager::GetIdList(std::list<uint32>* ulist)
         ulist->push_back(itr->first);
 }
 
-uint32 SessionManager::GetUsersessionId(UserSession* usession)
-{
-    SessionMap::iterator itr = m_sessions.begin();
-
-    for(;itr!=m_sessions.end();itr++)
-        if (itr->second->GetUserSession() == usession)
-            return itr->first;
-
-    return 0;
-}
-
-std::string SessionManager::GetNameFromId(uint32 id)
-{
-    SessionMap::iterator itr = m_sessions.find(id);
-    if (itr == m_sessions.end())
-        throw SessionManagerException("Id not found (GetNameFromId(uint32 id))");
-    std::string name = "";
-    Lock guard(itr->second->mutex_session);
-        if (itr->second->IsActive())
-            name = itr->second->GetUserSession()->GetName();
-    return name;
-}
-
-bool SessionManager::IsMoreNetThreadsThanClients()
-{    
-    Lock guard(mutex_m_sessions);
-
-    bool b_temp = false;
-    if (net_number > active_m_sessions)
-    {
-        b_temp = true;
-        DecNetThread();
-    }
-    
-    return b_temp;
-}
-
-bool SessionManager::IsMoreExecThreadsThanClients()
-{
-    bool b_temp = false;
-    Lock guard(mutex_m_sessions);
-    if (exec_number > active_m_sessions)
-    {
-        b_temp = true;
-        DecExecThread();
-    }
-    
-    return b_temp;
-}
-
-void SessionManager::IncNetThread()
-{
-    Lock guard(mutex_net_number);
-
-    net_number++;    
-}
-
-void SessionManager::DecNetThread()
-{
-    Lock guard(mutex_net_number);
-
-    if (net_number > 0)
-        net_number--;    
-}
-
-void SessionManager::IncExecThread()
-{
-    Lock guard(mutex_exec_number);
-
-    exec_number++;     
-}
-
-void SessionManager::DecExecThread()
-{
-    Lock guard(mutex_exec_number);
-
-    if (exec_number > 0)
-        exec_number--;    
-}
-
 void SessionManager::AddSession(Socket* sock)
 {
-    Session* sess = new Session(sock);
-    uint32 sessions = GetActiveSessionCount();
-
-    if ((!m_sessionLimit || sessions < m_sessionLimit))
+    if (GetQueuedSessionCount() + addSessQueue.size() <  m_sessionLimit)
     {
+        Session* sess = new Session(sock);
         addSessQueue.add(ses);
     }
     else
-        AddQueuedSession(Session* sess)
+    {
+        // Disconetti sessione
+    }
 }
 
 void SessionManager::Update()
@@ -197,6 +117,8 @@ void SessionManager::AddQueuedSession(Session* sess)
 {
     sess->SetInQueue(true);
     m_QueuedSessions.push_back(sess);
+
+    // TODO Notifica all'utente che è in attesa, GetQueuePos(sess)
 }
 
 bool SessionManager::RemoveQueuedSession(Session* sess)
@@ -224,10 +146,12 @@ bool SessionManager::RemoveQueuedSession(Session* sess)
         --sessions;
 
     // accept first in queue
-    if ((!m_sessionLimit || sessions < m_sessionLimit) && !m_waitSessQueue.empty())
+    if ((!m_sessionActiveLimit || sessions < m_sessionActiveLimit) && !m_waitSessQueue.empty())
     {
         WorldSession* pop_sess = m_waitSessQueue.front();
         pop_sess->SetInQueue(false);
+
+        // TODO notifica all'utente che è stato accettato
 
         m_waitSessQueue.pop_front();
 
@@ -237,13 +161,13 @@ bool SessionManager::RemoveQueuedSession(Session* sess)
 
     // Update Queue Position
     for (; iter != m_waitSessQueue.end(); ++iter, ++position)
-        (*iter)->SendWaitQue(position);
+        (*iter)->SendWaitQueue(position);
 
     return found;
 }
 
 
-void SessionManager::AddSession_()
+void SessionManager::AddSessions_()
 {
     // Add new sessions
     Session* sess = NULL;
@@ -257,13 +181,23 @@ void SessionManager::AddSession_()
         {
             if (next_id != (itr->first-1))
             {
-                sess->SetId(next_id);
-                m_sessions.insert(usersession_pair(next_id, sess));
-                RemoveQueuedSession(sess);           
+                AddSession_(next_id, sess);
+                next_id++;                    
                 break;
             }
             else
                 next_id = itr->first;
         }
     }
+}
+
+void SessionManager::AddSession_(int& next_id, Session* sess);
+{
+    if (m_sessionActiveLimit && GetActiveSessionCount() >= m_sessionActiveLimit)
+    {
+        AddQueuedSession(sess);
+    }
+
+    sess->SetId(next_id);
+    m_sessions.insert(usersession_pair(next_id, sess));
 }

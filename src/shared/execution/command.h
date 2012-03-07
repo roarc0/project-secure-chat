@@ -1,5 +1,5 @@
-#ifndef COMMAND_H
-#define COMMAND_H
+#ifndef _COMMAND_H
+#define _COMMAND_H
 
 #include "../common.h"
 #include "../session/user-session.h"
@@ -16,32 +16,35 @@ struct handler_params
     }
 };
 
-class command_exception : public exception
+class CommandException : public exception // todo definire
 {
     public:
-        command_exception(const std::string &message) throw();
-        ~command_exception() throw();
+        CommandException(const std::string &message) throw();
+        ~CommandException() throw();
 
         const char *what() const throw();
 
     private:
-        string u_message;
+        string umessage;
 };
 
 
-class command // gestire delete
+class Command // gestire delete
 {
-    string      cmd_id;
     handler     hnd;
+    uint32_t    id;
+    string      name;
+
 
   public:
 
-    command(string id, handler hnd);
-    ~command();
+    Command(uint32_t, string, handler);
 
-    bool execute(string params, UserSession*);
+    ~Command();
 
-    inline string get_id() const
+    bool Execute(string params, Session*);
+
+    inline string GetId() const
     {
         return cmd_id;
     }

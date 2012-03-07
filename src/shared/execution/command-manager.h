@@ -1,45 +1,44 @@
-#ifndef COMMAND_MANAGER_H
-#define COMMAND_MANAGER_H
+#ifndef _COMMAND_MANAGER_H
+#define _COMMAND_MANAGER_H
 
 #include "command.h"
 #include "functions.h"
+#include "../utility/singleton.h"
 
-#define c_manager          command_manager::get_instance()
+#define c_manager          CommandManager::GetInstance()
 
-class command_manager_exception : public exception
+enum cmd_ids // TODO da rivedere
+{
+    CMD_VOID 0,
+    CMD_MAX_SHARED_COMMANDS
+};
+
+class CommandManager_exception : public exception
 {
     public:
-        command_manager_exception(const std::string &message) throw();
-        ~command_manager_exception() throw();
+        CommandManagerException(const std::string &message) throw();
+        ~CommandManagerException() throw();
 
         const char *what() const throw();
 
     private:
-        std::string user_message;
+        std::string umessage;
 };
 
-class command_manager
+class CommandManager : public Singleton
 {
-    list<command*>             commands;
-    static command_manager*    cmd_singleton;
+    list<Command*>  commands;  // trasformare in map
 
-    string get_message_type(string raw);
-    string get_message_params(string raw);
+    string GetMessageType(string raw);
+    string GetMessageParams(string raw);
 
-    command_manager();
+    CommandManager();
 
   public:
 
-    static command_manager* get_instance()
-    {
-        if(!cmd_singleton)
-            cmd_singleton = new command_manager();
-        return cmd_singleton;
-    };
+    ~CommandManager();
 
-    ~command_manager();
-
-    void   add_command(string id, handler hnd);
-    bool   execute(string raw, UserSession *u_session);
+    void   AddCommand(uint32_t, string id, handler hnd);
+    bool   Execute(string raw, Session *session);
 };
 #endif

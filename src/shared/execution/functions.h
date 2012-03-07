@@ -1,27 +1,24 @@
+#ifndef _FUNCTIONS_H
+#define _FUNCTIONS_H
+
 #include "../common.h"
 #include "command.h"
 
-#ifndef FUNCTIONS_H
-#define FUNCTIONS_H
-
-// qui ci staranno le funzioni generiche in comune tra client/server
-// client e server avranno altre funzioni specifiche in functions-[client,server]
-
-class function_exception : public exception
+class FunctionException : public exception
 {
     public:
-        function_exception(const std::string &message) throw();
-        ~function_exception() throw();
+        FunctionException(const std::string &message) throw();
+        ~FunctionException() throw();
 
         const char *what() const throw();
 
     private:
-        string user_message;
+        string umessage;
 };
 
 
-bool dummy(void*);
-bool ping(void*);
-bool pong(void*);
+bool Dummy(void*);
+bool Ping(void*);
+bool Pong(void*);
 
 #endif

@@ -1,6 +1,6 @@
 #include "functions.h"
 
-bool dummy(void* params)
+bool Dummy(void* params)
 {
     if(IS_SERVER) //orribilissimo
        INFO("debug", "server received dummy message!\n");
@@ -10,14 +10,14 @@ bool dummy(void* params)
    return true;
 }
 
-bool ping(void* params)
+bool Ping(void* params)
 {
    handler_params* hparams = (handler_params*) params;
 
    return true;
 }
 
-bool pong(void* params)
+bool Pong(void* params)
 {
 
    return true;

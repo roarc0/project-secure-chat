@@ -10,12 +10,13 @@ void welcome()
 
 int exec_command(const char *fmt, ...)
 {
-    char buffer[256]; // FIXME ...
+    char *buffer;
     int ret;
 
     va_list ap;
     va_start(ap, fmt);
-    ret = vsnprintf(buffer, 256, fmt, ap);
+    if (vasprintf(&buffer, 256, fmt, ap) < 0)
+        return -1;
     va_end(ap);
 
     return system(buffer);

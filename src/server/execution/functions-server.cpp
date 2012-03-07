@@ -1,6 +1,6 @@
 #include "functions-server.h"
 
-bool send_message(void* params)
+bool SendMessage(void* params)
 {
     handler_params* hpar = (handler_params*)params;
     std::list<uint32> id_list;
@@ -25,7 +25,7 @@ bool send_message(void* params)
     return true;
 }
 
-bool update_user_list(void* params)
+bool UpdateUserList(void* params)
 {
 
     return true;

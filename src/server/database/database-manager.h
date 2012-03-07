@@ -4,38 +4,30 @@
 #include  <sqlite3.h>
 #include  "../../shared/utility/logger.h"
 #include  "../../shared/utility/file.h"
+#include  "../../shared/singleton.h"
 
-#define db_manager                     database_manager::get_instance()
+#define db_manager    DatabaseManager::GetInstance()
 
 using namespace std;
 
-class database_manager
+class DatabaseManager : public Singleton
 {
   private:
 
-    database_manager();
-
-    static database_manager*    db_singleton;
     string              db_filename;
     sqlite3*            handle;
     sqlite3_stmt*       res;
 
   public:
 
-    ~database_manager();
-    static database_manager* get_instance()
-    {
-        if(!db_singleton)
-            db_singleton = new database_manager();
-        return db_singleton;
-    };
+    ~DatabaseManager();
 
-    void set_dbfilename(string filename)
+    void SetDbFilename(string filename)
     {
         db_filename = filename;
     }
 
-    void init_db();
+    void InitDb();
 };
 
 #endif

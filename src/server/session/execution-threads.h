@@ -1,5 +1,5 @@
-#ifndef EXECUTION_THREADS_H
-#define EXECUTION_THREADS_H
+#ifndef _EXECUTION_THREADS_H
+#define _EXECUTION_THREADS_H
 
 #include "../../shared/execution/command-manager.h"
 #include "../../shared/threading/thread.h"
@@ -13,16 +13,13 @@ struct exec_thread_params
 
 void *exec_thread(void *params);
 
-class execution_threads
+class ExecutionThreads : public Thread
 {
   public:
-    execution_threads();
-    ~execution_threads();
+    ExecutionThreads();
+    ~ExecutionThreads();
 
-    void    start_exec_threads(uint32);
-    void    start_exec_thread();
-
-    uint32  count() const
+    uint32  Count() const
     {
         return tids.size();
     }

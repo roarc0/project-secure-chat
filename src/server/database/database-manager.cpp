@@ -1,18 +1,13 @@
 #include "database-manager.h"
 
-database_manager* database_manager::db_singleton = NULL;
+DatabaseManager* DatabaseManager::_instance = NULL;
 
-database_manager::database_manager()
-{
-
-}
-
-database_manager::~database_manager()
+DatabaseManager::~DatabaseManager()
 {
     sqlite3_close(handle);
 }
 
-void database_manager::init_db()
+void DatabaseManager::InitDb()
 {
     int ret;
     bool new_db = false;

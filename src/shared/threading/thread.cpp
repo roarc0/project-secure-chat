@@ -1,21 +1,41 @@
 #include "thread.h"
 
-pthread_t start_thread(void* (*thread_function)(void*) , void* t_params)
+Thread::Thread() {}
+
+int Thread::Start(void * arg) throw(ThreadException)
 {
-    pthread_t      tid;
-    pthread_attr_t tattr;
+   int ret;
+
+   SetArg(arg);
+   if(ret = pthread_create(Thread::EntryPoint, this, & ThreadId_) < 0)
+       throw(ThreadException);
+   return ret;
+}
+
+int Thread::Run(void * arg) throw(ThreadException)
+{
+   Setup();
+   Execute(arg);
+}
+
+void * Thread::EntryPoint(void * pthis) throw(ThreadException)
+{
+   Thread * pt = (Thread*)pthis;
+   pthis->Run(Arg());
+}
+
+virtual void Thread::Setup() throw(ThreadException)
+{
     int ret;
+    pthread_attr_t tattr;
 
     ret = pthread_attr_init(&tattr);
     ret = pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
-
-    if (ret = pthread_create(&tid, &tattr, thread_function, (void*)t_params))
-    {
-        perror("pthread_create");
-        //delete t_params;  // FIXME se fallisce pthread create t_params resta in memoria...
-        return (pthread_t) 0;
-    }
-
     pthread_attr_destroy(&tattr);
-    return tid;
 }
+
+virtual void Thread::Execute(void* arg) throw(ThreadException)
+{
+}
+
+#endif 

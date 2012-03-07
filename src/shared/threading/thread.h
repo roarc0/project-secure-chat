@@ -1,15 +1,29 @@
-#include <pthread.h>
-#include <cstdlib>
-#include <errno.h>
-#include <cstdio>
+#ifndef _THREAD_H
+#define _THREAD_H
 
-#ifndef THREAD_H
-#define THREAD_H
+#include <pthread>
+#include "../utility/exception.h"
 
+class ThreadException : public Exception;
 
-using namespace std;
+class Thread
+{
+   public:
+      Thread();
+      ~Thread();
+      int Start(void * arg) throw(ThreadException);
+   protected:
+      int Run(void * arg) throw(ThreadException);
+      static void * EntryPoint(void*) throw(ThreadException);
+      virtual void Setup() throw(ThreadException);
+      virtual void Execute(void*) throw(ThreadException);;
+      void* GetArg() const {return arg;}
+      void SetArg(void* _arg){arg = _arg;}
+   private:
+      pthread_t tid;
 
-pthread_t start_thread(void* (*)(void*), void*);
-//bool kill_thread(tid);
+      void      *arg;
+
+};
 
 #endif

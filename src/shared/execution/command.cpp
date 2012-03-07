@@ -1,30 +1,25 @@
 #include "command.h"
 
-command::command(string id, handler hnd)
-{
-    cmd_id = id;
-    command::hnd = hnd;
-}
-
-command::~command()
+Command::Command(uint32_t _id, string _name, handler _hnd)  :
+id(_id), hnd(_hnd), name(_name);
 {
 
 }
 
-bool command::execute(string params, UserSession *usession)  // TODO try catch
+Command::~Command()
 {
-    if(!usession)
+
+}
+
+bool Command::Execute(string params, Session *session)  // TODO try catch
+{
+    if(!session)
         return false;
 
-    SocketServer *sock = usession->GetSocket();
-
-    if(!sock)
-        return false;
-
-    handler_params hnd_params(usession, params);
+    handler_params hnd_params(session, params);
 
     cout << "* <" << cmd_id << "> executed" << endl;
-    //cout << "* <" << cmd_id << "> executed from " << sock->getForeignAddress() << ":" << sock->getForeignPort() << endl;
+    //cout << "* <" << cmd_id << "> executed from " << session->sock->getForeignAddress() << ":" << session->sock->getForeignPort() << endl;
 
     return (*hnd)((void*)&hnd_params);
 }

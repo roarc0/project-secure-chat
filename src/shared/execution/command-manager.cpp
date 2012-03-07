@@ -1,50 +1,48 @@
 #include "command-manager.h"
 
-command_manager* command_manager::cmd_singleton = NULL;
+CommandManager* CommandManager::_instance = NULL;
 
-command_manager::command_manager()
+CommandManager::CommandManager()
 {
-    add_command("\\dummy", &dummy);
-    add_command("\\ping",  &ping);
-    add_command("\\pong",  &pong);
+    AddCommand("\\dummy", &Dummy);
+    AddCommand("\\ping",  &Ping);
+    AddCommand("\\pong",  &Pong);
 }
 
 
-command_manager::~command_manager()
+CommandManager::~CommandManager()
 {
     for (list<command*>::iterator itr = commands.begin(); itr != commands.end(); ++itr)
         delete (*itr);
 }
 
-void command_manager::add_command(string id, handler hnd)
+void CommandManager::AddCommand(uint32_t id, string name, handler hnd)
 {
-    command *cmd = new command(id, hnd);
+    Command *cmd = new Command(id, name, hnd);
     commands.push_back(cmd);
 }
 
-string command_manager::get_message_type(string raw)
+string CommandManager::GetMessageType(string raw)
 {
     size_t pos;
     pos = raw.find_first_of(" ");
     return raw.substr(0, pos);
 }
 
-string command_manager::get_message_params(string raw)
+string CommandManager::GetMessageParams(string raw)
 {
     size_t pos;
     pos = raw.find_first_of(" ");
     return raw.substr(pos + 1);
 }
 
-bool command_manager::execute(string raw, UserSession *u_session) // se non trova il messaggio
+bool CommandManager::Execute(string raw, Session *session) // se non trova il messaggio
 {
     list<command*>::iterator itr = commands.begin();
 
     for (; itr != commands.end(); ++itr)
-    {
-        if(itr != commands.end() && (*itr)->get_id() == get_message_type(raw))
-            return (*itr)->execute(get_message_params(raw), u_session);
-    }
+        if(itr != commands.end() && (*itr)->GetId() == GetMessageType(raw))
+            return (*itr)->execute(GetMessageParams(raw), session);
 
     INFO("debug","* command not found!\n");
     return false;

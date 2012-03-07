@@ -33,36 +33,36 @@ class SessionManager : public Singleton
 {    
     public:
 
-        ~SessionManager();
-        void Update();
+        ~SessionManager();        
+
+        AddTaskToServe(net_task* ntask);
+
+        void GetIdList(std::list<uint32>*);
 
         void AddSession(Socket* sock);
         void RemoveSession (uint32 id);
 
-        std::string GetNameFromId(uint32 id);
-        void        GetIdList(std::list<uint32>*);
-        uint32      GetUsersessionId(UserSession*);
-
-        void IncNetThread();
-        void IncExecThread();
-        void DecNetThread();
-        void DecExecThread();
-
-        bool IsMoreNetThreadsThanClients();
-        bool IsMoreExecThreadsThanClients();
-
-        void SendPacketTo(uint32 id, Packet* new_packet) throw(SessionManagerException);
-        void SendPacketTo(UserSession* uses, Packet* new_packet);
+        void Update();
 
         uint32 GetActiveSessionCount() const { return m_sessions.size() - m_waitSessQueue.size(); }
-        uint32 GetQueuedSessionCount() const { return m_waitSessQueue.size(); }
+        uint32 GetActiveSessionCount() const { return m_sessions.size() }
+        uint32 GetQueuedSessionCount() const { return m_waitSessQueue.size(); }    
         uint32 GetQueuePos(Session* sess);
-        void   AddQueuedSession(Session* sess);
+
+        // Session server limit
+        void SetSessionAmountLimit(uint32 limit) { m_sessionLimit = limit; }
+        uint32 GetSessionAmountLimit() const { return m_sessionLimit; }
+
+        // Active session server limit
+        void SetSessionActiveAmountLimit(uint32 limit) { m_sessionActiveLimit = limit; }
+        uint32 GetSessionActiveAmountLimit() const { return m_sessionActiveLimit; }
 
     private:
+        void AddQueuedSession(Session* sess);
+        void AddSessions_();
+        void AddSession_(int& next_id, Session* sess);
 
-        void AddSession_();
-
+        // Session Map
         SessionMap m_sessions;
 
         // Sessioni in attesa di essere aggiunte alla m_sessions
@@ -71,10 +71,12 @@ class SessionManager : public Singleton
         // Coda in Ingresso
         SessionQueue m_QueuedSessions;
 
+        // Session server limit
         uint32 m_sessionLimit;
+        // // Active session server limit
+        uint32 m_sessionActiveLimit;        
         
         NetQueue n_queue;
-        ExecQueue e_queue;
 
         uint32 net_number;
         uint32 exec_number;        

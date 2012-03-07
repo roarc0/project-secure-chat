@@ -21,6 +21,8 @@ class Session
 
         void SetId(uint32 id) { m_id = id; }
         uint32 GetId() { return m_id; }
+
+        void SendWaitQueue(int position);
   
     private:
         uint32 m_id;
@@ -31,5 +33,5 @@ class Session
         // If Session is in Qeuue
         bool m_inQueue;
         // Socket
-        int m_Socket;
+        Socket* m_Socket;
 };

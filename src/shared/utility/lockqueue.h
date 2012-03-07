@@ -134,6 +134,12 @@ class LockedQueue
             Lock guard(_lock);
             return _queue.empty();
         }
+
+        int size()
+        {
+            Lock guard(_lock);
+            return _queue.size();
+        }
 };
 
 #endif

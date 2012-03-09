@@ -14,7 +14,7 @@ Session::~Session()
         delete packet;
 }
 
-bool Session::Update(int diff, PacketFilter& updater)
+bool Session::Update(uint32 diff, PacketFilter& updater)
 {
     Packet* packet = NULL;
     // To prevent infinite loop
@@ -94,7 +94,20 @@ void Session::QueuePacket(Packet* new_packet)
     _recvQueue.add(new_packet);
 }
 
+void Session::SendPacket(Packet* new_packet)
+{
+    if (!m_Socket)
+        return;
+
+    if (m_Socket->SendPacket(*new_packet) == -1)
+        m_Socket->CloseSocket();
+}
+
+
 void Session::SendWaitQueue(int position)
 {
-    //TODO
+    Packet new_packe;
+    //TODO settaggio pacchetto che avverte che l'utente è in attesa in posizione position
+    pSession->SendPacket(&new_packet);
+    
 }

@@ -28,6 +28,9 @@ ChannelManager::ChannelManager()
 
 ChannelManager::~ChannelManager()
 {
+    if (m_updater.IsActivate())
+        m_updater.Wait();
+
     while (!m_channels.empty())
     {
         delete m_channels.begin()->second;
@@ -97,7 +100,7 @@ void ChannelManager::Update(uint32 diff)
         m_updater.Wait();
 
     // Gestione della parte ThreadUnsafe dei Canali
-    for (iter = m_channels.begin(); iter != i_maps.end(); ++iter)
+    for (iter = m_channels.begin(); iter != m_channels.end(); ++iter)
         iter->second->DelayedUpdate(uint32(i_timer.GetCurrent()));
 
     i_timer.SetCurrent(0);

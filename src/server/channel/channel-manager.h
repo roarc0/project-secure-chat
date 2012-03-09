@@ -2,6 +2,7 @@
 #define _CHANNEL_H
 
 #include "../../shared/common.h"
+#include "../../shared/threading/lock.h"
 #include "../session/session-manager.h"
 
 #include <list>
@@ -41,7 +42,7 @@ class ChannelManager
 
         bool CanSessionEnter(Session* ses, std::string& c_name) const;
 
-        // THREADUSAFE
+        // THREADUNSAFE
         // E' thread unsafe se un altro thread sta lavorando sul puntatore del canale
         Channel* RemoveChannel(std::string& c_name); 
 

@@ -26,7 +26,7 @@ const char *SessionManagerException::what() const throw()
 SessionManager::SessionManager(): 
 next_id(0),  m_sessionActiveLimit(0), m_sessionLimit(0), net_number(0), exec_number(0)
 {
-
+    cell_itr = m_cells.begin();
 }
 
 SessionManager::~SessionManager()
@@ -37,23 +37,15 @@ SessionManager::~SessionManager()
         m_sessions.erase(m_sessions.begin());
     }
 
+    while (!m_cells.empty())
+    {
+        delete *(m_cells.begin());
+        m_cells.erase(m_cells.begin());
+    }
+
     Session* pSes = NULL;
     while (addSessQueue.next(pSes))
         delete pSes;
-}
-
-bool SessionManager::RemoveSession(uint32 id)
-{
-    SessionMap::const_iterator itr = m_sessions.find(id);
-
-    if (itr != m_sessions.end() && itr->second)
-    {
-        //if (itr->second->IsLoading())
-        //    return false;
-        itr->second->KickSession();
-    }
-
-    return true;
 }
 
 void SessionManager::AddTaskToServe(net_task* ntask)
@@ -80,6 +72,31 @@ void SessionManager::AddSession(Socket* sock)
     {
         // Disconetti sessione
     }
+}
+
+bool SessionManager::RemoveSession(uint32 id)
+{
+    SessionMap::const_iterator itr = m_sessions.find(id);
+
+    if (itr != m_sessions.end() && itr->second)
+    {
+        //if (itr->second->IsLoading())
+        //    return false;
+        itr->second->KickSession();
+    }
+
+    return true;
+}
+
+/// Find a session by its id
+Session* SessionManager::FindSession(uint32 id) const
+{
+    SessionMap::const_iterator itr = m_sessions.find(id);
+
+    if (itr != m_sessions.end())
+        return itr->second;
+    else
+        return NULL;
 }
 
 void SessionManager::Update()

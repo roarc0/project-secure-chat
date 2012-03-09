@@ -76,11 +76,17 @@ bool Session::Update(int diff, PacketFilter& updater)
         if (deletePacket)
             delete packet;
     }
+
+    if (!m_Socket || m_Socket->IsClosed())
+        return false;
+
+    return true;
 }
 
 bool Session::KickSession()
 {
-    // TODO
+    if (m_Socket)
+        m_Socket->CloseSocket();
 }
 
 void Session::QueuePacket(Packet* new_packet)

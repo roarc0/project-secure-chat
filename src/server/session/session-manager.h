@@ -8,11 +8,11 @@
 #include "../../shared/utility/singleton.h"
 #include "../../shared/utility/packetfilter.h"
 #include "../../shared/utility/lockqueue.h"
-//#include "../../shared/session/user-session.h"
 
 #define s_manager      SessionManager::GetInstance()
 
-typedef std::map<uint32, Session*>  SessionMap;
+typedef UNORDERED_MAP<uint32, Session*>  SessionMap;
+typedef std::set<Cell*>  CellMap;
 typedef std::pair<uint32, Session*> usersession_pair;
 typedef std::list<Session*> SessionQueue;
 
@@ -41,6 +41,7 @@ class SessionManager : public Singleton
 
         void AddSession(Socket* sock);
         void RemoveSession (uint32 id);
+        Session* FindSession(uint32 id);
 
         void Update();
 
@@ -62,8 +63,14 @@ class SessionManager : public Singleton
         void AddSessions_();
         void AddSession_(int& next_id, Session* sess);
 
-        // Session Map
+        // Sessions Map
         SessionMap m_sessions;
+
+        // Cells Map
+        CellMap m_cells;             // Elenco celle
+        CellMap active_cells;        // Celle attive
+        CellMap cells_to_delete;     // Celle da cancellare
+        CellMap::iterator cell_itr;
 
         // Sessioni in attesa di essere aggiunte alla m_sessions
         LockedQueue<Session*> addSessQueue;
@@ -84,6 +91,8 @@ class SessionManager : public Singleton
         // MUTEX
         Mutex   mutex_net_number;    // Mutex su net_number
         Mutex   mutex_exec_number;   // Mutex su exec_number
+
+        Mutex   mutex_m_cells;
 
         SessionManager();
 };

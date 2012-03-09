@@ -14,38 +14,38 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-class ChannelException : public Exception;
-class ChannelManagerException : public Exception;
+#include "channel-updater.h"
+
+class ChannelException : public exception 
+{
+	public:
+		ChannelException(const std::string &message, bool inclSysMsg = false) throw();
+		~ChannelException() throw();
+
+		const char *what() const throw();
+
+	private:
+		std::string userMessage;  // Exception message
+};
+
+class ChannelManagerException : public exception 
+{
+	public:
+		ChannelManagerException(const std::string &message, bool inclSysMsg = false) throw();
+		~ChannelManagerException() throw();
+
+		const char *what() const throw();
+
+	private:
+		std::string userMessage;  // Exception message
+};
 
 class Channel
 {
     public:
-        Channel(uint32 owner, std::string name, std::string password = "", uint8 secure = 0, bool persistent = false);
+        Channel();
         ~Channel();
-        std::list<uint32> user_list;        
-        std::string m_name;    
-
-        void ResetTime() { gettimeofday(&m_createTime, NULL); }        
-        uint32 GetTime(); // In millisecondi
-    
-        bool IsSecure() { return m_secure != 0; }
-        uint32 GetOwner() { return m_owner; }
-        void SetOwner(uint32 owner)  { m_owner = owner; }
-
-        bool Access(uint32 id, std::string password, uint8 secure) throw(ChannelException);
-        bool Exit(uint32 id, uint32& new_owner);
-        bool SendPacketToAll(Packet* new_packet, uint32 exclude_id = 0);
     private:
-        timeval m_createTime;
-        std::string m_password;
-        uint8 m_secure;
-        uint32 m_owner;
-        bool m_persistent;
-
-        pthread_mutex_t    mutex_Channel;
-
-        inline void  getlock_Channel() { pthread_mutex_lock(&mutex_Channel); }
-        inline void  releaselock_Channel() { pthread_mutex_unlock(&mutex_Channel); }
 };
 
 #define UNORDERED_MAP std::tr1::unordered_map
@@ -58,21 +58,13 @@ class ChannelManager
 		ChannelManager();
 		~ChannelManager();
 
-        bool CreateChannel(uint32 id, std::string name, std::string password = "", 
-                           uint8 secure = 0, bool persistent = false);
-        bool AccessChannel(uint32 id, std::string name, std::string password = "", uint8 secure = 0);
-        uint32 ExitChannel(uint32 id, std::string name);
-        void ChannelList(std::vector<std::string>& v_name);
-
-        void SendPacketToChannel(std::string name, Packet* new_packet, uint32 exclude_id = 0);
-
+        Channel* FindChannel(std::string c_name) const;
+        
+        ChannelUpdater* GetChannelUpdater() { return &m_updater; }
     private:
-        mapChannel m_mapChannel;
-
-        pthread_mutex_t    mutex_mapChannel;
-
-        inline void  getlock_mapChannel() { pthread_mutex_lock(&mutex_mapChannel); }
-        inline void  releaselock_mapChannel() { pthread_mutex_unlock(&mutex_mapChannel); }
+        IntervalTimer i_timer;
+        mapChannel m_channels;
+        ChannelUpdater m_updater;
 };
 
 #endif

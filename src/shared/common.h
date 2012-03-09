@@ -13,19 +13,33 @@
 #include <errno.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <stdarg.h>
 #include <signal.h>
 
-#include "typedefs.h"
+#include "defines.h"
 #include "utility/file.h"
 #include "utility/logger.h"
-#include "utility/time.h"
+#include "utility/timer.h"
 #include "config.h"
 #include "../../config.h"
 
-#ifndef  COMMON_H
-#define COMMON_H
+#ifndef  _COMMON_H
+#define  _COMMON_H
+
+#if COMPILER == COMPILER_INTEL
+#include <ext/hash_map>
+#elif COMPILER == COMPILER_GNU && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 3)
+#include <tr1/unordered_map>
+#elif COMPILER == COMPILER_GNU && __GNUC__ >= 3
+#include <ext/hash_map>
+#endif
+
+#define UNORDERED_MAP std::tr1::unordered_map
+
+typedef bool(*handler)(void *);
+
 
 string whoami;
 

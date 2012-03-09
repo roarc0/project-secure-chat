@@ -1,7 +1,7 @@
 #ifndef CONFIG_SERVER_H
 #define CONFIG_SERVER_H
 
-#include "../shared/common.h"
+#include "../shared/utility/common.h"
 
 void   init_config(string);
 void   post_init_config();

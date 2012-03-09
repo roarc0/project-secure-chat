@@ -1,28 +1,15 @@
 #ifndef SOCKET_SERVER_H
 #define SOCKET_SERVER_H
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <sys/epoll.h>
-#include <string.h>
-#include <netdb.h> // for addrinfo
-#include <fcntl.h>
-#include <errno.h>
 #include <pthread.h>
-#include <cstdlib>
-#include <cstdio>
 
 #include <iostream>
 #include <sstream>
-#include <exception>
 #include <string>
 
-#include "../../shared/utility/exception.h"
+#include "../../shared/networking/socket-base.h"
 #include "../../shared/callback/callback.h"
-#include "../session/queue.h"
 
 using namespace std;
 
@@ -38,8 +25,6 @@ net_task new_connection_net_task(int sock)
     n_task.type_task = NEW;
     return n_task;
 }
-
-class SocketServerException : public Exception;
 
 class SocketServer
 {

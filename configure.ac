@@ -67,7 +67,7 @@ release,
 [enable_release=no]
 )
 if test "$enable_release" = "yes"; then
-CXXFLAGS="-O3 -mtune=native -march=native -pipe"
+CXXFLAGS="-O3 -mtune=native -march=native -pipe -fno-builtin"
 AC_DEFINE(ENABLE_RELEASE,1,[release option])
 else
 AC_DEFINE(ENABLE_RELEASE,0,[release option])

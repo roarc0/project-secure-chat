@@ -1,17 +1,81 @@
-ChannelManager::ChannelManager()
+#include "channel-manager.h"
+
+// ChannelManagerException Code
+ChannelManagerException::ChannelManagerException(const string &message, bool inclSysMsg)
+  throw() : userMessage(message) 
 {
+	if (inclSysMsg) 
+	{
+		userMessage.append(": ");
+		userMessage.append(strerror(errno));
+	}
+}
+
+ChannelManagerException::~ChannelManagerException() throw() 
+{
+}
+
+const char *ChannelManagerException::what() const throw() 
+{
+	return userMessage.c_str();
+}
+
+
+ChannelManager::ChannelManager()
+{    
 
 }
 
 ChannelManager::~ChannelManager()
 {
-
+    while (!m_channels.empty())
+    {
+        delete m_channels.begin()->second;
+        m_channels.erase(m_channels.begin());
+    }
 }
 
-Channel* ChannelManager::FindChannel(std::string c_name) const
+Channel* ChannelManager::CreateChannel(std::string& c_name)
+{
+    Lock guard(m_mutex);
+
+    Channel* m = FindChannel(c_name);
+    if (m == NULL)
+    {        
+        m = new Channel(c_name);
+        m_channels[c_name] = m;
+    }
+
+    return m;
+}
+
+Channel* ChannelManager::FindChannel(std::string& c_name) const
 {
     mapChannel::const_iterator iter = m_channels.find(c_name);
     return (iter == m_channels.end() ? NULL : iter->second);
+}
+
+Channel* ChannelManager::RemoveChannel(std::string& c_name)
+{
+    Lock guard(m_mutex);
+
+    mapChannel::iterator iter = m_channels.find(c_name);
+    if (iter != m_channels.end())
+    {
+        delete (iter->second);
+        m_channels.erase(iter);
+    }
+
+    return m;
+}
+
+bool CanSessionEnter(Session* ses, std::string& c_name) const
+{
+    Channel* m = FindChannel(c_name);
+    if (m)
+        if (m->CanSessionEnter(ses))
+            return true;
+    return false;
 }
 
 void ChannelManager::Update(uint32 diff)

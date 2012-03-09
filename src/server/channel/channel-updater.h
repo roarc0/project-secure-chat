@@ -2,8 +2,11 @@
 #define CHANNEL_UPDATER_H
 
 #include "../threading/method-request.h"
+#include "../../shared/common.h"
 
 //SchedulingEngine s_sched_engine;
+
+class Channel;
 
 class ChannelUpdater
 {

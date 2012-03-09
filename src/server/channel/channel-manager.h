@@ -6,27 +6,10 @@
 
 #include <list>
 #include <map>
-#include <tr1/unordered_map>
-#include <exception>
 #include <utility>
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/time.h>
-
+#include "channel.h"
 #include "channel-updater.h"
-
-class ChannelException : public exception 
-{
-	public:
-		ChannelException(const std::string &message, bool inclSysMsg = false) throw();
-		~ChannelException() throw();
-
-		const char *what() const throw();
-
-	private:
-		std::string userMessage;  // Exception message
-};
 
 class ChannelManagerException : public exception 
 {
@@ -40,17 +23,7 @@ class ChannelManagerException : public exception
 		std::string userMessage;  // Exception message
 };
 
-class Channel
-{
-    public:
-        Channel();
-        ~Channel();
-    private:
-};
-
-#define UNORDERED_MAP std::tr1::unordered_map
 typedef UNORDERED_MAP<std::string, Channel*> mapChannel;
-
 
 class ChannelManager
 {
@@ -58,12 +31,24 @@ class ChannelManager
 		ChannelManager();
 		~ChannelManager();
 
-        Channel* FindChannel(std::string c_name) const;
-        
+        void Update (uint32 diff);   
+     
         ChannelUpdater* GetChannelUpdater() { return &m_updater; }
+
+        // THREADSAFE
+        Channel* FindChannel(std::string& c_name) const;
+        Channel* CreateChannel(std::string& c_name);
+
+        bool CanSessionEnter(Session* ses, std::string& c_name) const;
+
+        // THREADUSAFE
+        // E' thread unsafe se un altro thread sta lavorando sul puntatore del canale
+        Channel* RemoveChannel(std::string& c_name); 
+
     private:
-        IntervalTimer i_timer;
+        Mutex m_mutex;
         mapChannel m_channels;
+        IntervalTimer i_timer;        
         ChannelUpdater m_updater;
 };
 

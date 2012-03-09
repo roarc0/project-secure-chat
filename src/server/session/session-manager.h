@@ -66,12 +66,6 @@ class SessionManager : public Singleton
         // Sessions Map
         SessionMap m_sessions;
 
-        // Cells Map
-        CellMap m_cells;             // Elenco celle
-        CellMap active_cells;        // Celle attive
-        CellMap cells_to_delete;     // Celle da cancellare
-        CellMap::iterator cell_itr;
-
         // Sessioni in attesa di essere aggiunte alla m_sessions
         LockedQueue<Session*> addSessQueue;
 
@@ -91,8 +85,6 @@ class SessionManager : public Singleton
         // MUTEX
         Mutex   mutex_net_number;    // Mutex su net_number
         Mutex   mutex_exec_number;   // Mutex su exec_number
-
-        Mutex   mutex_m_cells;
 
         SessionManager();
 };

@@ -28,6 +28,7 @@ class Channel
         ~Channel();
 
         void Update(uint32 t_diff);
+        bool DelayedUpdate(uint32 t_diff);
         
         // THREADSAFE
         int SetName(std::string& c_name);
@@ -37,9 +38,11 @@ class Channel
 
         //THREADUNSAFE
     private:
+
         Mutex m_mutex;
         mapSession m_sessions;
         std:string name;
+        bool b_todelete;
 };
 
 #endif

@@ -37,7 +37,6 @@ pending_requests(0)
 
 ChannelUpdater::~ChannelUpdater()
 {
-    // Disattiva thread all'uscita
     Deactivate();
 }
 
@@ -65,17 +64,17 @@ int ChannelUpdater::Wait()
     return 0;
 }
 
-//int ChannelUpdater::Activate(size_t num_threads)
-//{
-//    return s_sched_engine.Activate((int)num_threads);
-//}
+/*int ChannelUpdater::Activate(size_t num_threads)
+{
+    return s_sched_engine.Activate((int)num_threads);
+}*/
 
-int ChannelUpdater::Deactivate()
+/*int ChannelUpdater::Deactivate()
 {    
     Wait();
 
     return s_sched_engine.Deactivate();
-}
+}*/
 
 bool ChannelUpdater::IsActive()
 {

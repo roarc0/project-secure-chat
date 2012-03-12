@@ -5,11 +5,13 @@
 
 class Lock;
 class TryLock;
+class Semaphore;
 
 class Mutex
 {
     friend class Lock;
     friend class TryLock;
+    friend class Semaphore;
 
     public:
         Mutex () { pthread_mutex_init(&_mutex, NULL); }

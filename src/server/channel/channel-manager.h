@@ -12,6 +12,8 @@
 #include "channel.h"
 #include "channel-updater.h"
 
+#define MIN_CHANNEL_UPDATE_DELAY 100
+
 class ChannelManagerException : public exception 
 {
 	public:
@@ -44,7 +46,16 @@ class ChannelManager
 
         // THREADUNSAFE
         // E' thread unsafe se un altro thread sta lavorando sul puntatore del canale
-        Channel* RemoveChannel(std::string& c_name); 
+        int RemoveChannel(std::string& c_name);
+
+        void SetChannelUpdateInterval(uint32 t)
+        {
+            if (t > MIN_CHANNEL_UPDATE_DELAY)
+                t = MIN_CHANNEL_UPDATE_DELAY;
+
+            i_timer.SetInterval(t);
+            i_timer.Reset();
+        };
 
     private:
         Mutex m_mutex;

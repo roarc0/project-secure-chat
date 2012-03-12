@@ -12,7 +12,6 @@
 #define s_manager      SessionManager::GetInstance()
 
 typedef UNORDERED_MAP<uint32, Session*>  SessionMap;
-typedef std::set<Cell*>  CellMap;
 typedef std::pair<uint32, Session*> usersession_pair;
 typedef std::list<Session*> SessionQueue;
 

@@ -20,9 +20,9 @@ const char *ChannelException::what() const throw()
 	return userMessage.c_str();
 }
 
-Channel::Channel(std::string& c_name)
+Channel::Channel(std::string& c_name) : name(c_name), b_todelete(false)
 {
-    name = c_name;
+
 }
 
 Channel::~Channel()
@@ -82,4 +82,9 @@ void Channel::Update(uint32 t_diff)
         MapSessionFilter updater(pSession);
         pSession->Update(t_diff, updater);
     }
+}
+
+bool Channel::DelayedUpdate(uint32 t_diff);
+{
+    return b_todelete ? false : true;
 }

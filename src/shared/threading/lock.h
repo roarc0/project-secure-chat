@@ -6,7 +6,7 @@
 class Lock
 {
     public:
-        Lock ( Mutex & mutex )
+        Lock (Mutex & mutex)
             : _mutex(mutex)
         {
             _mutex.Acquire();
@@ -24,7 +24,7 @@ class Lock
 class TryLock
 {
     public:
-        Lock ( Mutex & mutex , bool & locked)
+        Lock (Mutex & mutex , bool & locked)
             : _mutex(mutex)
         {
             _locked = locked = _mutex.TryAcquire();

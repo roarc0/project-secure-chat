@@ -6,8 +6,6 @@
 #include "../../shared/threading/lock.h"
 #include "../../shared/common.h"
 
-//SchedulingEngine s_sched_engine;
-
 class Channel;
 
 class ChannelUpdater

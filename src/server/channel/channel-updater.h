@@ -2,6 +2,7 @@
 #define CHANNEL_UPDATER_H
 
 #include "../threading/method-request.h"
+#include "../threading/scheduling-engine.h"
 #include "../../shared/threading/lock.h"
 #include "../../shared/common.h"
 
@@ -22,7 +23,7 @@ class ChannelUpdater
 
         // int Activate(size_t num_threads);
 
-        int Deactivate();
+        // int Deactivate();
 
         bool IsActive();
 

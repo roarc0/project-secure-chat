@@ -23,7 +23,7 @@ const char *ChannelManagerException::what() const throw()
 
 ChannelManager::ChannelManager()
 {    
-
+    i_timer.SetInterval(100); //TODO dal config
 }
 
 ChannelManager::~ChannelManager()
@@ -58,7 +58,7 @@ Channel* ChannelManager::FindChannel(std::string& c_name) const
     return (iter == m_channels.end() ? NULL : iter->second);
 }
 
-Channel* ChannelManager::RemoveChannel(std::string& c_name)
+int ChannelManager::RemoveChannel(std::string& c_name)
 {
     Lock guard(m_mutex);
 
@@ -69,7 +69,7 @@ Channel* ChannelManager::RemoveChannel(std::string& c_name)
         m_channels.erase(iter);
     }
 
-    return m;
+    return 0;
 }
 
 bool CanSessionEnter(Session* ses, std::string& c_name) const
@@ -101,7 +101,8 @@ void ChannelManager::Update(uint32 diff)
 
     // Gestione della parte ThreadUnsafe dei Canali
     for (iter = m_channels.begin(); iter != m_channels.end(); ++iter)
-        iter->second->DelayedUpdate(uint32(i_timer.GetCurrent()));
+        if (!iter->second->DelayedUpdate(uint32(i_timer.GetCurrent())))
+            m_channels.erase(iter);
 
     i_timer.SetCurrent(0);
 }

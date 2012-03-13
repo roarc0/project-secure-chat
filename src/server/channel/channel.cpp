@@ -30,13 +30,23 @@ Channel::~Channel()
 
 }
 
-Session* Channel::FindSession(Session* ses)
+void Channel::Update(uint32 t_diff)
 {
-    mapSession::const_iterator iter = m_sessions.find(ses->GetId());
-    return (iter == m_sessions.end() ? NULL : iter->second);
+    //Update Sessions
+    for (mapSession::iterator itr = m_sessions.begin(); itr != mapSession.end(); ++itr)
+    {
+        Session* pSession = *itr;
+        MapSessionFilter updater(pSession);
+        pSession->Update(t_diff, updater);
+    }
 }
 
-Session* Channel::FindSession(uint32 id)
+bool Channel::DelayedUpdate(uint32 t_diff);
+{
+    return b_todelete ? false : true;
+}
+
+Session* Channel::FindSession(uint32 id) const
 {
     mapSession::const_iterator iter = m_sessions.find(id);
     return (iter == m_sessions.end() ? NULL : iter->second);
@@ -68,28 +78,38 @@ int Channel::SetName(std::string& c_name)
 
     name = c_name;
 
-    for (mapSession::iterator itr = m_sessions.begin(); itr != mapSession.end(); ++itr)
-    {
-        Session* pSession = *itr;
-        Packet new_packet;
-        // TODO settaggio pacchetto di aggiornamento nome canale
-        pSession->SendPacket(&new_packet);
-    }
+    Packet new_packet;
+    MakeChannelChangeName(&new_packet);
+    SendToAll(&new_packet);
+
     return 0;
 }
 
-void Channel::Update(uint32 t_diff)
+void Channel::SendToAll(Packet* packet)
 {
-    //Update Sessions
     for (mapSession::iterator itr = m_sessions.begin(); itr != mapSession.end(); ++itr)
     {
-        Session* pSession = *itr;
-        MapSessionFilter updater(pSession);
-        pSession->Update(t_diff, updater);
+        (*itr)->SendPacket(packet);
     }
 }
 
-bool Channel::DelayedUpdate(uint32 t_diff);
+void Channel::SendToAllButOne(Packet* packet, uint32 id)
 {
-    return b_todelete ? false : true;
+    for (mapSession::iterator itr = m_sessions.begin(); itr != mapSession.end(); ++itr)
+    {
+        Session* pSession = *itr;
+        if (pSession->GetId() != id)
+            pSession->SendPacket(packet);
+    }
+}
+
+void Channel::SendToOne(Packet* packet, uint32 id)
+{
+    if (Session* ses = FindSession(uint32 id))
+        pSession->SendPacket(packet);
+}
+
+void Channel::MakeChannelChangeName(Packet* packet)
+{
+    // Settaggio pacchetto
 }

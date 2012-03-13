@@ -1,7 +1,7 @@
 #include "session.h"
 
 Session::Session(Socket* pSock) : 
-m_id(0), m_inQueue(false), m_incell(false)
+m_id(0), m_inQueue(false), channel_name("")
 {
     m_Socket = pSock;
 }
@@ -43,9 +43,9 @@ bool Session::Update(uint32 diff, PacketFilter& updater)
                         }
                         break;
                     case STATUS_TRANSFER:
-                        if (IsInCell())
+                        if (IsInChannel())
                         {
-                            // We can't transfer if we are in a Cell  
+                            // We can't transfer if we are in a Channel  
                         }
                         else
                         {

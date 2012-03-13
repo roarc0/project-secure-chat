@@ -6,20 +6,9 @@
 
 class Packet;
 
-enum e_net_task
-{
-    SEND = 1,
-    RECV,
-    NEW,
-    KILL,
-    MAX_NET_TASK
-};
-
 struct net_task
 {    
     void* ptr;
-    Packet* p_pack;
-    e_net_task type_task;
 };
 
 class NetQueue : public mt_queue<net_task>

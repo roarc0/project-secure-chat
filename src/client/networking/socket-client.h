@@ -16,64 +16,24 @@
 #ifndef SOCKET_CLIENT_H
 #define SOCKET_CLIENT_H
 
-#include <sys/types.h>       // For data types
-#include <sys/socket.h>      // For socket(), connect(), send(), and recv()
-#include <netdb.h>           // For gethostbyname()
-#include <arpa/inet.h>       // For inet_addr()
-#include <unistd.h>          // For close()
-#include <netinet/in.h>      // For sockaddr_in
-#include <string>
-
-
-#include "../../shared/common.h"
-#include "../../shared/networking/socket-exception.h"
+#include "../../shared/networking/socket-base.h"
 
 using namespace std;
 
 #define MAX_QUEUE_CONNECTIONS 16
 #define INVALID_SOCKET 0
 
-class SocketClient
+class SocketClient : public SocketBase
 {
     public:
         ~SocketClient();
-        SocketClient(int type, int protocol) throw(SocketException);
+        SocketClient(int type, int protocol) : SocketBase() throw(SocketException);
 
-        string           getLocalAddress()
-                         throw(SocketException);
-        unsigned short   getLocalPort()
-                         throw(SocketException);
-
-        void             setLocalPort(unsigned short localPort)
-                         throw(SocketException);
-        void             setLocalAddressAndPort(const string &localAddress, 
-                                                unsigned short localPort = 0)
-                         throw(SocketException);
-        string           getForeignAddress()
-                         throw(SocketException);
-        unsigned short   getForeignPort()
-                         throw(SocketException);
-
-        static unsigned short resolveService(const string &service,
-                                             const string &protocol = "tcp");
-
-        void             initSocket()
-                         throw(SocketException);
-
-        void             connect(const string &foreignAddress,
+        void             Connect(const string &foreignAddress,
                                  unsigned short foreignPort)
                          throw(SocketException);
-        void             disconnect()
+        void             Disconnect()
                          throw(SocketException);
-
-        void             send(const void *buffer, int bufferLen)
-                         throw(SocketException);
-        int              recv(void *buffer, int bufferLen)
-                         throw(SocketException);
-
-    private:
-        int sockDesc;
-        int domain, type, protocol;
 };
 
 #endif

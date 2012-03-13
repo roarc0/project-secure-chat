@@ -1,3 +1,6 @@
+#ifndef  _COMMON_H_
+#define  _COMMON_H_
+
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -25,9 +28,6 @@
 #include "config.h"
 #include "../../config.h"
 
-#ifndef  _COMMON_H
-#define  _COMMON_H
-
 #if COMPILER == COMPILER_INTEL
 #include <ext/hash_map>
 #elif COMPILER == COMPILER_GNU && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 3)
@@ -39,12 +39,6 @@
 #define UNORDERED_MAP std::tr1::unordered_map
 
 typedef bool(*handler)(void *);
-
-
-string whoami;
-
-#define IS_SERVER  (whoami == "server")
-#define IS_CLIENT  (whoami == "client")
 
 void   welcome();
 int    exec_command(const char *fmt, ...);

@@ -10,14 +10,17 @@ void welcome()
 
 int exec_command(const char *fmt, ...)
 {
-    char *buffer;
+    char *buffer = NULL;
     int ret;
 
     va_list ap;
     va_start(ap, fmt);
-    if (vasprintf(&buffer, 256, fmt, ap) < 0)
+    if (vasprintf(&buffer, fmt, ap) < 0)
         return -1;
     va_end(ap);
+
+    if (buffer)
+        delete[] buffer;
 
     return system(buffer);
 }

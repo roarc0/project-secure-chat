@@ -32,13 +32,21 @@ class Channel
         
         // THREADSAFE
         int SetName(std::string& c_name);
-        std::string GetName() { return name; }
-        Session* FindSession(Session* ses);
-        Session* FindSession(uint32 id);
-        int  AddSession(Session* ses);        
+        std::string GetName() { return name; } const
+        Session* FindSession(uint32 id) const;
+        int  AddSession(Session* ses);  
 
+        void SendToAll(Packt* packet); 
+        void SendToAllButOne(Packet* packet, uint32 id);
+        void SendToOne(Packet* packet, uint32 id);
+
+        void MakeChannelChangeName(Packet* packet);
+
+        // THREADSAFE
+        Session* FindSession(uint32 id);
+        int  AddSession(Session* ses);  
         //THREADUNSAFE 
-        int  RemoveSession(uint32 id);       
+        int  RemoveSession(uint32 id);    
     private:
 
         Mutex m_mutex;

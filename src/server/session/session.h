@@ -18,6 +18,7 @@ class Session
         // THREADSAFE
         void QueuePacket(Packet* new_packet); 
         void SendPacket(Packet* new_packet);  
+        bool IsInChannel() { return channel_name == "" ? false : true; }
         
         uint32 GetId() { return m_id; }
 
@@ -31,6 +32,8 @@ class Session
         LockedQueue<Packet*> _recvQueue;
         // If Session is in Qeuue
         bool m_inQueue;
+        // Channel
+        std::string channel_name;
         // Socket
         Socket* m_Socket;
 };

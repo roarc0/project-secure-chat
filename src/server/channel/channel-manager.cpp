@@ -23,7 +23,7 @@ const char *ChannelManagerException::what() const throw()
 
 ChannelManager::ChannelManager()
 {    
-    i_timer.SetInterval(100); //TODO dal config
+    i_timer.SetInterval(50); //TODO dal config
 }
 
 ChannelManager::~ChannelManager()

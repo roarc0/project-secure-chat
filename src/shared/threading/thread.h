@@ -2,28 +2,24 @@
 #define _THREAD_H
 
 #include <pthread>
-#include "../utility/exception.h"
-
-class ThreadException : public Exception;
 
 class Thread
 {
    public:
       Thread();
       ~Thread();
-      int Start(void * arg) throw(ThreadException);
+      int Start(void * arg);
    protected:
-      int Run(void * arg) throw(ThreadException);
-      static void * EntryPoint(void*) throw(ThreadException);
-      virtual void Setup() throw(ThreadException);
-      virtual void Execute(void*) throw(ThreadException);;
-      void* GetArg() const {return arg;}
-      void SetArg(void* _arg){arg = _arg;}
-   private:
-      pthread_t tid;
+      int Run(void * arg);
+      static void * EntryPoint(void*);
+      virtual void Setup();
+      virtual void Execute(void*);
+      void * Arg() const {return arg_;}
+      void Arg(void* a){arg_ = a;}   
 
-      void      *arg;
-
+      pthread_t tid_;
+      void * arg_;
+    private:
 };
 
 #endif

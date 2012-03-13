@@ -6,6 +6,24 @@
 #include "../../shared/threading/lock.h"
 #include "../../shared/threading/semaphore.h"
 #include "method-request.h"
+#include <list>
+
+class SchedulingEngine;
+
+struct thread_params
+{
+     SchedulingEngine *ptr;
+};
+
+class MethodThread : public Thread
+{
+    public:
+    MethodThread() {};
+    ~MethodThread() { delete arg_ };
+
+    void Execute(void* arg);
+    void Setup() {}
+};
 
 #define s_sched_engine      SchedulingEngine::GetInstance()
 
@@ -16,12 +34,19 @@ class SchedulingEngine : public Singleton
         int Deactivate();
         bool IsActive();
         int Execute(MethodRequest* m_req);
+
+        uint32 Count() const
+        {
+            return m_threads.size();
+        }
     
         MethodRequest* GetNextMethod();
 
     private:
         SchedulingEngine();
         ~SchedulingEngine();
+
+        list<MethodThreads*> m_threads;
 
         LockedQueue<MethodRequest*> q_method;
 

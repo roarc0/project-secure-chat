@@ -45,17 +45,22 @@ Session* Channel::FindSession(uint32 id)
 int Channel::AddSession(Session* ses)
 {
     Lock guard(m_mutex);
-
-    for (mapSession::iterator itr = m_sessions.begin(); itr != mapSession.end(); ++itr)
-    {
-        Session* pSession = *itr;
-        Packet new_packet;
-        // TODO settaggio pacchetto di aggiornamento nome canale
-        pSession->SendPacket(&new_packet);
-    }
+    m_sessions.add(ses);
     return 0;
 }
 
+int Channel::RemoveSession(uint32 id)
+{
+    Lock guard(m_mutex);
+
+    mapSession::iterator iter = m_sessions.find(id);
+    if (iter != m_sessions.end())
+    {
+        m_channels.erase(iter);
+        return 0;
+    }
+    return -1;
+}
 
 int Channel::SetName(std::string& c_name)
 {

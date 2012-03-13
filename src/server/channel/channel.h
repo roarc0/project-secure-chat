@@ -35,8 +35,10 @@ class Channel
         std::string GetName() { return name; }
         Session* FindSession(Session* ses);
         Session* FindSession(uint32 id);
+        int  AddSession(Session* ses);        
 
-        //THREADUNSAFE
+        //THREADUNSAFE 
+        int  RemoveSession(uint32 id);       
     private:
 
         Mutex m_mutex;

@@ -18,7 +18,7 @@ class ChannelUpdateRequest: class MethodRequest
 
         ~ChannelUpdateRequest()
         {
-            m_updater->UpdateFinished();
+
         }
 
         virtual int Call()
@@ -45,7 +45,7 @@ int ChannelUpdater::ScheduleUpdate(Channel& channel, uint32 diff)
     Lock guard(m_mutex);
     ++pending_requests;
 
-    if (s_sched_engine.Execute(new ChannelUpdateRequest(channel, *this, diff)) == -1)
+    if (s_sched_engine->Execute(new ChannelUpdateRequest(channel, *this, diff)) == -1)
     {
         // TODO Log Errore
 
@@ -66,19 +66,19 @@ int ChannelUpdater::Wait()
 
 /*int ChannelUpdater::Activate(size_t num_threads)
 {
-    return s_sched_engine.Activate((int)num_threads);
+    return s_sched_engine->Activate((int)num_threads);
 }*/
 
 /*int ChannelUpdater::Deactivate()
 {    
     Wait();
 
-    return s_sched_engine.Deactivate();
+    return s_sched_engine->Deactivate();
 }*/
 
 bool ChannelUpdater::IsActive()
 {
-    return s_sched_engine.IsActive();
+    return s_sched_engine->IsActive();
 }
 
 // Chiamato dal Thread avviato dal s_sched_engine quando ha completato l'operazione

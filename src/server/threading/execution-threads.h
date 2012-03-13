@@ -4,7 +4,7 @@
 #include "../../shared/execution/command-manager.h"
 #include "../../shared/threading/thread.h"
 #include "../../shared/common.h"
-#include "session-manager.h"
+#include "../session/session-manager.h"
 
 struct exec_thread_params
 {

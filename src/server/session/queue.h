@@ -22,69 +22,13 @@ struct net_task
     e_net_task type_task;
 };
 
-struct exec_task
-{    
-    void* ptr;
-    Packet* p_pack;
-};
-
-
 class NetQueue : public mt_queue<net_task>
 {
     public:
     NetQueue(): mt_queue<net_task>() {};
-    UserSession* NextUserSessionToServe()
+    Session* NexSessionToServe()
     {
-        Lock guard(_mutex);
-        UserSession* uses = NULL;
-        Session* ses = NULL;
-        std::list<net_task>::iterator itr = _list.begin();
-        for ( ; itr!=_list.end() ; itr++)
-        {
-            ses = (Session*)itr->ptr; 
-            Lock guard(ses->mutex_session);        
-            if (itr->type_task == KILL)
-            {
-                if (!ses->TryDelete())                
-                    push_l(*itr);
-                erase_l(itr);
-                break;
-            }
-            switch (ses->getlock_net())
-            {
-                case 1: 
-                    uses = ses->GetUserSession();
-                    break;
-                default:
-                    erase_l(itr);
-                    break;
-            }
-        }
-        return uses;
-    }
-};
-
-class ExecQueue : public mt_queue<exec_task>
-{
-    public:
-    ExecQueue(): mt_queue<exec_task>() {};
-    UserSession* NextUserSessionToServe()
-    {
-        Lock guard(_mutex);            
-        UserSession* uses = NULL;
-        Session* ses = NULL;
-        std::list<exec_task>::iterator itr = _list.begin();
-        for ( ; itr!=_list.end() ; itr++)
-        {
-            ses = (Session*)itr->ptr;
-            Lock guard(ses->mutex_session);
-            if (ses->getlock_exec())
-            {
-                uses = ses->GetUserSession();
-                erase_l(itr);  
-            }
-        }
-        return uses;
+       
     }
 };
 

@@ -2,29 +2,28 @@
 
 Thread::Thread() {}
 
-int Thread::Start(void * arg) throw(ThreadException)
-{
-   int ret;
+Thread::~Thread() {}
 
-   SetArg(arg);
-   if(ret = pthread_create(Thread::EntryPoint, this, & ThreadId_) < 0)
-       throw(ThreadException);
-   return ret;
+int Thread::Start(void* arg)
+{
+   Arg(arg); // store user data
+   int code = pthread_create(Thread::EntryPoint, this, &tid);
+   return code;
 }
 
-int Thread::Run(void * arg) throw(ThreadException)
+int Thread::Run(void* arg)
 {
    Setup();
    Execute(arg);
 }
 
-void * Thread::EntryPoint(void * pthis) throw(ThreadException)
+void * Thread::EntryPoint(void * pthis)
 {
    Thread * pt = (Thread*)pthis;
-   pthis->Run(Arg());
+   pt->Run( pt->Arg() );
 }
 
-virtual void Thread::Setup() throw(ThreadException)
+virtual void Thread::Setup()
 {
     int ret;
     pthread_attr_t tattr;
@@ -34,8 +33,9 @@ virtual void Thread::Setup() throw(ThreadException)
     pthread_attr_destroy(&tattr);
 }
 
-virtual void Thread::Execute(void* arg) throw(ThreadException)
+virtual void Thread::Execute(void* arg)
 {
+
 }
 
 #endif 

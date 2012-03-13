@@ -9,42 +9,39 @@ void server_core()
 {
     try
     {
-        whoami = "server";
         db_manager->set_dbfilename(CFG_GET_STRING("db_filename"));
         db_manager->init_db();
 
         s_manager;
+        s_sched_engine->Initialize(4); // Numero thread
+        
         InitCommands();
 
         SocketServer server;
         server.init(CFG_GET_INT("server_port"));
         server.init_callback(&handle_session_manager_task);       
 
-        //UserSession *temp_session = NULL;
         INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
 
         network_threads net;
         execution_threads exec;
+        
+        bool m_active = true;
+        uint32 diff = 0;
 
-        //while(1)
+        while(m_active)
         {
             try
             {
-                //INFO("debug", "* client session created! %s:%d\n", 
-                //     temp_sock->getForeignAddress().c_str(),
-                //     temp_sock->getForeignPort());
+                // calcola diff
 
-                net.start_net_thread();
-                exec.start_exec_thread();
+                s_manager->Update(diff);
             }
             catch(...)
             {
                 INFO("debug", "default exception");
             }
-            msleep(1000);
         }
-
-        while(1);
 
     }
     catch(SocketException &e)

@@ -1,4 +1,5 @@
 #include "execution-threads.h"
+#include "method-request.h"
 
 void *exec_thread(void *arg)
 {
@@ -6,26 +7,19 @@ void *exec_thread(void *arg)
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    UserSession      *usession = NULL;
     Packet           *pack;
 
     INFO("debug", "* exec thread %d started \n", pthread_self());
 
     while(1)
     {
-        usession = s_manager->GetNextSessionToExecute();
-        if (!usession)
+        MethodRequest* meth = s_sched_engine->GetNextMethod();
+        if (!meth)
             continue;
 
-        pack = usession->GetPacketFromRecv();
-        if (pack && pack->m_data != "")
-        {
-            //INFO("debug","INCOMING MESSAGE: \"%s\"\n", pack->m_data.c_str());
-            c_manager->execute(pack->m_data, usession);
-        }
+        meth->call();
 
-        usession->releaselock_exec();
-        usleep(5);
+        delete meth;
     }
 
     pthread_exit(NULL);

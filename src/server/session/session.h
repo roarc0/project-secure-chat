@@ -1,9 +1,6 @@
-#include "../../shared/networking/packetfilter.h"
-#include "../../shared/networking/packet.h"
-#include "../../shared/utility/lockedqueue.h"
-include "../../shared/threading/lock.h"
+#include "../../shared/session/sessionbase.h"
 
-class Session
+class Session : public SessionBase
 {
     public:
         Session(Socket* pSock);
@@ -15,9 +12,7 @@ class Session
         void KickSession();
         void SetId(uint32 id) { m_id = id; }
 
-        // THREADSAFE
-        void QueuePacket(Packet* new_packet); 
-        void SendPacket(Packet* new_packet);  
+        // THREADSAFE 
         bool IsInChannel() { return channel_name == "" ? false : true; }
         
         uint32 GetId() { return m_id; }
@@ -25,15 +20,9 @@ class Session
         void SendWaitQueue(int position);
   
     private:
-        Mutex m_mutex;
-
         uint32 m_id;
 
-        LockedQueue<Packet*> _recvQueue;
-        // If Session is in Qeuue
         bool m_inQueue;
         // Channel
         std::string channel_name;
-        // Socket
-        Socket* m_Socket;
 };

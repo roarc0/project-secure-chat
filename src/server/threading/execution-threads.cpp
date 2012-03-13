@@ -7,8 +7,6 @@ void *exec_thread(void *arg)
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    Packet           *pack;
-
     INFO("debug", "* exec thread %d started \n", pthread_self());
 
     while(1)

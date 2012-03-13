@@ -1,17 +1,14 @@
 #include "session.h"
 
-Session::Session(Socket* pSock) : 
+Session::Session(Socket* pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), channel_name("")
 {
-    m_Socket = pSock;
+
 }
 
 Session::~Session()
 {
-    // empty incoming packet queue
-    WorldPacket* packet = NULL;
-    while (_recvQueue.next(packet))
-        delete packet;
+
 }
 
 bool Session::Update(uint32 diff, PacketFilter& updater)
@@ -89,25 +86,10 @@ bool Session::KickSession()
         m_Socket->CloseSocket();
 }
 
-void Session::QueuePacket(Packet* new_packet)
-{
-    _recvQueue.add(new_packet);
-}
-
-void Session::SendPacket(Packet* new_packet)
-{
-    if (!m_Socket)
-        return;
-
-    if (m_Socket->SendPacket(*new_packet) == -1)
-        m_Socket->CloseSocket();
-}
-
 
 void Session::SendWaitQueue(int position)
 {
-    Packet new_packe;
+    Packet new_packet;
     //TODO settaggio pacchetto che avverte che l'utente è in attesa in posizione position
-    pSession->SendPacket(&new_packet);
-    
+    SendPacket(&new_packet);   
 }

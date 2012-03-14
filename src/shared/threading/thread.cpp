@@ -2,7 +2,7 @@
 
 Thread::Thread() {}
 
-Thread::~Thread() {}
+virtual Thread::~Thread() {}
 
 int Thread::Start(void* arg)
 {

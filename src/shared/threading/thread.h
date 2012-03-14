@@ -7,7 +7,7 @@ class Thread
 {
    public:
       Thread();
-      ~Thread();
+      virtual ~Thread();
       int Start(void * arg);
    protected:
       int Run(void * arg);

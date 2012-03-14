@@ -2,8 +2,6 @@
 
 void MethodThread::Execute(void* arg)
 {
-    thread_params* t_param = (thread_params*)arg;
-    SchedulingEngine* sched_engine = t_param->ptr;
     while(1)
     {
         MethodRequest* meth = sched_engine->GetNextMethod();
@@ -34,12 +32,9 @@ SchedulingEngine::~SchedulingEngine()
 
 void SchedulingEngine::Initialize(uint32 n_thread)
 {
-    Lock guard(m_mutex);
     for (uint32 i = 0; i < n_thread; i++)
     {
-        thread_params* t_param = new thread_params;
-        t_param->ptr = this;
-        MethodThread* m_thread = new MethodThread(); 
+        MethodThread* m_thread = new MethodThread(this); 
         m_thread->Start(t_param);       
         m_threads.add(m_thread);
     }

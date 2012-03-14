@@ -10,19 +10,16 @@
 
 class SchedulingEngine;
 
-struct thread_params
-{
-     SchedulingEngine *ptr;
-};
-
 class MethodThread : public Thread
 {
     public:
-    MethodThread() {};
-    ~MethodThread() { delete arg_ };
+        MethodThread(SchedulingEngine* sched) { sched_engine = sched };
+        ~MethodThread() {};
 
-    void Execute(void* arg);
-    void Setup() {}
+        void Execute(void* arg);
+        void Setup() {}
+    private:
+        SchedulingEngine* sched_engine;
 };
 
 #define s_sched_engine      SchedulingEngine::GetInstance()

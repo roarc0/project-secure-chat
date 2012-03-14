@@ -13,18 +13,16 @@ void server_core()
         db_manager->init_db();
 
         s_manager;
-        s_sched_engine->Initialize(4); // Numero thread
-        
+
         InitCommands();
+        
+        s_sched_engine->Initialize(4); // Numero thread
 
         SocketServer server;
         server.init(CFG_GET_INT("server_port"));
         server.init_callback(&handle_session_manager_task);       
 
         INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
-
-        network_threads net;
-        execution_threads exec;
         
         bool m_active = true;
         uint32 diff = 0;

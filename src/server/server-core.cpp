@@ -2,15 +2,15 @@
 
 void handle_session_manager_task(void *ptr)
 {
-    s_manager->addTaskToServe(ptr);
+    s_manager->AddTaskToServe(ptr);
 }
 
 void server_core()
 {
     try
     {
-        db_manager->set_dbfilename(CFG_GET_STRING("db_filename"));
-        db_manager->init_db();
+        //db_manager->set_dbfilename(CFG_GET_STRING("db_filename"));
+        //db_manager->init_db();
 
         s_manager;
 
@@ -41,10 +41,6 @@ void server_core()
             }
         }
 
-    }
-    catch(SocketException &e)
-    {
-        INFO("debug", "%s\n", e.what());
     }
     catch(...)
     {

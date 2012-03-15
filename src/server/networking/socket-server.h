@@ -9,7 +9,7 @@
 #include <string>
 
 #include "../../shared/networking/socket-base.h"
-#include "../../shared/callback/callback.h"
+#include "../../shared/callback.h"
 
 using namespace std;
 

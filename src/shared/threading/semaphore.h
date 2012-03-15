@@ -25,7 +25,7 @@ class Semaphore
         }
         void broadcast()
         {
-            int pthread_cond_broadcast(&_cond); 
+            pthread_cond_broadcast(&_cond); 
         }
     private:
         pthread_cond_t _cond;

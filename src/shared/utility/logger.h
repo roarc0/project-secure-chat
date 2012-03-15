@@ -7,8 +7,11 @@
 #include <sstream>
 #include <stdarg.h>
 #include <vector>
+#include "../common.h"
 
-#include "../typedefs.h"
+#define uint32 uint32_t
+#define uint16 uint16_t
+#define uint8  uint8_t
 
 #define LOG_PTR  logger::get_instance()
 #define LOG(_profile, _fname, _fmt, ...) logger::get_instance()->log(_profile, _fname, _fmt, ##__VA_ARGS__)

@@ -1,7 +1,7 @@
 #ifndef _THREAD_H
 #define _THREAD_H
 
-#include <pthread>
+#include <pthread.h>
 
 class Thread
 {
@@ -15,11 +15,12 @@ class Thread
       virtual void Setup();
       virtual void Execute(void*);
       void * Arg() const {return arg_;}
-      void Arg(void* a){arg_ = a;}   
-
-      pthread_t tid_;
+      void Arg(void* a){arg_ = a;}
+      
       void * arg_;
+
     private:
+      pthread_t tid_;
 };
 
 #endif

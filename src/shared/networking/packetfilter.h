@@ -1,6 +1,10 @@
 #ifndef PACKET_FILTER_H
 #define PACKET_FILTER_H
 
+#include "packet.h"
+
+class Session;
+
 class PacketFilter
 {
 public:

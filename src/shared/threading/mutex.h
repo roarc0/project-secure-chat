@@ -24,7 +24,7 @@ class Mutex
 
         bool TryAcquire ()
         {
-            return (pthread_mutex_trylock (&mutex_exec) == 0);
+            return (pthread_mutex_trylock (&_mutex) == 0);
         }
 
         void Release ()

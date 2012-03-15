@@ -1,7 +1,5 @@
 #include "command-manager.h"
 
-CommandManager* CommandManager::_instance = NULL;
-
 CommandManager::CommandManager()
 {
     AddCommand("\\dummy", &Dummy);

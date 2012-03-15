@@ -2,7 +2,12 @@
 #define _COMMAND_H
 
 #include "../common.h"
-#include "../session/user-session.h"
+#include "../session/sessionbase.h"
+
+// Da rimuovere
+struct UserSession
+{
+};
 
 struct handler_params
 {
@@ -42,11 +47,11 @@ class Command // gestire delete
 
     ~Command();
 
-    bool Execute(string params, Session*);
+    bool Execute(string params, SessionBase*);
 
-    inline string GetId() const
+    inline uint32_t GetId() const
     {
-        return cmd_id;
+        return id;
     }
 };
 

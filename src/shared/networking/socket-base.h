@@ -25,12 +25,16 @@
 #include <string>
 
 #include "../common.h"
-#include "socket-exception.h"
 
 using namespace std;
 
 #define MAX_QUEUE_CONNECTIONS 16
 #define INVALID_SOCKET 0
+
+class SocketException : public Exception
+{
+
+};
 
 class SocketBase
 {

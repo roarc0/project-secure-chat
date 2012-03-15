@@ -32,7 +32,7 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the `archive' library (-larchive). */
-#define HAVE_LIBARCHIVE 1
+/* #undef HAVE_LIBARCHIVE */
 
 /* Define to 1 if you have the `confuse' library (-lconfuse). */
 #define HAVE_LIBCONFUSE 1

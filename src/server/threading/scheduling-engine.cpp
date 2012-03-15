@@ -35,7 +35,11 @@ void SchedulingEngine::Initialize(uint32 n_thread)
     for (uint32 i = 0; i < n_thread; i++)
     {
         MethodThread* m_thread = new MethodThread(this); 
-        m_thread->Start(t_param);       
+        if (m_thread->Start(t_param) != 0)
+        {
+            // Errore nella creazione del thread
+            continue;   
+        }   
         m_threads.add(m_thread);
     }
     b_active = true;

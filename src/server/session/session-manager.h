@@ -4,12 +4,11 @@
 #include <map>
 #include <pthread.h>
 #include "queue.h"
+#include "../../shared/common.h"
 #include "../../shared/threading/mutex.h"
-#include "../../shared/utility/singleton.h"
-#include "../../shared/utility/packetfilter.h"
-#include "../../shared/utility/lockqueue.h"
-
-#define s_manager      SessionManager::GetInstance()
+#include "../../shared/singleton.h"
+#include "../../shared/networking/packetfilter.h"
+#include "../../shared/queues/lock_queue.h"
 
 typedef UNORDERED_MAP<uint32, Session*>  SessionMap;
 typedef std::pair<uint32, Session*> usersession_pair;
@@ -28,13 +27,18 @@ class SessionManagerException : public exception
 };
 
 // Classe di gestione delle sessioni aperte
-class SessionManager : public Singleton
+class SessionManager
 {    
+        friend class Singleton<SessionManager>;
+
     public:
 
-        ~SessionManager();        
+        ~SessionManager();
 
-        AddTaskToServe(net_task* ntask);
+        void AddTaskToServe(void* ptr)
+        {
+            n_queue.push(*((net_task*)ptr));
+        }
 
         void GetIdList(std::list<uint32>*);
 
@@ -42,10 +46,10 @@ class SessionManager : public Singleton
         void RemoveSession (uint32 id);
         Session* FindSession(uint32 id);
 
-        void Update();
+        void Update(uint32 udiff);
 
         uint32 GetActiveSessionCount() const { return m_sessions.size() - m_waitSessQueue.size(); }
-        uint32 GetActiveSessionCount() const { return m_sessions.size() }
+        uint32 GetSessionCount()       const { return m_sessions.size(); }
         uint32 GetQueuedSessionCount() const { return m_waitSessQueue.size(); }    
         uint32 GetQueuePos(Session* sess);
 
@@ -70,6 +74,7 @@ class SessionManager : public Singleton
 
         // Coda in Ingresso
         SessionQueue m_QueuedSessions;
+        SessionQueue m_waitSessQueue;
 
         // Session server limit
         uint32 m_sessionLimit;
@@ -87,5 +92,7 @@ class SessionManager : public Singleton
 
         SessionManager();
 };
+
+#define s_manager Singleton<SessionManager>::GetInstance()
 
 #endif  /* _SESSION_MRG_H */

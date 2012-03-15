@@ -1,7 +1,4 @@
 #include "session-manager.h"
-
-SessionManager* SessionManager::_instance = NULL;
-
 // SocketException Code
 SessionManagerException::SessionManagerException (const string &message, bool inclSysMsg)
   throw() : userMessage(message) 
@@ -40,11 +37,6 @@ SessionManager::~SessionManager()
     Session* pSes = NULL;
     while (addSessQueue.next(pSes))
         delete pSes;
-}
-
-void SessionManager::AddTaskToServe(net_task* ntask)
-{
-    n_queue.push(*ntask);  
 }
 
 void SessionManager::GetIdList(std::list<uint32>* ulist)
@@ -93,7 +85,7 @@ Session* SessionManager::FindSession(uint32 id) const
         return NULL;
 }
 
-void SessionManager::Update()
+void SessionManager::Update(uint32 udiff)
 {
     AddSessions_ ();
 
@@ -104,7 +96,7 @@ void SessionManager::Update()
         pSession = itr->second;
         SingleSessionFilter updater(pSession);
         // If return false we must delete it
-        if (!pSession->Update(updater))
+        if (!pSession->Update(udiff, updater))
         {
             RemoveQueuedSession(pSession);
             m_sessions.erase(itr);
@@ -137,7 +129,7 @@ bool SessionManager::RemoveQueuedSession(Session* sess)
     uint32 sessions = GetActiveSessionCount();
 
     uint32 position = 1;
-    Queue::iterator iter = m_waitSessQueue.begin();
+    SessionQueue::iterator iter = m_waitSessQueue.begin();
 
     bool found = false;
 

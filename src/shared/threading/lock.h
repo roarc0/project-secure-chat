@@ -24,13 +24,13 @@ class Lock
 class TryLock
 {
     public:
-        Lock (Mutex & mutex , bool & locked)
+        TryLock (Mutex & mutex , bool & locked)
             : _mutex(mutex)
         {
             _locked = locked = _mutex.TryAcquire();
         }
 
-        ~Lock ()
+        ~TryLock ()
         {
             if (_locked)
                 _mutex.Release();

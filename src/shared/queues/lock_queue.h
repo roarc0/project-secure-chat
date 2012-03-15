@@ -68,18 +68,6 @@ class LockedQueue
             return true;
         }
 
-        bool next(T& result)
-        {
-            Lock guard(_lock);
-
-            if (_queue.empty())
-                return false;
-
-            result = _queue.front();
-            _queue.pop_front();
-            return true;
-        }
-
         T& peek(bool autoUnlock = true)
         {
             lock();

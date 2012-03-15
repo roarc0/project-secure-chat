@@ -3,42 +3,35 @@
 
 #include "command.h"
 #include "functions.h"
-#include "../utility/singleton.h"
-
-#define c_manager          CommandManager::GetInstance()
+#include "../singleton.h"
+#include "../exception.h"
+#include <list>
 
 enum cmd_ids // TODO da rivedere
 {
-    CMD_VOID 0,
+    CMD_VOID = 0,
     CMD_MAX_SHARED_COMMANDS
 };
 
-class CommandManager_exception : public exception
-{
-    public:
-        CommandManagerException(const std::string &message) throw();
-        ~CommandManagerException() throw();
+class CommandManager_exception : public Exception {};
 
-        const char *what() const throw();
+class CommandManager
+{
+    friend class Singleton<CommandManager>;
 
     private:
-        std::string umessage;
+        CommandManager();
+        ~CommandManager();
+
+        list<Command*>  commands;  // trasformare in map
+
+        string GetMessageType(string raw);
+        string GetMessageParams(string raw);  
+
+    public:
+        void   AddCommand(uint32_t, string id, handler hnd);
+        bool   Execute(string raw, Session *session);
 };
 
-class CommandManager : public Singleton
-{
-    list<Command*>  commands;  // trasformare in map
-
-    string GetMessageType(string raw);
-    string GetMessageParams(string raw);
-
-    CommandManager();
-
-  public:
-
-    ~CommandManager();
-
-    void   AddCommand(uint32_t, string id, handler hnd);
-    bool   Execute(string raw, Session *session);
-};
+#define c_manager Singleton<CommandManager>::GetInstance()
 #endif

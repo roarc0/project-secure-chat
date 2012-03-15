@@ -1,7 +1,5 @@
 #include "database-manager.h"
 
-DatabaseManager* DatabaseManager::_instance = NULL;
-
 DatabaseManager::~DatabaseManager()
 {
     sqlite3_close(handle);

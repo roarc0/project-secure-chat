@@ -6,12 +6,11 @@
 #include  "../../shared/utility/file.h"
 #include  "../../shared/singleton.h"
 
-#define db_manager    DatabaseManager::GetInstance()
-
 using namespace std;
 
-class DatabaseManager : public Singleton
+class DatabaseManager
 {
+    friend class Singleton<DatabaseManager>;
   private:
 
     string              db_filename;
@@ -29,5 +28,7 @@ class DatabaseManager : public Singleton
 
     void InitDb();
 };
+
+#define db_manager Singleton<DatabaseManager>::GetInstance()
 
 #endif

@@ -2,25 +2,23 @@
 
 SocketServer::SocketServer() throw(SocketException)
 {
-    new_connection_init();
+    //new_connection_init();
 }
 
 SocketServer::~SocketServer()
 {
-    pthread_mutex_destroy(&m_new_connection_enter);
-    pthread_mutex_destroy(&m_new_connection_exit);
     ::close(sock_listen);
     sock_listen = INVALID_SOCKET;
 }
 
-void SocketServer::init(int port) throw(SocketException)
+void SocketServer::Init(int port) throw(SocketException)
 {
-    setupAddrInfo(AF_UNSPEC, SOCK_STREAM , 0);
-    setupSocket(port);
-    setupEpoll();
+    SetupAddrInfo(AF_UNSPEC, SOCK_STREAM , 0);
+    SetupSocket(port);
+    SetupEpoll();
 }
 
-inline void SocketServer::setBlocking(int sock, const bool block)
+inline void SocketServer::SetBlocking(int sock, const bool block)
     throw(SocketException)
 {
     int flags;
@@ -37,7 +35,7 @@ inline void SocketServer::setBlocking(int sock, const bool block)
         throw SocketException("[setBlocking() -> fnctl()]", true);
 }
 
-inline void SocketServer::setupAddrInfo(int family, int socktype, int protocol)
+inline void SocketServer::SetupAddrInfo(int family, int socktype, int protocol)
 {
     memset(&serverinfo, 0, sizeof(struct addrinfo));
     serverinfo.ai_family   = family;
@@ -46,7 +44,7 @@ inline void SocketServer::setupAddrInfo(int family, int socktype, int protocol)
     serverinfo.ai_flags    = AI_PASSIVE;
 }
 
-void SocketServer::setupSocket(int port) throw(SocketException)
+void SocketServer::SetupSocket(int port) throw(SocketException)
 {
     stringstream s_port;
     int yes = 1;
@@ -76,13 +74,13 @@ void SocketServer::setupSocket(int port) throw(SocketException)
     
     freeaddrinfo (serverinfo_res);
 
-    setBlocking(sock_listen, false);
+    SetBlocking(sock_listen, false);
 
     if (listen(sock_listen, SOMAXCONN) < 0)
         throw SocketException("[listen()]", true);
 }
 
-void SocketServer::setupEpoll() throw(SocketException)
+void SocketServer::SetupEpoll() throw(SocketException)
 {
     events = (struct epoll_event*) calloc(MAX_CONNECTIONS, sizeof(struct epoll_event));
 
@@ -96,7 +94,7 @@ void SocketServer::setupEpoll() throw(SocketException)
         throw SocketException("[epoll_ctl()]", true);
 }
 
-void* epoll_thread(void* arg)
+void* EpollThread(void* arg)
 {
     SocketServer *srv = (SocketServer*) arg;
     int res = -1, sock_new, nbytes, i = 0;
@@ -151,7 +149,7 @@ void* epoll_thread(void* arg)
                         else
                             throw SocketException("[getnameinfo()]", true);
 
-                        srv->setBlocking(sock_new, false);
+                        srv->SetBlocking(sock_new, false);
 
                         srv->event.data.fd = sock_new;
                         srv->event.events = EPOLLIN | EPOLLET;
@@ -159,7 +157,7 @@ void* epoll_thread(void* arg)
                         if (epoll_ctl (srv->epoll_fd, EPOLL_CTL_ADD, sock_new, &srv->event) < 0)
                             throw SocketException("[epoll_ctl()]", true);
 
-                        cb_notify(new_connection_net_task());
+                        //cb_notify(new_connection_net_task());
                     }
 
                     continue;

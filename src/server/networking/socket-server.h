@@ -15,8 +15,9 @@ using namespace std;
 
 #define MAX_CONNECTIONS (64)
 
-void* epoll_thread(void* arg);
+void* EpollThread(void* arg);
 
+/*
 net_task new_connection_net_task(int sock)
 {
     net_task n_task;
@@ -25,6 +26,7 @@ net_task new_connection_net_task(int sock)
     n_task.type_task = NEW;
     return n_task;
 }
+*/
 
 class SocketServer
 {
@@ -36,23 +38,26 @@ class SocketServer
     int sock_listen;
     int epoll_fd;
 
-    /*throw(SocketException);
-    inline void setupAddrInfo(int family, int socktype, int protocol);
-    inline void setBlocking(int, const bool) throw(SocketException);*/
 
-    EventCallback<void, net_task> cb_notify;
+    inline void SetupAddrInfo(int family, int socktype, int protocol);
+    inline void SetBlocking(int, const bool) throw(SocketException);
 
-    friend void* epoll_thread(void* arg);
+    void SetupEpoll() throw(SocketException);
+    void SetupSocket(int port) throw(SocketException);
+
+    EventCallback<void, void*> cb_notify;
+
+    friend void* EpollThread(void* arg);
 
   public:
     SocketServer() throw(SocketException);
     ~SocketServer();
 
-    void init(int) throw(SocketException);
+    void Init(int) throw(SocketException);
 
-    void init_callback(void (*fptr)(net_task))
+    void InitCallback(void (*fptr)(void*))
     {
-        cb_notify->register_cb(fptr);
+        //cb_notify->RegisterCb(fptr);
     }
 
     /*void new_connection_init()

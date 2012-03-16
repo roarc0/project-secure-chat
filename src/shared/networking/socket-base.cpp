@@ -9,13 +9,13 @@ static void fillAddr(const string &address, unsigned short port,
     hostent *host;
     if ((host = gethostbyname(address.c_str())) == NULL) 
     {
-        throw SocketException("Failed to resolve name [gethostbyname()]");
+        return;
     }
     addr.sin_addr.s_addr = *((unsigned long *) host->h_addr_list[0]);
     addr.sin_port = htons(port);
 }
 
-SocketBase::SocketBase(int type, int protocol) throw(SocketException) 
+SocketBase::SocketBase(int type, int protocol) throw(SocketException)
 {
     domain = AF_INET;
     SocketBase::type = type;
@@ -34,7 +34,7 @@ void SocketBase::initSocket() throw(SocketException)
     int ret, val = 1;
 
     if ((sockDesc = socket(AF_INET, type, protocol)) < 0)
-        throw SocketException("Socket creation failed [socket()]", true);
+        throw SocketException("[socket()]", true);
 }
 
 string SocketBase::getLocalAddress() throw(SocketException) 
@@ -44,7 +44,7 @@ string SocketBase::getLocalAddress() throw(SocketException)
 
     if (getsockname(sockDesc, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0) 
     {
-        throw SocketException("Fetch of local address failed [getsockname()]", true);
+        throw SocketException("[getsockname()]", true);
     }
     return inet_ntoa(addr.sin_addr);
 }
@@ -56,7 +56,7 @@ unsigned short SocketBase::getLocalPort() throw(SocketException)
 
     if (getsockname(sockDesc, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0) 
     {
-        throw SocketException("Fetch of local port failed [getsockname()]", true);
+        throw SocketException("[getsockname()]", true);
     }
     return ntohs(addr.sin_port);
 }

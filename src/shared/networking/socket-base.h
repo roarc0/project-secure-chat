@@ -24,6 +24,7 @@
 #include <netinet/in.h>      // For sockaddr_in
 #include <string>
 
+#include "../exception.h"
 #include "../common.h"
 
 using namespace std;
@@ -33,7 +34,8 @@ using namespace std;
 
 class SocketException : public Exception
 {
-
+  public:
+    SocketException(const string &message, bool perr = false) : Exception(message,perr) {};
 };
 
 class SocketBase

@@ -1,5 +1,5 @@
-#ifndef _EXCEPTION_H
-#define _EXCEPTION_H
+#ifndef _EXCEPTION_H_
+#define _EXCEPTION_H_
 
 #include <exception>
 #include <string>
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-class Exception : public exception 
+class Exception : public exception
 {
   public:
     Exception(const string &message, bool perr = false) throw();

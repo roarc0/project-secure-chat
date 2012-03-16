@@ -4,7 +4,7 @@ bin_PROGRAMS = server
 
 AM_CPPFLAGS = $(GLIB_CFLAGS) $(GTK_CFLAGS)
 
-#   client_LDADD = $(GLIB_LIBS) $(GTK_LIBS)
+client_LDADD = $(GLIB_LIBS) $(GTK_LIBS)
 #client_SOURCES = src/shared/common.h src/shared/common.cpp                                                      \
 #                 src/shared/utility/timer.h src/shared/utility/timer.cpp                                        \
 #                 src/shared/utility/file.h src/shared/utility/file.cpp                                          \
@@ -29,7 +29,16 @@ AM_CPPFLAGS = $(GLIB_CFLAGS) $(GTK_CFLAGS)
 #src/server/networking/*.h src/server/networking/*.cpp         
 
 
+server_SOURCES = src/shared/common.cpp                                                      \
+                 src/shared/utility/*.cpp                                                \
+                 src/shared/threading/*.cpp                                            \
+                 src/shared/cryptography/crypto.cpp                            \
+                 src/server/session/*.cpp                                                \
+                 src/server/channel/*.cpp                                                \
+                 src/server/database/database-manager.cpp                \
+                 src/server/server-config.cpp                                        \
+                 src/server/server-core.cpp                                            \
+                 src/server/main.cpp
 
-server_SOURCES = $(SERVER_S)
 dist_noinst_SCRIPTS = autogen.sh
 

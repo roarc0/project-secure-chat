@@ -32,8 +32,5 @@ find -name .deps -exec rm -rf {} \; > /dev/null 2>&1
 
 rm -rf autom4te.cache/ stamp-h1 config.status install-sh \
         config.log aclocal.m4 Makefile Makefile.in configure config.status config.h \
-       config.h.in depcomp missing  INSTALL \ > /dev/null 2>&1
-rm -f src/bitmatrix/bitmatrix_test src/simulation/simulation_test src/common/logger/logger_test
-
-#rm -f logs/* *.log
+       config.h.in depcomp missing  INSTALL *.log *.gdb compile \ > /dev/null 2>&1
 

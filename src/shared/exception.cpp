@@ -1,4 +1,4 @@
-#include "socket-exception.h"
+#include "exception.h"
 
 Exception::Exception(const string &message, bool perr)
   throw() : uMessage(message)

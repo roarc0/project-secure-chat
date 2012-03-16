@@ -11,7 +11,6 @@
 file(GLOB_RECURSE sources_Cryptography cryptography/*.cpp cryptography/*.h)
 file(GLOB_RECURSE sources_Execution execution/*.cpp execution/*.h)
 file(GLOB_RECURSE sources_Networking networking/*.cpp networking/*.h)
-file(GLOB_RECURSE sources_Packets packets/*.cpp packets/*.h)
 file(GLOB_RECURSE sources_Queues queues/*.cpp queues/*.h)
 file(GLOB_RECURSE sources_Session session/*.cpp session/*.h)
 file(GLOB_RECURSE sources_Threading threading/*.cpp threading/*.h)
@@ -28,7 +27,6 @@ set(shared_STAT_SRCS
   ${sources_Cryptography}
   ${sources_Execution}
   ${sources_Networking}
-  ${sources_Packets}  
   ${sources_Queues}
   ${sources_Session}
   ${sources_Threading}

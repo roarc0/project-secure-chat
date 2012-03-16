@@ -5,8 +5,7 @@
 #include "../threading/scheduling-engine.h"
 #include "../../shared/threading/lock.h"
 #include "../../shared/common.h"
-
-class Channel;
+#include "channel.h"
 
 class ChannelUpdater
 {
@@ -23,7 +22,7 @@ class ChannelUpdater
 
         // int Deactivate();
 
-        bool IsActive();
+        bool IsActivate();
 
     private:        
         Mutex m_mutex;

@@ -1,4 +1,4 @@
-#include "time.h"
+#include "timer.h"
 #include <cstdio>
 
 double timeval_diff(struct timeval *end_time, struct timeval *start_time)

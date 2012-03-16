@@ -2,6 +2,15 @@
 #define OPCODE_H
 
 #include "packetfilter.h"
+#include "../session/sessionbase.h"
+
+class SessionBase;
+
+enum MessageTypes
+{ 
+    MSG_NULL_ACTION             = 0x000,
+    NUM_MSG_TYPES               = 0x001,
+};
 
 enum SessionStatus
 {
@@ -25,7 +34,7 @@ struct OpcodeHandler
     char const* name;
     SessionStatus status;
     PacketProcessing packetProcessing;
-    void (Session::*handler)(Packet& recvPacket);
+    void (SessionBase::*handler)(Packet& recvPacket);
 };
 
 extern OpcodeHandler opcodeTable[NUM_MSG_TYPES];

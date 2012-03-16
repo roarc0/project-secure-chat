@@ -1,6 +1,7 @@
 #include "packetfilter.h"
+#include "opcode.h"
 
-bool CellSessionFilter::Process(Packet* packet)
+bool ChannelSessionFilter::Process(Packet* packet)
 {
     OpcodeHandler const &opHandle = opcodeTable[packet->GetOpcode()];
 
@@ -10,7 +11,7 @@ bool CellSessionFilter::Process(Packet* packet)
     if (opHandle.packetProcessing == PROCESS_THREADUNSAFE)
         return false;
 
-    return m_pSession->IsInCell();
+    return m_pSession->IsInChannel();
 }
 
 bool SingleSessionFilter::Process(Packet* packet)
@@ -23,5 +24,5 @@ bool SingleSessionFilter::Process(Packet* packet)
     if (opHandle.packetProcessing == PROCESS_THREADUNSAFE)
         return true;
 
-    return (m_pSession->IsInCell() == false);
+    return (m_pSession->IsInChannel() == false);
 }

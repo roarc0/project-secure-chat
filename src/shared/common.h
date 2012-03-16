@@ -12,7 +12,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-// #include <unistd.h>
+#include <unistd.h>
 #include <errno.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -21,37 +21,18 @@
 #include <stdarg.h>
 #include <signal.h>
 
-#include "utility/file.h"
-#include "utility/logger.h"
-#include "utility/timer.h"
-#include "utility/config.h"
-#include "../../config.h"
-
 #if COMPILER == COMPILER_INTEL
 #include <ext/hash_map>
 #elif COMPILER == COMPILER_GNU && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 3)
 #include <tr1/unordered_map>
 #elif COMPILER == COMPILER_GNU && __GNUC__ >= 3
 #include <ext/hash_map>
-#elif COMPILER == COMPILER_MICROSOFT && _MSC_VER >= 1500 && _HAS_TR1    // VC9.0 and later
-#include <unordered_map>
-#else
-#include <hash_map>
 #endif
 
-#ifdef _STLPORT_VERSION
-#define UNORDERED_MAP std::hash_map
-using std::hash_map;
-#elif COMPILER == COMPILER_MICROSOFT && _MSC_VER >= 1500 && _HAS_TR1
-#define UNORDERED_MAP std::tr1::unordered_map
-#elif COMPILER == COMPILER_MICROSOFT && _MSC_VER >= 1300
-#define UNORDERED_MAP stdext::hash_map
-using stdext::hash_map;
-#elif COMPILER == COMPILER_GNU && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 3)
+#ifdef COMPILER == COMPILER_GNU && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 3)
 #define UNORDERED_MAP std::tr1::unordered_map
 #elif (COMPILER == COMPILER_GNU && __GNUC__ >= 3) || COMPILER == COMPILER_INTEL
 #define UNORDERED_MAP __gnu_cxx::hash_map
-
 namespace __gnu_cxx
 {
     template<> struct hash<unsigned long long>
@@ -70,11 +51,16 @@ namespace __gnu_cxx
         }
     };
 };
-
 #else
 #define UNORDERED_MAP std::hash_map
 using std::hash_map;
 #endif
+
+#include "utility/file.h"
+#include "utility/logger.h"
+#include "utility/timer.h"
+#include "utility/config.h"
+#include "../../config.h"
 
 #define uint32 uint32_t
 #define uint16 uint16_t

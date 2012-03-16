@@ -2,28 +2,29 @@
 #define PACKET_FILTER_H
 
 #include "packet.h"
+#include "../session/sessionbase.h"
 
-class Session;
+class SessionBase;
 
 class PacketFilter
 {
 public:
-    explicit PacketFilter(Session* pSession) : m_pSession(pSession) {}
+    explicit PacketFilter(SessionBase* pSession) : m_pSession(pSession) {}
     virtual ~PacketFilter() {}
 
     virtual bool Process(Packet* /*packet*/) { return true; }
     virtual bool ProcessLogout() const { return true; }
 
 protected:
-    Session* const m_pSession;
+    SessionBase* const m_pSession;
 };
 
 //process only thread-safe packets
-class CellSessionFilter : public PacketFilter
+class ChannelSessionFilter : public PacketFilter
 {
 public:
-    explicit CellSessionFilter(Session* pSession) : PacketFilter(pSession) {}
-    ~CellSessionFilter() {}
+    explicit ChannelSessionFilter(SessionBase* pSession) : PacketFilter(pSession) {}
+    ~ChannelSessionFilter() {}
 
     virtual bool Process(Packet* packet);
     // Il logout non può essere eseguito dal MultiThread
@@ -34,7 +35,7 @@ public:
 class SingleSessionFilter : public PacketFilter
 {
 public:
-    explicit SingleSessionFilter(Session* pSession) : PacketFilter(pSession) {}
+    explicit SingleSessionFilter(SessionBase* pSession) : PacketFilter(pSession) {}
     ~SingleSessionFilter() {}
 
     virtual bool Process(Packet* packet);

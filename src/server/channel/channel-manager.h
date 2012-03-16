@@ -1,5 +1,5 @@
-#ifndef _CHANNEL_H
-#define _CHANNEL_H
+#ifndef _CHANNEL_MRG_H
+#define _CHANNEL_MRG_H
 
 #include "../../shared/common.h"
 #include "../../shared/threading/lock.h"
@@ -39,10 +39,10 @@ class ChannelManager
         ChannelUpdater* GetChannelUpdater() { return &m_updater; }
 
         // THREADSAFE
-        Channel* FindChannel(std::string& c_name) const;
+        Channel* FindChannel(const std::string& c_name);
         Channel* CreateChannel(std::string& c_name);
 
-        bool CanSessionEnter(Session* ses, std::string& c_name) const;
+        bool CanSessionEnter(Session* ses, const std::string& c_name);
 
         // THREADUNSAFE
         // E' thread unsafe se un altro thread sta lavorando sul puntatore del canale

@@ -2,10 +2,7 @@
 
 bool Dummy(void* params)
 {
-    if(IS_SERVER) //orribilissimo
-       INFO("debug", "server received dummy message!\n");
-    else
-       INFO("debug", "client received dummy message!\n");
+   INFO("debug", "received dummy message!\n");
 
    return true;
 }

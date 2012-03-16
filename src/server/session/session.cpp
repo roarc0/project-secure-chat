@@ -80,7 +80,7 @@ bool Session::Update(uint32 diff, PacketFilter& updater)
     return true;
 }
 
-bool Session::KickSession()
+void Session::KickSession()
 {
     if (m_Socket)
         m_Socket->CloseSocket();

@@ -8,13 +8,11 @@ void MethodThread::Execute(void* arg)
         if (!meth)
             continue;
 
-        meth->call();
+        meth->Call();
 
         delete meth;
     }    
 }
-
-SchedulingEngine* SchedulingEngine::_instance = NULL;
 
 SchedulingEngine::SchedulingEngine() : sem(m_mutex), b_active(false)
 {
@@ -25,7 +23,7 @@ SchedulingEngine::~SchedulingEngine()
 {
     while (!m_threads.empty())
     {
-        delete m_threads.begin()->second;
+        delete *m_threads.begin();
         m_threads.erase(m_threads.begin());
     }   
 }
@@ -35,12 +33,12 @@ void SchedulingEngine::Initialize(uint32 n_thread)
     for (uint32 i = 0; i < n_thread; i++)
     {
         MethodThread* m_thread = new MethodThread(this); 
-        if (m_thread->Start(t_param) != 0)
+        if (m_thread->Start(NULL) != 0)
         {
             // Errore nella creazione del thread
             continue;   
         }   
-        m_threads.add(m_thread);
+        m_threads.push_front(m_thread);
     }
     b_active = true;
 }

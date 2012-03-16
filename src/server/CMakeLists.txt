@@ -3,7 +3,7 @@ file(GLOB_RECURSE sources_Database database/*.cpp database/*.h)
 file(GLOB_RECURSE sources_Execution execution/*.cpp execution/*.h)
 file(GLOB sources_Networking networking/*.cpp networking/*.h)
 file(GLOB_RECURSE sources_Session session/*.cpp session/*.h)
-file(GLOB_RECURSE sources_Threading threading/*.cpp threading/*.h)
+file(GLOB sources_Threading threading/*.cpp threading/*.h)
 file(GLOB sources_localdir *.cpp *.h)
 
 set(server_SRCS

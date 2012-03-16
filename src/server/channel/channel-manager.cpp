@@ -52,7 +52,7 @@ Channel* ChannelManager::CreateChannel(std::string& c_name)
     return m;
 }
 
-Channel* ChannelManager::FindChannel(std::string& c_name) const
+Channel* ChannelManager::FindChannel(const std::string& c_name)
 {
     mapChannel::const_iterator iter = m_channels.find(c_name);
     return (iter == m_channels.end() ? NULL : iter->second);
@@ -72,7 +72,7 @@ int ChannelManager::RemoveChannel(std::string& c_name)
     return 0;
 }
 
-bool CanSessionEnter(Session* ses, std::string& c_name) const
+bool CanSessionEnter(Session* ses, const std::string& c_name)
 {
     Channel* m = FindChannel(c_name);
     if (m)

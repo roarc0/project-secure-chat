@@ -6,6 +6,7 @@
 #include "../../shared/threading/lock.h"
 #include "../../shared/threading/semaphore.h"
 #include "../../shared/threading/thread.h"
+#include "../../shared/singleton.h"
 #include "method-request.h"
 #include <list>
 

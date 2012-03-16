@@ -11,19 +11,23 @@ class Socket;
 class SessionBase
 {
     public:
-        SessionBase(Socket* pSock);
+        SessionBase(/*Socket* pSock*/);
         virtual ~SessionBase();
 
         // THREADSAFE
         void QueuePacket(Packet* new_packet); 
         void SendPacket(Packet* new_packet);
-  
+
+        void Handle_NULL(Packet& packet) {};
+
+        virtual bool IsInChannel() { return false; }
+
     private:
-        Mutex m_mutex;
+        Mutex m_mutex;        
 
         LockedQueue<Packet*> _recvQueue;
         // Socket
-        Socket* m_Socket;
+        //Socket* m_Socket;
 };
 
 #endif 

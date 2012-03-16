@@ -1,11 +1,13 @@
 #ifndef _COMMAND_MANAGER_H
 #define _COMMAND_MANAGER_H
 
+#include <list>
 #include "command.h"
 #include "functions.h"
 #include "../singleton.h"
 #include "../exception.h"
-#include <list>
+#include "../session/sessionbase.h"
+
 
 enum cmd_ids // TODO da rivedere
 {
@@ -25,12 +27,12 @@ class CommandManager
 
         list<Command*>  commands;  // trasformare in map
 
-        string GetMessageType(string raw);
+        int GetMessageType(string raw);
         string GetMessageParams(string raw);  
 
     public:
-        void   AddCommand(uint32_t, string id, handler hnd);
-        bool   Execute(string raw, Session *session);
+        void   AddCommand(uint32_t id, std::string name, handler hnd);
+        bool   Execute(string raw, SessionBase *session);
 };
 
 #define c_manager Singleton<CommandManager>::GetInstance()

@@ -5,7 +5,7 @@ Thread::Thread() : tid_(0)
 
 }
 
-virtual Thread::~Thread() 
+Thread::~Thread() 
 {
     if (tid_)
         pthread_kill(tid_, SIGKILL);
@@ -43,14 +43,13 @@ void * Thread::EntryPoint(void * pthis)
    pt->Run(pt->Arg());
 }
 
-virtual void Thread::Setup()
+void Thread::Setup()
 {
 
 }
 
-virtual void Thread::Execute(void* arg)
+void Thread::Execute(void* arg)
 {
 
 }
 
-#endif 

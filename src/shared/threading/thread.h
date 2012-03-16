@@ -2,6 +2,7 @@
 #define _THREAD_H
 
 #include <pthread.h>
+#include <signal.h>
 
 class Thread
 {

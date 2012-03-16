@@ -1,8 +1,8 @@
 #include "sessionbase.h"
 
-SessionBase::SessionBase(Socket* pSock)
+SessionBase::SessionBase(/*Socket* pSock*/)
 {
-    m_Socket = pSock;
+    //m_Socket = pSock;
 }
 
 SessionBase::~SessionBase()
@@ -20,9 +20,9 @@ void SessionBase::QueuePacket(Packet* new_packet)
 
 void SessionBase::SendPacket(Packet* new_packet)
 {
-    if (!m_Socket)
+    //if (!m_Socket)
         return;
 
-    if (m_Socket->SendPacket(*new_packet) == -1)
-        m_Socket->CloseSocket();
+    //if (m_Socket->SendPacket(*new_packet) == -1)
+    //    m_Socket->CloseSocket();
 }

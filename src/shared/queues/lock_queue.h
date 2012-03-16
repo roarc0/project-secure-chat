@@ -100,13 +100,13 @@ class LockedQueue
         //! Locks the queue for access.
         void lock()
         {
-            this->_lock.acquire();
+            this->_lock.Acquire();
         }
 
         //! Unlocks the queue.
         void unlock()
         {
-            this->_lock.release();
+            this->_lock.Release();
         }
 
         ///! Calls pop_front of the queue

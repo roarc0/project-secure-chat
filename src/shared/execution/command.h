@@ -49,7 +49,7 @@ class Command // gestire delete
 
     bool Execute(string params, SessionBase*);
 
-    inline uint32_t GetId() const
+    uint32_t GetId() const
     {
         return id;
     }

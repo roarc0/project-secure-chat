@@ -1,3 +1,6 @@
+#ifndef _SESSION_H
+#define _SESSION_H
+
 #include "../../shared/session/sessionbase.h"
 
 class Session : public SessionBase
@@ -26,3 +29,5 @@ class Session : public SessionBase
         // Channel
         std::string channel_name;
 };
+
+#endif

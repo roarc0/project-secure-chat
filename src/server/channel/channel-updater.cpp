@@ -76,7 +76,7 @@ int ChannelUpdater::Wait()
     return s_sched_engine->Deactivate();
 }*/
 
-bool ChannelUpdater::IsActive()
+bool ChannelUpdater::IsActivate()
 {
     return s_sched_engine->IsActive();
 }

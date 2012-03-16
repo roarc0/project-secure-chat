@@ -1,3 +1,5 @@
+#include "packetfilter.h"
+
 bool CellSessionFilter::Process(Packet* packet)
 {
     OpcodeHandler const &opHandle = opcodeTable[packet->GetOpcode()];

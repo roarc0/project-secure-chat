@@ -1,4 +1,4 @@
-#include "session.h"
+#include "sessionbase.h"
 
 SessionBase::SessionBase(Socket* pSock)
 {

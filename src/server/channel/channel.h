@@ -6,6 +6,7 @@
 #include "../session/session.h"
 
 typedef UNORDERED_MAP<uint32, Session*> mapSession;
+typedef std::pair<uint32, Session*> mapSession_pair;
 
 class ChannelException : public exception 
 {

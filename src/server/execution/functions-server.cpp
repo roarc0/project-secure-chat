@@ -4,7 +4,7 @@ bool SendMessage(void* params)
 {
     handler_params* hpar = (handler_params*)params;
     std::list<uint32> id_list;
-    int sender_id = s_manager->GetUsersessionId(hpar->usession);
+    int sender_id = 0; //= s_manager->GetUsersessionId(hpar->usession);
 
     if (sender_id == 0)
         return false;
@@ -20,7 +20,7 @@ bool SendMessage(void* params)
         if (*(itr) != sender_id)
         {
             INFO("debug", "sending msg to id %d\n", *(itr));
-            s_manager->SendPacketTo(*(itr), pack);
+            //s_manager->SendPacketTo(*(itr), pack);
         }
     return true;
 }

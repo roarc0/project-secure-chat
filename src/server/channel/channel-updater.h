@@ -7,6 +7,8 @@
 #include "../../shared/common.h"
 #include "channel.h"
 
+class ChannnelUpdateRequest;
+
 class ChannelUpdater
 {
     friend class ChannnelUpdateRequest;
@@ -24,10 +26,10 @@ class ChannelUpdater
 
         bool IsActivate();
 
+        void UpdateFinished();
+
     private:        
         Mutex m_mutex;
-        size_t pending_requests;
-
-        void UpdateFinished();
+        size_t pending_requests;        
 };
 #endif

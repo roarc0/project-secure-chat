@@ -1,7 +1,7 @@
 #include "packetfilter.h"
 #include "opcode.h"
 
-bool ChannelSessionFilter::Process(Packet* packet)
+bool MapSessionFilter::Process(Packet* packet)
 {
     OpcodeHandler const &opHandle = opcodeTable[packet->GetOpcode()];
 

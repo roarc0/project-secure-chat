@@ -33,15 +33,15 @@ Channel::~Channel()
 void Channel::Update(uint32 t_diff)
 {
     //Update Sessions
-    for (mapSession::iterator itr = m_sessions.begin(); itr != mapSession.end(); ++itr)
+    for (mapSession::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        Session* pSession = *itr;
+        Session* pSession = itr->second;
         MapSessionFilter updater(pSession);
         pSession->Update(t_diff, updater);
     }
 }
 
-bool Channel::DelayedUpdate(uint32 t_diff);
+bool Channel::DelayedUpdate(uint32 t_diff)
 {
     return b_todelete ? false : true;
 }
@@ -55,7 +55,7 @@ Session* Channel::FindSession(uint32 id) const
 int Channel::AddSession(Session* ses)
 {
     Lock guard(m_mutex);
-    m_sessions.add(ses);
+    m_sessions.insert(mapSession_pair(ses->GetId(), ses));
     return 0;
 }
 
@@ -66,7 +66,7 @@ int Channel::RemoveSession(uint32 id)
     mapSession::iterator iter = m_sessions.find(id);
     if (iter != m_sessions.end())
     {
-        m_channels.erase(iter);
+        m_sessions.erase(iter);
         return 0;
     }
     return -1;
@@ -87,17 +87,17 @@ int Channel::SetName(std::string& c_name)
 
 void Channel::SendToAll(Packet* packet)
 {
-    for (mapSession::iterator itr = m_sessions.begin(); itr != mapSession.end(); ++itr)
+    for (mapSession::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        (*itr)->SendPacket(packet);
+        itr->second->SendPacket(packet);
     }
 }
 
 void Channel::SendToAllButOne(Packet* packet, uint32 id)
 {
-    for (mapSession::iterator itr = m_sessions.begin(); itr != mapSession.end(); ++itr)
+    for (mapSession::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        Session* pSession = *itr;
+        Session* pSession = itr->second;
         if (pSession->GetId() != id)
             pSession->SendPacket(packet);
     }
@@ -105,8 +105,8 @@ void Channel::SendToAllButOne(Packet* packet, uint32 id)
 
 void Channel::SendToOne(Packet* packet, uint32 id)
 {
-    if (Session* ses = FindSession(uint32 id))
-        pSession->SendPacket(packet);
+    if (Session* ses = FindSession(id))
+        ses->SendPacket(packet);
 }
 
 void Channel::MakeChannelChangeName(Packet* packet)

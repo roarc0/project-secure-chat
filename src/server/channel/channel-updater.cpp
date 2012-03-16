@@ -1,6 +1,6 @@
 #include "channel-updater.h"
 
-class ChannelUpdateRequest: class MethodRequest
+class ChannelUpdateRequest: public MethodRequest
 {
     private:
 
@@ -37,7 +37,7 @@ pending_requests(0)
 
 ChannelUpdater::~ChannelUpdater()
 {
-    Deactivate();
+    // Deactivate();
 }
 
 int ChannelUpdater::ScheduleUpdate(Channel& channel, uint32 diff)

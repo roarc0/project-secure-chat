@@ -20,11 +20,11 @@ protected:
 };
 
 //process only thread-safe packets
-class ChannelSessionFilter : public PacketFilter
+class MapSessionFilter : public PacketFilter
 {
 public:
-    explicit ChannelSessionFilter(SessionBase* pSession) : PacketFilter(pSession) {}
-    ~ChannelSessionFilter() {}
+    explicit MapSessionFilter(SessionBase* pSession) : PacketFilter(pSession) {}
+    ~MapSessionFilter() {}
 
     virtual bool Process(Packet* packet);
     // Il logout non può essere eseguito dal MultiThread

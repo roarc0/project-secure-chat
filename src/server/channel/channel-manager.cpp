@@ -72,7 +72,7 @@ int ChannelManager::RemoveChannel(std::string& c_name)
     return 0;
 }
 
-bool CanSessionEnter(Session* ses, const std::string& c_name)
+bool ChannelManager::CanSessionEnter(Session* ses, const std::string& c_name)
 {
     Channel* m = FindChannel(c_name);
     if (m)

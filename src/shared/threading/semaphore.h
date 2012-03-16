@@ -15,15 +15,15 @@ class Semaphore
         {
 
         }
-        bool wait()
+        bool Wait()
         {
             pthread_cond_wait(&_cond, &(_mutex->_mutex));
         }
-        void signal()
+        void Signal()
         {
             pthread_cond_signal(&_cond); 
         }
-        void broadcast()
+        void Broadcast()
         {
             pthread_cond_broadcast(&_cond); 
         }

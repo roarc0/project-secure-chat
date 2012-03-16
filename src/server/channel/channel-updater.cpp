@@ -21,7 +21,7 @@ class ChannelUpdateRequest: public MethodRequest
 
         }
 
-        virtual int Call()
+        int Call()
         {
             m_channel.Update(m_diff);
             m_updater.UpdateFinished();

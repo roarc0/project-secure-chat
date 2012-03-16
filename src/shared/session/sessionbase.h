@@ -3,15 +3,24 @@
 
 #include "../networking/packetfilter.h"
 #include "../networking/packet.h"
+#include "../networking/opcode.h"
 #include "../queues/lock_queue.h"
 #include "../threading/lock.h"
 
-class Socket;
+// DA RIMUOVERE QUANDO COMPILA SOCKET
+class Socket
+{
+    public:
+        Socket() {}
+        void CloseSocket() {}
+        int SendPacket(Packet& new_packet) { return 0; }
+        bool IsClosed() { return false; }
+};
 
 class SessionBase
 {
     public:
-        SessionBase(/*Socket* pSock*/);
+        SessionBase(Socket* pSock);
         virtual ~SessionBase();
 
         // THREADSAFE
@@ -22,12 +31,12 @@ class SessionBase
 
         virtual bool IsInChannel() { return false; }
 
-    private:
+    protected:
         Mutex m_mutex;        
 
         LockedQueue<Packet*> _recvQueue;
         // Socket
-        //Socket* m_Socket;
+        Socket* m_Socket;
 };
 
 #endif 

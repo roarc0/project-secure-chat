@@ -21,7 +21,7 @@ const char *SessionManagerException::what() const throw()
 }
 
 SessionManager::SessionManager(): 
-next_id(0),  m_sessionActiveLimit(0), m_sessionLimit(0), net_number(0), exec_number(0)
+m_sessionActiveLimit(0), m_sessionLimit(0), net_number(0), exec_number(0)
 {
 
 }
@@ -51,7 +51,7 @@ void SessionManager::AddSession(Socket* sock)
 {
     if (GetQueuedSessionCount() + addSessQueue.size() <  m_sessionLimit)
     {
-        Session* sess = new Session(sock);
+        Session* ses = new Session(sock);
         addSessQueue.add(ses);
     }
     else
@@ -151,7 +151,7 @@ bool SessionManager::RemoveQueuedSession(Session* sess)
     // accept first in queue
     if ((!m_sessionActiveLimit || sessions < m_sessionActiveLimit) && !m_waitSessQueue.empty())
     {
-        WorldSession* pop_sess = m_waitSessQueue.front();
+        Session* pop_sess = m_waitSessQueue.front();
         pop_sess->SetInQueue(false);
 
         // TODO notifica all'utente che è stato accettato
@@ -194,7 +194,7 @@ void SessionManager::AddSessions_()
     }
 }
 
-void SessionManager::AddSession_(int& next_id, Session* sess);
+void SessionManager::AddSession_(uint32& next_id, Session* sess)
 {
     if (m_sessionActiveLimit && GetActiveSessionCount() >= m_sessionActiveLimit)
     {

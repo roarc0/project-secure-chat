@@ -43,8 +43,8 @@ class SessionManager
         void GetIdList(std::list<uint32>*);
 
         void AddSession(Socket* sock);
-        void RemoveSession (uint32 id);
-        Session* FindSession(uint32 id);
+        bool RemoveSession (uint32 id);
+        Session* FindSession(uint32 id) const;
 
         void Update(uint32 udiff);
 
@@ -63,8 +63,9 @@ class SessionManager
 
     private:
         void AddQueuedSession(Session* sess);
+        bool RemoveQueuedSession(Session* sess);
         void AddSessions_();
-        void AddSession_(int& next_id, Session* sess);
+        void AddSession_(uint32& next_id, Session* sess);
 
         // Sessions Map
         SessionMap m_sessions;

@@ -60,7 +60,7 @@ using std::hash_map;
 #include "utility/logger.h"
 #include "utility/timer.h"
 #include "utility/config.h"
-#include "../../config.h"
+#include "revision.h"
 
 #define uint32 uint32_t
 #define uint16 uint16_t

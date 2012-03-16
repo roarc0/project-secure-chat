@@ -21,6 +21,8 @@ class Session : public SessionBase
         uint32 GetId() { return m_id; }
 
         void SendWaitQueue(int position);
+
+        void SetInQueue(bool state) { m_inQueue = state; }
   
     private:
         uint32 m_id;

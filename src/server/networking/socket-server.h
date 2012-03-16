@@ -40,7 +40,7 @@ class SocketServer
     inline void setupAddrInfo(int family, int socktype, int protocol);
     inline void setBlocking(int, const bool) throw(SocketException);*/
 
-    event_callback<void, net_task> cb_notify;
+    EventCallback<void, net_task> cb_notify;
 
     friend void* epoll_thread(void* arg);
 

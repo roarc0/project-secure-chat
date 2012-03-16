@@ -75,6 +75,10 @@ fi
 
 CXXFLAGS="$CXXFLAGS"
 
+
+SERVER_S= `echo \`ls src/shared/*.cpp\` \`ls src/shared/utility/*.cpp\` \`ls src/shared/threading/*.cpp\`  \`ls src/shared/cryptography/*.cpp\` \`ls src/server/session/*.cpp\`  \`ls src/server/channel/*.cpp\` \`ls src/server/database/*.cpp\` \`ls src/server/*.cpp\``
+AC_SUBST(SERVER_S)
+
 DISTCLEANFILES="Makefile.in"
 AC_SUBST(DISTCLEANFILES)
 

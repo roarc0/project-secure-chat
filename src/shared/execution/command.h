@@ -11,12 +11,12 @@ struct UserSession
 
 struct handler_params
 {
-    UserSession *usession;
+    SessionBase *bsession;
     string  params;
 
-    handler_params(UserSession *u_session, string u_params)
+    handler_params(SessionBase *b_session, string u_params)
     {
-        usession = u_session;
+        bsession = b_session;
         params = u_params;
     }
 };

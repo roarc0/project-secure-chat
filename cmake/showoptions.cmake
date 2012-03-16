@@ -37,10 +37,10 @@ else()
 endif()
 
 if( WITH_DEBUG )
-  message("* Use coreside debug     : Yes")
+  message("* Use debug     : Yes")
   add_definitions(-D_DEBUG)
 else()
-  message("* Use coreside debug     : No  (default)")
+  message("* Use debug     : No  (default)")
 endif()
 
 message("")

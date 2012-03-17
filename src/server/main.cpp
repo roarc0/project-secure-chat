@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 {
     welcome();
 
-    init_config("pschat-server.conf");
+    init_config("../etc/psc-server.conf");
     server_core();
 
     return 0;

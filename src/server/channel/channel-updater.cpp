@@ -10,8 +10,8 @@ class ChannelUpdateRequest: public MethodRequest
 
     public:
 
-        ChannelUpdateRequest(Channel& m, ChannelUpdater& u, uint32 d)
-            : m_channel(m), m_updater(u), m_diff(d)
+        ChannelUpdateRequest(Channel& m, ChannelUpdater& u, uint32 d) : 
+        MethodRequest(), m_channel(m), m_updater(u), m_diff(d)
         {
             
         }

@@ -52,6 +52,8 @@ set_target_properties(server PROPERTIES LINK_FLAGS "${server_LINK_FLAGS}")
 
 target_link_libraries(server
   shared
+  confuse
+  sqlite3
   ${OPENSSL_LIBRARIES}
   ${OPENSSL_EXTRA_LIBRARIES}
   ${OSX_LIBS}
@@ -60,15 +62,15 @@ target_link_libraries(server
 if( WIN32 )
   add_custom_command(TARGET server
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/server.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/configs/psc-server.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
   )
 endif()
 
 if( UNIX )
   install(TARGETS server DESTINATION bin)
-  install(FILES  server.conf.dist DESTINATION etc)
+  install(FILES ${CMAKE_SOURCE_DIR}/configs/psc-server.conf.dist DESTINATION etc)
 elseif( WIN32 )
   install(TARGETS server DESTINATION "${CMAKE_INSTALL_PREFIX}")
-  install(FILES server.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(FILES ${CMAKE_SOURCE_DIR}/configs/psc-server.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
 

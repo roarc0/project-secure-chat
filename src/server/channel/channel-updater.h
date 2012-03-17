@@ -7,13 +7,9 @@
 #include "../../shared/common.h"
 #include "channel.h"
 
-class ChannnelUpdateRequest;
-
-NEWEXCEPTION(ChannelUpdaterException);
-
 class ChannelUpdater
 {
-    friend class ChannnelUpdateRequest;
+    //friend class ChannnelUpdateRequest;
     public:
         ChannelUpdater();
         ~ChannelUpdater();

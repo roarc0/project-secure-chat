@@ -42,6 +42,7 @@ set_target_properties(client PROPERTIES LINK_FLAGS "${client_LINK_FLAGS}")
 
 target_link_libraries(client
   shared
+  confuse
   ${OPENSSL_LIBRARIES}
   ${OPENSSL_EXTRA_LIBRARIES}
   ${GTK_LIBRARIES}
@@ -52,15 +53,15 @@ target_link_libraries(client
 if( WIN32 )
   add_custom_command(TARGET client
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/client.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/configs/psc-client.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
   )
 endif()
 
 if( UNIX )
   install(TARGETS client DESTINATION bin)
-  install(FILES  client.conf.dist DESTINATION etc)
+  install(FILES  ${CMAKE_SOURCE_DIR}/configs/psc-client.conf.dist DESTINATION etc)
 elseif( WIN32 )
   install(TARGETS client DESTINATION "${CMAKE_INSTALL_PREFIX}")
-  install(FILES client.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(FILES ${CMAKE_SOURCE_DIR}/configs/psc-client.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
 

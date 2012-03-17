@@ -32,7 +32,6 @@ class Channel
         // THREADSAFE
         int SetName(std::string& c_name);
         std::string GetName() const { return name; }
-        Session* FindSession(uint32 id) const;
         bool CanSessionEnter(Session* ses) const { return true; }
 
         void SendToAll(Packet* packet); 

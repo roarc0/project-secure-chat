@@ -46,7 +46,7 @@ bool Channel::DelayedUpdate(uint32 t_diff)
     return b_todelete ? false : true;
 }
 
-Session* Channel::FindSession(uint32 id) const
+Session* Channel::FindSession(uint32 id)
 {
     mapSession::const_iterator iter = m_sessions.find(id);
     return (iter == m_sessions.end() ? NULL : iter->second);

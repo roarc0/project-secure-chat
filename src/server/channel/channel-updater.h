@@ -7,11 +7,9 @@
 #include "../../shared/common.h"
 #include "channel.h"
 
-class ChannnelUpdateRequest;
-
 class ChannelUpdater
 {
-    friend class ChannnelUpdateRequest;
+    //friend class ChannnelUpdateRequest;
     public:
         ChannelUpdater();
         ~ChannelUpdater();

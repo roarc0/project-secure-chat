@@ -14,17 +14,7 @@ typedef UNORDERED_MAP<uint32, Session*>  SessionMap;
 typedef std::pair<uint32, Session*> usersession_pair;
 typedef std::list<Session*> SessionQueue;
 
-class SessionManagerException : public exception 
-{
-    public:
-        SessionManagerException(const std::string &message, bool inclSysMsg = false) throw();
-        ~SessionManagerException() throw();
-
-        const char *what() const throw();
-
-    private:
-        std::string userMessage;  // Exception message
-};
+NEWEXCEPTION(SessionManagerException);
 
 // Classe di gestione delle sessioni aperte
 class SessionManager
@@ -50,7 +40,7 @@ class SessionManager
 
         uint32 GetActiveSessionCount() const { return m_sessions.size() - m_waitSessQueue.size(); }
         uint32 GetSessionCount()       const { return m_sessions.size(); }
-        uint32 GetQueuedSessionCount() const { return m_waitSessQueue.size(); }    
+        uint32 GetQueuedSessionCount() const { return m_waitSessQueue.size(); }
         uint32 GetQueuePos(Session* sess);
 
         // Session server limit

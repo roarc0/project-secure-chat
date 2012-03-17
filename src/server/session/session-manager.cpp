@@ -1,24 +1,4 @@
 #include "session-manager.h"
-// SocketException Code
-SessionManagerException::SessionManagerException (const string &message, bool inclSysMsg)
-  throw() : userMessage(message) 
-{
-    if (inclSysMsg) 
-    {
-        userMessage.append(": ");
-        userMessage.append(strerror(errno));
-    }
-}
-
-SessionManagerException::~SessionManagerException() throw()
-{
-
-}
-
-const char *SessionManagerException::what() const throw() 
-{
-    return userMessage.c_str();
-}
 
 SessionManager::SessionManager(): 
 m_sessionActiveLimit(0), m_sessionLimit(0), net_number(0), exec_number(0)

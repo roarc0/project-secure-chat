@@ -24,7 +24,6 @@
 #include <netinet/in.h>      // For sockaddr_in
 #include <string>
 
-#include "../exception.h"
 #include "../common.h"
 
 using namespace std;
@@ -32,16 +31,16 @@ using namespace std;
 #define MAX_QUEUE_CONNECTIONS 16
 #define INVALID_SOCKET 0
 
-class SocketException : public Exception
-{
-  public:
-    SocketException(const string &message, bool perr = false) : Exception(message,perr) {};
-};
+NEWEXCEPTION(SocketException);
+
+static void fillAddr(const string &address, unsigned short port, 
+                     sockaddr_in &addr);
+
 
 class SocketBase
 {
     public:
-        ~SocketBase();
+        virtual ~SocketBase();
         SocketBase(int type, int protocol) throw(SocketException);
 
         string           getLocalAddress()
@@ -70,7 +69,7 @@ class SocketBase
         int              recv(void *buffer, int bufferLen)
                          throw(SocketException);
 
-    private:
+    protected:
         int sockDesc;
         int domain, type, protocol;
 };

@@ -1,5 +1,5 @@
-#ifndef _SCHED_MANAGER_H
-#define _SCHED_MANAGER_H
+#ifndef _SCHEDULING_ENGINE_H
+#define _SCHEDULING_ENGINE_H
 
 #include "../../shared/common.h"
 #include "../../shared/queues/lock_queue.h"
@@ -11,6 +11,8 @@
 #include <list>
 
 class SchedulingEngine;
+
+NEWEXCEPTION(SchedulingException);
 
 class MethodThread : public Thread
 {

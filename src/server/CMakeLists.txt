@@ -41,7 +41,7 @@ if( NOT WIN32 )
 endif()
 
 if( UNIX )
-  set(server_LINK_FLAGS "-pthread -confuse -sqlite3 ${server_LINK_FLAGS}")
+  set(server_LINK_FLAGS "-lpthread -lconfuse -lsqlite3 ${server_LINK_FLAGS}")
 endif()
 
 if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )

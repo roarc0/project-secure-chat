@@ -1,25 +1,5 @@
 #include "channel.h"
 
-// ChannelManagerException Code
-ChannelException::ChannelException(const string &message, bool inclSysMsg)
-  throw() : userMessage(message) 
-{
-	if (inclSysMsg) 
-	{
-		userMessage.append(": ");
-		userMessage.append(strerror(errno));
-	}
-}
-
-ChannelException::~ChannelException() throw() 
-{
-}
-
-const char *ChannelException::what() const throw() 
-{
-	return userMessage.c_str();
-}
-
 Channel::Channel(std::string& c_name) : name(c_name), b_todelete(false)
 {
 
@@ -46,7 +26,7 @@ bool Channel::DelayedUpdate(uint32 t_diff)
     return b_todelete ? false : true;
 }
 
-Session* Channel::FindSession(uint32 id) const
+Session* Channel::FindSession(uint32 id)
 {
     mapSession::const_iterator iter = m_sessions.find(id);
     return (iter == m_sessions.end() ? NULL : iter->second);

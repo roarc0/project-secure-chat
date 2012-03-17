@@ -4,7 +4,7 @@
 class MethodRequest
 {
     public:
-        MethodRequest();
+        MethodRequest(){};
         virtual ~MethodRequest()
         {
 

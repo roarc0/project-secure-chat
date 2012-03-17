@@ -1,19 +1,5 @@
 #include "socket-client.h"
 
-SocketClient::SocketClient(int type, int protocol) throw(SocketException) 
-{
-    domain = AF_INET;
-    SocketClient::type = type;
-    SocketClient:: protocol = protocol;
-    initSocket();
-}
-
-SocketClient::~SocketClient()
-{
-    close(sockDesc);
-    sockDesc = INVALID_SOCKET;
-}
-
 void SocketClient::Connect(const string &foreignAddress,
     unsigned short foreignPort) throw(SocketException) 
 {

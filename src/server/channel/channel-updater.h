@@ -9,6 +9,8 @@
 
 class ChannnelUpdateRequest;
 
+NEWEXCEPTION(ChannelUpdaterException);
+
 class ChannelUpdater
 {
     friend class ChannnelUpdateRequest;

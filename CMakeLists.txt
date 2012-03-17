@@ -31,6 +31,7 @@ include(CheckPlatform)
 find_package(OpenSSL REQUIRED)
 if( CLIENT )
     find_package(GTK REQUIRED)
+    find_package(Glib REQUIRED)
 endif()
 
 # Find revision ID and hash of the sourcetree

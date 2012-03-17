@@ -8,6 +8,10 @@
 
 using namespace std;
 
+#define NEWEXCEPTION(cl) class cl : public Exception { \
+                         public: cl(const string &message, bool perr = false) : \
+                         Exception(message,perr) {}; }
+
 class Exception : public exception
 {
   public:

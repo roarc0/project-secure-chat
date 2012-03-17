@@ -1,26 +1,5 @@
 #include "channel-manager.h"
 
-// ChannelManagerException Code
-ChannelManagerException::ChannelManagerException(const string &message, bool inclSysMsg)
-  throw() : userMessage(message) 
-{
-	if (inclSysMsg) 
-	{
-		userMessage.append(": ");
-		userMessage.append(strerror(errno));
-	}
-}
-
-ChannelManagerException::~ChannelManagerException() throw() 
-{
-}
-
-const char *ChannelManagerException::what() const throw() 
-{
-	return userMessage.c_str();
-}
-
-
 ChannelManager::ChannelManager()
 {    
     i_timer.SetInterval(50); //TODO dal config

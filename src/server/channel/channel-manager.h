@@ -12,19 +12,9 @@
 #include "channel.h"
 #include "channel-updater.h"
 
-#define MIN_CHANNEL_UPDATE_DELAY 50
+#define MIN_CHANNEL_UPDATE_DELAY 50  // TODO config
 
-class ChannelManagerException : public exception 
-{
-	public:
-		ChannelManagerException(const std::string &message, bool inclSysMsg = false) throw();
-		~ChannelManagerException() throw();
-
-		const char *what() const throw();
-
-	private:
-		std::string userMessage;  // Exception message
-};
+NEWEXCEPTION(ChannelManagerException);
 
 typedef UNORDERED_MAP<std::string, Channel*> mapChannel;
 
@@ -34,7 +24,7 @@ class ChannelManager
 		ChannelManager();
 		~ChannelManager();
 
-        void Update (uint32 diff);   
+        void Update (uint32 diff);
      
         ChannelUpdater* GetChannelUpdater() { return &m_updater; }
 

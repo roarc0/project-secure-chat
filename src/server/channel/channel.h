@@ -4,21 +4,12 @@
 #include "../../shared/common.h"
 #include "../../shared/threading/lock.h"
 #include "../session/session.h"
+#include "../threading/method-request.h"
 
 typedef UNORDERED_MAP<uint32, Session*> mapSession;
 typedef std::pair<uint32, Session*> mapSession_pair;
 
-class ChannelException : public exception 
-{
-	public:
-		ChannelException(const std::string &message, bool inclSysMsg = false) throw();
-		~ChannelException() throw();
-
-		const char *what() const throw();
-
-	private:
-		std::string userMessage;  // Exception message
-};
+NEWEXCEPTION(ChannelException);
 
 class Channel
 {
@@ -32,7 +23,7 @@ class Channel
         // THREADSAFE
         int SetName(std::string& c_name);
         std::string GetName() const { return name; }
-        Session* FindSession(uint32 id) const;
+        Session* FindSession(uint32 id);
         bool CanSessionEnter(Session* ses) const { return true; }
 
         void SendToAll(Packet* packet); 
@@ -42,7 +33,7 @@ class Channel
         void MakeChannelChangeName(Packet* packet);
 
         // THREADSAFE
-        Session* FindSession(uint32 id);
+        //Session* FindSession(uint32 id);
         int  AddSession(Session* ses);
 
         //THREADUNSAFE 

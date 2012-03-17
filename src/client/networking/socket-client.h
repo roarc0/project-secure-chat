@@ -20,20 +20,16 @@
 
 using namespace std;
 
-#define MAX_QUEUE_CONNECTIONS 16
-#define INVALID_SOCKET 0
-
 class SocketClient : public SocketBase
 {
     public:
-        ~SocketClient();
-        SocketClient(int type, int protocol) : SocketBase() throw(SocketException);
+        SocketClient(int type, int protocol) : SocketBase(type, protocol) {};
 
-        void             Connect(const string &foreignAddress,
-                                 unsigned short foreignPort)
-                         throw(SocketException);
-        void             Disconnect()
-                         throw(SocketException);
+        void    Connect(const string &foreignAddress,
+                        unsigned short foreignPort)
+                        throw(SocketException);
+        void    Disconnect()
+                        throw(SocketException);
 };
 
 #endif

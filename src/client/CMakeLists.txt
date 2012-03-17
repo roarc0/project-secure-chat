@@ -1,5 +1,5 @@
 file(GLOB_RECURSE sources_Execution execution/*.cpp execution/*.h)
-file(GLOB_RECURSE sources_Networking networking/*.cpp networking/*.h)
+file(GLOB sources_Networking networking/*.cpp networking/*.h)
 file(GLOB sources_localdir *.cpp *.h)
 
 set(client_SRCS
@@ -9,12 +9,13 @@ set(client_SRCS
 )
 
 include_directories(
-  ${CMAKE_BINARY_DIR}ì
+  ${CMAKE_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/execution
   ${CMAKE_CURRENT_SOURCE_DIR}/networking
   ${OPENSSL_INCLUDE_DIR}
   ${GTK_INCLUDE_DIR}
+  ${GLIB_INCLUDE_DIR}
 )
 
 set(client_LINK_FLAGS "")
@@ -30,7 +31,7 @@ if( NOT WIN32 )
 endif()
 
 if( UNIX )
-  set(client_LINK_FLAGS "-pthread -confuse ${client_LINK_FLAGS}")
+  set(client_LINK_FLAGS "-lpthread -lconfuse ${client_LINK_FLAGS}")
 endif()
 
 if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
@@ -44,6 +45,7 @@ target_link_libraries(client
   ${OPENSSL_LIBRARIES}
   ${OPENSSL_EXTRA_LIBRARIES}
   ${GTK_LIBRARIES}
+  ${GLIB_LIBRARIES}
   ${OSX_LIBS}
 )
 

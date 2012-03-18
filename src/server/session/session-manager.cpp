@@ -27,7 +27,7 @@ void SessionManager::GetIdList(std::list<uint32>* ulist)
         ulist->push_back(itr->first);
 }
 
-void SessionManager::AddSession(Socket* sock)
+int SessionManager::AddSession(Socket* sock)
 {
     if (GetQueuedSessionCount() + addSessQueue.size() <  m_sessionLimit)
     {

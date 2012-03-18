@@ -35,7 +35,7 @@ class SchedulingEngine
 {
     friend class Singleton<SchedulingEngine>;
     public:
-        void Initialize(uint32 n_thread);
+        int Initialize(uint32 n_thread);
         int Deactivate();
         bool IsActive();
         int Execute(MethodRequest* m_req);

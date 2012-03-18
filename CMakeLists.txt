@@ -27,10 +27,11 @@ include(cmake/options.cmake)
 
 include(CheckPlatform)
 
-# basic packagesearching and setup (further support will be needed, this is a preliminary release!)
+# basic packagesearching and setup
 find_package(OpenSSL REQUIRED)
-if( CLIENT )
-    find_package(GTK REQUIRED)
+if( CLIENT )  
+    #find_package (PkgConfig REQUIRED)
+    find_package (GTK2 REQUIRED)
     find_package(Glib REQUIRED)
 endif()
 

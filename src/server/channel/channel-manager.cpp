@@ -17,18 +17,18 @@ ChannelManager::~ChannelManager()
     }
 }
 
-Channel* ChannelManager::CreateChannel(std::string& c_name)
+int ChannelManager::CreateChannel(std::string& c_name)
 {
     Lock guard(m_mutex);
 
-    Channel* m = FindChannel(c_name);
-    if (m == NULL)
-    {        
-        m = new Channel(c_name);
-        m_channels[c_name] = m;
-    }
+    Channel* cha = FindChannel(c_name);
+    if (!cha)
+        return 1;
 
-    return m;
+    cha = new Channel(c_name);
+    m_channels[c_name] = cha;
+    return 0;
+        
 }
 
 Channel* ChannelManager::FindChannel(const std::string& c_name)

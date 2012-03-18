@@ -42,16 +42,15 @@ ChannelUpdater::~ChannelUpdater()
 
 int ChannelUpdater::ScheduleUpdate(Channel& channel, uint32 diff)
 {
-    Lock guard(m_mutex);
-    ++pending_requests;
+    Lock guard(m_mutex);    
 
-    if (s_sched_engine->Execute(new ChannelUpdateRequest(channel, *this, diff)) == -1)
+    if (s_sched_engine->Execute(new ChannelUpdateRequest(channel, *this, diff)) != 0)
     {
         // TODO Log Errore
-
-        --pending_requests;
         return -1;
     }
+
+    ++pending_requests;
 
     return 0;
 }

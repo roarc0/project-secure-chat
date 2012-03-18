@@ -30,7 +30,7 @@ class ChannelManager
 
         // THREADSAFE
         Channel* FindChannel(const std::string& c_name);
-        Channel* CreateChannel(std::string& c_name);
+        int CreateChannel(std::string& c_name);
 
         bool CanSessionEnter(Session* ses, const std::string& c_name);
 

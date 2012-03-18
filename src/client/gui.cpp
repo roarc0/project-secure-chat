@@ -468,7 +468,7 @@ void main_gui(int argc, char **argv)
     /* end_widgets */
     gtk_widget_show_all(window);
     gui_thread_w.toolbar_connect = toolbar_connect;
-    start_thread(&gui_thread, (void*)&gui_thread_w);
+    //start_thread(&gui_thread, (void*)&gui_thread_w);
     g_print ("* starting gtk\n");
     gtk_main(); 
 

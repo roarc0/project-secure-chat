@@ -30,8 +30,8 @@ include(CheckPlatform)
 # basic packagesearching and setup
 find_package(OpenSSL REQUIRED)
 if( CLIENT )  
-    #find_package (PkgConfig REQUIRED)
-    find_package (GTK2 REQUIRED)
+    find_package (PkgConfig REQUIRED)
+    pkg_check_modules (GTK2 REQUIRED gtk+-2.0)
     find_package(Glib REQUIRED)
 endif()
 

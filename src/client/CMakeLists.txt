@@ -14,7 +14,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/execution
   ${CMAKE_CURRENT_SOURCE_DIR}/networking
   ${OPENSSL_INCLUDE_DIR}
-  ${GTK_INCLUDE_DIR} 
+  ${GTK2_INCLUDE_DIRS} 
   ${Glib_PKGCONF_INCLUDE_DIRS}
 )
 
@@ -45,7 +45,7 @@ target_link_libraries(client
   confuse  
   ${OPENSSL_LIBRARIES}
   ${OPENSSL_EXTRA_LIBRARIES}
-  ${GTK_LIBRARIES}
+  ${GTK2_LIBRARY_DIRS}
   ${Glib_PKGCONF_LIBRARY_DIRS}
   ${OSX_LIBS}
 )

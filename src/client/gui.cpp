@@ -1,10 +1,13 @@
 #include "gui.h"
+#include "revision.h"
 
-enum {
+enum 
+{
   COLUMN_STRING,
   COLUMN_INT,
   COLUMNS
 };
+
 pthread_mutex_t  mutex_chat;
 pthread_mutex_t  mutex_user_list;
 
@@ -69,7 +72,7 @@ void show_about(GtkWidget *widget, gpointer data)
 
   GtkWidget *dialog = gtk_about_dialog_new();
   gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "psc");
-  gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), PACKAGE_VERSION); 
+  gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), _REVISION); 
   gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog),
       "(c) Alessandro Rosetti Daniele Lazzarini Alessandro Furlanetto");
   gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog),
@@ -86,7 +89,7 @@ void show_message(gchar *message)
 {
    GtkWidget *dialog, *label;
 
-   dialog = gtk_dialog_new_with_buttons (PACKAGE_VERSION,
+   dialog = gtk_dialog_new_with_buttons (_REVISION,
                                          0,
                                          GTK_DIALOG_DESTROY_WITH_PARENT,
                                          GTK_STOCK_OK,
@@ -278,7 +281,7 @@ void main_gui(int argc, char **argv)
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL); 
     gtk_container_set_border_width(GTK_CONTAINER(window),0); 
     gtk_window_set_urgency_hint (GTK_WINDOW(window), TRUE); 
-    gtk_window_set_title (GTK_WINDOW (window), PACKAGE_STRING);
+    gtk_window_set_title (GTK_WINDOW (window), _HASH);
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_window_set_resizable(GTK_WINDOW(window), TRUE);

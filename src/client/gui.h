@@ -5,7 +5,6 @@
 #include <sstream>
 #include <glib.h>
 #include <gtk/gtk.h>
-#include "../../config.h"
 #include "client-config.h"
 #include "client-core.h"
 

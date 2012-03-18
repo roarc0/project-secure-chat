@@ -28,11 +28,14 @@ SchedulingEngine::~SchedulingEngine()
     }   
 }
 
-void SchedulingEngine::Initialize(uint32 n_thread)
+int SchedulingEngine::Initialize(uint32 n_thread)
 {
     for (uint32 i = 0; i < n_thread; i++)
     {
         MethodThread* m_thread = new MethodThread(this); 
+        if (!m_thread)
+            return -1;
+
         if (m_thread->Start(NULL) != 0)
         {
             // Errore nella creazione del thread
@@ -57,6 +60,9 @@ bool SchedulingEngine::IsActive()
 
 int SchedulingEngine::Execute(MethodRequest* m_req)
 {   
+    if (!m_req)
+        return -1;
+
     q_method.add(m_req);
     sem.Signal();
     return 0;

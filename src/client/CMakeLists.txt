@@ -8,14 +8,14 @@ set(client_SRCS
   ${sources_localdir}
 )
 
-include_directories(
+include_directories(  
   ${CMAKE_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/execution
   ${CMAKE_CURRENT_SOURCE_DIR}/networking
   ${OPENSSL_INCLUDE_DIR}
-  ${GTK_INCLUDE_DIR}
-  ${GLIB_INCLUDE_DIR}
+  ${GTK_INCLUDE_DIR} 
+  ${Glib_PKGCONF_INCLUDE_DIRS}
 )
 
 set(client_LINK_FLAGS "")
@@ -31,7 +31,7 @@ if( NOT WIN32 )
 endif()
 
 if( UNIX )
-  set(client_LINK_FLAGS "-lpthread -lconfuse ${client_LINK_FLAGS}")
+  set(client_LINK_FLAGS -pthread "${client_LINK_FLAGS}")
 endif()
 
 if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
@@ -42,11 +42,11 @@ set_target_properties(client PROPERTIES LINK_FLAGS "${client_LINK_FLAGS}")
 
 target_link_libraries(client
   shared
-  confuse
+  confuse  
   ${OPENSSL_LIBRARIES}
   ${OPENSSL_EXTRA_LIBRARIES}
   ${GTK_LIBRARIES}
-  ${GLIB_LIBRARIES}
+  ${Glib_PKGCONF_LIBRARY_DIRS}
   ${OSX_LIBS}
 )
 

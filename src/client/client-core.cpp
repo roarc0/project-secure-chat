@@ -37,8 +37,7 @@ client_core::client_core()
 {
     connected = false;
     csock = new SocketClient(SOCK_STREAM, 0);
-    start_thread(&core_thread, (void*)csock);
-    whoami = "client";
+    //start_thread(&core_thread, (void*)csock);
 }
 
 bool client_core::connect()
@@ -48,7 +47,7 @@ bool client_core::connect()
 
     try
     {
-        csock->connect(CFG_GET_STRING("server_host"), CFG_GET_INT("server_port"));
+        csock->Connect(CFG_GET_STRING("server_host"), CFG_GET_INT("server_port"));
         c_core->set_connected(true);
     }
     catch(SocketException &e)
@@ -70,7 +69,7 @@ bool client_core::disconnect()
 
     try
     {
-        csock->disconnect();
+        csock->Disconnect();
         c_core->set_connected(false);
     }
     catch(SocketException &e)

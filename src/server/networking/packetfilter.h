@@ -1,10 +1,8 @@
 #ifndef PACKET_FILTER_H
 #define PACKET_FILTER_H
 
-#include "packet.h"
-#include "../session/sessionbase.h"
-
-class SessionBase;
+#include "../../shared/networking/packet.h"
+#include "../../shared/session/sessionbase.h"
 
 class PacketFilter
 {

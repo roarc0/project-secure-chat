@@ -2,11 +2,7 @@
 #define _SCHEDULING_ENGINE_H
 
 #include "../../shared/common.h"
-#include "../../shared/queues/lock_queue.h"
-#include "../../shared/threading/lock.h"
-#include "../../shared/threading/semaphore.h"
 #include "../../shared/threading/thread.h"
-#include "../../shared/singleton.h"
 #include "method-request.h"
 #include <list>
 
@@ -33,7 +29,6 @@ class MethodThread : public Thread
 
 class SchedulingEngine
 {
-    friend class Singleton<SchedulingEngine>;
     public:
         int Initialize(uint32 n_thread);
         int Deactivate();
@@ -47,10 +42,11 @@ class SchedulingEngine
     
         MethodRequest* GetNextMethod();
 
-    private:
+    protected:
         SchedulingEngine();
         ~SchedulingEngine();
 
+    private:
         std::list<MethodThread*> m_threads;
 
         LockedQueue<MethodRequest*> q_method;
@@ -60,7 +56,5 @@ class SchedulingEngine
         Mutex m_mutex;
         Semaphore sem;
 };
-
-#define s_sched_engine Singleton<SchedulingEngine>::GetInstance()
 
 #endif

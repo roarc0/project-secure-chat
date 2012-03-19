@@ -281,7 +281,7 @@ void main_gui(int argc, char **argv)
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL); 
     gtk_container_set_border_width(GTK_CONTAINER(window),0); 
     gtk_window_set_urgency_hint (GTK_WINDOW(window), TRUE); 
-    gtk_window_set_title (GTK_WINDOW (window), _HASH);
+    gtk_window_set_title (GTK_WINDOW (window), _PROJECTNAME);
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_window_set_resizable(GTK_WINDOW(window), TRUE);

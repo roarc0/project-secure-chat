@@ -1,6 +1,6 @@
 #include "socket-base.h"
 
-static void fillAddr(const string &address, unsigned short port, 
+void fillAddr(const string &address, unsigned short port, 
                      sockaddr_in &addr) 
 {
     memset(&addr, 0, sizeof(addr));

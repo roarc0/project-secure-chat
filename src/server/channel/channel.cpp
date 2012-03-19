@@ -21,7 +21,7 @@ void Channel::Update(uint32 t_diff)
     }
 }
 
-bool Channel::DelayedUpdate(uint32 t_diff)
+bool Channel::DelayedUpdate(uint32 /*t_diff*/)
 {
     return b_todelete ? false : true;
 }
@@ -89,7 +89,7 @@ void Channel::SendToOne(Packet* packet, uint32 id)
         ses->SendPacket(packet);
 }
 
-void Channel::MakeChannelChangeName(Packet* packet)
+void Channel::MakeChannelChangeName(Packet* /*packet*/)
 {
     // Settaggio pacchetto
 }

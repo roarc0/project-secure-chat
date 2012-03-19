@@ -1,7 +1,7 @@
 #include "session-manager.h"
 
 SessionManager::SessionManager(): 
-m_sessionActiveLimit(0), m_sessionLimit(0), net_number(0), exec_number(0)
+m_sessionLimit(0), m_sessionActiveLimit(0), net_number(0), exec_number(0)
 {
 
 }
@@ -38,6 +38,7 @@ int SessionManager::AddSession(Socket* sock)
     {
         // Disconetti sessione
     }
+    return 0;
 }
 
 bool SessionManager::RemoveSession(uint32 id)

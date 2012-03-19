@@ -12,7 +12,7 @@ Session::~Session()
 
 }
 
-bool Session::Update(uint32 diff, PacketFilter& updater)
+bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
 {
     Packet* packet = NULL;
     // To prevent infinite loop
@@ -63,6 +63,9 @@ bool Session::Update(uint32 diff, PacketFilter& updater)
                     case STATUS_UNHANDLED:
                         // Log
                         break;
+                    default:
+                        // Log
+                        break;
                 }
             }
             catch (...)
@@ -88,19 +91,19 @@ void Session::KickSession()
 }
 
 
-void Session::SendWaitQueue(int position)
+void Session::SendWaitQueue(int /*position*/)
 {
     Packet new_packet;
     //TODO settaggio pacchetto che avverte che l'utente è in attesa in posizione position
     SendPacket(&new_packet);   
 }
 
-void Session::Handle_ServerSide(Packet& packet)
+void Session::Handle_ServerSide(Packet& /*packet*/)
 {
     //LOG
 }
 
-void Session::HandleMessage(Packet& packet) 
+void Session::HandleMessage(Packet& /*packet*/) 
 {
     //TODO
 }

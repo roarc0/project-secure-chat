@@ -33,7 +33,7 @@ void time_stop(timer *time)
 
 void print_time_format(float sec)
 {
-    float sec_res;
+    float sec_res = 0.0f;
     int min, hours, hours_res, days, days_res, years, years_res;
 
     if ( sec != 0.0f )
@@ -79,17 +79,20 @@ void print_time_format(float sec)
 int __nsleep(const struct timespec *req, struct timespec *rem)
 {
     struct timespec temp_rem;
-    if(nanosleep(req,rem)==-1)
+    if (nanosleep(req,rem)==-1)
+    {
         __nsleep(rem,&temp_rem);
+        return 0;
+    }
     else
         return 1;
 }
  
 int msleep(unsigned long milisec)
 {
-    struct timespec req={0},rem={0};
     time_t sec=(int)(milisec/1000);
     milisec=milisec-(sec*1000);
+    struct timespec req={0,0},rem={0,0};
     req.tv_sec=sec;
     req.tv_nsec=milisec*1000000L;
     __nsleep(&req,&rem);

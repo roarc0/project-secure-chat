@@ -43,8 +43,7 @@ class Command // gestire delete
 
   public:
 
-    Command(uint32_t, string, handler);
-
+    Command(uint32_t _id, string _name, handler _hnd);
     ~Command();
 
     bool Execute(string params, SessionBase*);

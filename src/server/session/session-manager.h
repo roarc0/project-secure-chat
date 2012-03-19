@@ -60,7 +60,7 @@ class SessionManager
         // Sessions Map
         SessionMap m_sessions;
 
-        // Sessioni in attesa di essere aggiunte alla m_sessions
+        // Sessioni in attesa di essere attivate
         LockedQueue<Session*> addSessQueue;
 
         // Coda in Ingresso
@@ -69,7 +69,7 @@ class SessionManager
 
         // Session server limit
         uint32 m_sessionLimit;
-        // // Active session server limit
+        // Active session server limit
         uint32 m_sessionActiveLimit;        
         
         NetQueue n_queue;

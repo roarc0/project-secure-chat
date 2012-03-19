@@ -10,7 +10,7 @@ class Socket
     public:
         Socket() {}
         void CloseSocket() {}
-        int SendPacket(Packet& new_packet) { return 0; }
+        int SendPacket(Packet& /*new_packet*/) { return 0; }
         bool IsClosed() { return false; }
 };
 
@@ -27,7 +27,7 @@ class SessionBase
         virtual bool IsInChannel() { return false; }
 
         // Handle
-        void Handle_NULL(Packet& packet);
+        void Handle_NULL(Packet& /*packet*/);
 
     protected:
         Mutex m_mutex;        

@@ -27,7 +27,7 @@ void SessionBase::SendPacket(Packet* new_packet)
         m_Socket->CloseSocket();
 }
 
-void SessionBase::Handle_NULL(Packet& packet) 
+void SessionBase::Handle_NULL(Packet& /*packet*/) 
 {
     // LOG
 };

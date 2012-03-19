@@ -11,8 +11,8 @@ class Thread
       virtual ~Thread();
       int Start(void * arg);
    protected:
-      int Run(void * arg);
-      static void * EntryPoint(void*);
+      void Run(void * arg);
+      static void* EntryPoint(void*);
       virtual void Setup();
       virtual void Execute(void*);
       void * Arg() const {return arg_;}

@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 {
     welcome();
 
-    init_config("pschat-client.conf");
+    init_config("../etc/pschat-client.conf");
 
     c_core;
     main_gui(argc, argv);

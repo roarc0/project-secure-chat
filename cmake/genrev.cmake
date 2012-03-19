@@ -50,6 +50,8 @@ if(NOT rev_id_str)
   set(rev_id "0")
 endif()
 
+set(proj_name_str "${PROJECT_NAME}")
+
 # Strip off excess strings (shows when the source is actually modified)
 if(NOT rev_id_str MATCHES "Archive")
   string(REPLACE "+" "" rev_id ${rev_id_str})

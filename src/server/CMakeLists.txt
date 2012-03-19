@@ -25,6 +25,8 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/networking
   ${CMAKE_CURRENT_SOURCE_DIR}/session
   ${CMAKE_CURRENT_SOURCE_DIR}/threading
+  ${Sqlite_INCLUDE_DIRS}  
+  ${Confuse_INCLUDE_DIRS}
   ${OPENSSL_INCLUDE_DIR}
 )
 
@@ -52,10 +54,10 @@ set_target_properties(server PROPERTIES LINK_FLAGS "${server_LINK_FLAGS}")
 
 target_link_libraries(server
   shared
-  confuse
-  sqlite3
+  ${Confuse_LIBRARIES}
+  ${Sqlite_LIBRARIES}
   ${OPENSSL_LIBRARIES}
-  ${OPENSSL_EXTRA_LIBRARIES}
+  ${OPENSSL_EXTRA_LIBRARIES}  
   ${OSX_LIBS}
 )
 

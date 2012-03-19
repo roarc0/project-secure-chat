@@ -15,6 +15,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/networking
   ${OPENSSL_INCLUDE_DIR}
   ${GTK2_INCLUDE_DIRS}
+  ${Confuse_INCLUDE_DIRS}
   ${Glib_PKGCONF_INCLUDE_DIRS}
 )
 
@@ -42,11 +43,11 @@ set_target_properties(client PROPERTIES LINK_FLAGS "${client_LINK_FLAGS}")
 
 target_link_libraries(client    
   shared
-  confuse
   ${OPENSSL_LIBRARIES}
   ${OPENSSL_EXTRA_LIBRARIES}
-  ${GTK2_LIBRARIES}
+  ${GTK2_LIBRARIES}  
   ${Glib_PKGCONF_LIBRARY_DIRS}
+  ${Confuse_LIBRARIES}
   ${OSX_LIBS}
 )
 

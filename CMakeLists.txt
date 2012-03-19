@@ -28,11 +28,15 @@ include(cmake/options.cmake)
 include(CheckPlatform)
 
 # basic packagesearching and setup
+find_package (PkgConfig REQUIRED)
 find_package(OpenSSL REQUIRED)
-if( CLIENT )  
-    find_package (PkgConfig REQUIRED)
+pkg_check_modules(Confuse REQUIRED libconfuse)
+if( CLIENT )
     pkg_check_modules (GTK2 REQUIRED gtk+-2.0)
     find_package(Glib REQUIRED)
+endif()
+if ( SERVER )
+    pkg_check_modules(Sqlite REQUIRED sqlite3)
 endif()
 
 # Find revision ID and hash of the sourcetree

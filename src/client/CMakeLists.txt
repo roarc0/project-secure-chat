@@ -31,7 +31,7 @@ if( NOT WIN32 )
 endif()
 
 if( UNIX )
-  set(client_LINK_FLAGS -pthread "${client_LINK_FLAGS}")
+  set(client_LINK_FLAGS "-pthread ${client_LINK_FLAGS}")
 endif()
 
 if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
@@ -40,12 +40,12 @@ endif()
 
 set_target_properties(client PROPERTIES LINK_FLAGS "${client_LINK_FLAGS}")
 
-target_link_libraries(client
+target_link_libraries(client    
   shared
   confuse
   ${OPENSSL_LIBRARIES}
   ${OPENSSL_EXTRA_LIBRARIES}
-  ${GTK2_LIBRARY_DIRS}
+  ${GTK2_LIBRARIES}
   ${Glib_PKGCONF_LIBRARY_DIRS}
   ${OSX_LIBS}
 )

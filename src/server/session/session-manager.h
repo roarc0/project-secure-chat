@@ -3,12 +3,12 @@
 
 #include <map>
 #include <pthread.h>
-#include "queue.h"
 #include "../../shared/common.h"
 #include "../../shared/threading/mutex.h"
 #include "../../shared/singleton.h"
 #include "../../shared/queues/lock_queue.h"
-#include "../networking/packetfilter.h"
+#include "queue.h"
+#include "packetfilter.h"
 
 typedef UNORDERED_MAP<uint32, Session*>  SessionMap;
 typedef std::pair<uint32, Session*> usersession_pair;

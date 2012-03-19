@@ -22,11 +22,12 @@ class SessionBase
 
         // THREADSAFE
         void QueuePacket(Packet* new_packet); 
-        void SendPacket(Packet* new_packet);
-
-        void Handle_NULL(Packet& packet) {};
+        void SendPacket(Packet* new_packet);       
 
         virtual bool IsInChannel() { return false; }
+
+        // Handle
+        void Handle_NULL(Packet& packet);
 
     protected:
         Mutex m_mutex;        

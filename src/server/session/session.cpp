@@ -94,3 +94,8 @@ void Session::SendWaitQueue(int position)
     //TODO settaggio pacchetto che avverte che l'utente è in attesa in posizione position
     SendPacket(&new_packet);   
 }
+
+void Session::HandleMessage(Packet& packet) 
+{
+    //TODO
+};

@@ -3,7 +3,7 @@
 
 #include "../../shared/common.h"
 #include "../../shared/threading/lock.h"
-#include "../session/session.h"
+#include "session.h"
 
 typedef UNORDERED_MAP<uint32, Session*> mapSession;
 typedef std::pair<uint32, Session*> mapSession_pair;

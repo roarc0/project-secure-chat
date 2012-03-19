@@ -2,52 +2,45 @@
 #define CORE_CLIENT_H
 
 #include "../shared/common.h"
-#include "networking/socket-client.h"
+#include "../shared/singleton.h"
 #include "../shared/threading/thread.h"
 #include "../shared/execution/command-manager.h"
+#include "networking/socket-client.h"
 
-#define c_core       client_core::get_instance()
+void* CoreThread(void*);
 
-#undef  SERVER
-
-void* core_thread(void*);
-
-class client_core
+class ClientCore //: public Thread
 {
-    SocketClient*         csock;   // si dovrebbe usare UserSession ma al momento la classe include Session...
+    SocketClient*         csock;
     bool                  connected;
-    static client_core*   ccore_singleton;
 
-    client_core();
+    ClientCore();
 
   public:
 
-    static client_core* get_instance()
-    {
-        if(!ccore_singleton)
-            ccore_singleton = new client_core();
-        return ccore_singleton;
-    };
+    friend class Singleton<ClientCore>;
 
-    ~client_core();
+    ~ClientCore();
 
-    bool  connect();
-    bool  disconnect();
-    void  handle_send(const char*);
-    void  handle_recv();
+    bool  Connect();
+    bool  Disconnect();
+    void  HandleSend(const char*);
+    void  HandleRecv();
 
-    void  gui_update_status_bar(const char*);
+    void  GuiUpdateStatusBar(const char*);
     
-    bool is_connected() const
+    bool IsConnected() const
     {
         return connected;
     }
 
-    void set_connected(bool c)
+    void SetConnected(bool c)
     {
         connected = c;
     }
 
 };
+
+#define c_core       Singleton<ClientCore>::GetInstance()
 
 #endif

@@ -35,12 +35,12 @@ void* gui_thread(void* arg)
 
     while(1)  // è un polling sarebbe meglio usare dei segnali/semafori ecc..
     {
-        if(c_core->is_connected() && strcmp(gtk_tool_button_get_label(GTK_TOOL_BUTTON(gui_thread_w->toolbar_connect)), "Connect") == 0)
+        if(c_core->IsConnected() && strcmp(gtk_tool_button_get_label(GTK_TOOL_BUTTON(gui_thread_w->toolbar_connect)), "Connect") == 0)
         {
             gtk_tool_button_set_label(GTK_TOOL_BUTTON(gui_thread_w->toolbar_connect),"Disconnect");
         }
 
-        if(!c_core->is_connected() && strcmp(gtk_tool_button_get_label(GTK_TOOL_BUTTON(gui_thread_w->toolbar_connect)), "Disconnect") == 0)
+        if(!c_core->IsConnected() && strcmp(gtk_tool_button_get_label(GTK_TOOL_BUTTON(gui_thread_w->toolbar_connect)), "Disconnect") == 0)
         {
             gtk_tool_button_set_label(GTK_TOOL_BUTTON(gui_thread_w->toolbar_connect),"Connect");
         }
@@ -167,7 +167,7 @@ void button_send_click(gpointer data, gchar *str, gchar type)
         return;
 
     ss_h << text;
-    c_core->handle_send((char*)ss_h.str().c_str());
+    c_core->HandleSend((char*)ss_h.str().c_str());
 
     if (text[0] != '\\')
     {
@@ -200,9 +200,9 @@ void toolbar_reset_click(gpointer data)
 void toolbar_connect_click(gpointer data, gchar *str, gchar type)
 {
     GtkToolButton *toolbar_connect = GTK_TOOL_BUTTON(data);
-    if (!c_core->is_connected())
+    if (!c_core->IsConnected())
     {
-        if(c_core->connect())
+        if(c_core->Connect())
         {
             push_status_bar("Connected with server!");
             add_message_to_chat(button_send_w.chat_buffer, (gchar*) "Connected!\n", 's');
@@ -214,9 +214,9 @@ void toolbar_connect_click(gpointer data, gchar *str, gchar type)
         return;
     }
 
-    if(c_core->is_connected())
+    if(c_core->IsConnected())
     {
-        if(c_core->disconnect())
+        if(c_core->Disconnect())
         {
             push_status_bar("Disconnected with server!");
             add_message_to_chat(button_send_w.chat_buffer, (gchar*) "Disconnected!\n", 's');
@@ -340,7 +340,7 @@ void main_gui(int argc, char **argv)
     gtk_container_set_border_width(GTK_CONTAINER(toolbar), 2);
 
     toolbar_connect = gtk_tool_button_new_from_stock(GTK_STOCK_NETWORK);
-    if (!c_core->is_connected())
+    if (!c_core->IsConnected())
         gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolbar_connect), "Connect");
     else
         gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolbar_connect), "Disconnect");

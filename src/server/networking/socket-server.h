@@ -59,34 +59,6 @@ class SocketServer
     {
         //cb_notify->RegisterCb(fptr);
     }
-
-    /*void new_connection_init()
-    {
-        b_new_connection = false;
-        pthread_cond_init(&c_new_connection);
-        pthread_mutex_init(&m_new_connection);
-        pthread_mutex_lock(&m_new_connection);
-    }
-
-    void new_connection_cond_signal()
-    {
-
-        pthread_cond_signal(&c_new_connection);
-    }
-    void new_connection_cond_wait()
-    {
-        pthread_cond_wait(&c_new_connection);
-    }
-
-    void new_connection_enter_lock()
-    {
-        pthread_mutex_lock(&m_new_connection_enter);
-    }
-
-    void new_connection_exit_unlock()
-    {
-        pthread_mutex_lock(&m_new_connection_exit);
-    }*/
 };
 
 #endif

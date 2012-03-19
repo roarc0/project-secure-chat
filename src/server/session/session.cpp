@@ -1,4 +1,5 @@
 #include "session.h"
+#include "opcode.h"
 
 Session::Session(Socket* pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), channel_name("")

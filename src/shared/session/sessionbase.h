@@ -1,11 +1,8 @@
 #ifndef _SESSION_BASE_H
 #define _SESSION_BASE_H
 
-#include "../networking/packetfilter.h"
 #include "../networking/packet.h"
-#include "../networking/opcode.h"
-#include "../queues/lock_queue.h"
-#include "../threading/lock.h"
+#include "../common.h"
 
 // DA RIMUOVERE QUANDO COMPILA SOCKET
 class Socket

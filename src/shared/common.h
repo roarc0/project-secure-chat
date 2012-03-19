@@ -56,6 +56,9 @@ namespace __gnu_cxx
 using std::hash_map;
 #endif
 
+#include "queues/lock_queue.h"
+#include "threading/lock.h"
+#include "threading/semaphore.h"
 #include "utility/file.h"
 #include "utility/logger.h"
 #include "utility/timer.h"

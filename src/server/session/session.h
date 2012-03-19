@@ -2,6 +2,7 @@
 #define _SESSION_H
 
 #include "../../shared/session/sessionbase.h"
+#include "packetfilter.h"
 
 class Session : public SessionBase
 {

@@ -2,7 +2,7 @@
 #define CHANNEL_UPDATER_H
 
 #include "../threading/method-request.h"
-#include "../threading/scheduling-engine.h"
+#include "../threading/sscheduling-engine.h"
 #include "../../shared/threading/lock.h"
 #include "../../shared/common.h"
 #include "channel.h"

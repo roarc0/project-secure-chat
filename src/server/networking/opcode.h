@@ -1,10 +1,7 @@
 #ifndef OPCODE_H
 #define OPCODE_H
 
-#include "packetfilter.h"
-#include "../session/sessionbase.h"
-
-class SessionBase;
+#include "session.h"
 
 enum MessageTypes
 { 
@@ -34,7 +31,7 @@ struct OpcodeHandler
     char const* name;
     SessionStatus status;
     PacketProcessing packetProcessing;
-    void (SessionBase::*handler)(Packet& recvPacket);
+    void (Session::*handler)(Packet& recvPacket);
 };
 
 extern OpcodeHandler opcodeTable[NUM_MSG_TYPES];

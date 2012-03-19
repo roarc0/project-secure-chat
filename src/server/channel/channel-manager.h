@@ -3,7 +3,7 @@
 
 #include "../../shared/common.h"
 #include "../../shared/threading/lock.h"
-#include "../session/session-manager.h"
+#include "session-manager.h"
 
 #include <list>
 #include <map>

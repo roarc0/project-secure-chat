@@ -95,7 +95,12 @@ void Session::SendWaitQueue(int position)
     SendPacket(&new_packet);   
 }
 
+void Session::Handle_ServerSide(Packet& packet)
+{
+    //LOG
+}
+
 void Session::HandleMessage(Packet& packet) 
 {
     //TODO
-};
+}

@@ -22,8 +22,9 @@ class Session : public SessionBase
         void SendWaitQueue(int position);
         void SetInQueue(bool state) { m_inQueue = state; }
 
-        // Hanlde
-        void HandleMessage(Packet& packet);
+        // Handle
+        void Handle_ServerSide(Packet& packet);
+        void HandleMessage(Packet& packet);        
   
     private:
         uint32 m_id;

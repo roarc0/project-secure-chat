@@ -3,6 +3,7 @@
 
 #include "../../shared/common.h"
 #include "../../shared/threading/thread.h"
+#include "../../shared/singleton.h"
 #include "method-request.h"
 #include <list>
 
@@ -29,7 +30,11 @@ class MethodThread : public Thread
 
 class SchedulingEngine
 {
+        friend class Singleton<SchedulingEngine>;
     public:
+        SchedulingEngine();
+        ~SchedulingEngine();
+
         int Initialize(uint32 n_thread);
         int Deactivate();
         bool IsActive();
@@ -40,11 +45,7 @@ class SchedulingEngine
             return m_threads.size();
         }
     
-        MethodRequest* GetNextMethod();
-
-    protected:
-        SchedulingEngine();
-        ~SchedulingEngine();
+        MethodRequest* GetNextMethod();        
 
     private:
         std::list<MethodThread*> m_threads;
@@ -56,5 +57,7 @@ class SchedulingEngine
         Mutex m_mutex;
         Semaphore sem;
 };
+
+#define s_sched_engine Singleton<SchedulingEngine>::GetInstance()
 
 #endif

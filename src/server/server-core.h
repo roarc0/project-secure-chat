@@ -3,7 +3,7 @@
 
 #include "networking/socket-server.h"
 #include "execution/command-manager-server.h"
-#include "threading/sscheduling-engine.h"
+#include "threading/scheduling-engine.h"
 
 void  server_core();
 

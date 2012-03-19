@@ -1,11 +1,11 @@
 #ifndef CHANNEL_UPDATER_H
 #define CHANNEL_UPDATER_H
 
-#include "../threading/method-request.h"
-#include "../threading/sscheduling-engine.h"
 #include "../../shared/threading/lock.h"
 #include "../../shared/common.h"
 #include "channel.h"
+#include "method-request.h"
+#include "scheduling-engine.h"
 
 NEWEXCEPTION(ChannelUpdaterException);
 

@@ -17,13 +17,13 @@ class Session : public SessionBase
         void SetId(uint32 id) { m_id = id; }
 
         // THREADSAFE 
-        bool IsInChannel() { return channel_name == "" ? false : true; }
-        
+        bool IsInChannel() { return channel_name == "" ? false : true; }        
         uint32 GetId() { return m_id; }
-
         void SendWaitQueue(int position);
-
         void SetInQueue(bool state) { m_inQueue = state; }
+
+        // Hanlde
+        void HandleMessage(Packet& packet);
   
     private:
         uint32 m_id;

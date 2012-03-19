@@ -5,10 +5,7 @@ class MethodRequest
 {
     public:
         MethodRequest(){};
-        virtual ~MethodRequest()
-        {
-
-        };
+        virtual ~MethodRequest() {};
 
         virtual int Call()
         {

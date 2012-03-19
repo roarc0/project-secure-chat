@@ -5,8 +5,10 @@
 
 enum MessageTypes
 { 
-    MSG_NULL_ACTION             = 0x000,
-    NUM_MSG_TYPES               = 0x001,
+    MSG_NULL_ACTION                                 = 0x000,
+    CMSG_MESSAGE                                    = 0x001,
+    SMSG_MESSAGE                                    = 0x002,
+    NUM_MSG_TYPES                                   = 0x003,
 };
 
 enum SessionStatus

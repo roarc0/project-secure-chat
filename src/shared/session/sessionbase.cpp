@@ -26,3 +26,8 @@ void SessionBase::SendPacket(Packet* new_packet)
     if (m_Socket->SendPacket(*new_packet) == -1)
         m_Socket->CloseSocket();
 }
+
+void SessionBase::Handle_NULL(Packet& packet) 
+{
+    // LOG
+};

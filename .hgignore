@@ -27,4 +27,4 @@ doc.aux
 doc.synctex.gz
 doc.toc
 doc.pdf
-*.orig
+build/*

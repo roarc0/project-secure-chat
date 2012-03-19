@@ -1,8 +1,6 @@
 #include "client-core.h"
 
-client_core* client_core::ccore_singleton = NULL;
-
-void* core_thread(void* arg)
+void* CoreThread(void* arg)
 {
     sigset_t mask;
     sigfillset(&mask);
@@ -11,18 +9,17 @@ void* core_thread(void* arg)
 
     try
     {
-        msleep(500);
         INFO("debug", "connection successful %s:%d\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"));
-        c_core->set_connected(true);
+        c_core->SetConnected(true);
 
         while(1)
         {
-            while(c_core->is_connected())
+            while(c_core->IsConnected())
             {
-                c_core->handle_recv(); // gestore comunicazione in ingresso
+                c_core->HandleRecv(); // gestore comunicazione in ingresso
                 msleep(3); 
             }
-            msleep(300);                                          // realizzare un segnale di wait, quando si clicca su connect si fa il signal
+            msleep(300);      // realizzare un segnale di wait, quando si clicca su connect si fa il signal
         }
     }
     catch(SocketException &e)
@@ -33,14 +30,14 @@ void* core_thread(void* arg)
     pthread_exit(NULL);
 }
 
-client_core::client_core()
+ClientCore::ClientCore()
 {
     connected = false;
     csock = new SocketClient(SOCK_STREAM, 0);
     //start_thread(&core_thread, (void*)csock);
 }
 
-bool client_core::connect()
+bool ClientCore::Connect()
 {
     if(!csock)
         return false;
@@ -48,11 +45,11 @@ bool client_core::connect()
     try
     {
         csock->Connect(CFG_GET_STRING("server_host"), CFG_GET_INT("server_port"));
-        c_core->set_connected(true);
+        c_core->SetConnected(true);
     }
     catch(SocketException &e)
     {
-        c_core->set_connected(false);
+        c_core->SetConnected(false);
         INFO("debug", "connection failed     %s:%d (%s)\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"), e.what());
         return false;
     }
@@ -62,7 +59,7 @@ bool client_core::connect()
     return true;
 }
 
-bool client_core::disconnect()
+bool ClientCore::Disconnect()
 {
     if(!csock)
         return false;
@@ -70,7 +67,7 @@ bool client_core::disconnect()
     try
     {
         csock->Disconnect();
-        c_core->set_connected(false);
+        c_core->SetConnected(false);
     }
     catch(SocketException &e)
     {
@@ -83,7 +80,7 @@ bool client_core::disconnect()
     return true;
 }
 
-void client_core::handle_send(const char* msg)  // comunicazione in ingresso dall'utente
+void ClientCore::HandleSend(const char* msg)  // comunicazione in ingresso dall'utente
 {
     if(!csock || !msg)
         return;
@@ -102,24 +99,24 @@ void client_core::handle_send(const char* msg)  // comunicazione in ingresso dal
     Packet pack = ForgePacket(OP_NULL, str_msg.c_str());
     unsigned char* rawData = new unsigned char[pack.GetRawLength() + 1];
     pack.GetRawData(rawData);
-    csock->send(rawData, pack.GetRawLength());
+    csock->Send(rawData, pack.GetRawLength());
     delete[] rawData;
 }
 
-void client_core::handle_recv()
+void ClientCore::HandleRecv()
 {
     char *buffer = NULL;
     unsigned short len = 0, opcode;
 
     try
     {
-        if (csock->recv(&opcode, OPCODE_SIZE) == 0);
+        if (csock->Recv(&opcode, OPCODE_SIZE) == 0);
             return;
         INFO("debug","opcode : %d\n", opcode);
-        csock->recv(&len, LENGTH_SIZE);
+        csock->Recv(&len, LENGTH_SIZE);
         INFO("debug","len    : %d\n", len);
         buffer = new char[len+1];
-        csock->recv(buffer, len);
+        csock->Recv(buffer, len);
         buffer[len] = '\0';
         INFO("debug","msg    : \"%s\"\n", buffer);
 
@@ -134,7 +131,7 @@ void client_core::handle_recv()
             delete buffer;
             buffer = NULL;
         }
-        c_core->set_connected(false);
-        csock->initSocket();
+        c_core->SetConnected(false);
+        csock->InitSocket();
     }
 }

@@ -33,7 +33,7 @@ using namespace std;
 
 NEWEXCEPTION(SocketException);
 
-void fillAddr(const string &address, unsigned short port, 
+void FillAddr(const string &address, unsigned short port, 
                      sockaddr_in &addr);
 
 
@@ -43,34 +43,34 @@ class SocketBase
         virtual ~SocketBase();
         SocketBase(int type, int protocol) throw(SocketException);
 
-        string           getLocalAddress()
+        string           GetLocalAddress()
                          throw(SocketException);
-        unsigned short   getLocalPort()
+        unsigned short   GetLocalPort()
                          throw(SocketException);
 
-        void             setLocalPort(unsigned short localPort)
+        void             SetLocalPort(unsigned short localPort)
                          throw(SocketException);
-        void             setLocalAddressAndPort(const string &localAddress, 
+        void             SetLocalAddressAndPort(const string &localAddress, 
                                                 unsigned short localPort = 0)
                          throw(SocketException);
-        string           getForeignAddress()
+        string           GetForeignAddress()
                          throw(SocketException);
-        unsigned short   getForeignPort()
+        unsigned short   GetForeignPort()
                          throw(SocketException);
 
-        static unsigned short resolveService(const string &service,
+        static unsigned short ResolveService(const string &service,
                                              const string &protocol = "tcp");
 
-        void             initSocket()
+        void             InitSocket()
                          throw(SocketException);
 
-        void             send(const void *buffer, int bufferLen)
+        void             Send(const void *buffer, int bufferLen)
                          throw(SocketException);
-        int              recv(void *buffer, int bufferLen)
+        int              Recv(void *buffer, int bufferLen)
                          throw(SocketException);
 
     protected:
-        int sockDesc;
+        int sock;
         int domain, type, protocol;
 };
 

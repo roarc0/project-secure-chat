@@ -1,6 +1,6 @@
 #include "socket-base.h"
 
-void fillAddr(const string &address, unsigned short port, 
+void FillAddr(const string &address, unsigned short port, 
                      sockaddr_in &addr) 
 {
     memset(&addr, 0, sizeof(addr));
@@ -20,48 +20,48 @@ SocketBase::SocketBase(int type, int protocol) throw(SocketException)
     domain = AF_INET;
     SocketBase::type = type;
     SocketBase:: protocol = protocol;
-    initSocket();
+    InitSocket();
 }
 
 SocketBase::~SocketBase()
 {
-    close(sockDesc);
-    sockDesc = INVALID_SOCKET;
+    close(sock);
+    sock = INVALID_SOCKET;
 }
 
-void SocketBase::initSocket() throw(SocketException)
+void SocketBase::InitSocket() throw(SocketException)
 {
     int ret, val = 1;
 
-    if ((sockDesc = socket(AF_INET, type, protocol)) < 0)
+    if ((sock = socket(AF_INET, type, protocol)) < 0)
         throw SocketException("[socket()]", true);
 }
 
-string SocketBase::getLocalAddress() throw(SocketException) 
+string SocketBase::GetLocalAddress() throw(SocketException) 
 {
     sockaddr_in addr;
     unsigned int addr_len = sizeof(addr);
 
-    if (getsockname(sockDesc, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0) 
+    if (getsockname(sock, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0) 
     {
         throw SocketException("[getsockname()]", true);
     }
     return inet_ntoa(addr.sin_addr);
 }
 
-unsigned short SocketBase::getLocalPort() throw(SocketException) 
+unsigned short SocketBase::GetLocalPort() throw(SocketException) 
 {
     sockaddr_in addr;
     unsigned int addr_len = sizeof(addr);
 
-    if (getsockname(sockDesc, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0) 
+    if (getsockname(sock, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0) 
     {
         throw SocketException("[getsockname()]", true);
     }
     return ntohs(addr.sin_port);
 }
 
-void SocketBase::setLocalPort(unsigned short localPort) throw(SocketException) 
+void SocketBase::SetLocalPort(unsigned short localPort) throw(SocketException) 
 {
     sockaddr_in localAddr;
     memset(&localAddr, 0, sizeof(localAddr));
@@ -69,25 +69,25 @@ void SocketBase::setLocalPort(unsigned short localPort) throw(SocketException)
     localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     localAddr.sin_port = htons(localPort);
 
-    if (bind(sockDesc, (sockaddr *) &localAddr, sizeof(sockaddr_in)) < 0) 
+    if (bind(sock, (sockaddr *) &localAddr, sizeof(sockaddr_in)) < 0) 
     {
         throw SocketException("Set of local port failed [bind()]", true);
     }
 }
 
-void SocketBase::setLocalAddressAndPort(const string &localAddress,
+void SocketBase::SetLocalAddressAndPort(const string &localAddress,
     unsigned short localPort) throw(SocketException) 
 {
     sockaddr_in localAddr;
-    fillAddr(localAddress, localPort, localAddr);
+    FillAddr(localAddress, localPort, localAddr);
 
-    if (bind(sockDesc, (sockaddr *) &localAddr, sizeof(sockaddr_in)) < 0) 
+    if (bind(sock, (sockaddr *) &localAddr, sizeof(sockaddr_in)) < 0) 
     {
         throw SocketException("Set of local address and port failed [bind()]", true);
     }
 }
 
-unsigned short SocketBase::resolveService(const string &service,
+unsigned short SocketBase::ResolveService(const string &service,
                                       const string &protocol) 
 {
     struct servent *serv;
@@ -98,25 +98,25 @@ unsigned short SocketBase::resolveService(const string &service,
         return ntohs(serv->s_port);
 }
 
-void SocketBase::send(const void *buffer, int bufferLen) 
+void SocketBase::Send(const void *buffer, int bufferLen) 
     throw(SocketException) 
 {
-    if (::send(sockDesc, (void *) buffer, bufferLen, 0) < 0) 
+    if (::send(sock, (void *) buffer, bufferLen, 0) < 0) 
     {
         throw SocketException("Send failed [send()]", true);
     }
 }
 
-int SocketBase::recv(void *buffer, int bufferLen) 
+int SocketBase::Recv(void *buffer, int bufferLen) 
     throw(SocketException) 
 {
     int ret;
 
-    if ((ret = ::recv(sockDesc, (void *) buffer, bufferLen, 0)) <= 0)
+    if ((ret = ::recv(sock, (void *) buffer, bufferLen, 0)) <= 0)
     {
-        close(sockDesc);
-        sockDesc = INVALID_SOCKET;
-        //initSocket();
+        close(sock);
+        sock = INVALID_SOCKET;
+        //InitSocket();
 
         if (ret == 0)
             throw SocketException("Receive failed [recv()]", false);
@@ -127,25 +127,25 @@ int SocketBase::recv(void *buffer, int bufferLen)
     return ret;
 }
 
-string SocketBase::getForeignAddress() 
+string SocketBase::GetForeignAddress() 
     throw(SocketException) 
 {
     sockaddr_in addr;
     unsigned int addr_len = sizeof(addr);
 
-    if (getpeername(sockDesc, (sockaddr *) &addr,(socklen_t *) &addr_len) < 0)
+    if (getpeername(sock, (sockaddr *) &addr,(socklen_t *) &addr_len) < 0)
     {
         throw SocketException("Fetch of foreign address failed [getpeername()]", true);
     }
     return inet_ntoa(addr.sin_addr);
 }
 
-unsigned short SocketBase::getForeignPort() throw(SocketException) 
+unsigned short SocketBase::GetForeignPort() throw(SocketException) 
 {
     sockaddr_in addr;
     unsigned int addr_len = sizeof(addr);
 
-    if (getpeername(sockDesc, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0)
+    if (getpeername(sock, (sockaddr *) &addr, (socklen_t *) &addr_len) < 0)
     {
         throw SocketException("Fetch of foreign port failed [getpeername()]", true);
     }

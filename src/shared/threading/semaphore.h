@@ -18,6 +18,7 @@ class Semaphore
         bool Wait()
         {
             pthread_cond_wait(&_cond, &(_mutex->_mutex));
+            return true;
         }
         void Signal()
         {

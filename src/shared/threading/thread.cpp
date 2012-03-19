@@ -31,16 +31,17 @@ int Thread::Start(void* arg)
     return ret;
 }
 
-int Thread::Run(void* arg)
+void Thread::Run(void* arg)
 {
     Setup();
     Execute(arg);
 }
 
-void * Thread::EntryPoint(void * pthis)
+void* Thread::EntryPoint(void* pthis)
 {
-   Thread * pt = (Thread*)pthis;
+   Thread* pt = (Thread*)pthis;
    pt->Run(pt->Arg());
+   return NULL;  
 }
 
 void Thread::Setup()
@@ -48,7 +49,7 @@ void Thread::Setup()
 
 }
 
-void Thread::Execute(void* arg)
+void Thread::Execute(void* /*arg*/)
 {
 
 }

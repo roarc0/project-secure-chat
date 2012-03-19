@@ -17,7 +17,7 @@ class NetQueue : public mt_queue<net_task>
     NetQueue(): mt_queue<net_task>() {};
     Session* NexSessionToServe()
     {
-       
+       return NULL;
     }
 };
 

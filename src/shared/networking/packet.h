@@ -39,8 +39,11 @@ class Packet
         }
 
         // costruttore di copia
-        Packet(const Packet &packet) : m_opcode(packet.m_opcode), m_createTime(packet.m_createTime),
-                                       m_data(packet.m_data){}
+        Packet(const Packet &packet) : m_opcode(packet.m_opcode)
+        {
+            m_createTime = packet.m_createTime;
+            m_data = packet.m_data;
+        }
 
         uint16* GetOpcodePointer()
         {

@@ -5,7 +5,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x000*/ { "MSG_NULL_ACTION",             STATUS_NEVER,       PROCESS_INPLACE,           &Session::Handle_NULL                           },
     /*0x001*/ { "CMSG_MESSAGE",                STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandleMessage                         },
     /*0x002*/ { "SMSG_MESSAGE",                STATUS_NEVER,       PROCESS_INPLACE,           &Session::Handle_ServerSide                     },
-    /*0x003*/ { "CMSG_JOIN_CHANNEL",           STATUS_LOGGED,      PROCESS_THREADUNSAFE,      &Session::Handle_NULL                           },
+    /*0x003*/ { "CMSG_JOIN_CHANNEL",           STATUS_LOGGED,      PROCESS_THREADUNSAFE,      &Session::HandleJoinChannel                     },
     /*0x004*/ { "CMSG_LEAVE_CHANNEL",          STATUS_LOGGED,      PROCESS_THREADUNSAFE,      &Session::Handle_NULL                           },
     /*0x005*/ { "SMSG_CHANNEL_NOTIFY",         STATUS_NEVER,       PROCESS_INPLACE,           &Session::Handle_ServerSide                     },
     /*0x006*/ { "CMSG_CHANNEL_LIST",           STATUS_LOGGED,      PROCESS_INPLACE,           &Session::Handle_NULL                           },

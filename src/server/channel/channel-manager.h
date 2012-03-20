@@ -32,8 +32,6 @@ class ChannelManager
         Channel* FindChannel(const std::string& c_name);
         int CreateChannel(std::string& c_name);
 
-        bool CanSessionEnter(Session* ses, const std::string& c_name);
-
         // THREADUNSAFE
         // E' thread unsafe se un altro thread sta lavorando sul puntatore del canale
         int RemoveChannel(std::string& c_name);

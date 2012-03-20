@@ -2,6 +2,8 @@ file(GLOB_RECURSE sources_Channel channel/*.cpp channel/*.h)
 file(GLOB_RECURSE sources_Database database/*.cpp database/*.h)
 file(GLOB_RECURSE sources_Execution execution/*.cpp execution/*.h)
 file(GLOB sources_Networking networking/*.cpp networking/*.h)
+file(GLOB sources_Packet networking/packet/*.cpp networking/packet/*.h)
+file(GLOB sources_Socket networking/socket/*.cpp networking/socket/*.h)
 file(GLOB_RECURSE sources_Session session/*.cpp session/*.h)
 file(GLOB sources_Threading threading/*.cpp threading/*.h)
 file(GLOB sources_localdir *.cpp *.h)
@@ -11,6 +13,8 @@ set(server_SRCS
   ${sources_Database}
   ${sources_Execution}
   ${sources_Networking}
+  ${sources_Packet}
+  ${sources_Socket}
   ${sources_Session}
   ${sources_Threading}
   ${sources_localdir}
@@ -23,6 +27,8 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/database
   ${CMAKE_CURRENT_SOURCE_DIR}/execution
   ${CMAKE_CURRENT_SOURCE_DIR}/networking
+  ${CMAKE_CURRENT_SOURCE_DIR}/networking/packet
+  ${CMAKE_CURRENT_SOURCE_DIR}/networking/socket
   ${CMAKE_CURRENT_SOURCE_DIR}/session
   ${CMAKE_CURRENT_SOURCE_DIR}/threading
   ${Sqlite_INCLUDE_DIRS}  

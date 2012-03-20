@@ -20,10 +20,6 @@ class MethodThread : public Thread
         void Execute(void* arg);
         void Setup() {}
 
-        virtual int Call()
-        {
-            return 0;
-        }
     private:
         SchedulingEngine* sched_engine;
 };

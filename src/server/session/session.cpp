@@ -1,5 +1,7 @@
 #include "session.h"
 #include "opcode.h"
+#include "channel.h"
+#include "session-manager.h"
 
 Session::Session(Socket* pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), channel_name("")
@@ -106,4 +108,33 @@ void Session::Handle_ServerSide(Packet& /*packet*/)
 void Session::HandleMessage(Packet& /*packet*/) 
 {
     //TODO
+}
+
+void Session::HandleJoinChannel(Packet& /*packet*/) 
+{
+    if (channel_name != "")
+        return;
+    
+    std::string c_name = ""; // prendi il nome del canale dal pacchetto
+    std::string pass = ""; // prendi password dal pacchetto
+
+    Channel* pChan = s_manager->GetChannelMrg()->FindChannel(c_name);
+
+    if (pChan)
+    {
+        // Notifica all'utente canale non esistente
+        return;
+    }
+
+    if (!pChan->CanSessionEnter(this, pass))
+    {
+        // Invia notifica all'utente che non può entrare nel canale
+        return;
+    }
+
+    if (!pChan->AddSession(this))
+    {
+        // Errore aggiunta canale
+        return;
+    }
 }

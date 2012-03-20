@@ -3,7 +3,7 @@
 SessionManager::SessionManager(): 
 m_sessionLimit(0), m_sessionActiveLimit(0), net_number(0), exec_number(0)
 {
-
+    channelMrg = new ChannelManager();
 }
 
 SessionManager::~SessionManager()
@@ -17,6 +17,8 @@ SessionManager::~SessionManager()
     Session* pSes = NULL;
     while (addSessQueue.next(pSes))
         delete pSes;
+
+    delete channelMrg;
 }
 
 void SessionManager::GetIdList(std::list<uint32>* ulist)

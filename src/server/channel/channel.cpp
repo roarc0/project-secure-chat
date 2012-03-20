@@ -26,20 +26,26 @@ bool Channel::DelayedUpdate(uint32 /*t_diff*/)
     return b_todelete ? false : true;
 }
 
+bool Channel::CanSessionEnter(Session* /*ses*/, std::string& /*pass*/) const 
+{ 
+    // TODO
+    return true; 
+}
+
 Session* Channel::FindSession(uint32 id)
 {
     mapSession::const_iterator iter = m_sessions.find(id);
     return (iter == m_sessions.end() ? NULL : iter->second);
 }
 
-int Channel::AddSession(Session* ses)
+bool Channel::AddSession(Session* ses)
 {
     Lock guard(m_mutex);
     m_sessions.insert(mapSession_pair(ses->GetId(), ses));
-    return 0;
+    return true;
 }
 
-int Channel::RemoveSession(uint32 id)
+bool Channel::RemoveSession(uint32 id)
 {
     Lock guard(m_mutex);
 
@@ -47,9 +53,9 @@ int Channel::RemoveSession(uint32 id)
     if (iter != m_sessions.end())
     {
         m_sessions.erase(iter);
-        return 0;
+        return true;
     }
-    return -1;
+    return false;
 }
 
 int Channel::SetName(std::string& c_name)

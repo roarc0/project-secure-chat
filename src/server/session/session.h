@@ -24,7 +24,8 @@ class Session : public SessionBase
 
         // Handle
         void Handle_ServerSide(Packet& packet);
-        void HandleMessage(Packet& packet);        
+        void HandleMessage(Packet& packet); 
+        void HandleJoinChannel(Packet& packet);       
   
     private:
         uint32 m_id;

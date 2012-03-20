@@ -22,11 +22,7 @@ class Channel
         // THREADSAFE
         int SetName(std::string& c_name);
         std::string GetName() const { return name; }
-        bool CanSessionEnter(Session* /*ses*/) const 
-        { 
-            // TODO
-            return true; 
-        }
+        bool CanSessionEnter(Session* /*ses*/, std::string& /*pass*/) const;
 
         void SendToAll(Packet* packet); 
         void SendToAllButOne(Packet* packet, uint32 id);
@@ -36,10 +32,10 @@ class Channel
 
         // THREADSAFE
         Session* FindSession(uint32 id);
-        int  AddSession(Session* ses);
+        bool  AddSession(Session* ses);
 
         //THREADUNSAFE 
-        int  RemoveSession(uint32 id);    
+        bool  RemoveSession(uint32 id);    
     private:
 
         Mutex m_mutex;

@@ -51,15 +51,6 @@ int ChannelManager::RemoveChannel(std::string& c_name)
     return 0;
 }
 
-bool ChannelManager::CanSessionEnter(Session* ses, const std::string& c_name)
-{
-    Channel* m = FindChannel(c_name);
-    if (m)
-        if (m->CanSessionEnter(ses))
-            return true;
-    return false;
-}
-
 void ChannelManager::Update(uint32 diff)
 {
     i_timer.Update(diff);

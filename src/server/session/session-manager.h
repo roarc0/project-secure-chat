@@ -9,6 +9,9 @@
 #include "../../shared/queues/lock_queue.h"
 #include "queue.h"
 #include "packetfilter.h"
+#include "../channel/channel-manager.h"
+
+class ChannelManager;
 
 typedef UNORDERED_MAP<uint32, Session*>  SessionMap;
 typedef std::pair<uint32, Session*> usersession_pair;
@@ -51,6 +54,8 @@ class SessionManager
         void SetSessionActiveAmountLimit(uint32 limit) { m_sessionActiveLimit = limit; }
         uint32 GetSessionActiveAmountLimit() const { return m_sessionActiveLimit; }
 
+        ChannelManager* GetChannelMrg() { return channelMrg; }
+
     private:
         void AddQueuedSession(Session* sess);
         bool RemoveQueuedSession(Session* sess);
@@ -80,6 +85,8 @@ class SessionManager
         // MUTEX
         Mutex   mutex_net_number;    // Mutex su net_number
         Mutex   mutex_exec_number;   // Mutex su exec_number
+
+        ChannelManager* channelMrg;
 
         SessionManager();
 };

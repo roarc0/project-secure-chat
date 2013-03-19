@@ -3,17 +3,6 @@ syntax: glob
 *~
 *.Po
 *.dirstamp
-autom4te.cache/*
-stamp-h1
-config.status
-install-sh
-aclocal.m4
-configure
-config.status
-config.h.in
-compile
-depcomp
-missing
 Makefile
 Makefile.in
 INSTALL

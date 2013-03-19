@@ -32,7 +32,6 @@ void server_core()
             try
             {
                 // calcola diff
-
                 s_manager->Update(diff);
             }
             catch(...)
@@ -40,7 +39,6 @@ void server_core()
                 INFO("debug", "default exception");
             }
         }
-
     }
     catch(...)
     {

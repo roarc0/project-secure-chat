@@ -126,7 +126,7 @@ void* EpollThread(void* arg)
                         char hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
 
                         in_len = sizeof in_addr;
-                        ;
+
                         if ((sock_new = accept (srv->sock_listen, &in_addr, &in_len)) < 0)
                         {
                             if ((errno == EAGAIN) || (errno == EWOULDBLOCK))

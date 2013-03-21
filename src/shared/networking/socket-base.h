@@ -33,7 +33,7 @@ using namespace std;
 
 NEWEXCEPTION(SocketException);
 
-void FillAddr(const string &address, unsigned short port, 
+bool FillAddr(const string &address, unsigned short port, 
                      sockaddr_in &addr);
 
 

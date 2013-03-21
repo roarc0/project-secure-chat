@@ -414,7 +414,6 @@ class ByteBuffer
                 append(buffer.contents(), buffer.wpos());
         }
 
-        // can be used in SMSG_MONSTER_MOVE opcode
         void appendPackXYZ(float x, float y, float z)
         {
             uint32 packed = 0;

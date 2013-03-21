@@ -12,7 +12,7 @@
 #include "channel.h"
 #include "channel-updater.h"
 
-#define MIN_CHANNEL_UPDATE_DELAY 50  // TODO config
+#define MIN_CHANNEL_UPDATE_DELAY 100  // TODO config
 
 NEWEXCEPTION(ChannelManagerException);
 

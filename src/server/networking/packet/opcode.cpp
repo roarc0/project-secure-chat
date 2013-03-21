@@ -23,4 +23,5 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x012*/ { "CMSG_CHANNEL_UNBAN",          STATUS_LOGGED,      PROCESS_THREADUNSAFE,      &Session::Handle_NULL                           },
     /*0x013*/ { "CMSG_CHANNEL_ANNOUNCEMENTS",  STATUS_LOGGED,      PROCESS_INPLACE,           &Session::Handle_NULL                           },
     /*0x014*/ { "CMSG_CHANNEL_MODERATE",       STATUS_LOGGED,      PROCESS_INPLACE,           &Session::Handle_NULL                           },
+    /*0x015*/ { "SMSG_QUEUE_POSITION",         STATUS_LOGGED,      PROCESS_INPLACE,           &Session::Handle_ServerSide                     },
 };

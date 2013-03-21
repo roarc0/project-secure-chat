@@ -11,6 +11,8 @@ SessionBase::~SessionBase()
     Packet* packet = NULL;
     while (_recvQueue.next(packet))
         delete packet;
+
+    delete m_Socket;
 }
 
 void SessionBase::QueuePacket(Packet* new_packet)
@@ -23,7 +25,7 @@ void SessionBase::SendPacket(Packet* new_packet)
     if (!m_Socket || !new_packet)
         return;
 
-    if (this->_SendPacket(*new_packet) == -1)
+    if (_SendPacket(*new_packet) == -1)
         m_Socket->CloseSocket();
 }
 
@@ -33,6 +35,8 @@ int SessionBase::_SendPacket(const Packet& pct)
 
     unsigned char* rawData = new unsigned char[header.getHeaderLength()+ pct.size() + 1];
     
+    // Inserire Criptazione
+
     memcpy((void*)rawData, (char*) header.header, header.getHeaderLength());
     memcpy((void*)rawData + header.getHeaderLength(), (char*) pct.contents(), pct.size());
 

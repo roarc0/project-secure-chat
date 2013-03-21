@@ -96,10 +96,14 @@ void ClientCore::HandleSend(const char* msg)  // comunicazione in ingresso dall'
 
     INFO("debug","sending message: %s\n", msg);
 
-    Packet pack = ForgePacket(OP_NULL, str_msg.c_str());
-    unsigned char* rawData = new unsigned char[pack.GetRawLength() + 1];
-    pack.GetRawData(rawData);
-    csock->Send(rawData, pack.GetRawLength());
+    Packet pack(OP_NULL);
+    pack<<str_msg;
+    
+    unsigned char* rawData = pack.GetData();
+    //Packet pack = ForgePacket(OP_NULL, str_msg.c_str());
+    //unsigned char* rawData = new unsigned char[pack.GetSize() + 1];
+    //pack.GetRawData(rawData);
+    csock->Send(rawData, pack.GetSize());
     delete[] rawData;
 }
 

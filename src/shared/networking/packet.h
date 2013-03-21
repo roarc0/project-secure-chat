@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "../common.h"
+#include "bytebuffer.h"
 
 using namespace std;
 
@@ -18,47 +19,71 @@ enum eOpcode
     MAX_OPCODE = 2
 };
 
-class Packet;
+//class Packet;
 
-Packet ForgePacket(unsigned short opcode, const char *data);
+//Packet ForgePacket(unsigned short opcode, const char *data);
 
-class Packet
+class Packet : public ByteBuffer
 {
     public:
-
-        Packet(uint16 opcode) : m_opcode(opcode) 
+        Packet() : ByteBuffer(0), m_opcode(OP_NULL)
         {
             gettimeofday(&m_createTime, NULL);
-            m_data = "";
         }
 
-        Packet() : m_opcode(OP_NULL) 
+        Packet(uint16 opcode, size_t res=200) : ByteBuffer(res), m_opcode(opcode) 
         {
             gettimeofday(&m_createTime, NULL);
-            m_data = "";
+        }
+
+        void Initialize(uint16 opcode, size_t newres=200)
+        {
+            clear();
+            _storage.reserve(newres);
+            m_opcode = opcode;
         }
 
         // costruttore di copia
-        Packet(const Packet &packet) : m_opcode(packet.m_opcode)
+        Packet(const Packet &packet) : ByteBuffer(packet), m_opcode(packet.m_opcode), m_createTime(packet.m_createTime)
         {
-            m_createTime = packet.m_createTime;
-            m_data = packet.m_data;
+
         }
 
-        uint16* GetOpcodePointer()
+        uint32 GetSize()
         {
-            return &m_opcode;
+            return size() + OPCODE_SIZE + LENGTH_SIZE;
         }
 
-        uint16 GetOpcode() const 
+        // TODO - Explodere brutalmente con il tritolo!
+        unsigned char* GetData()
         {
-            return m_opcode;
-        }
+            unsigned char* rawData = new unsigned char[GetSize() + 1];
 
-        void SetOpcode(uint16 opcode)
-        {
-            m_opcode = opcode;
+            if (!rawData)
+                return NULL;
+
+            unsigned short temp;
+
+            temp = m_opcode;        // temp
+            temp &= 0x00ff;
+            rawData[0] = (unsigned char)temp;
+            temp = m_opcode;
+            temp = temp>>8;
+            rawData[1] = (unsigned char)temp;
+
+            temp = _storage.size();  // temp
+            temp &= 0x00ff;
+            rawData[2] = (unsigned char)temp;
+            temp = _storage.size();
+            temp = temp>>8;
+            rawData[3] = (unsigned char)temp;
+            
+            memcpy((void*) (rawData + OPCODE_SIZE + LENGTH_SIZE), (void*)(&_storage), _storage.size());
         }
+        // Fine esplosione controllata
+
+        uint16 GetOpcode() const { return m_opcode; }
+        void SetOpcode(uint16 opcode) { m_opcode = opcode; }
 
         void ResetTime() 
         {
@@ -71,11 +96,6 @@ class Packet
             uint32 useconds = m_createTime.tv_usec; // - start.tv_usec; TODO Quando è stato avviato il programma
             return ((seconds) * 1000 + useconds/1000.0) + 0.5;
         }
-        
-        void            GetRawData(unsigned char*);
-        unsigned int    GetRawLength();
-
-        string m_data;
 
     protected:
         uint16 m_opcode;

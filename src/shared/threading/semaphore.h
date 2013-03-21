@@ -3,6 +3,7 @@
 
 #include <pthread.h>
 #include "mutex.h"
+#include "lock.h"
 
 class Semaphore
 {
@@ -10,25 +11,36 @@ class Semaphore
      	Semaphore(Mutex& mutex)
         {
             _mutex = &mutex;
+            pthread_cond_init(&_cond, NULL);
+            value = 0;
         }
         virtual ~Semaphore()
         {
-
+            pthread_cond_destroy(&_cond);
         }
         bool Wait()
-        {
-            pthread_cond_wait(&_cond, &(_mutex->_mutex));
+        {   
+            Lock locked(*_mutex);
+            while (value <= 0)
+            {
+                pthread_cond_wait(&_cond, &(_mutex->_mutex));
+            }
+            value--;
             return true;
         }
         void Signal()
         {
-            pthread_cond_signal(&_cond); 
+            Lock locked(*_mutex);
+            int prior_value = value++;
+            if (prior_value == 0)
+                pthread_cond_signal(&_cond); 
         }
-        void Broadcast()
+        /*void Broadcast()
         {
             pthread_cond_broadcast(&_cond); 
-        }
+        }*/
     private:
+        int value;
         pthread_cond_t _cond;
         Mutex* _mutex;
 };

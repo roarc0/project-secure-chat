@@ -3,7 +3,7 @@
 void MethodThread::Execute(void* arg)
 {
     while(1)
-    {
+    {        
         MethodRequest* meth = sched_engine->GetNextMethod();
         if (!meth)
             continue;
@@ -64,7 +64,7 @@ int SchedulingEngine::Execute(MethodRequest* m_req)
         return -1;
 
     q_method.add(m_req);
-    sem.Signal();
+    sem.Signal();  
     return 0;
 }
 

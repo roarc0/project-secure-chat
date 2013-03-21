@@ -1,6 +1,6 @@
 #include "packet.h"
 
-Packet ForgePacket(unsigned short opcode, const char *data)
+/*Packet ForgePacket(unsigned short opcode, const char *data)
 {
     Packet packet;
 
@@ -39,4 +39,4 @@ void Packet::GetRawData(unsigned char* rawData)
 unsigned int Packet::GetRawLength()
 {
     return m_data.length() + OPCODE_SIZE + LENGTH_SIZE;
-}
+}*/

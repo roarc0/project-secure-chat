@@ -1,5 +1,5 @@
 #include "functions-server.h"
-
+/*
 bool SendMessage(void* params)
 {
     handler_params* hpar = (handler_params*)params;
@@ -10,7 +10,7 @@ bool SendMessage(void* params)
         return false;
 
     Packet* pack = new Packet(0);
-    pack->m_data = hpar->params;
+    //pack->m_data = hpar->params;
 
     INFO("debug", "sender id is %d\n", sender_id);
 
@@ -23,7 +23,7 @@ bool SendMessage(void* params)
             //s_manager->SendPacketTo(*(itr), pack);
         }
     return true;
-}
+}*/
 
 bool UpdateUserList(void* params)
 {

@@ -12,6 +12,9 @@ SessionBase::~SessionBase()
     while (_recvQueue.next(packet))
         delete packet;
 
+    while (_sendQueue.next(packet))
+        delete packet;    
+
     delete m_Socket;
 }
 
@@ -31,6 +34,10 @@ void SessionBase::SendPacket(Packet* new_packet)
 
 int SessionBase::_SendPacket(const Packet& pct)
 {
+    // Packet pkt = new Packet(pct);
+    //_sendQueue.add(pkt);
+    // return 0;
+
     PktHeader header(pct.size()+OPCODE_SIZE, pct.GetOpcode());
 
     unsigned char* rawData = new unsigned char[header.getHeaderLength()+ pct.size() + 1];
@@ -42,6 +49,13 @@ int SessionBase::_SendPacket(const Packet& pct)
 
     m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
     delete[] rawData;
+}
+
+Packet* SessionBase::GetPacketToSend()
+{
+     Packet* pkt;
+     _recvQueue.next(pkt);
+    return pkt;
 }
 
 void SessionBase::Handle_NULL(Packet& /*packet*/) 

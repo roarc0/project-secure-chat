@@ -23,7 +23,8 @@ class SessionBase
 
         // THREADSAFE
         void QueuePacket(Packet* new_packet); 
-        void SendPacket(Packet* new_packet);       
+        void SendPacket(Packet* new_packet);
+        Packet* GetPacketToSend();     
 
         virtual bool IsInChannel() { return false; }
 
@@ -37,6 +38,7 @@ class SessionBase
         Mutex m_mutex;        
 
         LockedQueue<Packet*> _recvQueue;
+        LockedQueue<Packet*> _sendQueue;
         // Socket
         SocketBase* m_Socket;    
 };

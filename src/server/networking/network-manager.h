@@ -1,5 +1,5 @@
-#ifndef _NETWORK_MRG_H
-#define _NETWORK_MRG_H
+#ifndef _NETWORK_MNG_H
+#define _NETWORK_MNG_H
 
 #include "scheduling-engine.h"
 #include "../../shared/common.h"

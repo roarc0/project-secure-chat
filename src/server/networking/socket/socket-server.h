@@ -31,13 +31,11 @@ net_task new_connection_net_task(int sock)
 class SocketServer
 {
     struct epoll_event event, *events;
-
     struct sockaddr_in serveraddr, clientaddr;
     struct addrinfo serverinfo, *serverinfo_res;
 
     int sock_listen;
     int epoll_fd;
-
 
     inline void SetupAddrInfo(int family, int socktype, int protocol);
     inline void SetBlocking(int, const bool) throw(SocketException);
@@ -54,6 +52,7 @@ class SocketServer
     ~SocketServer();
 
     void Init(int) throw(SocketException);
+    int  Start();
 
     void InitCallback(void (*fptr)(void*))
     {

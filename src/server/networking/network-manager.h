@@ -3,6 +3,7 @@
 
 #include "scheduling-engine.h"
 #include "../../shared/common.h"
+#include "../../shared/singleton.h"
 #include "method-request.h"
 #include "session.h"
 
@@ -16,10 +17,13 @@ typedef std::pair<Session_smart, eNetworkType> netsession_pair;
 
 class NetworkManager
 {
+    friend class Singleton<NetworkManager>;
+
     public:
-        NetworkManager(uint32 n_thread);
+        NetworkManager();
         ~NetworkManager() {}
 
+        int Initialize(uint32 n_thread);
         int ActivateEpoll();
         int ActivateThreadsNetwork();
         int QueueSend(Session_smart m_ses);
@@ -34,5 +38,7 @@ class NetworkManager
         Semaphore sem;
         uint32 m_thread;
 };
+
+#define net_manager Singleton<NetworkManager>::GetInstance()
 
 #endif

@@ -1,5 +1,7 @@
 #include "server-core.h"
 
+#define N_NET_THREAD 2
+
 void handle_session_manager_task(void *ptr)
 {
     s_manager->AddTaskToServe(ptr);
@@ -15,8 +17,9 @@ void server_core()
         s_manager;
 
         InitCommands();
-        
-        s_sched_engine->Initialize(4); // Numero thread
+
+        net_manager->Initialize(N_NET_THREAD); // Numero thread network
+        s_sched_engine->Initialize(4); // Numero thread elaborazione
 
         SocketServer server;
         server.Init(CFG_GET_INT("server_port"));

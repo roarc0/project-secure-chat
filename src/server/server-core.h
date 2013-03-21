@@ -4,6 +4,7 @@
 #include "socket-server.h"
 #include "command-manager-server.h"
 #include "scheduling-engine.h"
+#include "network-manager.h"
 
 void  server_core();
 

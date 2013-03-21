@@ -93,10 +93,11 @@ void Session::KickSession()
 }
 
 
-void Session::SendWaitQueue(int /*position*/)
+void Session::SendWaitQueue(int position)
 {
-    Packet new_packet;
-    //TODO settaggio pacchetto che avverte che l'utente è in attesa in posizione position
+    // Invio posizione coda
+    Packet new_packet(SMSG_QUEUE_POSITION, 4);
+    new_packet<<uint32(position);
     SendPacket(&new_packet);   
 }
 
@@ -110,31 +111,46 @@ void Session::HandleMessage(Packet& /*packet*/)
     //TODO
 }
 
-void Session::HandleJoinChannel(Packet& /*packet*/) 
+void Session::HandleJoinChannel(Packet& packet) 
 {
     if (channel_name != "")
+    {
+        // sono già in un canale
         return;
-    
-    std::string c_name = ""; // prendi il nome del canale dal pacchetto
-    std::string pass = ""; // prendi password dal pacchetto
+    }
+
+    // prendi il nome del canale dal pacchetto
+    std::string c_name = ""; 
+    packet >> c_name;
+    // prendi password dal pacchetto
+    std::string pass = ""; 
+    packet >> pass;
 
     Channel* pChan = s_manager->GetChannelMrg()->FindChannel(c_name);
 
     if (pChan)
     {
         // Notifica all'utente canale non esistente
+        Packet pkt(SMSG_CHANNEL_NOTIFY);
+        pkt << "Canale non Esistente";
+        SendPacket(&pkt);        
         return;
     }
 
     if (!pChan->CanSessionEnter(this, pass))
     {
         // Invia notifica all'utente che non può entrare nel canale
+        Packet pkt(SMSG_CHANNEL_NOTIFY);
+        pkt << "Password Errata";
+        SendPacket(&pkt);  
         return;
     }
 
     if (!pChan->AddSession(this))
     {
-        // Errore aggiunta canale
+        Packet pkt(SMSG_CHANNEL_NOTIFY);
+        pkt << "Errore Aggiunta Canale";
+        SendPacket(&pkt); 
         return;
     }
 }

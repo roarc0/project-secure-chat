@@ -6,6 +6,14 @@
 #include "method-request.h"
 #include "session.h"
 
+enum eNetworkType
+{
+    SEND   = 0,
+    RECIVE = 1,
+};
+
+typedef std::pair<Session_smart, eNetworkType> netsession_pair;
+
 class NetworkManager
 {
     public:
@@ -14,12 +22,13 @@ class NetworkManager
 
         int ActivateEpoll();
         int ActivateThreadsNetwork();
-        int Queue(Session* m_ses);
-        Session* GetNextSession();
+        int QueueSend(Session_smart m_ses);
+        int QueueRecive(Session_smart m_ses);
+        netsession_pair GetNextSession();
 
     private:
         SchedulingEngine net_engine;
-        LockedQueue<Session*> q_request;
+        LockedQueue<netsession_pair> q_request;
 
         Mutex m_mutex;
         Semaphore sem;

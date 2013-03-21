@@ -65,9 +65,36 @@ class NetworkThread: public MethodRequest
         }
 };
 
-NetworkManager::NetworkManager() : sem(m_mutex)
+NetworkManager::NetworkManager(uint32 n_thread) : sem(m_mutex)
 {
+    m_thread = n_thread;
+    // +1 per l'epoll thread
+    net_engine.Initialize(m_thread + 1);
+}
 
+int NetworkManager::ActivateEpoll()
+{
+    if (s_sched_engine->Execute(new SocketThread(*this, 0)) != 0)
+    {
+        // TODO Log Errore
+        return -1;
+    }
+
+    return 0;
+}
+
+int NetworkManager::ActivateThreadsNetwork()
+{
+    for (uint8 i = 0; i < m_thread; i++)
+    {
+        if (s_sched_engine->Execute(new NetworkThread(*this, 0)) != 0)
+        {
+            // TODO Log Errore
+            return -1;
+        }
+    }
+
+    return 0;
 }
 
 int NetworkManager::Queue(Session* m_ses)

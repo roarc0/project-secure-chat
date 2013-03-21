@@ -9,9 +9,11 @@
 class NetworkManager
 {
     public:
-        NetworkManager();
+        NetworkManager(uint32 n_thread);
         ~NetworkManager() {}
 
+        int ActivateEpoll();
+        int ActivateThreadsNetwork();
         int Queue(Session* m_ses);
         Session* GetNextSession();
 
@@ -21,6 +23,7 @@ class NetworkManager
 
         Mutex m_mutex;
         Semaphore sem;
+        uint32 m_thread;
 };
 
 #endif

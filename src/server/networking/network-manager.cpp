@@ -53,10 +53,10 @@ class NetworkThread: public MethodRequest
 
         int Call()
         {
-            Session* ses = NULL;
+            netsession_pair net_ses;
             while (1)
             {                
-                ses = m_netmanager.GetNextSession();
+                net_ses = m_netmanager.GetNextSession();
                 // prendi pacchetto dal socket
                 // elabora pacchetto 
                 // Inserisci in coda pacchetto nella session                
@@ -97,20 +97,30 @@ int NetworkManager::ActivateThreadsNetwork()
     return 0;
 }
 
-int NetworkManager::Queue(Session* m_ses)
+int NetworkManager::QueueSend(Session_smart m_ses)
 {   
-    if (!m_ses)
+    if (!m_ses.get())
         return -1;
 
-    q_request.add(m_ses);
+    q_request.add(netsession_pair(m_ses, SEND));
     sem.Signal();
     return 0;
 }
 
-Session* NetworkManager::GetNextSession()
+int NetworkManager::QueueRecive(Session_smart m_ses)
+{   
+    if (!m_ses.get())
+        return -1;
+
+    q_request.add(netsession_pair(m_ses, RECIVE));
+    sem.Signal();
+    return 0;
+}
+
+netsession_pair NetworkManager::GetNextSession()
 {
     sem.Wait();
-    Session* ret = NULL;
+    netsession_pair ret;
     q_request.next(ret);
     return ret;
 }

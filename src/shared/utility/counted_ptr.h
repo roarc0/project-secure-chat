@@ -1,3 +1,23 @@
+/***************************************************************
+ *
+ * Copyright (C) 1990-2007, Condor Team, Computer Sciences Department,
+ * University of Wisconsin-Madison, WI.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.  You may
+ * obtain a copy of the License at
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ***************************************************************/
+
+
 /*
  * counted_ptr - simple reference counted pointer.
  *
@@ -5,6 +25,7 @@
  * int and pointer for every counted object.
  * Should be safe to use in STL containers, or in most Condor templates
  * like HashTable.
+ * Also, it should be thread safe.  KEEP IT THAT WAY.  :)
  *
  * *** PITHY USAGE: ***
  *
@@ -19,7 +40,7 @@
  * reaches zero, delete is invoked on the regular pointer passed into the 
  * constructor.  Example:
  *      ClassAd *regular_ad_ptr = new ClassAd;
- *      ASSERT(regular_ad_ptr);     // make certain not NULL
+ *      ASSERT(regular_ad_ptr);	// make certain not NULL
  *      counted_ptr<ClassAd> smart_ad_ptr(regular_ad_ptr);
  *      // Now, never refer to regular_ad_ptr again!!  Do not delete it or
  *      // assign it- just forget about it.  Always use smart_ad_ptr from now on.
@@ -55,10 +76,10 @@
  *    pointer to a counter_ptr.  For example:
  *       counted_ptr<MyString> p_ms;
  *       MyString *p_reg = new MyString;
- *       p_ms = p_reg;  // NOT ALLOWED (implicit conversion)
+ *       p_ms = p_reg;	// NOT ALLOWED (implicit conversion)
  *       p_ms = (counted_ptr<MyString>)(p_reg); // ALLOWED (explicit conversion)
  *       counted_ptr<MyString> pauto = p_ms; // NOT ALLOWED (implicit conversion)
- *       counted_ptr<MyString> pauto(p_ms);     // ALLOWED (explicit conversion)
+ *       counted_ptr<MyString> pauto(p_ms);	// ALLOWED (explicit conversion)
  * 
  * d) Do not create new instances of counted_ptr for the same
  *    underlying object except by reference to an existing instance of
@@ -103,35 +124,40 @@ public:
     X* get()        const throw()   {return itsCounter ? itsCounter->ptr : 0;}
     bool unique()   const throw()
         {return (itsCounter ? itsCounter->count == 1 : true);}
-      bool is_null()    const throw()
-            {return (((!itsCounter) || (itsCounter->count == 0)) ? true : false);}
+	bool is_null()	const throw()
+		{return (((!itsCounter) || (itsCounter->count == 0)) ? true : false);}
 
-      int operator== (const counted_ptr& r)
-      {
-            if ( itsCounter == r.itsCounter ) {
-                  return 1;
-            }
-            if ( itsCounter && itsCounter->ptr &&
-                   r.itsCounter && r.itsCounter->ptr ) 
-            {
-                  if ( *(itsCounter->ptr) == *(r.itsCounter->ptr) ) {
-                        return 1;
-                  }
-            }
-            return 0;
-      }
+	bool operator== (const counted_ptr& r) const
+	{
+		if ( itsCounter == r.itsCounter ) {
+			return true;
+		}
+		if ( itsCounter && itsCounter->ptr &&
+			 r.itsCounter && r.itsCounter->ptr ) 
+		{
+			if ( *(itsCounter->ptr) == *(r.itsCounter->ptr) ) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-      int operator< (const counted_ptr& r)
-      {
-            if ( itsCounter && itsCounter->ptr &&
-                   r.itsCounter && r.itsCounter->ptr ) 
-            {
-                  if ( *(itsCounter->ptr) < *(r.itsCounter->ptr) ) {
-                        return 1;
-                  }
-            }
-            return 0;
-      }
+	bool operator!=(const counted_ptr& other) const 
+	{
+		return !(*this == other);
+	}
+
+	int operator< (const counted_ptr& r)
+	{
+		if ( itsCounter && itsCounter->ptr &&
+			 r.itsCounter && r.itsCounter->ptr ) 
+		{
+			if ( *(itsCounter->ptr) < *(r.itsCounter->ptr) ) {
+				return 1;
+			}
+		}
+		return 0;
+	}
 
 private:
 

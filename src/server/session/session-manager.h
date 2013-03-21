@@ -13,7 +13,6 @@
 
 class ChannelManager;
 
-typedef counted_ptr<Session> Session_smart;
 typedef UNORDERED_MAP<uint32, Session_smart>  SessionMap;
 typedef std::pair<uint32, Session_smart> usersession_pair;
 typedef std::list<Session_smart> SessionQueue;

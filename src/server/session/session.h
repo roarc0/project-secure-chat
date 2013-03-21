@@ -35,4 +35,6 @@ class Session : public SessionBase
         std::string channel_name;
 };
 
+typedef counted_ptr<Session> Session_smart;
+
 #endif

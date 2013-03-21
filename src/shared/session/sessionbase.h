@@ -2,22 +2,23 @@
 #define _SESSION_BASE_H
 
 #include "../networking/packet.h"
+#include "../networking/socket-base.h"
 #include "../common.h"
 
 // DA RIMUOVERE QUANDO COMPILA SOCKET
-class Socket
+/*class Socket
 {
     public:
         Socket() {}
         void CloseSocket() {}
-        int SendPacket(Packet& /*new_packet*/) { return 0; }
+        int SendPacket(Packet& new_packet) { return 0; }
         bool IsClosed() { return false; }
-};
+};*/
 
 class SessionBase
 {
     public:
-        SessionBase(Socket* pSock);
+        SessionBase(SocketBase* pSock);
         virtual ~SessionBase();
 
         // THREADSAFE
@@ -30,11 +31,14 @@ class SessionBase
         void Handle_NULL(Packet& /*packet*/);
 
     protected:
+
+        int _SendPacket(const Packet& new_packet);
+
         Mutex m_mutex;        
 
         LockedQueue<Packet*> _recvQueue;
         // Socket
-        Socket* m_Socket;
+        SocketBase* m_Socket;    
 };
 
 #endif 

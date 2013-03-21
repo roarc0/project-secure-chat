@@ -103,7 +103,7 @@ void ClientCore::HandleSend(const char* msg)  // comunicazione in ingresso dall'
     //Packet pack = ForgePacket(OP_NULL, str_msg.c_str());
     //unsigned char* rawData = new unsigned char[pack.GetSize() + 1];
     //pack.GetRawData(rawData);
-    csock->Send(rawData, pack.GetSize());
+    csock->Send(rawData, pack.GetSize());    
     delete[] rawData;
 }
 

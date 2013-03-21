@@ -60,6 +60,7 @@ endif()
 
 if( UNIX )
   install(TARGETS client DESTINATION bin)
+  install(FILES  ${CMAKE_SOURCE_DIR}/data/psc.png DESTINATION bin/data/)
   install(FILES  ${CMAKE_SOURCE_DIR}/configs/psc-client.conf.dist DESTINATION etc)
 elseif( WIN32 )
   install(TARGETS client DESTINATION "${CMAKE_INSTALL_PREFIX}")

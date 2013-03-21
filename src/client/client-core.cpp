@@ -19,7 +19,7 @@ void* CoreThread(void* arg)
                 c_core->HandleRecv(); // gestore comunicazione in ingresso
                 msleep(3); 
             }
-            msleep(300);      // realizzare un segnale di wait, quando si clicca su connect si fa il signal
+            msleep(300);      // wait, quando si clicca su connect si fa il signal
         }
     }
     catch(SocketException &e)

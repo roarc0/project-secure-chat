@@ -1,6 +1,6 @@
 #include "socket-base.h"
 
-void FillAddr(const string &address, unsigned short port, 
+bool FillAddr(const string &address, unsigned short port, 
                      sockaddr_in &addr) 
 {
     memset(&addr, 0, sizeof(addr));
@@ -8,11 +8,12 @@ void FillAddr(const string &address, unsigned short port,
 
     hostent *host;
     if ((host = gethostbyname(address.c_str())) == NULL) 
-    {
-        return;
-    }
+        return false;
+
+    //INFO("debug","* ip: %s\n", inet_ntoa(*((struct in_addr *)host->h_addr_list[0])));
     addr.sin_addr.s_addr = *((unsigned long *) host->h_addr_list[0]);
     addr.sin_port = htons(port);
+    return true;
 }
 
 SocketBase::SocketBase(int type, int protocol) throw(SocketException)
@@ -21,6 +22,7 @@ SocketBase::SocketBase(int type, int protocol) throw(SocketException)
     SocketBase::type = type;
     SocketBase:: protocol = protocol;
     InitSocket();
+    INFO("debug","* socketbase init done!\n");
 }
 
 SocketBase::~SocketBase()

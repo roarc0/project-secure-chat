@@ -65,11 +65,21 @@ class NetworkThread: public MethodRequest
         }
 };
 
-NetworkManager::NetworkManager(uint32 n_thread) : sem(m_mutex)
+NetworkManager::NetworkManager() : sem(m_mutex)
+{
+
+}
+
+int NetworkManager::Initialize(uint32 n_thread)
 {
     m_thread = n_thread;
     // +1 per l'epoll thread
     net_engine.Initialize(m_thread + 1);
+    if (ActivateEpoll() != 0)
+        return -1;
+    if (ActivateThreadsNetwork() != 0)
+        return -1;
+    return 0;
 }
 
 int NetworkManager::ActivateEpoll()

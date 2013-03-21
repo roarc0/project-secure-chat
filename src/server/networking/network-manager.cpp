@@ -21,7 +21,7 @@ class SocketThread: public MethodRequest
         }
 
         int Call()
-        {
+        { 
             //inizializzazione callback
             while (1)
             {
@@ -43,7 +43,7 @@ class NetworkThread: public MethodRequest
         NetworkThread(NetworkManager& netmanager, uint32 d) : 
         MethodRequest(), m_netmanager(netmanager), m_diff(d)
         {
-            
+     
         }
 
         ~NetworkThread()
@@ -54,12 +54,24 @@ class NetworkThread: public MethodRequest
         int Call()
         {
             netsession_pair net_ses;
+            Packet* pkt = NULL;
+
             while (1)
-            {                
+            {            
                 net_ses = m_netmanager.GetNextSession();
-                // prendi pacchetto dal socket
-                // elabora pacchetto 
-                // Inserisci in coda pacchetto nella session                
+                if ( net_ses.second == SEND)
+                {
+                    pkt = net_ses.first->GetPacketToSend();
+                    // Elabora pacchetto
+                    // Invia nel socket
+                    delete pkt;
+                }
+                else // Recive
+                {            
+                    // Prendi pacchetto dal socket
+                    // Elabora pacchetto 
+                    net_ses.first->QueuePacket(pkt);
+                }               
             }
             return 0;
         }
@@ -71,7 +83,7 @@ NetworkManager::NetworkManager() : sem(m_mutex)
 }
 
 int NetworkManager::Initialize(uint32 n_thread)
-{
+{     
     m_thread = n_thread;
     // +1 per l'epoll thread
     net_engine.Initialize(m_thread + 1);
@@ -83,8 +95,8 @@ int NetworkManager::Initialize(uint32 n_thread)
 }
 
 int NetworkManager::ActivateEpoll()
-{
-    if (s_sched_engine->Execute(new SocketThread(*this, 0)) != 0)
+{  
+    if (net_engine.Execute(new SocketThread(*this, 0)) != 0)
     {
         // TODO Log Errore
         return -1;
@@ -94,10 +106,10 @@ int NetworkManager::ActivateEpoll()
 }
 
 int NetworkManager::ActivateThreadsNetwork()
-{
+{  
     for (uint8 i = 0; i < m_thread; i++)
     {
-        if (s_sched_engine->Execute(new NetworkThread(*this, 0)) != 0)
+        if (net_engine.Execute(new NetworkThread(*this, 0)) != 0)
         {
             // TODO Log Errore
             return -1;

@@ -63,6 +63,8 @@ class SocketBase
 
         void             InitSocket()
                          throw(SocketException);
+        void             CloseSocket();
+        bool             IsClosed();
 
         void             Send(const void *buffer, int bufferLen)
                          throw(SocketException);

@@ -7,7 +7,7 @@
 class Session : public SessionBase
 {
     public:
-        Session(Socket* pSock);
+        Session(SocketBase* pSock);
         ~Session();
 
         bool Update(uint32 diff, PacketFilter& updater);

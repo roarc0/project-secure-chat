@@ -8,7 +8,9 @@ bool FillAddr(const string &address, unsigned short port,
 
     hostent *host;
     if ((host = gethostbyname(address.c_str())) == NULL) 
-        return false;
+    {
+        throw SocketException("Failed to resolve name (gethostbyname())", true);
+    }
 
     //INFO("debug","* ip: %s\n", inet_ntoa(*((struct in_addr *)host->h_addr_list[0])));
     addr.sin_addr.s_addr = *((unsigned long *) host->h_addr_list[0]);
@@ -18,9 +20,10 @@ bool FillAddr(const string &address, unsigned short port,
 
 SocketBase::SocketBase(int type, int protocol) throw(SocketException)
 {
+    sock = INVALID_SOCKET;
     domain = AF_INET;
     SocketBase::type = type;
-    SocketBase:: protocol = protocol;
+    SocketBase::protocol = protocol;
     InitSocket();
     INFO("debug","* socketbase init done!\n");
 }
@@ -37,6 +40,19 @@ void SocketBase::InitSocket() throw(SocketException)
 
     if ((sock = socket(AF_INET, type, protocol)) < 0)
         throw SocketException("[socket()]", true);
+}
+
+void SocketBase::CloseSocket()
+{
+    close(sock);
+    sock = INVALID_SOCKET;
+}
+
+bool SocketBase::IsClosed()
+{
+    if (sock == INVALID_SOCKET)
+        return true;
+    return false;  
 }
 
 string SocketBase::GetLocalAddress() throw(SocketException) 

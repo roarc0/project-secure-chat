@@ -19,10 +19,6 @@ enum eOpcode
     MAX_OPCODE = 2
 };
 
-//class Packet;
-
-//Packet ForgePacket(unsigned short opcode, const char *data);
-
 class Packet : public ByteBuffer
 {
     public:
@@ -79,8 +75,11 @@ class Packet : public ByteBuffer
             rawData[3] = (unsigned char)temp;
             
             memcpy((void*) (rawData + OPCODE_SIZE + LENGTH_SIZE), (void*)(&_storage), _storage.size());
+
+            return rawData;
         }
         // Fine esplosione controllata
+
 
         uint16 GetOpcode() const { return m_opcode; }
         void SetOpcode(uint16 opcode) { m_opcode = opcode; }
@@ -100,5 +99,28 @@ class Packet : public ByteBuffer
     protected:
         uint16 m_opcode;
         timeval m_createTime;
+};
+
+#define HEADER_SIZE 4
+
+struct PktHeader
+{
+    PktHeader(uint32 size, uint16 cmd) : size(size)
+    {
+        uint8 headerIndex=0;
+        header[headerIndex++] = 0xFF & cmd;
+        header[headerIndex++] = 0xFF & (cmd>>8);
+
+        header[headerIndex++] = 0xFF &(size>>8);
+        header[headerIndex++] = 0xFF &size;
+    }
+
+    uint8 getHeaderLength()
+    {
+        return HEADER_SIZE;
+    }
+
+    const uint32 size;
+    uint8 header[HEADER_SIZE];
 };
 #endif

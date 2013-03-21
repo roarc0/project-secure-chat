@@ -10,13 +10,13 @@ SessionManager::~SessionManager()
 {
     while (!m_sessions.empty())
     {
-        delete m_sessions.begin()->second;
+        // delete m_sessions.begin()->second; // It's Smart :D
         m_sessions.erase(m_sessions.begin());
     }
 
-    Session* pSes = NULL;
-    while (addSessQueue.next(pSes))
-        delete pSes;
+    //Session_smart pSes;
+    //while (addSessQueue.next(pSes))
+    //   delete pSes;
 
     delete channelMrg;
 }
@@ -34,7 +34,9 @@ int SessionManager::AddSession(SocketBase* sock)
     if (GetQueuedSessionCount() + addSessQueue.size() <  m_sessionLimit)
     {
         Session* ses = new Session(sock);
-        addSessQueue.add(ses);
+        assert(ses);
+        counted_ptr<Session> smart_ses(ses);
+        addSessQueue.add(smart_ses);
     }
     else
     {
@@ -47,7 +49,7 @@ bool SessionManager::RemoveSession(uint32 id)
 {
     SessionMap::const_iterator itr = m_sessions.find(id);
 
-    if (itr != m_sessions.end() && itr->second)
+    if (itr != m_sessions.end() && itr->second.get())
     {
         //if (itr->second->IsLoading())
         //    return false;
@@ -63,7 +65,7 @@ Session* SessionManager::FindSession(uint32 id) const
     SessionMap::const_iterator itr = m_sessions.find(id);
 
     if (itr != m_sessions.end())
-        return itr->second;
+        return itr->second.get();
     else
         return NULL;
 }
@@ -73,33 +75,33 @@ void SessionManager::Update(uint32 udiff)
     AddSessions_ ();
 
     // Update all sessions
-    Session* pSession = NULL;    
+    Session* pSession;    
     for (SessionMap::iterator itr = m_sessions.begin(); itr != m_sessions.end(); itr++)
     {
-        pSession = itr->second;
+        pSession = itr->second.get();
         SingleSessionFilter updater(pSession);
         // If return false we must delete it
         if (!pSession->Update(udiff, updater))
         {
-            RemoveQueuedSession(pSession);
+            RemoveQueuedSession(itr->second);
             m_sessions.erase(itr);
-            delete pSession;
+            // delete pSession;  // Is Smart :P
         }        
     }
 }
 
-uint32 SessionManager::GetQueuePos(Session* sess)
+uint32 SessionManager::GetQueuePos(Session_smart sess)
 {
     uint32 position = 1;
 
     for (SessionQueue::const_iterator iter = m_QueuedSessions.begin(); iter != m_QueuedSessions.end(); ++iter, ++position)
-        if ((*iter) == sess)
+        if ((*iter).get() == sess.get())
             return position;
 
     return 0;
 }
 
-void SessionManager::AddQueuedSession(Session* sess)
+void SessionManager::AddQueuedSession(Session_smart sess)
 {
     sess->SetInQueue(true);
     m_QueuedSessions.push_back(sess);
@@ -107,7 +109,7 @@ void SessionManager::AddQueuedSession(Session* sess)
     // TODO Notifica all'utente che è in attesa, GetQueuePos(sess)
 }
 
-bool SessionManager::RemoveQueuedSession(Session* sess)
+bool SessionManager::RemoveQueuedSession(Session_smart sess)
 {
     uint32 sessions = GetActiveSessionCount();
 
@@ -118,7 +120,7 @@ bool SessionManager::RemoveQueuedSession(Session* sess)
 
     for (; iter != m_waitSessQueue.end(); ++iter, ++position)
     {
-        if (*iter == sess)
+        if ((*iter).get() == sess.get())
         {
             sess->SetInQueue(false);
             iter = m_waitSessQueue.erase(iter);
@@ -134,7 +136,7 @@ bool SessionManager::RemoveQueuedSession(Session* sess)
     // accept first in queue
     if ((!m_sessionActiveLimit || sessions < m_sessionActiveLimit) && !m_waitSessQueue.empty())
     {
-        Session* pop_sess = m_waitSessQueue.front();
+        Session_smart pop_sess = m_waitSessQueue.front();
         pop_sess->SetInQueue(false);
 
         // TODO notifica all'utente che è stato accettato
@@ -147,7 +149,7 @@ bool SessionManager::RemoveQueuedSession(Session* sess)
 
     // Update Queue Position
     for (; iter != m_waitSessQueue.end(); ++iter, ++position)
-        (*iter)->SendWaitQueue(position);
+        (*iter).get()->SendWaitQueue(position);
 
     return found;
 }
@@ -156,7 +158,7 @@ bool SessionManager::RemoveQueuedSession(Session* sess)
 void SessionManager::AddSessions_()
 {
     // Add new sessions
-    Session* sess = NULL;
+    Session_smart sess;
     uint32 next_id = 0;
 
     SessionMap::iterator itr = m_sessions.begin();
@@ -177,13 +179,13 @@ void SessionManager::AddSessions_()
     }
 }
 
-void SessionManager::AddSession_(uint32& next_id, Session* sess)
+void SessionManager::AddSession_(uint32& next_id, Session_smart sess)
 {
     if (m_sessionActiveLimit && GetActiveSessionCount() >= m_sessionActiveLimit)
     {
         AddQueuedSession(sess);
     }
 
-    sess->SetId(next_id);
+    sess.get()->SetId(next_id);
     m_sessions.insert(usersession_pair(next_id, sess));
 }

@@ -13,9 +13,10 @@
 
 class ChannelManager;
 
-typedef UNORDERED_MAP<uint32, Session*>  SessionMap;
-typedef std::pair<uint32, Session*> usersession_pair;
-typedef std::list<Session*> SessionQueue;
+typedef counted_ptr<Session> Session_smart;
+typedef UNORDERED_MAP<uint32, Session_smart>  SessionMap;
+typedef std::pair<uint32, Session_smart> usersession_pair;
+typedef std::list<Session_smart> SessionQueue;
 
 NEWEXCEPTION(SessionManagerException);
 
@@ -44,7 +45,7 @@ class SessionManager
         uint32 GetActiveSessionCount() const { return m_sessions.size() - m_waitSessQueue.size(); }
         uint32 GetSessionCount()       const { return m_sessions.size(); }
         uint32 GetQueuedSessionCount() const { return m_waitSessQueue.size(); }
-        uint32 GetQueuePos(Session* sess);
+        uint32 GetQueuePos(Session_smart sess);
 
         // Session server limit
         void SetSessionAmountLimit(uint32 limit) { m_sessionLimit = limit; }
@@ -57,16 +58,16 @@ class SessionManager
         ChannelManager* GetChannelMrg() { return channelMrg; }
 
     private:
-        void AddQueuedSession(Session* sess);
-        bool RemoveQueuedSession(Session* sess);
+        void AddQueuedSession(Session_smart sess);
+        bool RemoveQueuedSession(Session_smart sess);
         void AddSessions_();
-        void AddSession_(uint32& next_id, Session* sess);
+        void AddSession_(uint32& next_id, Session_smart sess);
 
         // Sessions Map
         SessionMap m_sessions;
 
         // Sessioni in attesa di essere attivate
-        LockedQueue<Session*> addSessQueue;
+        LockedQueue<Session_smart> addSessQueue;
 
         // Coda in Ingresso
         SessionQueue m_QueuedSessions;

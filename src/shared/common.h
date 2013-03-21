@@ -68,6 +68,7 @@ using std::hash_map;
 #include "utility/logger.h"
 #include "utility/timer.h"
 #include "utility/config.h"
+#include "utility/counted_ptr.h"
 #include "exception.h"
 #include "revision.h"
 

@@ -90,8 +90,8 @@ void SocketBase::SetLocalAddressAndPort(const string &localAddress,
 unsigned short SocketBase::ResolveService(const string &service,
                                       const string &protocol) 
 {
-    struct servent *serv;
 
+    struct servent *serv;
     if ((serv = getservbyname(service.c_str(), protocol.c_str())) == NULL)
         return atoi(service.c_str());
     else 

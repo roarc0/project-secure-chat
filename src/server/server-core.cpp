@@ -23,7 +23,8 @@ void server_core()
         server.InitCallback(&handle_session_manager_task);
 
         INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
-        
+        server.Start();
+
         bool m_active = true;
         uint32 diff = 0;
 

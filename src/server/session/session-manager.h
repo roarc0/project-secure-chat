@@ -28,10 +28,10 @@ class SessionManager
 
         ~SessionManager();
 
-        void AddTaskToServe(void* ptr)
+        /*void AddTaskToServe(void* ptr)
         {
             n_queue.push(*((net_task*)ptr));
-        }
+        }*/
 
         void GetIdList(std::list<uint32>*);
 
@@ -77,7 +77,7 @@ class SessionManager
         // Active session server limit
         uint32 m_sessionActiveLimit;        
         
-        NetQueue n_queue;
+        //NetQueue n_queue;
 
         uint32 net_number;
         uint32 exec_number;        

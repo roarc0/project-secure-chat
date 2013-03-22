@@ -8,56 +8,64 @@
 #include <sstream>
 #include <string>
 
+#include "../../threading/method-request.h"
 #include "../../shared/networking/socket-base.h"
 #include "../../shared/callback.h"
+#include "../network-manager.h"
 
 using namespace std;
 
+class NetworkManager;
+
 #define MAXEVENTS 64
-
-void* EpollThread(void* arg);
-
 /*
-net_task new_connection_net_task(int sock)
+void handle_session_manager_task(void *ptr)
 {
-    net_task n_task;
-    n_task.ptr = (void*) sock;
-    n_task.p_pack = NULL;
-    n_task.type_task = NEW;
-    return n_task;
-}
-*/
+    s_manager->AddTaskToServe(ptr);
+}*/
 
-class SocketServer
+class SocketServer: public MethodRequest
 {
-    struct epoll_event event, *events;
-    struct sockaddr_in serveraddr, clientaddr;
-    struct addrinfo serverinfo, *serverinfo_res;
+    private:
 
-    int sock_listen;
-    int epoll_fd;
+        struct epoll_event event, *events;
+        struct sockaddr_in serveraddr, clientaddr;
+        struct addrinfo serverinfo, *serverinfo_res;
 
-    inline void SetupAddrInfo(int family, int socktype, int protocol);
-    inline void SetBlocking(int, const bool) throw(SocketException);
+        int sock_listen;
+        int epoll_fd;
 
-    void SetupEpoll() throw(SocketException);
-    void SetupSocket(int port) throw(SocketException);
+        void SetupAddrInfo(int family, int socktype, int protocol);
+        void SetBlocking(int, const bool) throw(SocketException);
 
-    EventCallback<void, void*> cb_notify;
+        void SetupEpoll() throw(SocketException);
+        void SetupSocket(int port) throw(SocketException);
 
-    friend void* EpollThread(void* arg);
+        EventCallback<void, void*> cb_notify;
 
-  public:
-    SocketServer() throw(SocketException);
-    ~SocketServer();
+        //friend void* EpollThread(void* arg);
+        friend class SocketThread;
 
-    void Init(int) throw(SocketException);
-    int  Start();
+        NetworkManager& m_netmanager;
+        uint32 m_diff;
+        bool active;
 
-    void InitCallback(void (*fptr)(void*))
+    public:
+
+        SocketServer(NetworkManager& netmanager, uint32 d) throw(SocketException);
+        ~SocketServer();
+
+        void Init(int) throw(SocketException);
+
+        int Call();
+
+        
+    //int  Start();
+
+    /*void InitCallback(void (*fptr)(void*))
     {
         //cb_notify->RegisterCb(fptr);
-    }
+    }*/
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include "socket-server.h"
 
-SocketServer::SocketServer() throw(SocketException)
+SocketServer::SocketServer(NetworkManager& netmanager, uint32 d) throw(SocketException): 
+    MethodRequest(), m_netmanager(netmanager), m_diff(d), active(true)     
 {
     //new_connection_init();
 }
@@ -17,7 +18,7 @@ void SocketServer::Init(int port) throw(SocketException)
     SetupEpoll();
 }
 
-inline void SocketServer::SetBlocking(int sock, const bool block)
+void SocketServer::SetBlocking(int sock, const bool block)
     throw(SocketException)
 {
     int flags;
@@ -37,7 +38,7 @@ inline void SocketServer::SetBlocking(int sock, const bool block)
         throw SocketException("[setBlocking() -> fnctl()]", true);
 }
 
-inline void SocketServer::SetupAddrInfo(int family, int socktype, int protocol)
+void SocketServer::SetupAddrInfo(int family, int socktype, int protocol)
 {
     memset(&serverinfo, 0, sizeof(struct addrinfo));
     serverinfo.ai_family   = family;
@@ -100,7 +101,7 @@ void SocketServer::SetupEpoll() throw(SocketException)
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, sock_listen, &event) < 0)
         throw SocketException("[epoll_ctl()]", true);
 }
-
+/*
 int SocketServer::Start()
 {
     int ret;
@@ -119,11 +120,15 @@ int SocketServer::Start()
 
     ret = pthread_attr_destroy(&tattr);
     return ret;
-}
+}*/
 
-void* EpollThread(void* arg)
+int SocketServer::Call()
 {
-    SocketServer *srv = (SocketServer*) arg;
+    Init(CFG_GET_INT("server_port"));
+    //server.InitCallback(&handle_session_manager_task);
+
+    INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
+
     int res = -1, sock_new, nbytes, i = 0;
     
     INFO("debug", "* epoll thread started\n");
@@ -132,22 +137,22 @@ void* EpollThread(void* arg)
     {
         try
         {
-            if ((res = epoll_wait(srv->epoll_fd, srv->events, MAXEVENTS, -1)) < 0)
+            if ((res = epoll_wait(epoll_fd, events, MAXEVENTS, -1)) < 0)
                 throw SocketException("[epoll_wait()]", true);
 
             INFO("debug", "* epollwait res %d\n",res);
 
             for (i = 0; i < res; i++)
             {
-                if ((srv->events[i].events & EPOLLERR) ||
-                    (srv->events[i].events & EPOLLHUP) ||
-                    (!(srv->events[i].events & EPOLLIN)))
+                if ((events[i].events & EPOLLERR) ||
+                    (events[i].events & EPOLLHUP) ||
+                    (!(events[i].events & EPOLLIN)))
                 {
                     INFO("debug", "epoll error\n");
-                    close(srv->events[i].data.fd);
+                    close(events[i].data.fd);
                     continue;
                 }
-                else if (srv->sock_listen == srv->events[i].data.fd)
+                else if (sock_listen == events[i].data.fd)
                 {
                     INFO("debug", "accepting\n");
                     while (1)
@@ -158,7 +163,7 @@ void* EpollThread(void* arg)
 
                         in_len = sizeof in_addr;
 
-                        if ((sock_new = accept (srv->sock_listen, &in_addr, &in_len)) < 0)
+                        if ((sock_new = accept (sock_listen, &in_addr, &in_len)) < 0)
                         {
                             if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
                                 break;
@@ -180,18 +185,18 @@ void* EpollThread(void* arg)
                         else
                             throw SocketException("[getnameinfo()]", true);
 
-                        srv->SetBlocking(sock_new, false);
-                        srv->event.data.fd = sock_new;
-                        srv->event.events = EPOLLIN | EPOLLET;
+                        SetBlocking(sock_new, false);
+                        event.data.fd = sock_new;
+                        event.events = EPOLLIN | EPOLLET;
 
-                        if (epoll_ctl (srv->epoll_fd, EPOLL_CTL_ADD, sock_new, &srv->event) < 0)
+                        if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, sock_new, &event) < 0)
                             throw SocketException("[epoll_ctl()]", true);
 
                         //cb_notify(new_connection_net_task());
                     }
 
                     continue;
-	            }
+                }
                 else
                 {
                     bool end = 0;
@@ -200,9 +205,9 @@ void* EpollThread(void* arg)
                       ssize_t nbytes;
                       char buf[512];
 
-                      if ((nbytes = read (srv->events[i].data.fd, buf, sizeof(buf))) < 0)
+                      if ((nbytes = read (events[i].data.fd, buf, sizeof(buf))) < 0)
                       {
-                        if (errno != EAGAIN)  /* If errno == EAGAIN, that means we have read all data.*/
+                        if (errno != EAGAIN)  // If errno == EAGAIN, that means we have read all data.
                         {
                           perror ("read");
                           end = true;
@@ -218,14 +223,14 @@ void* EpollThread(void* arg)
 
                       buf[nbytes] = '\0';
                       INFO("debug", "client%d_data (%d bytes) : \"%s\"\n", 
-                             srv->events[i].data.fd, nbytes, buf+4);
+                             events[i].data.fd, nbytes, buf+4);
                     }
 
                     if (end)
                     {
                         INFO("debug", "client %d connection closed\n",
-                                srv->events[i].data.fd);
-                        close(srv->events[i].data.fd);
+                                events[i].data.fd);
+                        close(events[i].data.fd);
                     }
                 }
             }
@@ -237,5 +242,5 @@ void* EpollThread(void* arg)
     }
     
     close(sock_new);
-    pthread_exit(NULL);
+    return 0;
 }

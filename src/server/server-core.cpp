@@ -3,10 +3,10 @@
 #define N_NET_THREAD 2
 #define N_EXEC_THREAD 4
 
-void handle_session_manager_task(void *ptr)
+/*void handle_session_manager_task(void *ptr)
 {
     s_manager->AddTaskToServe(ptr);
-}
+}*/
 
 void server_core()
 {
@@ -22,12 +22,12 @@ void server_core()
         net_manager->Initialize(N_NET_THREAD); // Numero thread network
         s_sched_engine->Initialize(N_EXEC_THREAD); // Numero thread elaborazione
 
-        SocketServer server;
+        /*SocketServer server;
         server.Init(CFG_GET_INT("server_port"));
         server.InitCallback(&handle_session_manager_task);
 
         INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
-        server.Start();
+        server.Start();*/
 
         bool m_active = true;
         uint32 diff = 0;
@@ -36,6 +36,7 @@ void server_core()
         {
             try
             {
+                msleep(100);
                 // calcola diff
                 diff = 100;
                 s_manager->Update(diff);

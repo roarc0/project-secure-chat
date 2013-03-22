@@ -176,8 +176,8 @@ int SocketServer::Call()
                             throw SocketException("[epoll_ctl()]", true);
 
                         INFO("debug","epoll create session\n");
-                        //Session_smart *s = new Session_smart(s_manager->AddSession(sock_new));
-                        s_manager->AddSession(sock_new);
+                        Session_smart *s = new Session_smart(s_manager->AddSession(sock_new));
+                        //s_manager->AddSession(sock_new);
                         //cb_notify(new_connection_net_task());
                     }
 

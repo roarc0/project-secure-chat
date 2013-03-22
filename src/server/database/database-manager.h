@@ -4,7 +4,7 @@
 #include  <sqlite3.h>
 #include  "../../shared/utility/logger.h"
 #include  "../../shared/utility/file.h"
-#include  "../../shared/singleton.h"
+#include  "../../shared/utility/singleton.h"
 
 using namespace std;
 

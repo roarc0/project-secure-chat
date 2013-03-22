@@ -2,7 +2,7 @@
 #define LOCKEDQUEUE_H
 
 #include <deque>
-#include "../threading/mutex.h"
+#include "../../threading/mutex.h"
 
 template <class T, typename StorageType=std::deque<T> >
 class LockedQueue

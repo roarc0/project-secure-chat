@@ -3,7 +3,7 @@
 
 #include "../../shared/common.h"
 #include "../../shared/threading/thread.h"
-#include "../../shared/singleton.h"
+#include "../../shared/utility/singleton.h"
 #include "method-request.h"
 #include <list>
 

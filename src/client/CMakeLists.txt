@@ -1,4 +1,3 @@
-file(GLOB_RECURSE sources_Execution execution/*.cpp execution/*.h)
 file(GLOB sources_Networking networking/*.cpp networking/*.h)
 file(GLOB sources_localdir *.cpp *.h)
 
@@ -11,7 +10,6 @@ set(client_SRCS
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/execution
   ${CMAKE_CURRENT_SOURCE_DIR}/networking
   ${OPENSSL_INCLUDE_DIR}
   ${GTK2_INCLUDE_DIRS}

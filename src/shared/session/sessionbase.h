@@ -5,16 +5,6 @@
 #include "../networking/socket-base.h"
 #include "../common.h"
 
-// DA RIMUOVERE QUANDO COMPILA SOCKET
-/*class Socket
-{
-    public:
-        Socket() {}
-        void CloseSocket() {}
-        int SendPacket(Packet& new_packet) { return 0; }
-        bool IsClosed() { return false; }
-};*/
-
 class SessionBase
 {
     public:

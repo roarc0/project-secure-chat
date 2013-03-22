@@ -2,9 +2,9 @@
 #define CORE_CLIENT_H
 
 #include "../shared/common.h"
-#include "../shared/singleton.h"
+#include "../shared/utility/singleton.h"
 #include "../shared/threading/thread.h"
-#include "../shared/execution/command-manager.h"
+#include "../shared/networking/packet.h"
 #include "networking/socket-client.h"
 
 void* CoreThread(void*);

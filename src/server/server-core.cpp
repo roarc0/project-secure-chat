@@ -17,7 +17,7 @@ void server_core()
 
         s_manager;
 
-        InitCommands();
+        //InitCommands();
 
         net_manager->Initialize(N_NET_THREAD); // Numero thread network
         s_sched_engine->Initialize(N_EXEC_THREAD); // Numero thread elaborazione

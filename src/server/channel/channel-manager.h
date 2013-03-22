@@ -1,5 +1,5 @@
-#ifndef _CHANNEL_MRG_H
-#define _CHANNEL_MRG_H
+#ifndef _CHANNEL_MNG_H
+#define _CHANNEL_MNG_H
 
 #include "../../shared/common.h"
 #include "../../shared/threading/lock.h"

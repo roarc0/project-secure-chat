@@ -46,7 +46,7 @@ class LockedQueue
             if (_queue.empty())
                 return false;
 
-            result = _queue.front();
+            result = (T) _queue.front();
             _queue.pop_front();
 
             return true;

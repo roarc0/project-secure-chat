@@ -167,7 +167,11 @@ void button_send_click(gpointer data, gchar *str, gchar type)
         return;
 
     ss_h << text;
-    c_core->HandleSend((char*)ss_h.str().c_str());
+    if(! c_core->HandleSend((char*)ss_h.str().c_str()))
+    {
+        add_message_to_chat(button_send_w.chat_buffer, (gchar*) "<server> send failed\n", 's');
+        return;
+    }
 
     if (text[0] != '\\')
     {

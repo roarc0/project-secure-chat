@@ -13,7 +13,6 @@ SocketServer::~SocketServer()
 
 void SocketServer::Init(int port) throw(SocketException)
 {
-    SetupAddrInfo(AF_UNSPEC, SOCK_STREAM , 0);
     SetupSocket(port);
     SetupEpoll();
 }
@@ -22,6 +21,9 @@ inline void SocketServer::SetBlocking(int sock, const bool block)
     throw(SocketException)
 {
     int flags;
+ 
+    if(!block)
+        INFO("debug", "setting socket %d non-blocking\n", sock);
 
     if ((flags = fcntl (sock, F_GETFL, 0)) < 0)
         throw SocketException("[setBlocking() -> fnctl()]", true);
@@ -50,9 +52,11 @@ void SocketServer::SetupSocket(int port) throw(SocketException)
     int yes = 1;
     struct addrinfo *ai_res;
 
+    SetupAddrInfo(AF_UNSPEC, SOCK_STREAM , 0);
+
     s_port << port;
 
-    if (getaddrinfo (NULL, s_port.str().c_str(), &serverinfo, &serverinfo_res) < 0)
+    if (getaddrinfo (NULL, s_port.str().c_str(), &serverinfo, &serverinfo_res) != 0)
         throw SocketException("[getaddrinfo()]", true);
 
     for (ai_res = serverinfo_res; ai_res != NULL; ai_res = ai_res->ai_next)
@@ -60,29 +64,32 @@ void SocketServer::SetupSocket(int port) throw(SocketException)
         if ((sock_listen = socket(ai_res->ai_family, ai_res->ai_socktype, ai_res->ai_protocol)) < 0)
             continue;
 
-        //if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0)
-        //    throw SocketException("[setsockopt()]", true);
-
         if (bind(sock_listen, ai_res->ai_addr, ai_res->ai_addrlen) == 0)
-            break;
+        {
+            INFO("debug", "succesful bind!\n");
+            if (serverinfo_res == NULL)
+                throw SocketException("bind failed!", false);
+            
+            freeaddrinfo (serverinfo_res);
 
+            if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0)
+                throw SocketException("[setsockopt()]", true);
+
+            SetBlocking(sock_listen, false);
+
+            if (listen(sock_listen, SOMAXCONN) < 0)
+                throw SocketException("[listen()]", true);
+            break;
+        }    
+        
+        INFO("debug", "bind failed!!\n");
         close(sock_listen);
     }
-
-    if (serverinfo_res == NULL)
-        throw SocketException("bind failed!", false);
-    
-    freeaddrinfo (serverinfo_res);
-
-    SetBlocking(sock_listen, false);
-
-    if (listen(sock_listen, SOMAXCONN) < 0)
-        throw SocketException("[listen()]", true);
 }
 
 void SocketServer::SetupEpoll() throw(SocketException)
 {
-    events = (struct epoll_event*) calloc(MAX_CONNECTIONS, sizeof(struct epoll_event));
+    events = (struct epoll_event*) calloc(MAXEVENTS, sizeof(event));
 
     if ((epoll_fd = epoll_create1(0)) < 0)
         throw SocketException("[epoll_create()]", true);
@@ -125,8 +132,10 @@ void* EpollThread(void* arg)
     {
         try
         {
-            if ((res = epoll_wait(srv->epoll_fd, srv->events, MAX_CONNECTIONS, -1)) < 0)
+            if ((res = epoll_wait(srv->epoll_fd, srv->events, MAXEVENTS, -1)) < 0)
                 throw SocketException("[epoll_wait()]", true);
+
+            INFO("debug", "* epollwait res %d\n",res);
 
             for (i = 0; i < res; i++)
             {
@@ -134,13 +143,13 @@ void* EpollThread(void* arg)
                     (srv->events[i].events & EPOLLHUP) ||
                     (!(srv->events[i].events & EPOLLIN)))
                 {
-                    fprintf(stderr, "epoll error\n");
+                    INFO("debug", "epoll error\n");
                     close(srv->events[i].data.fd);
                     continue;
                 }
-
-                if (srv->sock_listen == srv->events[i].data.fd)
+                else if (srv->sock_listen == srv->events[i].data.fd)
                 {
+                    INFO("debug", "accepting\n");
                     while (1)
                     {
                         struct sockaddr in_addr;
@@ -165,14 +174,13 @@ void* EpollThread(void* arg)
                                         sbuf, sizeof sbuf,
                                         NI_NUMERICHOST | NI_NUMERICSERV) == 0)
                         {
-                            printf("client %d "
+                            INFO("debug", "client_new %d "
                                    "(host=%s, port=%s)\n", sock_new, hbuf, sbuf);
                         }
                         else
                             throw SocketException("[getnameinfo()]", true);
 
                         srv->SetBlocking(sock_new, false);
-
                         srv->event.data.fd = sock_new;
                         srv->event.events = EPOLLIN | EPOLLET;
 
@@ -192,7 +200,7 @@ void* EpollThread(void* arg)
                       ssize_t nbytes;
                       char buf[512];
 
-                      if ((nbytes = read (srv->events[i].data.fd, buf, sizeof buf)) < 0)
+                      if ((nbytes = read (srv->events[i].data.fd, buf, sizeof(buf))) < 0)
                       {
                         if (errno != EAGAIN)  /* If errno == EAGAIN, that means we have read all data.*/
                         {
@@ -203,19 +211,20 @@ void* EpollThread(void* arg)
                       }
                       if (nbytes == 0)
                       {
+                          INFO("debug","reading 0 bytes\n");
                           end = true;
                           break;
                       }
 
                       buf[nbytes] = '\0';
-                      printf("client %d : %s", 
-                             srv->events[i].data.fd, buf);
+                      INFO("debug", "client%d_data (%d bytes) : \"%s\"\n", 
+                             srv->events[i].data.fd, nbytes, buf+4);
                     }
 
                     if (end)
                     {
-                        printf("client %d connection closed\n",
-                               srv->events[i].data.fd);
+                        INFO("debug", "client %d connection closed\n",
+                                srv->events[i].data.fd);
                         close(srv->events[i].data.fd);
                     }
                 }
@@ -226,6 +235,7 @@ void* EpollThread(void* arg)
             cout << e.what() << endl;
         }
     }
-
+    
+    close(sock_new);
     pthread_exit(NULL);
 }

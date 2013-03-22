@@ -38,6 +38,7 @@
 #define UNORDERED_MAP std::tr1::unordered_map
 #elif (COMPILER == COMPILER_GNU && __GNUC__ >= 3) || COMPILER == COMPILER_INTEL
 #define UNORDERED_MAP __gnu_cxx::hash_map
+
 namespace __gnu_cxx
 {
     template<> struct hash<unsigned long long>
@@ -56,6 +57,7 @@ namespace __gnu_cxx
         }
     };
 };
+
 #else
 #define UNORDERED_MAP std::hash_map
 using std::hash_map;
@@ -70,7 +72,6 @@ using std::hash_map;
 #define int16 int16_t
 #define int8  int8_t
 
-#include "queues/lock_queue.h"
 #include "threading/lock.h"
 #include "threading/semaphore.h"
 #include "utility/file.h"
@@ -78,7 +79,8 @@ using std::hash_map;
 #include "utility/timer.h"
 #include "utility/config.h"
 #include "utility/counted_ptr.h"
-#include "exception.h"
+#include "utility/queues/lock_queue.h"
+#include "utility/exception.h"
 #include "revision.h"
 
 typedef bool(*handler)(void *);

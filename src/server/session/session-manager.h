@@ -5,8 +5,8 @@
 #include <pthread.h>
 #include "../../shared/common.h"
 #include "../../shared/threading/mutex.h"
-#include "../../shared/singleton.h"
-#include "../../shared/queues/lock_queue.h"
+#include "../../shared/utility/singleton.h"
+#include "../../shared/utility/queues/lock_queue.h"
 #include "queue.h"
 #include "packetfilter.h"
 #include "../channel/channel-manager.h"

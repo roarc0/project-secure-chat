@@ -10,7 +10,7 @@
 
 #include "../../threading/method-request.h"
 #include "../../shared/networking/socket-base.h"
-#include "../../shared/callback.h"
+#include "../../shared/utility/callback.h"
 #include "../network-manager.h"
 
 using namespace std;

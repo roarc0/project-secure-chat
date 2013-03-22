@@ -2,7 +2,7 @@
 #define MT_QUEUE_H
 
 #include <list>
-#include "../threading/lock.h"
+#include "../../threading/lock.h"
 
 template <typename T>
 class mt_queue

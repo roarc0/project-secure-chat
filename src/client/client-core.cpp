@@ -80,10 +80,10 @@ bool ClientCore::Disconnect()
     return true;
 }
 
-void ClientCore::HandleSend(const char* msg)  // comunicazione in ingresso dall'utente
+bool ClientCore::HandleSend(const char* msg)  // comunicazione in ingresso dall'utente
 {
-    if(!csock || !msg)
-        return;
+    if(!connected || !csock || !msg)
+        return false;
 
     string str_msg;
 
@@ -103,8 +103,10 @@ void ClientCore::HandleSend(const char* msg)  // comunicazione in ingresso dall'
     //Packet pack = ForgePacket(OP_NULL, str_msg.c_str());
     //unsigned char* rawData = new unsigned char[pack.GetSize() + 1];
     //pack.GetRawData(rawData);
-    csock->Send(rawData, pack.GetSize());    
+    //csock->Send(rawData, pack.GetSize()); // TODO Check send   
+    csock->Send(str_msg.c_str(),strlen(str_msg.c_str()));
     delete[] rawData;
+    return true;
 }
 
 void ClientCore::HandleRecv()

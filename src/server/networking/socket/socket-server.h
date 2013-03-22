@@ -13,7 +13,7 @@
 
 using namespace std;
 
-#define MAX_CONNECTIONS (64)
+#define MAXEVENTS 64
 
 void* EpollThread(void* arg);
 

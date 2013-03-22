@@ -24,7 +24,7 @@ class ClientCore //: public Thread
 
     bool  Connect();
     bool  Disconnect();
-    void  HandleSend(const char*);
+    bool  HandleSend(const char*);
     void  HandleRecv();
 
     void  GuiUpdateStatusBar(const char*);

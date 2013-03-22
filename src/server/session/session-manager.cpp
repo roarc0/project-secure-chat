@@ -1,7 +1,7 @@
 #include "session-manager.h"
 
 SessionManager::SessionManager(): 
-m_sessionLimit(100), m_sessionActiveLimit(50), next_id(1)
+m_sessionLimit(100), m_sessionActiveLimit(50)
 {
     channelMrg = new ChannelManager();
 }
@@ -87,6 +87,7 @@ void SessionManager::Update(uint32 udiff)
         // If return false we must delete it
         if (!pSession->Update(udiff, updater))
         {
+            INFO("debug", "Rimuovi sessione %u \n", itr->first);
             RemoveQueuedSession(itr->second);
             m_sessions.erase(itr);
             // delete pSession;  // Is Smart :P
@@ -165,23 +166,22 @@ void SessionManager::AddSessions_()
 {
     // Add new sessions
     Session_smart sess;    
+    uint32 next_id = 0;
 
     SessionMap::iterator itr = m_sessions.begin();
 
     while (addSessQueue.next(sess))
     {
         INFO("debug", "* session found!\n");
-        /*for (; itr != m_sessions.end(); itr++)
+        for (; itr != m_sessions.end(); itr++)
         {
             if (next_id != (itr->first-1))
-            {                
-                AddSession_(next_id, sess);
-                next_id++;                    
+            {                  
                 break;
             }
             else
                 next_id = itr->first;
-        }*/
+        }
         next_id++; 
         AddSession_(next_id, sess);
     }

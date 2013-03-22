@@ -27,25 +27,34 @@ class NetworkThread: public MethodRequest
             Packet* pkt = NULL;
 
             while (active)
-            {            
-                net_ses = m_netmanager.GetNextSession();
-                if ( net_ses.second == SEND)
-                {
-                    pkt = net_ses.first->GetPacketToSend();
-                    // Elabora pacchetto
-                    // Invia nel socket
-                    delete pkt;
-                }
-                else // Recive
-                {
-                    char buf[512];
-                    net_ses.first->m_Socket->Recv((void*) &buf, 512);
-                    INFO("debug","messaggio: %s \n", buf+4);
+            {   
+                try
+                {         
+                    net_ses = m_netmanager.GetNextSession();
+                    if ( net_ses.second == SEND)
+                    {
+                        pkt = net_ses.first->GetPacketToSend();
+                        // Elabora pacchetto
+                        // Invia nel socket
+                        delete pkt;
+                    }
+                    else // Recive
+                    {
+                        
+                        char buf[512];
+                        net_ses.first->m_Socket->Recv((void*) &buf, 512);
+                        INFO("debug","messaggio: %s \n", buf+4);                   
                                             
-                    // Prendi pacchetto dal socket
-                    // Elabora pacchetto 
-                    net_ses.first->QueuePacket(pkt);
-                }               
+                        // Prendi pacchetto dal socket
+                        // Elabora pacchetto 
+                        net_ses.first->QueuePacket(pkt);
+                        
+                    } 
+                }
+                catch(SocketException e)
+                {
+                    INFO("debug", "%s \n", e.what());   
+                }              
             }
             return 0;
         }

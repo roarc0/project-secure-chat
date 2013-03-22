@@ -75,9 +75,7 @@ class SessionManager
         // Session server limit
         uint32 m_sessionLimit;
         // Active session server limit
-        uint32 m_sessionActiveLimit;        
-        
-        uint32 next_id;
+        uint32 m_sessionActiveLimit; 
 
         ChannelManager* channelMrg;
 

@@ -7,6 +7,7 @@ SessionBase::SessionBase(int pSock)
 
 SessionBase::~SessionBase()
 {
+    INFO("debug", "DISTRUTTORE!\n");
     // empty incoming packet queue
     Packet* packet = NULL;
     while (_recvQueue.next(packet))
@@ -38,7 +39,7 @@ int SessionBase::_SendPacket(const Packet& pct)
     //_sendQueue.add(pkt);
     // return 0;
 
-    PktHeader header(pct.size()+OPCODE_SIZE, pct.GetOpcode());
+    PktHeader header(pct.size()/*+OPCODE_SIZE*/, pct.GetOpcode());
 
     unsigned char* rawData = new unsigned char[header.getHeaderLength()+ pct.size() + 1];
     

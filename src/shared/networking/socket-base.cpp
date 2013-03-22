@@ -25,19 +25,16 @@ SocketBase::SocketBase(int type, int protocol) throw(SocketException)
     SocketBase::type = type;
     SocketBase::protocol = protocol;
     InitSocket();
-    INFO("debug","* socketbase init done!\n");
 }
 
 SocketBase::SocketBase(int socket)
 {
     sock = socket;
     domain = AF_INET;
-    INFO("debug","* socketbase init done!\n");
 }
 
 SocketBase::~SocketBase()
 {
-    INFO("debug","closing socket %d\n", sock);
     close(sock);
     sock = INVALID_SOCKET;
 }

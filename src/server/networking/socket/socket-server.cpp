@@ -176,16 +176,18 @@ int SocketServer::Call()
                             throw SocketException("[epoll_ctl()]", true);
 
                         INFO("debug","epoll create session\n");
-                        s = (Session_smart)(s_manager->AddSession(sock_new));
-                        
+
+                        s = new Session_smart(s_manager->AddSession(sock_new));
+
+                        //s_manager->AddSession(sock_new);
                         //cb_notify(new_connection_net_task());
                     }
 
                     continue;
                 }
                 else
-                {
-                    m_netmanager.QueueRecive(s);
+                {                    
+                    m_netmanager.QueueRecive(*s);
                 }
             }
         }

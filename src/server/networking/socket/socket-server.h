@@ -38,7 +38,7 @@ class SocketServer: public MethodRequest
         int epoll_fd;
         
         //TODO da estirpare
-        Session_smart s;
+        Session_smart* s;
 
         void SetupAddrInfo(int family, int socktype, int protocol);
         void SetBlocking(int, const bool) throw(SocketException);

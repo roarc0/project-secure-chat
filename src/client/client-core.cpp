@@ -91,7 +91,7 @@ void ClientCore::SendPacket(Packet* new_packet)
 
 int ClientCore::_SendPacket(const Packet& pct)
 {
-    PktHeader header(pct.size()+OPCODE_SIZE, pct.GetOpcode());
+    PktHeader header(pct.size(), pct.GetOpcode());
 
     unsigned char* rawData = new unsigned char[header.getHeaderLength()+ pct.size() + 1];
     
@@ -121,8 +121,8 @@ bool ClientCore::HandleSend(const char* msg)  // comunicazione in ingresso dall'
     str_msg += msg;
 
     INFO("debug","sending message: %s\n", msg);
-
-    Packet pack(OP_NULL);
+    
+    Packet pack(0x001);
     pack<<str_msg;
     SendPacket(&pack);
     

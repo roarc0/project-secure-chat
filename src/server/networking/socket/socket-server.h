@@ -18,10 +18,11 @@ using namespace std;
 class NetworkManager;
 
 #define MAXEVENTS 64
+
 /*
-void handle_session_manager_task(void *ptr)
+void handle_new_connection(void *ptr)
 {
-    s_manager->AddTaskToServe(ptr);
+    s_manager->AddSession(ptr);
 }*/
 
 class SocketServer: public MethodRequest
@@ -43,7 +44,6 @@ class SocketServer: public MethodRequest
 
         EventCallback<void, void*> cb_notify;
 
-        //friend void* EpollThread(void* arg);
         friend class SocketThread;
 
         NetworkManager& m_netmanager;
@@ -58,9 +58,6 @@ class SocketServer: public MethodRequest
         void Init(int) throw(SocketException);
 
         int Call();
-
-        
-    //int  Start();
 
     /*void InitCallback(void (*fptr)(void*))
     {

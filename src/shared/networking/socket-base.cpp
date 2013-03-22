@@ -37,6 +37,7 @@ SocketBase::SocketBase(int socket)
 
 SocketBase::~SocketBase()
 {
+    INFO("debug","closing socket %d\n", sock);
     close(sock);
     sock = INVALID_SOCKET;
 }

@@ -11,7 +11,7 @@ m_id(0), m_inQueue(false), channel_name("")
 
 Session::~Session()
 {
-
+    INFO("debug","killing session\n");
 }
 
 bool Session::Update(uint32 /*diff*/, PacketFilter& updater)

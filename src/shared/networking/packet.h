@@ -49,38 +49,7 @@ class Packet : public ByteBuffer
         {
             return size() + OPCODE_SIZE + LENGTH_SIZE;
         }
-
-        // TODO - Explodere brutalmente con il tritolo!
-        unsigned char* GetData()
-        {
-            unsigned char* rawData = new unsigned char[GetSize() + 1];
-
-            if (!rawData)
-                return NULL;
-
-            unsigned short temp;
-
-            temp = m_opcode;        // temp
-            temp &= 0x00ff;
-            rawData[0] = (unsigned char)temp;
-            temp = m_opcode;
-            temp = temp>>8;
-            rawData[1] = (unsigned char)temp;
-
-            temp = _storage.size();  // temp
-            temp &= 0x00ff;
-            rawData[2] = (unsigned char)temp;
-            temp = _storage.size();
-            temp = temp>>8;
-            rawData[3] = (unsigned char)temp;
-            
-            memcpy((void*) (rawData + OPCODE_SIZE + LENGTH_SIZE), (void*)(&_storage), _storage.size());
-
-            return rawData;
-        }
-        // Fine esplosione controllata
-
-
+ 
         uint16 GetOpcode() const { return m_opcode; }
         void SetOpcode(uint16 opcode) { m_opcode = opcode; }
 

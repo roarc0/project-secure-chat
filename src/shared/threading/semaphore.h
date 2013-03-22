@@ -8,7 +8,7 @@
 class Semaphore
 {
     public:
-     	Semaphore(Mutex& mutex)
+     	Semaphore(Mutex& mutex, int val = 0)
         {
             _mutex = &mutex;
             pthread_cond_init(&_cond, NULL);
@@ -19,7 +19,7 @@ class Semaphore
             pthread_cond_destroy(&_cond);
         }
         bool Wait()
-        {   
+        {
             Lock locked(*_mutex);
             while (value <= 0)
             {
@@ -33,7 +33,7 @@ class Semaphore
             Lock locked(*_mutex);
             int prior_value = value++;
             if (prior_value == 0)
-                pthread_cond_signal(&_cond); 
+                pthread_cond_signal(&_cond);
         }
         /*void Broadcast()
         {

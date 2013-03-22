@@ -27,6 +27,8 @@ class ClientCore //: public Thread
     bool  HandleSend(const char*);
     void  HandleRecv();
 
+    void  SendPacket(Packet* new_packet);    
+
     void  GuiUpdateStatusBar(const char*);
     
     bool IsConnected() const
@@ -38,6 +40,10 @@ class ClientCore //: public Thread
     {
         connected = c;
     }
+
+  private:
+
+    int _SendPacket(const Packet& pct);
 
 };
 

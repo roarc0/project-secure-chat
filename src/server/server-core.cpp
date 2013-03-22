@@ -1,6 +1,7 @@
 #include "server-core.h"
 
 #define N_NET_THREAD 2
+#define N_EXEC_THREAD 4
 
 void handle_session_manager_task(void *ptr)
 {
@@ -19,7 +20,7 @@ void server_core()
         InitCommands();
 
         net_manager->Initialize(N_NET_THREAD); // Numero thread network
-        s_sched_engine->Initialize(4); // Numero thread elaborazione
+        s_sched_engine->Initialize(N_EXEC_THREAD); // Numero thread elaborazione
 
         SocketServer server;
         server.Init(CFG_GET_INT("server_port"));
@@ -36,6 +37,7 @@ void server_core()
             try
             {
                 // calcola diff
+                diff = 100;
                 s_manager->Update(diff);
             }
             catch(...)

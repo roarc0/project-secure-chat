@@ -88,6 +88,8 @@ void SessionManager::Update(uint32 udiff)
             // delete pSession;  // Is Smart :P
         }        
     }
+
+    channelMrg->Update(udiff);
 }
 
 uint32 SessionManager::GetQueuePos(Session_smart sess)

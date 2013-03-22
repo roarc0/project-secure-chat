@@ -6,11 +6,12 @@ class SocketThread: public MethodRequest
 
         NetworkManager& m_netmanager;
         uint32 m_diff;
+        bool active;
 
     public:
 
         SocketThread(NetworkManager& netmanager, uint32 d) : 
-        MethodRequest(), m_netmanager(netmanager), m_diff(d)
+        MethodRequest(), m_netmanager(netmanager), m_diff(d), active(true)
         {
             
         }
@@ -23,8 +24,9 @@ class SocketThread: public MethodRequest
         int Call()
         { 
             //inizializzazione callback
-            while (1)
+            while (active)
             {
+                msleep(1000);
                 // Cose buffe epoll
             }
             return 0;
@@ -37,11 +39,12 @@ class NetworkThread: public MethodRequest
 
         NetworkManager& m_netmanager;
         uint32 m_diff;
+        bool active;
 
     public:
 
         NetworkThread(NetworkManager& netmanager, uint32 d) : 
-        MethodRequest(), m_netmanager(netmanager), m_diff(d)
+        MethodRequest(), m_netmanager(netmanager), m_diff(d), active(true)
         {
      
         }
@@ -56,7 +59,7 @@ class NetworkThread: public MethodRequest
             netsession_pair net_ses;
             Packet* pkt = NULL;
 
-            while (1)
+            while (active)
             {            
                 net_ses = m_netmanager.GetNextSession();
                 if ( net_ses.second == SEND)

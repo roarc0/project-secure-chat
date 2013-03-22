@@ -1,38 +1,5 @@
 #include "network-manager.h"
 
-class SocketThread: public MethodRequest
-{
-    private:
-
-        NetworkManager& m_netmanager;
-        uint32 m_diff;
-        bool active;
-
-    public:
-
-        SocketThread(NetworkManager& netmanager, uint32 d) : 
-        MethodRequest(), m_netmanager(netmanager), m_diff(d), active(true)
-        {
-            
-        }
-
-        ~SocketThread()
-        {
-
-        }
-
-        int Call()
-        { 
-            //inizializzazione callback
-            while (active)
-            {
-                msleep(1000);
-                // Cose buffe epoll
-            }
-            return 0;
-        }
-};
-
 class NetworkThread: public MethodRequest
 {
     private:
@@ -99,7 +66,7 @@ int NetworkManager::Initialize(uint32 n_thread)
 
 int NetworkManager::ActivateEpoll()
 {  
-    if (net_engine.Execute(new SocketThread(*this, 0)) != 0)
+    if (net_engine.Execute(new SocketServer(*this, 0)) != 0)
     {
         // TODO Log Errore
         return -1;

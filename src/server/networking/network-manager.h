@@ -4,6 +4,8 @@
 #include "scheduling-engine.h"
 #include "../../shared/common.h"
 #include "../../shared/singleton.h"
+#include "socket/socket-server.h"
+#include "command-manager-server.h"
 #include "method-request.h"
 #include "session.h"
 

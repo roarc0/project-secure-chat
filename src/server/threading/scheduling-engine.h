@@ -1,9 +1,9 @@
 #ifndef _SCHEDULING_ENGINE_H
 #define _SCHEDULING_ENGINE_H
 
-#include "../../shared/common.h"
-#include "../../shared/threading/thread.h"
-#include "../../shared/utility/singleton.h"
+#include "common.h"
+#include "threading/thread.h"
+#include "utility/singleton.h"
 #include "method-request.h"
 #include <list>
 

@@ -10,6 +10,7 @@ set(client_SRCS
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/../shared
   ${CMAKE_CURRENT_SOURCE_DIR}/networking
   ${OPENSSL_INCLUDE_DIR}
   ${GTK2_INCLUDE_DIRS}

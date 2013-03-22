@@ -101,26 +101,6 @@ void SocketServer::SetupEpoll() throw(SocketException)
     if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, sock_listen, &event) < 0)
         throw SocketException("[epoll_ctl()]", true);
 }
-/*
-int SocketServer::Start()
-{
-    int ret;
-    pthread_t tid;
-    pthread_attr_t tattr;
-
-    ret = pthread_attr_init(&tattr);
-    if (ret != 0)
-        return ret;
-    ret = pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
-    if (ret != 0)
-        return ret;
-    ret = pthread_create(&tid, &tattr, EpollThread, this);
-    if (ret != 0)
-        return ret;
-
-    ret = pthread_attr_destroy(&tattr);
-    return ret;
-}*/
 
 int SocketServer::Call()
 {

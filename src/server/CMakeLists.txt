@@ -22,6 +22,7 @@ set(server_SRCS
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/../shared
   ${CMAKE_CURRENT_SOURCE_DIR}/channel
   ${CMAKE_CURRENT_SOURCE_DIR}/database
   ${CMAKE_CURRENT_SOURCE_DIR}/networking

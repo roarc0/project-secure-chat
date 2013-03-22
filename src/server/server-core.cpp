@@ -16,6 +16,7 @@ void server_core()
         //db_manager->init_db();
 
         s_manager;
+        net_manager;
 
         //InitCommands();
 

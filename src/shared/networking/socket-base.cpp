@@ -28,6 +28,13 @@ SocketBase::SocketBase(int type, int protocol) throw(SocketException)
     INFO("debug","* socketbase init done!\n");
 }
 
+SocketBase::SocketBase(int socket)
+{
+    sock = socket;
+    domain = AF_INET;
+    INFO("debug","* socketbase init done!\n");
+}
+
 SocketBase::~SocketBase()
 {
     close(sock);

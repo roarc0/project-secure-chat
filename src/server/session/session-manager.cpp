@@ -29,10 +29,10 @@ void SessionManager::GetIdList(std::list<uint32>* ulist)
         ulist->push_back(itr->first);
 }
 
-int SessionManager::AddSession(SocketBase* sock)
+Session_smart SessionManager::AddSession(int sock)
 {
     if (GetQueuedSessionCount() + addSessQueue.size() <  m_sessionLimit)
-    {
+    {        
         Session* ses = new Session(sock);
         assert(ses);
         counted_ptr<Session> smart_ses(ses);
@@ -42,7 +42,6 @@ int SessionManager::AddSession(SocketBase* sock)
     {
         // Disconetti sessione
     }
-    return 0;
 }
 
 bool SessionManager::RemoveSession(uint32 id)

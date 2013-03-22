@@ -1,8 +1,8 @@
 #include "sessionbase.h"
 
-SessionBase::SessionBase(SocketBase* pSock)
+SessionBase::SessionBase(int pSock)
 {
-    m_Socket = pSock;
+    m_Socket = new SocketBase(pSock);
 }
 
 SessionBase::~SessionBase()

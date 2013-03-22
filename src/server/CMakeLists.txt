@@ -10,7 +10,6 @@ file(GLOB sources_localdir *.cpp *.h)
 set(server_SRCS
   ${sources_Channel}
   ${sources_Database}
-  ${sources_Execution}
   ${sources_Networking}
   ${sources_Packet}
   ${sources_Socket}

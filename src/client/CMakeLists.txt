@@ -1,8 +1,9 @@
 file(GLOB sources_Networking networking/*.cpp networking/*.h)
+file(GLOB sources_Session session/*.cpp session/*.h)
 file(GLOB sources_localdir *.cpp *.h)
 
 set(client_SRCS
-  ${sources_Execution}
+  ${sources_Session}
   ${sources_Networking}
   ${sources_localdir}
 )
@@ -11,6 +12,7 @@ include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/../shared
+  ${CMAKE_CURRENT_SOURCE_DIR}/session
   ${CMAKE_CURRENT_SOURCE_DIR}/networking
   ${OPENSSL_INCLUDE_DIR}
   ${GTK2_INCLUDE_DIRS}

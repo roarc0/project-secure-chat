@@ -77,14 +77,7 @@ class SessionManager
         // Active session server limit
         uint32 m_sessionActiveLimit;        
         
-        //NetQueue n_queue;
-
-        uint32 net_number;
-        uint32 exec_number;        
-
-        // MUTEX
-        Mutex   mutex_net_number;    // Mutex su net_number
-        Mutex   mutex_exec_number;   // Mutex su exec_number
+        uint32 next_id;
 
         ChannelManager* channelMrg;
 

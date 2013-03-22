@@ -1,7 +1,7 @@
 #include "session-manager.h"
 
 SessionManager::SessionManager(): 
-m_sessionLimit(100), m_sessionActiveLimit(50), net_number(0), exec_number(0)
+m_sessionLimit(100), m_sessionActiveLimit(50), next_id(1)
 {
     channelMrg = new ChannelManager();
 }
@@ -161,30 +161,32 @@ bool SessionManager::RemoveQueuedSession(Session_smart sess)
 void SessionManager::AddSessions_()
 {
     // Add new sessions
-    Session_smart sess;
-    uint32 next_id = 0;
+    Session_smart sess;    
 
     SessionMap::iterator itr = m_sessions.begin();
 
     while (addSessQueue.next(sess))
     {
         INFO("debug", "* session found!\n");
-        for (; itr != m_sessions.end(); itr++)
+        /*for (; itr != m_sessions.end(); itr++)
         {
             if (next_id != (itr->first-1))
-            {
+            {                
                 AddSession_(next_id, sess);
                 next_id++;                    
                 break;
             }
             else
                 next_id = itr->first;
-        }
+        }*/
+        next_id++; 
+        AddSession_(next_id, sess);
     }
 }
 
 void SessionManager::AddSession_(uint32& next_id, Session_smart sess)
 {
+    INFO("debug", "add session con next_id %d \n", next_id);
     if (m_sessionActiveLimit && GetActiveSessionCount() >= m_sessionActiveLimit)
     {
         AddQueuedSession(sess);

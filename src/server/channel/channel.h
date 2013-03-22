@@ -1,8 +1,8 @@
 #ifndef _CHANNEL_H
 #define _CHANNEL_H
 
-#include "../../shared/common.h"
-#include "../../shared/threading/lock.h"
+#include "common.h"
+#include "threading/lock.h"
 #include "session.h"
 
 typedef UNORDERED_MAP<uint32, Session*> mapSession;

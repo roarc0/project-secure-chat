@@ -2,9 +2,9 @@
 #define DATABASE_MANAGER_H
 
 #include  <sqlite3.h>
-#include  "../../shared/utility/logger.h"
-#include  "../../shared/utility/file.h"
-#include  "../../shared/utility/singleton.h"
+#include  "utility/logger.h"
+#include  "utility/file.h"
+#include  "utility/singleton.h"
 
 using namespace std;
 

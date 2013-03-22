@@ -3,13 +3,13 @@
 
 #include <map>
 #include <pthread.h>
-#include "../../shared/common.h"
-#include "../../shared/threading/mutex.h"
-#include "../../shared/utility/singleton.h"
-#include "../../shared/utility/queues/lock_queue.h"
+#include "common.h"
+#include "threading/mutex.h"
+#include "utility/singleton.h"
+#include "utility/queues/lock_queue.h"
 #include "queue.h"
 #include "packetfilter.h"
-#include "../channel/channel-manager.h"
+#include "channel-manager.h"
 
 class ChannelManager;
 

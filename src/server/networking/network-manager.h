@@ -2,8 +2,8 @@
 #define _NETWORK_MNG_H
 
 #include "scheduling-engine.h"
-#include "../../shared/common.h"
-#include "../../shared/utility/singleton.h"
+#include "common.h"
+#include "utility/singleton.h"
 #include "socket/socket-server.h"
 #include "method-request.h"
 #include "session.h"

@@ -176,8 +176,8 @@ int SocketServer::Call()
                             throw SocketException("[epoll_ctl()]", true);
 
                         INFO("debug","epoll create session\n");
-                        Session_smart *s = new Session_smart(s_manager->AddSession(sock_new));
-                        //s_manager->AddSession(sock_new);
+                        s = (Session_smart)(s_manager->AddSession(sock_new));
+                        
                         //cb_notify(new_connection_net_task());
                     }
 
@@ -185,39 +185,7 @@ int SocketServer::Call()
                 }
                 else
                 {
-                    bool end = 0;
-                    while (1)
-                    {
-                      ssize_t nbytes;
-                      char buf[512];
-
-                      if ((nbytes = read (events[i].data.fd, buf, sizeof(buf))) < 0)
-                      {
-                        if (errno != EAGAIN)  // If errno == EAGAIN, that means we have read all data.
-                        {
-                          perror ("read");
-                          end = true;
-                        }
-                        break;
-                      }
-                      if (nbytes == 0)
-                      {
-                          INFO("debug","reading 0 bytes\n");
-                          end = true;
-                          break;
-                      }
-
-                      buf[nbytes] = '\0';
-                      INFO("debug", "client%d_data (%d bytes) : \"%s\"\n", 
-                             events[i].data.fd, nbytes, buf+4);
-                    }
-
-                    if (end)
-                    {
-                        INFO("debug", "client %d connection closed\n",
-                                events[i].data.fd);
-                        close(events[i].data.fd);
-                    }
+                    m_netmanager.QueueRecive(s);
                 }
             }
         }

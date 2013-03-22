@@ -12,6 +12,7 @@
 #include "networking/socket-base.h"
 #include "utility/callback.h"
 #include "network-manager.h"
+#include "session.h"
 
 using namespace std;
 
@@ -35,6 +36,9 @@ class SocketServer: public MethodRequest
 
         int sock_listen;
         int epoll_fd;
+        
+        //TODO da estirpare
+        Session_smart s;
 
         void SetupAddrInfo(int family, int socktype, int protocol);
         void SetBlocking(int, const bool) throw(SocketException);
@@ -44,7 +48,6 @@ class SocketServer: public MethodRequest
 
         EventCallback<void, void*> cb_notify;
 
-        friend class SocketThread;
 
         NetworkManager& m_netmanager;
         uint32 m_diff;

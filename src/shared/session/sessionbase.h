@@ -20,7 +20,9 @@ class SessionBase
 
         // Handle
         void Handle_NULL(Packet& /*packet*/);
-
+        
+        // Socket
+        SocketBase* m_Socket;
     protected:
 
         int _SendPacket(const Packet& new_packet);
@@ -29,8 +31,7 @@ class SessionBase
 
         LockedQueue<Packet*> _recvQueue;
         LockedQueue<Packet*> _sendQueue;
-        // Socket
-        SocketBase* m_Socket;    
+    
 };
 
 #endif 

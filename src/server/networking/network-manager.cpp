@@ -40,44 +40,8 @@ class NetworkThread: public MethodRequest
                 {
                     char buf[512];
                     net_ses.first->m_Socket->Recv((void*) &buf, 512);
-                    INFO("debug","crash_brutale: %s", buf);
-                    
-                    /*
-                    bool end = 0;
-                    while (1)
-                    {
-                       
-                      ssize_t nbytes;
-                      char buf[512];
-
-                      if ((nbytes = read (events[i].data.fd, buf, sizeof(buf))) < 0)
-                      {
-                        if (errno != EAGAIN)  // If errno == EAGAIN, that means we have read all data.
-                        {
-                          perror ("read");
-                          end = true;
-                        }
-                        break;
-                      }
-                      if (nbytes == 0)
-                      {
-                          INFO("debug","reading 0 bytes\n");
-                          end = true;
-                          break;
-                      }
-
-                      buf[nbytes] = '\0';
-                      INFO("debug", "client%d_data (%d bytes) : \"%s\"\n", 
-                             events[i].data.fd, nbytes, buf+4);
-                    }
-
-                    if (end)
-                    {
-                        INFO("debug", "client %d connection closed\n",
-                                events[i].data.fd);
-                        close(events[i].data.fd);
-                    }*/
-                        
+                    INFO("debug","messaggio: %s \n", buf+4);
+                                            
                     // Prendi pacchetto dal socket
                     // Elabora pacchetto 
                     net_ses.first->QueuePacket(pkt);

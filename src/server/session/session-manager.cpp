@@ -39,9 +39,12 @@ Session_smart SessionManager::AddSession(int sock)
         counted_ptr<Session> smart_ses(ses);
         addSessQueue.add(smart_ses);
         INFO("debug","* new session created on sock: %d\n", sock);
+        return smart_ses;
     }
     else
     {
+        counted_ptr<Session> ses;
+        return ses;
         // Disconetti sessione
     }
 }

@@ -27,7 +27,9 @@ enum MessageTypes
     CMSG_CHANNEL_ANNOUNCEMENTS                      = 0x013,
     CMSG_CHANNEL_MODERATE                           = 0x014,
     SMSG_QUEUE_POSITION                             = 0x015,
-    NUM_MSG_TYPES                                   = 0x016,
+    CMSG_PING                                       = 0x016,
+    SMSG_PING                                       = 0x017,
+    NUM_MSG_TYPES                                   = 0x018,
 };
 
 enum SessionStatus

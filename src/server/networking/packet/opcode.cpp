@@ -24,4 +24,6 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x013*/ { "CMSG_CHANNEL_ANNOUNCEMENTS",  STATUS_LOGGED,      PROCESS_INPLACE,           &Session::Handle_NULL                           },
     /*0x014*/ { "CMSG_CHANNEL_MODERATE",       STATUS_LOGGED,      PROCESS_INPLACE,           &Session::Handle_NULL                           },
     /*0x015*/ { "SMSG_QUEUE_POSITION",         STATUS_LOGGED,      PROCESS_INPLACE,           &Session::Handle_ServerSide                     },
+    /*0x016*/ { "CMSG_PING",                   STATUS_LOGGED,      PROCESS_INPLACE,           &Session::Handle_Ping                           },
+    /*0x017*/ { "SMSG_PING",                   STATUS_LOGGED,      PROCESS_INPLACE,           &Session::Handle_ServerSide                     },
 };

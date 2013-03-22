@@ -11,7 +11,7 @@ m_id(0), m_inQueue(false), channel_name("")
 
 Session::~Session()
 {
-    INFO("debug","killing session\n");
+
 }
 
 bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
@@ -28,7 +28,7 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
     {
         if (packet->GetOpcode() >= NUM_MSG_TYPES) // Max opcode
         {
-            // LOG
+            INFO ("debug", "Pacchetto Maxcode Non Valido\n");
         }
         else
         {
@@ -55,6 +55,7 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
                     case STATUS_LOGGING:
                         if (m_inQueue)
                         {
+                            INFO ("debug", "Rilevata Packet Injection durante la coda\n");
                             break; // For Packet Injection
                         }
                         (this->*opHandle.handler)(*packet);
@@ -72,6 +73,7 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
             }
             catch (...)
             {
+                INFO ("debug", "Errore Durante Elaborazione Pacchetto\n");
                 // TODO
             }
         }
@@ -101,13 +103,22 @@ void Session::SendWaitQueue(int position)
     SendPacket(&new_packet);   
 }
 
+void Session::Handle_Ping(Packet& packet)
+{
+
+}
+
 void Session::Handle_ServerSide(Packet& /*packet*/)
 {
     //LOG
 }
 
-void Session::HandleMessage(Packet& /*packet*/) 
+void Session::HandleMessage(Packet& packet) 
 {
+    string s;
+    packet >> s;
+    INFO ("debug", "Livello Esecuzione Messaggio: %s \n", s.c_str());
+
     //TODO
 }
 
@@ -132,6 +143,7 @@ void Session::HandleJoinChannel(Packet& packet)
     {
         // Notifica all'utente canale non esistente
         Packet pkt(SMSG_CHANNEL_NOTIFY);
+
         pkt << "Canale non Esistente";
         SendPacket(&pkt);        
         return;

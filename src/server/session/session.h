@@ -23,6 +23,7 @@ class Session : public SessionBase
         void SetInQueue(bool state) { m_inQueue = state; }
 
         // Handle
+        void Handle_Ping(Packet& packet); 
         void Handle_ServerSide(Packet& packet);
         void HandleMessage(Packet& packet); 
         void HandleJoinChannel(Packet& packet);       

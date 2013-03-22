@@ -90,8 +90,13 @@ void SessionManager::Update(uint32 udiff)
             INFO("debug", "Rimuovi sessione %u \n", itr->first);
             RemoveQueuedSession(itr->second);
             m_sessions.erase(itr);
+            pSession = NULL;
             // delete pSession;  // Is Smart :P
-        }        
+        }
+        else
+        {
+            //INFO("debug", "NON Rimuovere sessione %u \n", itr->first);
+        }
     }
 
     channelMrg->Update(udiff);
@@ -172,7 +177,6 @@ void SessionManager::AddSessions_()
 
     while (addSessQueue.next(sess))
     {
-        INFO("debug", "* session found!\n");
         for (; itr != m_sessions.end(); itr++)
         {
             if (next_id != (itr->first-1))

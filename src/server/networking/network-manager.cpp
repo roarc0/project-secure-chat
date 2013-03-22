@@ -23,14 +23,13 @@ class NetworkThread: public MethodRequest
 
         int Call()
         {
-            netsession_pair net_ses;
             Packet* pkt = NULL;
 
             while (active)
             {   
+                netsession_pair net_ses = m_netmanager.GetNextSession();
                 try
-                {         
-                    net_ses = m_netmanager.GetNextSession();
+                {   
                     if ( net_ses.second == SEND)
                     {
                         pkt = net_ses.first->GetPacketToSend();
@@ -39,21 +38,34 @@ class NetworkThread: public MethodRequest
                         delete pkt;
                     }
                     else // Recive
-                    {
-                        
+                    { 
+                        char header[4];
                         char buf[512];
-                        net_ses.first->m_Socket->Recv((void*) &buf, 512);
-                        INFO("debug","messaggio: %s \n", buf+4);                   
+                        // Prendi Header
+                        net_ses.first->m_Socket->Recv((void*) &header, 4);
+                        PktHeader pkt_head(header, 4);
+                        // Prendi Resto dei Dati
+                        net_ses.first->m_Socket->Recv((void*) &buf, pkt_head.getSize());  
+                        
+                        INFO("debug","Livello Network Messaggio: %s , header %u, lunghezza %u\n", buf, pkt_head.getHeader(), pkt_head.getSize()); 
+
+                        // Impacchetta                      
+                        pkt = new Packet(pkt_head.getHeader(), pkt_head.getSize());
+                        *pkt << buf;
+                            
+                        net_ses.first->QueuePacket(pkt);                                         
                                             
                         // Prendi pacchetto dal socket
                         // Elabora pacchetto 
-                        net_ses.first->QueuePacket(pkt);
+                        
+                        
                         
                     } 
                 }
                 catch(SocketException e)
                 {
-                    INFO("debug", "%s \n", e.what());   
+                    INFO("debug", "%s \n", e.what());
+                    //net_ses.first->m_Socket->CloseSocket(); 
                 }              
             }
             return 0;

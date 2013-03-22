@@ -42,6 +42,7 @@ class SocketBase
     public:
         virtual ~SocketBase();
         SocketBase(int type, int protocol) throw(SocketException);
+        SocketBase(int socket);
 
         string           GetLocalAddress()
                          throw(SocketException);

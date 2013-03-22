@@ -35,7 +35,7 @@ class SessionManager
 
         void GetIdList(std::list<uint32>*);
 
-        int AddSession(SocketBase* sock);
+        Session_smart AddSession(int sock);
         bool RemoveSession (uint32 id);
         Session* FindSession(uint32 id) const;
 

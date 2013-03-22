@@ -8,7 +8,7 @@
 class SessionBase
 {
     public:
-        SessionBase(SocketBase* pSock);
+        SessionBase(int pSock);
         virtual ~SessionBase();
 
         // THREADSAFE

@@ -3,7 +3,7 @@
 #include "channel.h"
 #include "session-manager.h"
 
-Session::Session(SocketBase* pSock) : SessionBase(pSock),
+Session::Session(int pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), channel_name("")
 {
 

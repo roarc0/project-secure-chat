@@ -1,9 +1,12 @@
 #include "socket-server.h"
 
+#include "session-manager.h"
+#include "session.h"
+
 SocketServer::SocketServer(NetworkManager& netmanager, uint32 d) throw(SocketException): 
     MethodRequest(), m_netmanager(netmanager), m_diff(d), active(true)     
 {
-    //new_connection_init();
+
 }
 
 SocketServer::~SocketServer()
@@ -105,7 +108,7 @@ void SocketServer::SetupEpoll() throw(SocketException)
 int SocketServer::Call()
 {
     Init(CFG_GET_INT("server_port"));
-    //server.InitCallback(&handle_session_manager_task);
+    //InitCallback(&handle_session_manager_task);
 
     INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
 
@@ -172,6 +175,9 @@ int SocketServer::Call()
                         if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, sock_new, &event) < 0)
                             throw SocketException("[epoll_ctl()]", true);
 
+                        INFO("debug","epoll create session\n");
+                        //Session_smart *s = new Session_smart(s_manager->AddSession(sock_new));
+                        s_manager->AddSession(sock_new);
                         //cb_notify(new_connection_net_task());
                     }
 

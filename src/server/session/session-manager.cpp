@@ -1,7 +1,7 @@
 #include "session-manager.h"
 
 SessionManager::SessionManager(): 
-m_sessionLimit(0), m_sessionActiveLimit(0), net_number(0), exec_number(0)
+m_sessionLimit(100), m_sessionActiveLimit(50), net_number(0), exec_number(0)
 {
     channelMrg = new ChannelManager();
 }
@@ -31,12 +31,14 @@ void SessionManager::GetIdList(std::list<uint32>* ulist)
 
 Session_smart SessionManager::AddSession(int sock)
 {
+    INFO("debug","* session manager creating session\n");
     if (GetQueuedSessionCount() + addSessQueue.size() <  m_sessionLimit)
     {        
         Session* ses = new Session(sock);
         assert(ses);
         counted_ptr<Session> smart_ses(ses);
         addSessQueue.add(smart_ses);
+        INFO("debug","* new session created on sock: %d\n", sock);
     }
     else
     {
@@ -166,6 +168,7 @@ void SessionManager::AddSessions_()
 
     while (addSessQueue.next(sess))
     {
+        INFO("debug", "* session found!\n");
         for (; itr != m_sessions.end(); itr++)
         {
             if (next_id != (itr->first-1))

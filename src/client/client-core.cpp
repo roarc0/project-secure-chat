@@ -165,8 +165,13 @@ void ClientCore::HandleRecv()
     INFO("debug","waiting for data...\n");
     try
     {
-        if (csock->Recv(&opcode, OPCODE_SIZE) == 0);
+        if (csock->Recv(&opcode, OPCODE_SIZE) <= 0)
+        {
+            INFO("debug","non ho ricevuto un ... nulla\n");
+            perror("recv");
             return;
+        }
+
         INFO("debug","opcode : %d\n", opcode);
         csock->Recv(&len, LENGTH_SIZE);
         INFO("debug","len    : %d\n", len);

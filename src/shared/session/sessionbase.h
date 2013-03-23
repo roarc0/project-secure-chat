@@ -18,6 +18,8 @@ class SessionBase
         // THREADSAFE
         void QueuePacket(Packet* new_packet); 
         void SendPacket(Packet* new_packet);
+        void SendPacketToSocket(Packet* new_packet);
+        Packet* RecivePacketFromSocket();
         Packet* GetPacketToSend();     
 
         virtual bool IsInChannel() { return false; } // serve anche al client?
@@ -30,6 +32,8 @@ class SessionBase
     protected:
 
         int _SendPacket(const Packet& new_packet);
+        int _SendPacketToSocket(const Packet& pct);
+        Packet* _RecivePacketFromSocket();
 
         Mutex m_mutex;        
 

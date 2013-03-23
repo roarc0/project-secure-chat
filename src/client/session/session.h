@@ -8,16 +8,13 @@ class Session : public SessionBase
 {
     SocketClient* c_Socket;
     bool         connected;
-    
+
   public:
     Session();
     ~Session();
     
     bool Connect();
     bool Disconnect();
-
-    //void SendPacket(Packet*);
-    //void RecvPacket(Packet*);
 
     bool IsConnected() const
     {
@@ -28,9 +25,6 @@ class Session : public SessionBase
     {
         connected = c;
     }
-
-  /*private:
-    int _SendPacket(const Packet& new_packet);*/
 };
 
 #endif

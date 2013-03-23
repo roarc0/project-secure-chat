@@ -5,13 +5,14 @@
 #include "utility/singleton.h"
 #include "threading/thread.h"
 #include "session/session.h"
-//#include "networking/packet.h"
-//#include "networking/socket-client.h"
+
 void* CoreThread(void*);
 
 class ClientCore
 {
-    Session*   session;
+    Session*       session;
+    pthread_cond_t cond_connection;
+    pthread_mutex_t mutex_connection;
 
     ClientCore();
 
@@ -26,6 +27,16 @@ class ClientCore
 
     void  GuiUpdateStatusBar(const char*);
     int   StartThread(Session *sc);
+
+    void WaitConnection()
+    {
+        pthread_cond_wait(&cond_connection, &mutex_connection);
+    }
+
+    void SignalConnection()
+    {
+        pthread_cond_signal(&cond_connection);
+    }
 
     bool  IsConnected()
     {

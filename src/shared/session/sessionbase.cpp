@@ -32,7 +32,7 @@ void SessionBase::QueuePacket(Packet* new_packet)
 
 void SessionBase::SendPacket(Packet* new_packet)
 {
-    if (!m_Socket || !new_packet)
+    if (!m_Socket || m_Socket->IsClosed() || !new_packet)
         return;
 
     if (_SendPacket(*new_packet) == -1)
@@ -41,7 +41,7 @@ void SessionBase::SendPacket(Packet* new_packet)
 
 void SessionBase::SendPacketToSocket(Packet* new_packet)
 {
-    if (!m_Socket || !new_packet)
+    if (!m_Socket || m_Socket->IsClosed() || !new_packet)
         return;
     
     if (_SendPacketToSocket(*new_packet) == -1)
@@ -50,25 +50,24 @@ void SessionBase::SendPacketToSocket(Packet* new_packet)
 
 int SessionBase::_SendPacket(const Packet& pct) 
 {
-    Packet* pkt = new Packet(pct);
-    _sendQueue.add(pkt);
-    return 0;
+    // Implementato nella Session Server
 }
 
 int SessionBase::_SendPacketToSocket(const Packet& pct)
 {
     PktHeader header(pct.size()/*+OPCODE_SIZE*/, pct.GetOpcode());
-    unsigned char rawData[header.getHeaderLength()+ pct.size() + 1];
+    unsigned char* rawData = new unsigned char [header.getHeaderLength() + pct.size() + 1];
     // Inserire Criptazione
-    memcpy((void*)&rawData, (char*) header.header, header.getHeaderLength());
-    memcpy((void*)&rawData + header.getHeaderLength(), (char*) pct.contents(), pct.size());
-    m_Socket->Send(&rawData, pct.size() + header.getHeaderLength());
+    memcpy((void*)rawData, (char*) header.header, header.getHeaderLength());
+    memcpy((void*)rawData + header.getHeaderLength(), (char*) pct.contents(), pct.size());
+    m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
+    delete[] rawData;    
     return 0;
 }
 
 Packet* SessionBase::RecvPacketFromSocket()
 {
-    if (!m_Socket)
+    if (!m_Socket || m_Socket->IsClosed())
         return NULL;
 
     return _RecvPacketFromSocket();
@@ -82,7 +81,7 @@ Packet* SessionBase::_RecvPacketFromSocket()
     PktHeader pkt_head(header, 4);
     // Prendi Resto dei Dati
     
-    char buf[pkt_head.getSize()+1];
+    char* buf = new char[pkt_head.getSize()+1];
     m_Socket->Recv((void*) &buf, pkt_head.getSize());  
                         
     INFO("debug","Livello Network Messaggio: %s , header %u, lunghezza %u\n", buf, pkt_head.getHeader(), pkt_head.getSize()); 
@@ -91,6 +90,7 @@ Packet* SessionBase::_RecvPacketFromSocket()
     Packet* pkt = new Packet(pkt_head.getHeader(), pkt_head.getSize());
     *pkt << buf;
 
+    delete[] buf;
     return pkt;
 }
 

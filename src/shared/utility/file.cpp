@@ -110,7 +110,7 @@ char *list_files(const char *dir)
     struct dirent *pdir;
     struct stat st;
     DIR *d=opendir(dir);
-    int size=2048;
+    unsigned int size=2048;
     char *path=(char *)malloc(sizeof(char)*1024);
     char *buffer=(char *)malloc(sizeof(char)*size);
     if (!dir || !buffer)
@@ -209,7 +209,7 @@ char *sha_digest(const char *filename)
 }
 */
 
-void info_file(const char *filename,int size,const char *sha)
+void info_file(const char *filename, int /*size*/, const char *sha)
 {
     if (!filename || !sha)
         return;

@@ -136,7 +136,7 @@ void Session::SendWaitQueue(int position)
     SendPacket(&new_packet);   
 }
 
-void Session::Handle_Ping(Packet& packet)
+void Session::Handle_Ping(Packet& /*packet*/)
 {
 
 }

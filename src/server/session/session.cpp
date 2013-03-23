@@ -119,6 +119,10 @@ void Session::HandleMessage(Packet& packet)
     packet >> s;
     INFO ("debug", "Livello Esecuzione Messaggio: %s \n", s.c_str());
 
+    // Test send non funzionerà mai
+    Packet respacket;
+    respacket << "Il Server ha ascoltato il tuo messaggio e lo ha ingorato brutalmente.";
+    SendPacket(&respacket);
     //TODO
 }
 

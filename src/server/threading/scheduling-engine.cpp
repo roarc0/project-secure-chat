@@ -1,6 +1,6 @@
 #include "scheduling-engine.h"
 
-void MethodThread::Execute(void* arg)
+void MethodThread::Execute(void* /*arg*/)
 {
     while(1)
     {        
@@ -14,7 +14,7 @@ void MethodThread::Execute(void* arg)
     }    
 }
 
-SchedulingEngine::SchedulingEngine() : sem(m_mutex), b_active(false)
+SchedulingEngine::SchedulingEngine(): sem(m_mutex), b_active(false)
 {
 
 }
@@ -44,6 +44,8 @@ int SchedulingEngine::Initialize(uint32 n_thread)
         m_threads.push_front(m_thread);
     }
     b_active = true;
+
+    return 0;
 }
 
 int SchedulingEngine::Deactivate()

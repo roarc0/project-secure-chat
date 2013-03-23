@@ -52,10 +52,9 @@ class SchedulingEngine
 
         LockedQueue<MethodRequest*> q_method;
 
-        bool b_active;
-
         Mutex m_mutex;
         Semaphore sem;
+        bool b_active;
 };
 
 #define s_sched_engine Singleton<SchedulingEngine>::GetInstance()

@@ -1,11 +1,7 @@
 #ifndef BYTECONVERTER_H
 #define BYTECONVERTER_H
 
-/* ByteConverter reverse your byte order.  This is use
-    for cross platform where they have different endians.
- */
-
-#include "../common.h"
+#include "common.h"
 #include <algorithm>
 
 namespace ByteConverter
@@ -18,7 +14,7 @@ namespace ByteConverter
     }
 
     template<> inline void convert<0>(char *) {}
-    template<> inline void convert<1>(char *) {}            // ignore central byte
+    template<> inline void convert<1>(char *) {}  // ignore central byte
 
     template<typename T> inline void apply(T *val)
     {

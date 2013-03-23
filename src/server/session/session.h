@@ -1,7 +1,8 @@
 #ifndef _SESSION_H
 #define _SESSION_H
 
-#include "../../shared/session/sessionbase.h"
+#include "session/sessionbase.h"
+#include "utility/counted_ptr.h"
 #include "packetfilter.h"
 
 class Session : public SessionBase

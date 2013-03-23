@@ -16,7 +16,7 @@
 #ifndef SOCKET_CLIENT_H
 #define SOCKET_CLIENT_H
 
-#include "../../shared/networking/socket-base.h"
+#include "networking/socket-base.h"
 
 using namespace std;
 

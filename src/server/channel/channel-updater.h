@@ -1,11 +1,12 @@
 #ifndef CHANNEL_UPDATER_H
 #define CHANNEL_UPDATER_H
 
-#include "threading/lock.h"
 #include "common.h"
 #include "channel.h"
 #include "method-request.h"
 #include "scheduling-engine.h"
+#include "threading/lock.h"
+#include "utility/counted_ptr.h"
 
 NEWEXCEPTION(ChannelUpdaterException);
 

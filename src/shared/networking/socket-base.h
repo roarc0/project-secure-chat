@@ -24,7 +24,8 @@
 #include <netinet/in.h>      // For sockaddr_in
 #include <string>
 
-#include "../common.h"
+#include "common.h"
+#include "utility/exception.h"
 
 using namespace std;
 

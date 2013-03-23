@@ -1,8 +1,8 @@
 #ifndef _CHANNEL_MNG_H
 #define _CHANNEL_MNG_H
 
-#include "../../shared/common.h"
-#include "../../shared/threading/lock.h"
+#include "common.h"
+#include "threading/lock.h"
 #include "session-manager.h"
 
 #include <list>

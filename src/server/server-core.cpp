@@ -18,17 +18,8 @@ void server_core()
         s_manager;
         net_manager;
 
-        //InitCommands();
-
         net_manager->Initialize(N_NET_THREAD); // Numero thread network
         s_sched_engine->Initialize(N_EXEC_THREAD); // Numero thread elaborazione
-
-        /*SocketServer server;
-        server.Init(CFG_GET_INT("server_port"));
-        server.InitCallback(&handle_session_manager_task);
-
-        INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
-        server.Start();*/
 
         bool m_active = true;
         uint32 diff = 0;

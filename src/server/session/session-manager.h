@@ -4,12 +4,12 @@
 #include <map>
 #include <pthread.h>
 #include "common.h"
-#include "threading/mutex.h"
-#include "utility/singleton.h"
-#include "utility/queues/lock_queue.h"
 #include "queue.h"
 #include "packetfilter.h"
 #include "channel-manager.h"
+#include "threading/mutex.h"
+#include "utility/singleton.h"
+#include "utility/queues/lock_queue.h"
 
 class ChannelManager;
 

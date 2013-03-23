@@ -72,15 +72,11 @@ using std::hash_map;
 #define int16 int16_t
 #define int8  int8_t
 
-#include "threading/lock.h"
-#include "threading/semaphore.h"
+
 #include "utility/file.h"
 #include "utility/logger.h"
 #include "utility/timer.h"
 #include "utility/config.h"
-#include "utility/counted_ptr.h"
-#include "utility/queues/lock_queue.h"
-#include "utility/exception.h"
 #include "revision.h"
 
 typedef bool(*handler)(void *);

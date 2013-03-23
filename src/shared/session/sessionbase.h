@@ -1,9 +1,12 @@
 #ifndef _SESSION_BASE_H
 #define _SESSION_BASE_H
 
-#include "../networking/packet.h"
-#include "../networking/socket-base.h"
-#include "../common.h"
+#include "networking/packet.h"
+#include "networking/socket-base.h"
+#include "utility/queues/lock_queue.h"
+#include "threading/lock.h"
+#include "threading/semaphore.h"
+#include "common.h"
 
 class SessionBase
 {

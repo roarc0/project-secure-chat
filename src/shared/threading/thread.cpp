@@ -41,7 +41,7 @@ void* Thread::EntryPoint(void* pthis)
 {
    Thread* pt = (Thread*)pthis;
    pt->Run(pt->Arg());
-   return NULL;  
+   pthread_exit(NULL); //return NULL;
 }
 
 void Thread::Setup()

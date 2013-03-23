@@ -20,7 +20,7 @@ class ChatCommand
         uint32             SecurityLevel;
         bool (ChatHandler::*Handler)(const char* args);
         std::string        Help;
-        ChatCommand*      ChildCommands;
+        ChatCommand*       ChildCommands;
 };
 
 class ChatHandler
@@ -37,6 +37,7 @@ class ChatHandler
         
     private:
         bool isAvailable(ChatCommand const& cmd) const;
+        bool hasStringAbbr(const char* name, const char* part);
         bool ExecuteCommandInTable(ChatCommand* table, const char* text, const std::string& fullcmd);
         
         bool ShowHelpForCommand(ChatCommand* table, const char* cmd);
@@ -50,14 +51,12 @@ class ChatHandler
 
         static ChatCommand* getCommandTable();
         
-        bool hasStringAbbr(const char* name, const char* part);
-        
-        // Da implementare e spostare nel cpp, l'args è tutto il resto della stringa dopo il comando :P
-        bool HandleJoinChannelCommand(const char *args) { return true; }
-        bool HandleCreateChannelCommand(const char *args) { return true; }
-        bool HandleLeaveChannelCommand(const char *args) { return true; }
-        bool HandleKickCommand(const char *args) { return true; }
-        bool HandlePingCommand(const char *args) { return true; }
+        // Se ritornano false appare il messaggio di incorretta sintassi o di Help se presente
+        bool HandleJoinChannelCommand(const char *args);
+        bool HandleCreateChannelCommand(const char *args);
+        bool HandleLeaveChannelCommand(const char *args);
+        bool HandleKickCommand(const char *args);
+        bool HandlePingCommand(const char *args);
  
  };
  

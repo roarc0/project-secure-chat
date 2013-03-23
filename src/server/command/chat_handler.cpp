@@ -16,7 +16,7 @@ ChatCommand* ChatHandler::getCommandTable()
     
     static ChatCommand utilityCommandTable[] =
     {
-        { "ping",        SEC_USER,            &ChatHandler::HandlePingCommand,                 "", NULL },
+        
         { NULL,          0,                   NULL,                                            "", NULL }
     };
 
@@ -24,6 +24,7 @@ ChatCommand* ChatHandler::getCommandTable()
     {
         { "channel",      SEC_USER,     NULL,                 "", channelCommandTable     },
         { "utility",      SEC_USER,     NULL,                 "", utilityCommandTable     },
+        { "ping",         SEC_USER,     &ChatHandler::HandlePingCommand,         "", NULL },
         { NULL,           0,            NULL,                 "", NULL                    }
     };
 
@@ -280,7 +281,7 @@ bool ChatHandler::ShowHelpForSubCommands(ChatCommand* table, char const* cmd, ch
 void ChatHandler::SendSysMessage(const char *str)
 {
     INFO ("debug", "%s \n", str);
-    // inseririre eventuali header appostiti
+    // TODO inseririre eventuali header appostiti
     Packet data;    
     data << str;
     m_session->SendPacket(&data);
@@ -294,4 +295,33 @@ void ChatHandler::PSendSysMessage(const char *format, ...)
     vsnprintf(str, 2048, format, ap);
     va_end(ap);
     SendSysMessage(str);
+}
+
+bool ChatHandler::HandleJoinChannelCommand(const char *args) 
+{ 
+    return true; 
+}
+
+bool ChatHandler::HandleCreateChannelCommand(const char *args)
+{ 
+    return true; 
+}
+
+bool ChatHandler::HandleLeaveChannelCommand(const char *args)
+{ 
+    return true; 
+}
+
+bool ChatHandler::HandleKickCommand(const char *args)
+{ 
+    return true; 
+}
+
+bool ChatHandler::HandlePingCommand(const char *args)
+{ 
+    // TODO inseririre eventuali header appostiti
+    Packet data;    
+    data << "Pong";
+    m_session->SendPacket(&data);
+    return true; 
 }

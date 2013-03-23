@@ -31,7 +31,7 @@ class SessionBase
         SocketBase* m_Socket;
     protected:
 
-        int _SendPacket(const Packet& new_packet);
+        virtual int _SendPacket(const Packet& new_packet);
         int _SendPacketToSocket(const Packet& pct);
         Packet* _RecvPacketFromSocket();
 

@@ -33,8 +33,13 @@ class NetworkThread: public MethodRequest
                     if (net_ses.second == SEND)
                     {
                         pkt = net_ses.first->GetPacketToSend();
-                        net_ses.first->SendPacketToSocket(pkt);
-                        delete pkt;
+                        if (pkt)
+                        {
+                            net_ses.first->SendPacketToSocket(pkt);
+                            delete pkt;
+                        }
+                        else
+                            INFO("debug", "Packet NULL\n");
                     }
                     else // Recv
                     {

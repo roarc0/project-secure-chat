@@ -134,10 +134,10 @@ bool ClientCore::HandleSend(const char* msg)  // comunicazione in ingresso dall'
 
     string str_msg;
 
-    if (msg[0] != '\\')
+    /*if (msg[0] != '\\')
     {
         str_msg = "\\send ";
-    }
+    }*/
 
     str_msg += msg;
 

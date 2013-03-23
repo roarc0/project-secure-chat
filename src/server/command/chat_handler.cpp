@@ -26,6 +26,8 @@ ChatCommand* ChatHandler::getCommandTable()
         { "utility",      SEC_USER,     NULL,                 "", utilityCommandTable     },
         { NULL,           0,            NULL,                 "", NULL                    }
     };
+
+    return commandTable;
 };
 
 bool ChatHandler::isAvailable(ChatCommand const& cmd) const
@@ -43,7 +45,6 @@ bool ChatHandler::hasStringAbbr(const char* name, const char* part)
         // "" part from non-"" command
         if (!*part)
             return false;
-
         for (;;)
         {
             if (!*part)
@@ -70,7 +71,7 @@ int ChatHandler::ParseCommands(const char* text)
     /// chat case (/command or !command format)
     if (m_session)
     {
-        if (text[0] != '/' && text[0] != '!')
+        if (text[0] != '\\' && text[0] != '!')
             return 0;
     }
 
@@ -80,11 +81,11 @@ int ChatHandler::ParseCommands(const char* text)
     // original `text` can't be used. It content destroyed in command code processing.
 
     /// ignore messages staring from many dots.
-    if ((text[0] == '/' && text[1] == '/') || (text[0] == '!' && text[1] == '!'))
+    if ((text[0] == '\\' && text[1] == '\\') || (text[0] == '!' && text[1] == '!'))
         return 0;
 
     /// skip first / or ! (in console allowed use command with / and ! and without its)
-    if (text[0] == '!' || text[0] == '/')
+    if (text[0] == '!' || text[0] == '\\')
         ++text;
 
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
@@ -104,14 +105,12 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         cmd += *text;
         ++text;
     }
-
+    
     while (*text == ' ') ++text;
-
     for (uint32 i = 0; table[i].Name != NULL; ++i)
     {
         if (!hasStringAbbr(table[i].Name, cmd.c_str()))
             continue;
-
         bool match = false;
         if (strlen(table[i].Name) > cmd.length())
         {
@@ -131,7 +130,6 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         }
         if (match)
             continue;
-
         // select subcommand from child commands list
         if (table[i].ChildCommands != NULL)
         {
@@ -281,6 +279,7 @@ bool ChatHandler::ShowHelpForSubCommands(ChatCommand* table, char const* cmd, ch
 
 void ChatHandler::SendSysMessage(const char *str)
 {
+    INFO ("debug", "%s \n", str);
     // inseririre eventuali header appostiti
     Packet data;    
     data << str;

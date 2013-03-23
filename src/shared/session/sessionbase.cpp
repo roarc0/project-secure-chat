@@ -68,7 +68,7 @@ int SessionBase::_SendPacketToSocket(const Packet& pct)
     unsigned char* rawData = new unsigned char[header.getHeaderLength()+ pct.size() + 1];
     // Inserire Criptazione
     memcpy((void*)rawData, (char*) header.header, header.getHeaderLength());
-    memcpy((void*)rawData + header.getHeaderLength(), (char*) pct.contents(), pct.size());
+    memcpy((void*)(rawData + header.getHeaderLength()), (char*) pct.contents(), pct.size());
     m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
     delete[] rawData;    
     return 0;

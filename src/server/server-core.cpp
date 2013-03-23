@@ -15,6 +15,11 @@ void server_core()
         //db_manager->set_dbfilename(CFG_GET_STRING("db_filename"));
         //db_manager->init_db();
 
+               
+/* ... */
+
+
+
         s_manager;
         net_manager;
 
@@ -23,14 +28,23 @@ void server_core()
 
         bool m_active = true;
         uint32 diff = 0;
+        struct timeval t1, t2; 
+
+        gettimeofday(&t1, NULL);
 
         while(m_active)
         {
             try
             {
                 msleep(100);
+
                 // calcola diff
-                diff = 100;
+                gettimeofday(&t2, NULL);
+                diff = (t2.tv_sec - t1.tv_sec) * 1000 + (t2.tv_usec - t1.tv_usec)/1000;
+                if (diff == 0)
+                    diff = 1;
+                t1 = t2;
+
                 s_manager->Update(diff);
             }
             catch(...)

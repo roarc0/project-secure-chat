@@ -11,6 +11,7 @@ enum eChatErrorCode
     LANG_NO_SUBCMD,
     LANG_AVIABLE_CMD,
     LANG_SUBCMDS_LIST,
+    LANG_NO_HELP_CMD,
     LANG_CMD_MAX
 };
 
@@ -23,11 +24,12 @@ class ChatCommandError
 
 static ChatCommandError ChatCommandErrorTable[]
 {
-    { LANG_CMD_SYNTAX,   "Incorrect syntax."              },
-    { LANG_NO_CMD,       "There is no such command"       },
-    { LANG_NO_SUBCMD,    "There is no such subcommand."   },
-    { LANG_AVIABLE_CMD,  "Commands available to you:"     },
-    { LANG_SUBCMDS_LIST, "Command %s have subcommands:%s" },
+    { LANG_CMD_SYNTAX,   "Incorrect syntax."                 },
+    { LANG_NO_CMD,       "There is no such command"          },
+    { LANG_NO_SUBCMD,    "There is no such subcommand."      },
+    { LANG_AVIABLE_CMD,  "Commands available to you:"        },
+    { LANG_SUBCMDS_LIST, "Command %s have subcommands:%s"    },
+    { LANG_NO_HELP_CMD,  "There is no help for that command" },
     { LANG_CMD_MAX,      ""},
 };
 
@@ -52,6 +54,8 @@ ChatCommand* ChatHandler::getCommandTable()
         { "channel",      SEC_USER,     NULL,                 "", channelCommandTable     },
         { "utility",      SEC_USER,     NULL,                 "", utilityCommandTable     },
         { "ping",         SEC_USER,     &ChatHandler::HandlePingCommand,         "", NULL },
+        { "commands",     SEC_USER,     &ChatHandler::HandleCommandsCommand,     "", NULL },
+        { "help",         SEC_USER,     &ChatHandler::HandleHelpCommand,         "Syntax: .help [$command]  Display usage instructions for the given $command. If no $command provided show list available commands.", NULL },
         { NULL,           0,            NULL,                 "", NULL                    }
     };
 
@@ -336,6 +340,29 @@ void ChatHandler::PSendSysMessage(uint32 entry, ...)
     vsnprintf(str, 2048, format, ap);
     va_end(ap);
     SendSysMessage(str);
+}
+
+bool ChatHandler::HandleCommandsCommand(const char* /*args*/)
+{
+    ShowHelpForCommand(getCommandTable(), "");
+    return true;
+}
+
+bool ChatHandler::HandleHelpCommand(const char* args)
+{
+    char* cmd = strtok((char*)args, " ");
+    if (!cmd)
+    {
+        ShowHelpForCommand(getCommandTable(), "help");
+        ShowHelpForCommand(getCommandTable(), "");
+    }
+    else
+    {
+        if (!ShowHelpForCommand(getCommandTable(), cmd))
+            SendSysMessage(LANG_NO_HELP_CMD);
+    }
+
+    return true;
 }
 
 bool ChatHandler::HandleJoinChannelCommand(const char *args) 

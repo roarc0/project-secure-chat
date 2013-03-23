@@ -35,8 +35,8 @@ void* CoreThread(void* arg)
         {
             while(c_core->IsConnected())
             {
-                c_core->HandleRecv(); // usare session poi notificare in qualche modo
-                msleep(30); 
+                c_core->HandleRecv();
+                msleep(1); 
             }
         }
         catch(SocketException &e)
@@ -45,20 +45,33 @@ void* CoreThread(void* arg)
                  CFG_GET_STRING("server_host").c_str(),
                  CFG_GET_INT("server_port"), e.what());
         }
-        msleep(300); // wait, on connect si fa il signal
+        c_core->WaitConnection();
+        INFO("debug","* Starting receive loop!\n");
+ 
     }
     pthread_exit(NULL);
 }
 
 ClientCore::ClientCore()
 {
+    pthread_cond_init (&cond_connection, NULL);
+    pthread_mutex_init (&mutex_connection, NULL);
     session = new Session();
-    StartThread(session);
+    StartThread (session);
+}
+
+ClientCore::~ClientCore()
+{
+    pthread_cond_destroy (&cond_connection);
+    pthread_mutex_destroy (&mutex_connection);
 }
 
 bool ClientCore::Connect()
 {
-    return session->Connect();
+    bool ret = session->Connect();
+    if (ret)
+        SignalConnection();
+    return ret;
 }
 
 bool ClientCore::Disconnect()
@@ -88,10 +101,12 @@ void ClientCore::HandleRecv()
  
     Packet *pack;
     pack = session->RecvPacketFromSocket();
-
-    char data[512]="";
-    //data << pack;
-    INFO("debug", "received message: \"%s\"", data);
+    
+    INFO("debug","packet received...\n");
+ 
+    //char data[512]="";
+    //*pack >> data;
+    //INFO("debug", "received message: \"%s\"", data);
 
     // roba buffa
 }

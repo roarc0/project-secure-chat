@@ -29,8 +29,8 @@ class Session : public SessionBase
         connected = c;
     }
 
-  private:
-    int _SendPacket(const Packet& new_packet);
+  /*private:
+    int _SendPacket(const Packet& new_packet);*/
 };
 
 #endif

@@ -10,6 +10,7 @@ SessionManager::~SessionManager()
 {
     while (!m_sessions.empty())
     {
+        m_sessions.begin()->second->deleteSmartPointer();
         // delete m_sessions.begin()->second; // It's Smart :D
         m_sessions.erase(m_sessions.begin());
     }
@@ -37,6 +38,7 @@ Session_smart SessionManager::AddSession(int sock)
         Session* ses = new Session(sock);
         assert(ses);
         counted_ptr<Session> smart_ses(ses);
+        smart_ses->setSmartPointer(smart_ses);
         addSessQueue.add(smart_ses);
         INFO("debug","* new session created on sock: %d\n", sock);
         return smart_ses;
@@ -88,7 +90,8 @@ void SessionManager::Update(uint32 udiff)
         if (!pSession->Update(udiff, updater))
         {
             INFO("debug", "Rimuovi sessione %u \n", itr->first);
-            RemoveQueuedSession(itr->second);
+            RemoveQueuedSession(itr->second);            
+            pSession->deleteSmartPointer();
             m_sessions.erase(itr);
             pSession = NULL;
             // delete pSession;  // Is Smart :P

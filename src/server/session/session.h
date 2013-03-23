@@ -5,6 +5,9 @@
 #include "utility/counted_ptr.h"
 #include "packetfilter.h"
 
+class Session;
+typedef counted_ptr<Session> Session_smart;
+
 class Session : public SessionBase
 {
     public:
@@ -16,6 +19,8 @@ class Session : public SessionBase
         // THREADUNSAFE
         void KickSession();
         void SetId(uint32 id) { m_id = id; }
+        void setSmartPointer(Session_smart m_ses);
+        void deleteSmartPointer();
 
         // THREADSAFE 
         bool IsInChannel() { return channel_name == "" ? false : true; }        
@@ -30,13 +35,14 @@ class Session : public SessionBase
         void HandleJoinChannel(Packet& packet);       
   
     private:
-        uint32 m_id;
 
+        virtual int _SendPacket(const Packet& pct);
+
+        uint32 m_id;
+        Session_smart smartThis;
         bool m_inQueue;
         // Channel
         std::string channel_name;
 };
-
-typedef counted_ptr<Session> Session_smart;
 
 #endif

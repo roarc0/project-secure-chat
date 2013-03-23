@@ -3,6 +3,7 @@
 #include "channel.h"
 #include "session-manager.h"
 #include "chat_handler.h"
+#include "network-manager.h"
 
 Session::Session(int pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), channel_name("")
@@ -14,6 +15,26 @@ Session::~Session()
 {
 
 }
+
+void Session::setSmartPointer(Session_smart m_ses)
+{
+    smartThis = (Session_smart)m_ses;
+}
+
+void Session::deleteSmartPointer()
+{
+    smartThis = (Session_smart)NULL;
+}
+
+int Session::_SendPacket(const Packet& pct)
+{    
+    Packet* pkt = new Packet(pct);
+    _sendQueue.add(pkt);
+    if (smartThis.get() != NULL)
+        net_manager->QueueSend(smartThis);
+    return 0;
+}
+
 
 bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
 {

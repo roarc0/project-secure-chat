@@ -35,7 +35,7 @@ void SessionBase::SendPacket(Packet* new_packet)
     if (!m_Socket || !new_packet)
         return;
 
-    if (_SendPacket(*new_packet) == -1)
+    if (_SendPacketToSocket(*new_packet) == -1)
         m_Socket->CloseSocket();
 }
 
@@ -48,7 +48,7 @@ void SessionBase::SendPacketToSocket(Packet* new_packet)
         m_Socket->CloseSocket();
 }
 
-int SessionBase::_SendPacket(const Packet& pct)
+int SessionBase::_SendPacket(const Packet& pct) 
 {
     Packet* pkt = new Packet(pct);
     _sendQueue.add(pkt);
@@ -59,16 +59,12 @@ int SessionBase::_SendPacketToSocket(const Packet& pct)
 {
     PktHeader header(pct.size()/*+OPCODE_SIZE*/, pct.GetOpcode());
 
-    unsigned char* rawData = new unsigned char[header.getHeaderLength()+ pct.size() + 1];
-    
+    unsigned char rawData[header.getHeaderLength()+ pct.size() + 1];
     // Inserire Criptazione
 
-    memcpy((void*)rawData, (char*) header.header, header.getHeaderLength());
-    memcpy((void*)rawData + header.getHeaderLength(), (char*) pct.contents(), pct.size());
-
-    m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
-    delete[] rawData;
-
+    memcpy((void*)&rawData, (char*) header.header, header.getHeaderLength());
+    memcpy((void*)&rawData + header.getHeaderLength(), (char*) pct.contents(), pct.size());
+    m_Socket->Send(&rawData, pct.size() + header.getHeaderLength());
     return 0;
 }
 

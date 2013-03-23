@@ -2,6 +2,7 @@
 #include "opcode.h"
 #include "channel.h"
 #include "session-manager.h"
+#include "chat_handler.h"
 
 Session::Session(int pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), channel_name("")
@@ -115,9 +116,14 @@ void Session::Handle_ServerSide(Packet& /*packet*/)
 
 void Session::HandleMessage(Packet& packet) 
 {
-    string s;
-    packet >> s;
-    INFO ("debug", "Livello Esecuzione Messaggio: %s \n", s.c_str());
+    string msg;
+    packet >> msg;
+
+    // Controllo se ci sono comandi
+    if (ChatHandler(this).ParseCommands(msg.c_str()) > 0)
+        return;
+
+    INFO ("debug", "Livello Esecuzione Messaggio: %s \n", msg.c_str());
 
     // Test send non funzionerà mai
     Packet respacket;

@@ -41,8 +41,6 @@ SocketBase::~SocketBase()
 
 void SocketBase::InitSocket() throw(SocketException)
 {
-    int ret, val = 1;
-
     if ((sock = socket(AF_INET, type, protocol)) < 0)
         throw SocketException("[socket()]", true);
 }

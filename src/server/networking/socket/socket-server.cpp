@@ -40,7 +40,7 @@ void SocketServer::SetBlocking(int sock, const bool block)
         throw SocketException("[setBlocking() -> fnctl()]", true);
 }
 
-void SocketServer::SetupAddrInfo(int family, int socktype, int protocol)
+void SocketServer::SetupAddrInfo(int family, int socktype, int /*protocol*/)
 {
     memset(&serverinfo, 0, sizeof(struct addrinfo));
     serverinfo.ai_family   = family;
@@ -111,7 +111,7 @@ int SocketServer::Call()
 
     INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
 
-    int res = -1, sock_new, nbytes, i = 0;
+    int res = -1, sock_new, /*nbytes,*/ i = 0;
     
     INFO("debug", "* epoll thread started\n");
 

@@ -21,7 +21,7 @@ struct ChatCommandError
     std::string   Error;
 };
 
-static ChatCommandError ChatCommandErrorTable[]
+static ChatCommandError ChatCommandErrorTable[] =
 {
     { LANG_CMD_SYNTAX,   "Incorrect syntax."                 },
     { LANG_NO_CMD,       "There is no such command"          },
@@ -61,7 +61,7 @@ ChatCommand* ChatHandler::getCommandTable()
     return commandTable;
 };
 
-bool ChatHandler::isAvailable(ChatCommand const& cmd) const
+bool ChatHandler::isAvailable(ChatCommand const& /*cmd*/) const
 {
     // controlla il security level della sessione
     //return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel);
@@ -332,10 +332,10 @@ void ChatHandler::PSendSysMessage(const char *format, ...)
 
 void ChatHandler::PSendSysMessage(uint32 entry, ...)
 {
-    const char *format = ChatCommandErrorTable[entry].Error.c_str();
+    const char* format = ChatCommandErrorTable[entry].Error.c_str();
     va_list ap;
     char str [2048];
-    va_start(ap, format);
+    va_start(ap, entry);
     vsnprintf(str, 2048, format, ap);
     va_end(ap);
     SendSysMessage(str);
@@ -364,27 +364,27 @@ bool ChatHandler::HandleHelpCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleJoinChannelCommand(const char *args) 
+bool ChatHandler::HandleJoinChannelCommand(const char* /*args*/) 
 { 
     return true; 
 }
 
-bool ChatHandler::HandleCreateChannelCommand(const char *args)
+bool ChatHandler::HandleCreateChannelCommand(const char* /*args*/)
 { 
     return true; 
 }
 
-bool ChatHandler::HandleLeaveChannelCommand(const char *args)
+bool ChatHandler::HandleLeaveChannelCommand(const char* /*args*/)
 { 
     return true; 
 }
 
-bool ChatHandler::HandleKickCommand(const char *args)
+bool ChatHandler::HandleKickCommand(const char* /*args*/)
 { 
     return true; 
 }
 
-bool ChatHandler::HandlePingCommand(const char *args)
+bool ChatHandler::HandlePingCommand(const char* /*args*/)
 { 
     Packet data(SMSG_MESSAGE, 5);    
     data << "Pong";

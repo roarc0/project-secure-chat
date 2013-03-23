@@ -27,11 +27,13 @@ void Session::deleteSmartPointer()
 }
 
 int Session::_SendPacket(const Packet& pct)
-{    
+{  
+    if (!smartThis.get())
+        return -1;
+  
     Packet* pkt = new Packet(pct);
-    _sendQueue.add(pkt);
-    if (smartThis.get() != NULL)
-        net_manager->QueueSend(smartThis);
+    _sendQueue.add(pkt); 
+    net_manager->QueueSend(smartThis);
     return 0;
 }
 

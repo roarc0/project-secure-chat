@@ -1,5 +1,10 @@
 #include "sessionbase.h"
 
+SessionBase::SessionBase()
+{
+    m_Socket = NULL;
+}
+
 SessionBase::SessionBase(int pSock)
 {
     m_Socket = new SocketBase(pSock);
@@ -8,7 +13,7 @@ SessionBase::SessionBase(int pSock)
 SessionBase::~SessionBase()
 {
     INFO("debug", "DISTRUTTORE!\n");
-    // empty incoming packet queue
+
     Packet* packet = NULL;
     while (_recvQueue.next(packet))
         delete packet;
@@ -16,7 +21,8 @@ SessionBase::~SessionBase()
     while (_sendQueue.next(packet))
         delete packet;    
 
-    delete m_Socket;
+    if(m_Socket)
+        delete m_Socket;
 }
 
 void SessionBase::QueuePacket(Packet* new_packet)

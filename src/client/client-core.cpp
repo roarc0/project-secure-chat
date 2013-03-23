@@ -1,5 +1,26 @@
 #include "client-core.h"
 
+//giusto per ora.... T_T
+int ClientCore::StartThread(SocketClient *sc)
+{
+    int ret;
+    pthread_t tid;
+    pthread_attr_t tattr;
+
+    ret = pthread_attr_init(&tattr);
+    if (ret != 0)
+        return ret;
+    ret = pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
+    if (ret != 0)
+        return ret;
+    ret = pthread_create(&tid, &tattr, CoreThread, sc);
+    if (ret != 0)
+        return ret;
+
+    ret = pthread_attr_destroy(&tattr);
+    return ret;
+}
+
 void* CoreThread(void* arg)
 {
     sigset_t mask;
@@ -7,26 +28,26 @@ void* CoreThread(void* arg)
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
     SocketClient* csock = (SocketClient*)arg;
 
-    try
-    {
-        INFO("debug", "connection successful %s:%d\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"));
-        c_core->SetConnected(true);
+    INFO("debug","* Receive thread loaded\n");
 
-        while(1)
+    while(1)
+    {
+        try
         {
             while(c_core->IsConnected())
             {
-                c_core->HandleRecv(); // gestore comunicazione in ingresso
-                msleep(3); 
+                c_core->HandleRecv();
+                msleep(30); 
             }
-            msleep(300);      // wait, quando si clicca su connect si fa il signal
         }
+        catch(SocketException &e)
+        {
+            INFO("debug", "connection failed     %s:%d (%s)\n",
+                 CFG_GET_STRING("server_host").c_str(),
+                 CFG_GET_INT("server_port"), e.what());
+        }
+        msleep(300); // wait, on connect si fa il signal
     }
-    catch(SocketException &e)
-    {
-        INFO("debug", "connection failed     %s:%d (%s)\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"), e.what());
-    }
-
     pthread_exit(NULL);
 }
 
@@ -34,7 +55,7 @@ ClientCore::ClientCore()
 {
     connected = false;
     csock = new SocketClient(SOCK_STREAM, 0);
-    //start_thread(&core_thread, (void*)csock);
+    StartThread(csock);
 }
 
 bool ClientCore::Connect()
@@ -141,6 +162,7 @@ void ClientCore::HandleRecv()
     char *buffer = NULL;
     unsigned short len = 0, opcode;
 
+    INFO("debug","waiting for data...\n");
     try
     {
         if (csock->Recv(&opcode, OPCODE_SIZE) == 0);

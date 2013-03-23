@@ -68,6 +68,9 @@ void SocketServer::SetupSocket(int port) throw(SocketException)
         if ((sock_listen = socket(ai_res->ai_family, ai_res->ai_socktype, ai_res->ai_protocol)) < 0)
             continue;
 
+        if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0)
+            throw SocketException("[setsockopt()]", true);
+                
         if (bind(sock_listen, ai_res->ai_addr, ai_res->ai_addrlen) == 0)
         {
             INFO("debug", "succesful bind!\n");
@@ -75,9 +78,6 @@ void SocketServer::SetupSocket(int port) throw(SocketException)
                 throw SocketException("bind failed!", false);
             
             freeaddrinfo (serverinfo_res);
-
-            if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0)
-                throw SocketException("[setsockopt()]", true);
 
             SetBlocking(sock_listen, false);
 
@@ -198,5 +198,5 @@ int SocketServer::Call()
     }
     
     close(sock_new);
-    return 0;
+    pthread_exit(NULL); // fa cleanup -> http://linux.die.net/man/3/pthread_exit
 }

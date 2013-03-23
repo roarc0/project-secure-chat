@@ -35,6 +35,7 @@ class ChatHandler
         // Funzione chiamata per vedere se c'è un comando, e se c'è lo esegue
         int ParseCommands(const char* text);
         
+    private:
         bool isAvailable(ChatCommand const& cmd) const;
         bool ExecuteCommandInTable(ChatCommand* table, const char* text, const std::string& fullcmd);
         
@@ -51,6 +52,7 @@ class ChatHandler
         
         bool hasStringAbbr(const char* name, const char* part);
         
+        // Da implementare e spostare nel cpp, l'args è tutto il resto della stringa dopo il comando :P
         bool HandleJoinChannelCommand(const char *args) { return true; }
         bool HandleCreateChannelCommand(const char *args) { return true; }
         bool HandleLeaveChannelCommand(const char *args) { return true; }

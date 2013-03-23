@@ -41,9 +41,10 @@ void* CoreThread(void* arg)
         }
         catch(SocketException &e)
         {
-            INFO("debug", "connection failed     %s:%d (%s)\n", // leggere dal socket
+            INFO("debug", "receive failed (%s:%d) %s\n", // leggere dal socket
                  CFG_GET_STRING("server_host").c_str(),
                  CFG_GET_INT("server_port"), e.what());
+            session->SetConnected(false);
         }
         c_core->WaitConnection();
         INFO("debug","* Starting receive loop!\n");

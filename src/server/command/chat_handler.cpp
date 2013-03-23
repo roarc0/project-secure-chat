@@ -15,11 +15,10 @@ enum eChatErrorCode
     LANG_CMD_MAX
 };
 
-class ChatCommandError
+struct ChatCommandError
 {
-    public:
-        uint32        Entry;
-        std::string   Error;
+    uint32        Entry;
+    std::string   Error;
 };
 
 static ChatCommandError ChatCommandErrorTable[]

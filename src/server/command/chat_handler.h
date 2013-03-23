@@ -60,6 +60,8 @@ class ChatHandler
         static ChatCommand* getCommandTable();
         
         // Se ritornano false appare il messaggio di incorretta sintassi o di Help se presente
+        bool HandleCommandsCommand(const char* args);
+        bool HandleHelpCommand(const char* args);
         bool HandleJoinChannelCommand(const char *args);
         bool HandleCreateChannelCommand(const char *args);
         bool HandleLeaveChannelCommand(const char *args);

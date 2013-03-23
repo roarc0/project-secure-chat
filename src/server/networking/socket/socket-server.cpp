@@ -177,7 +177,12 @@ int SocketServer::Call()
                         INFO("debug","epoll create session\n");
 
                         s = new Session_smart(s_manager->AddSession(sock_new));
-
+                        if (s->get() == NULL)
+                        {
+                            close(sock_new);
+                            sock_new = INVALID_SOCKET;
+                            delete s;
+                        }
                         //s_manager->AddSession(sock_new);
                         //cb_notify(new_connection_net_task());
                     }

@@ -1,7 +1,35 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdarg.h>
+#include "opcode.h"
 #include "chat_handler.h"
+
+enum eChatErrorCode
+{
+    LANG_CMD_SYNTAX = 0,
+    LANG_NO_CMD,
+    LANG_NO_SUBCMD,
+    LANG_AVIABLE_CMD,
+    LANG_SUBCMDS_LIST,
+    LANG_CMD_MAX
+};
+
+class ChatCommandError
+{
+    public:
+        uint32        Entry;
+        std::string   Error;
+};
+
+static ChatCommandError ChatCommandErrorTable[]
+{
+    { LANG_CMD_SYNTAX,   "Incorrect syntax."              },
+    { LANG_NO_CMD,       "There is no such command"       },
+    { LANG_NO_SUBCMD,    "There is no such subcommand."   },
+    { LANG_AVIABLE_CMD,  "Commands available to you:"     },
+    { LANG_SUBCMDS_LIST, "Command %s have subcommands:%s" },
+    { LANG_CMD_MAX,      ""},
+};
 
 ChatCommand* ChatHandler::getCommandTable()
 { 
@@ -15,8 +43,7 @@ ChatCommand* ChatHandler::getCommandTable()
     };
     
     static ChatCommand utilityCommandTable[] =
-    {
-        
+    {        
         { NULL,          0,                   NULL,                                            "", NULL }
     };
 
@@ -91,7 +118,7 @@ int ChatHandler::ParseCommands(const char* text)
 
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
     {
-        SendSysMessage("There is no such command");
+        SendSysMessage(LANG_NO_CMD);
     }
     return 1;
 }
@@ -108,10 +135,12 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
     }
     
     while (*text == ' ') ++text;
+
     for (uint32 i = 0; table[i].Name != NULL; ++i)
     {
         if (!hasStringAbbr(table[i].Name, cmd.c_str()))
             continue;
+        
         bool match = false;
         if (strlen(table[i].Name) > cmd.length())
         {
@@ -131,22 +160,16 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         }
         if (match)
             continue;
+
         // select subcommand from child commands list
         if (table[i].ChildCommands != NULL)
         {
             if (!ExecuteCommandInTable(table[i].ChildCommands, text, fullcmd))
             {
                 if (text && text[0] != '\0')
-                {
-                    // Mandare risposta al client
-                    SendSysMessage("There is no such subcommand.");
-                }
+                    SendSysMessage(LANG_NO_SUBCMD);
                 else
-                {
-                    // Mandare risposta al client
-                    SendSysMessage("Incorrect syntax.");
-                }
-
+                    SendSysMessage(LANG_CMD_SYNTAX);
                 ShowHelpForCommand(table[i].ChildCommands, text);
             }
 
@@ -173,7 +196,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
             }
             else
             {
-                SendSysMessage("Incorrect syntax.");
+                SendSysMessage(LANG_CMD_SYNTAX);
             }
         }
 
@@ -269,11 +292,13 @@ bool ChatHandler::ShowHelpForSubCommands(ChatCommand* table, char const* cmd, ch
 
     if (table == getCommandTable())
     {
-        SendSysMessage("Commands available to you:");
+        SendSysMessage(LANG_AVIABLE_CMD);
         PSendSysMessage("%s", list.c_str());
     }
     else
-        PSendSysMessage("Command %s have subcommands:%s", cmd, list.c_str());
+    {
+        PSendSysMessage(LANG_SUBCMDS_LIST, cmd, list.c_str());
+    }
 
     return true;
 }
@@ -287,8 +312,24 @@ void ChatHandler::SendSysMessage(const char *str)
     m_session->SendPacket(&data);
 }
 
+void ChatHandler::SendSysMessage(uint32 entry)
+{
+    SendSysMessage(ChatCommandErrorTable[entry].Error.c_str());
+}
+
 void ChatHandler::PSendSysMessage(const char *format, ...)
 {
+    va_list ap;
+    char str [2048];
+    va_start(ap, format);
+    vsnprintf(str, 2048, format, ap);
+    va_end(ap);
+    SendSysMessage(str);
+}
+
+void ChatHandler::PSendSysMessage(uint32 entry, ...)
+{
+    const char *format = ChatCommandErrorTable[entry].Error.c_str();
     va_list ap;
     char str [2048];
     va_start(ap, format);
@@ -319,8 +360,7 @@ bool ChatHandler::HandleKickCommand(const char *args)
 
 bool ChatHandler::HandlePingCommand(const char *args)
 { 
-    // TODO inseririre eventuali header appostiti
-    Packet data;    
+    Packet data(SMSG_MESSAGE, 5);    
     data << "Pong";
     m_session->SendPacket(&data);
     return true; 

@@ -93,10 +93,6 @@ void SessionManager::Update(uint32 udiff)
             pSession = NULL;
             // delete pSession;  // Is Smart :P
         }
-        else
-        {
-            //INFO("debug", "NON Rimuovere sessione %u \n", itr->first);
-        }
     }
 
     channelMrg->Update(udiff);
@@ -118,7 +114,8 @@ void SessionManager::AddQueuedSession(Session_smart sess)
     sess->SetInQueue(true);
     m_QueuedSessions.push_back(sess);
 
-    // TODO Notifica all'utente che è in attesa, GetQueuePos(sess)
+    // Notifica all'utente che è in coda
+    sess->SendWaitQueue(GetQueuePos(sess));
 }
 
 bool SessionManager::RemoveQueuedSession(Session_smart sess)

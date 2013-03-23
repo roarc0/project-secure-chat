@@ -4,6 +4,12 @@
 #include "common.h"
 #include "session.h"
 
+#if COMPILER == COMPILER_GNU
+#  define ATTR_PRINTF(F, V) __attribute__ ((format (printf, F, V)))
+#else //COMPILER != COMPILER_GNU
+#  define ATTR_PRINTF(F, V)
+#endif //COMPILER == COMPILER_GNU
+
 enum AccountTypes
 {
     SEC_USER           = 0,
@@ -47,7 +53,9 @@ class ChatHandler
         void SetSentErrorMessage(bool val){ sentErrorMessage = val;};
         
         void SendSysMessage(const char *str);
-        void PSendSysMessage(const char *format, ...);
+        void SendSysMessage(uint32 entry);
+        void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2, 3);
+        void PSendSysMessage(uint32 entry, ...);
 
         static ChatCommand* getCommandTable();
         

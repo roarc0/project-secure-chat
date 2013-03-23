@@ -29,7 +29,7 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
     {
         if (packet->GetOpcode() >= NUM_MSG_TYPES) // Max opcode
         {
-            INFO ("debug", "Pacchetto Maxcode Non Valido\n");
+            INFO ("debug", "Opcode Pacchetto Non Valido\n");
         }
         else
         {
@@ -56,7 +56,7 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
                     case STATUS_LOGGING:
                         if (m_inQueue)
                         {
-                            INFO ("debug", "Rilevata Packet Injection durante la coda\n");
+                            INFO ("debug", "Rilevato Packet Injection durante la coda\n");
                             break; // For Packet Injection
                         }
                         (this->*opHandle.handler)(*packet);
@@ -95,7 +95,6 @@ void Session::KickSession()
         m_Socket->CloseSocket();
 }
 
-
 void Session::SendWaitQueue(int position)
 {
     // Invio posizione coda
@@ -116,7 +115,7 @@ void Session::Handle_ServerSide(Packet& /*packet*/)
 
 void Session::HandleMessage(Packet& packet) 
 {
-    string msg;
+    std::string msg;
     packet >> msg;
 
     // Controllo se ci sono comandi

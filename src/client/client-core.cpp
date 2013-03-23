@@ -74,14 +74,24 @@ bool ClientCore::HandleSend(const char* msg)  // comunicazione in ingresso dall'
 
     Packet pack(0x001);
     pack << msg;
-    session->SendPacket(&pack);
+    session->SendPacketToSocket(&pack);
 
     return true;
 }
 
 void ClientCore::HandleRecv()
 {
-     Packet pack;
-     session->ReceivePacket(&pack);
-     // roba buffa
+    //Packet pack;
+    //session->RecvPacketFromSocket(&pack);
+ 
+    INFO("debug","waiting for data...\n");
+ 
+    Packet *pack;
+    pack = session->RecvPacketFromSocket();
+
+    char data[512]="";
+    //data << pack;
+    INFO("debug", "received message: \"%s\"", data);
+
+    // roba buffa
 }

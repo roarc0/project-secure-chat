@@ -72,15 +72,15 @@ int SessionBase::_SendPacketToSocket(const Packet& pct)
     return 0;
 }
 
-Packet* SessionBase::RecivePacketFromSocket()
+Packet* SessionBase::RecvPacketFromSocket()
 {
     if (!m_Socket)
         return NULL;
 
-    return _RecivePacketFromSocket();
+    return _RecvPacketFromSocket();
 }
 
-Packet* SessionBase::_RecivePacketFromSocket()
+Packet* SessionBase::_RecvPacketFromSocket()
 {
     char header[4];
     // Prendi Header

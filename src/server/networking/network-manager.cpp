@@ -36,9 +36,9 @@ class NetworkThread: public MethodRequest
                         net_ses.first->SendPacketToSocket(pkt);
                         delete pkt;
                     }
-                    else // Recive
+                    else // Recv
                     {
-                        pkt = net_ses.first->RecivePacketFromSocket();
+                        pkt = net_ses.first->RecvPacketFromSocket();
                         if (pkt)
                             net_ses.first->QueuePacket(pkt);
                     } 
@@ -105,12 +105,12 @@ int NetworkManager::QueueSend(Session_smart m_ses)
     return 0;
 }
 
-int NetworkManager::QueueRecive(Session_smart m_ses)
+int NetworkManager::QueueRecive(Session_smart m_ses)  // TODO recv!!!
 {   
     if (!m_ses.get())
         return -1;
 
-    q_request.add(netsession_pair(m_ses, RECIVE));
+    q_request.add(netsession_pair(m_ses, RECIVE)); // TODO recv!!!
     sem.Signal();
     return 0;
 }

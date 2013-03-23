@@ -64,7 +64,7 @@ bool Session::Disconnect()
 
 void Session::ReceivePacket(Packet *pack)
 {
-    uint16 len = 0, opcode;
+    uint16 len = 0,bread, opcode;
     char *buffer;
     assert(pack);
 
@@ -79,24 +79,28 @@ void Session::ReceivePacket(Packet *pack)
             perror("recv");
             return;
         }
-        INFO("debug","opcode : %d\n", opcode);
+        *pack << opcode;
+        //if(opcode >= MAX_OPCODE) boommm!!!
 
         if (m_Socket->Recv(&len, LENGTH_SIZE) <= 0)
         {
             perror("recv");
             return;
         }
-        INFO("debug","len    : %d\n", len);
+        *pack << len;
+        //limitare la lunghezza. massima
 
         buffer = new char[len+1];
-        if(m_Socket->Recv(buffer, len) <= 0)
+        if((bread = m_Socket->Recv(buffer, len)) <= 0)
         {
             perror("recv");
             return;
         }
-        buffer[len] = '\0';
-        INFO("debug","msg    : \"%s\"\n", buffer);
-
+        buffer[bread] = '\0';
+        INFO("debug","receiving message: opcode %d, length %d, data \"%s\"\n",
+                     opcode, len, buffer);
+        *pack << buffer;
+        
         delete buffer;
         buffer = NULL;
     } 

@@ -71,21 +71,21 @@ int ChatHandler::ParseCommands(const char* text)
     /// chat case (/command or !command format)
     if (m_session)
     {
-        if (text[0] != '\\' && text[0] != '!')
+        if (text[0] != '\\')
             return 0;
     }
 
-    /// ignore single . and ! in line
+    /// ignore single \ and ! in line
     if (strlen(text) < 2)
         return 0;
     // original `text` can't be used. It content destroyed in command code processing.
 
     /// ignore messages staring from many dots.
-    if ((text[0] == '\\' && text[1] == '\\') || (text[0] == '!' && text[1] == '!'))
+    if ((text[0] == '\\' && text[1] == '\\'))
         return 0;
 
-    /// skip first / or ! (in console allowed use command with / and ! and without its)
-    if (text[0] == '!' || text[0] == '\\')
+    /// skip first \ or ! (in console allowed use command with \ and ! and without its)
+    if (text[0] == '\\')
         ++text;
 
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))

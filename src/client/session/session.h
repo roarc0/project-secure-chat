@@ -16,7 +16,8 @@ class Session : public SessionBase
     bool Connect();
     bool Disconnect();
 
-    void ReceivePacket(Packet*);
+    //void SendPacket(Packet*);
+    //void RecvPacket(Packet*);
 
     bool IsConnected() const
     {
@@ -29,6 +30,7 @@ class Session : public SessionBase
     }
 
   private:
+    int _SendPacket(const Packet& new_packet);
 };
 
 #endif

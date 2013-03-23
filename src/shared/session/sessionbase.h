@@ -19,7 +19,7 @@ class SessionBase
         void QueuePacket(Packet* new_packet); 
         void SendPacket(Packet* new_packet);
         void SendPacketToSocket(Packet* new_packet);
-        Packet* RecivePacketFromSocket();
+        Packet* RecvPacketFromSocket();
         Packet* GetPacketToSend();     
 
         virtual bool IsInChannel() { return false; } // serve anche al client?
@@ -33,7 +33,7 @@ class SessionBase
 
         int _SendPacket(const Packet& new_packet);
         int _SendPacketToSocket(const Packet& pct);
-        Packet* _RecivePacketFromSocket();
+        Packet* _RecvPacketFromSocket();
 
         Mutex m_mutex;        
 

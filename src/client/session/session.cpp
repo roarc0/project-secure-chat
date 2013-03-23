@@ -61,6 +61,35 @@ bool Session::Disconnect()
 
     return true;
 }
+/*
+void SessionBase::SendPacket(Packet* new_packet)
+{
+    if (!m_Socket || !new_packet)
+        return;
+
+    if (_SendPacket(*new_packet) == -1)
+        m_Socket->CloseSocket();
+}
+
+int SessionBase::_SendPacket(const Packet& pct)
+{
+    PktHeader header(pct.size()/+OPCODE_SIZE/, pct.GetOpcode());
+
+    unsigned char* rawData = 
+        new unsigned char[header.getHeaderLength()+ pct.size() + 1];
+    
+    // Inserire Criptazione
+
+    memcpy((void*)rawData,
+           (char*) header.header,
+           header.getHeaderLength());
+    memcpy((void*)rawData + header.getHeaderLength(),
+           (char*) pct.contents(),
+           pct.size());
+
+    m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
+    delete[] rawData;
+}
 
 void Session::ReceivePacket(Packet *pack)
 {
@@ -111,3 +140,4 @@ void Session::ReceivePacket(Packet *pack)
         m_Socket->InitSocket();
     }
 }
+*/

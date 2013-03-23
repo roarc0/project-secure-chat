@@ -26,7 +26,7 @@ void smartBuffer::print()
 
 /******************* crypto *******************/
 
-void Crypto::setSymKey(smartBuffer key)
+void Crypto::setSymKey(smartBuffer /*key*/)
 {
     // symKey = key; // ridefinire operator =
 }

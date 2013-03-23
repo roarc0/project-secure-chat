@@ -23,7 +23,7 @@ class smartBuffer { // not so smart
     void print();
     void random();
 
-    std::ostream& operator<<(std::ostream& os) // non mi compilava
+    std::ostream& operator<<(std::ostream& /*os*/) // non mi compilava
     {
        return cout << val;
     }

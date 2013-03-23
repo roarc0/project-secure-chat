@@ -52,7 +52,7 @@ void init_log_profiles()
 
 int load_args(int argc, char **argv)
 {
-    int opt, tmp_i;
+    int opt/*, tmp_i*/;
     opterr = 0;
 
     while ((opt = getopt (argc, argv, "c:hd")) != -1)

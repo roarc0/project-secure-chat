@@ -11,6 +11,7 @@
 class SessionBase
 {
     public:
+        SessionBase();
         SessionBase(int pSock);
         virtual ~SessionBase();
 
@@ -19,7 +20,7 @@ class SessionBase
         void SendPacket(Packet* new_packet);
         Packet* GetPacketToSend();     
 
-        virtual bool IsInChannel() { return false; }
+        virtual bool IsInChannel() { return false; } // serve anche al client?
 
         // Handle
         void Handle_NULL(Packet& /*packet*/);

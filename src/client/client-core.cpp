@@ -1,7 +1,6 @@
 #include "client-core.h"
 
-//giusto per ora.... T_T
-int ClientCore::StartThread(SocketClient *sc)
+int ClientCore::StartThread(Session *sc)
 {
     int ret;
     pthread_t tid;
@@ -26,7 +25,7 @@ void* CoreThread(void* arg)
     sigset_t mask;
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
-    SocketClient* csock = (SocketClient*)arg;
+    Session* session = (Session*)arg;
 
     INFO("debug","* Receive thread loaded\n");
 
@@ -36,13 +35,13 @@ void* CoreThread(void* arg)
         {
             while(c_core->IsConnected())
             {
-                c_core->HandleRecv();
+                c_core->HandleRecv(); // usare session poi notificare in qualche modo
                 msleep(30); 
             }
         }
         catch(SocketException &e)
         {
-            INFO("debug", "connection failed     %s:%d (%s)\n",
+            INFO("debug", "connection failed     %s:%d (%s)\n", // leggere dal socket
                  CFG_GET_STRING("server_host").c_str(),
                  CFG_GET_INT("server_port"), e.what());
         }
@@ -53,145 +52,36 @@ void* CoreThread(void* arg)
 
 ClientCore::ClientCore()
 {
-    connected = false;
-    csock = new SocketClient(SOCK_STREAM, 0);
-    StartThread(csock);
+    session = new Session();
+    StartThread(session);
 }
 
 bool ClientCore::Connect()
 {
-    if(!csock)
-        return false;
-
-    try
-    {
-        csock->Connect(CFG_GET_STRING("server_host"), CFG_GET_INT("server_port"));
-        c_core->SetConnected(true);
-    }
-    catch(SocketException &e)
-    {
-        c_core->SetConnected(false);
-        INFO("debug", "connection failed     %s:%d (%s)\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"), e.what());
-        return false;
-    }
-
-    INFO("debug", "connection successful %s:%d\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"));
-
-    return true;
+    return session->Connect();
 }
 
 bool ClientCore::Disconnect()
 {
-    if(!csock)
-        return false;
-
-    try
-    {
-        csock->Disconnect();
-        c_core->SetConnected(false);
-    }
-    catch(SocketException &e)
-    {
-        INFO("debug", "disconnection failed     %s:%d (%s)\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"), e.what());
-        return false;
-    }
-
-    INFO("debug", "disconnection successful %s:%d\n", CFG_GET_STRING("server_host").c_str(), CFG_GET_INT("server_port"));
-
-    return true;
-}
-
-void ClientCore::SendPacket(Packet* new_packet)
-{
-    if (!csock || !new_packet)
-        return;
-
-    if (_SendPacket(*new_packet) == -1)
-        csock->CloseSocket();
-}
-
-int ClientCore::_SendPacket(const Packet& pct)
-{
-    PktHeader header(pct.size(), pct.GetOpcode());
-
-    unsigned char* rawData = new unsigned char[header.getHeaderLength()+ pct.size() + 1];
-    
-    // Inserire Criptazione
-
-    memcpy((void*)rawData, (char*) header.header, header.getHeaderLength());
-    memcpy((void*)rawData + header.getHeaderLength(), (char*) pct.contents(), pct.size());
-
-    csock->Send(rawData, pct.size() + header.getHeaderLength());
-    delete[] rawData;
-
-    return 0;
+    return session->Disconnect();
 }
 
 bool ClientCore::HandleSend(const char* msg)  // comunicazione in ingresso dall'utente
 {
-    if(!connected || !csock || !msg)
-        return false;
-
-    string str_msg;
-
-    /*if (msg[0] != '\\')
-    {
-        str_msg = "\\send ";
-    }*/
-
-    str_msg += msg;
+    assert(session && session->IsConnected() && msg);
 
     INFO("debug","sending message: %s\n", msg);
-    
+
     Packet pack(0x001);
-    pack<<str_msg;
-    SendPacket(&pack);
-    
-    //unsigned char* rawData; = pack.GetData();
-    //Packet pack = ForgePacket(OP_NULL, str_msg.c_str());
-    //unsigned char* rawData = new unsigned char[pack.GetSize() + 1];
-    //pack.GetRawData(rawData);
-    //csock->Send(rawData, pack.GetSize()); // TODO Check send   
-    //csock->Send(str_msg.c_str(),strlen(str_msg.c_str()));
-    //delete[] rawData;
+    pack << msg;
+    session->SendPacket(&pack);
+
     return true;
 }
 
 void ClientCore::HandleRecv()
 {
-    char *buffer = NULL;
-    unsigned short len = 0, opcode;
-
-    INFO("debug","waiting for data...\n");
-    try
-    {
-        if (csock->Recv(&opcode, OPCODE_SIZE) <= 0)
-        {
-            INFO("debug","non ho ricevuto un ... nulla\n");
-            perror("recv");
-            return;
-        }
-
-        INFO("debug","opcode : %d\n", opcode);
-        csock->Recv(&len, LENGTH_SIZE);
-        INFO("debug","len    : %d\n", len);
-        buffer = new char[len+1];
-        csock->Recv(buffer, len);
-        buffer[len] = '\0';
-        INFO("debug","msg    : \"%s\"\n", buffer);
-
-        delete buffer;
-        buffer = NULL;
-    } 
-    catch (SocketException e)
-    {
-        INFO("debug","* client session error, %s\n", e.what());
-        if (buffer)
-        {
-            delete buffer;
-            buffer = NULL;
-        }
-        c_core->SetConnected(false);
-        csock->InitSocket();
-    }
+     Packet pack;
+     session->ReceivePacket(&pack);
+     // roba buffa
 }

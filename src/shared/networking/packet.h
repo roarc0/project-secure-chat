@@ -90,7 +90,7 @@ struct PktHeader
             size = HEADER_SIZE;
 
         for (uint8 headerIndex = 0; headerIndex < size; headerIndex++)
-            header[headerIndex++] = buffer[headerIndex++];
+            header[headerIndex] = buffer[headerIndex];
     }
 
     uint16 getSize()

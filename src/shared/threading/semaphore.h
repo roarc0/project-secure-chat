@@ -12,7 +12,7 @@ class Semaphore
         {
             _mutex = &mutex;
             pthread_cond_init(&_cond, NULL);
-            value = 0;
+            value = val;
         }
         virtual ~Semaphore()
         {

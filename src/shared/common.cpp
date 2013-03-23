@@ -11,7 +11,7 @@ void welcome()
 int exec_command(const char *fmt, ...)
 {
     char *buffer = NULL;
-    int ret;
+    //int ret;
 
     va_list ap;
     va_start(ap, fmt);

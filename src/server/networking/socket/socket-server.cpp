@@ -1,5 +1,4 @@
 #include "socket-server.h"
-
 #include "session-manager.h"
 #include "session.h"
 

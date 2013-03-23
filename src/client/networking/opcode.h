@@ -1,7 +1,7 @@
 #ifndef OPCODE_H
 #define OPCODE_H
 
-#include "../../shared/session/sessionbase.h"
+#include "session/sessionbase.h"
 
 class SessionBase;
 
@@ -13,9 +13,9 @@ enum MessageTypes
 
 enum SessionStatus
 {
-    STATUS_LOGGING = 0,                         // Collegato               
-    STATUS_LOGGED,                              // Loggato           
-    STATUS_TRANSFER,                            // Trasferimento di Cell       
+    STATUS_LOGGING = 0,                         // Collegato
+    STATUS_LOGGED,                              // Loggato
+    STATUS_TRANSFER,                            // Trasferimento di Cell
     STATUS_LOGOUT,                              // Sta per sloggarsi
     STATUS_NEVER,                               // Non accettato 
     STATUS_UNHANDLED                            // Non valido

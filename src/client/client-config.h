@@ -1,7 +1,7 @@
 #ifndef CONFIG_CLIENT_H
 #define CONFIG_CLIENT_H
 
-#include "../shared/common.h"
+#include "common.h"
 
 void   init_config(string);
 void   post_init_config();

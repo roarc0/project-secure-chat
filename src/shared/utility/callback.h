@@ -26,7 +26,6 @@ class EventCallback
     ret_type ExecCb();
 };
 
-// se non metto le definizioni dei template nel file h il compilatore smatta...
 template < typename ret_type, typename arg_type >
 EventCallback<ret_type, arg_type>::EventCallback()
 {

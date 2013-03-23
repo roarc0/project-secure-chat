@@ -1,10 +1,14 @@
 #ifndef _SCHEDULING_ENGINE_H
 #define _SCHEDULING_ENGINE_H
 
+#include "method-request.h"
 #include "common.h"
 #include "threading/thread.h"
 #include "utility/singleton.h"
-#include "method-request.h"
+#include "utility/exception.h"
+#include "utility/queues/lock_queue.h"
+#include "threading/lock.h"
+#include "threading/semaphore.h"
 #include <list>
 
 class SchedulingEngine;

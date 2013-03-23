@@ -2,7 +2,7 @@
 #define QUEUE_H
 
 #include "session.h"
-#include "../../shared/utility/queues/mt_queue.h"
+#include "utility/queues/mt_queue.h"
 
 class Packet;
 

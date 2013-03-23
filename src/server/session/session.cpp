@@ -37,6 +37,16 @@ int Session::_SendPacket(const Packet& pct)
     return 0;
 }
 
+int Session::_SendPacket(Packet* pct)
+{  
+    if (!smartThis.get())
+        return -1;
+  
+    _sendQueue.add(pct); 
+    net_manager->QueueSend(smartThis);
+    return 0;
+}
+
 
 bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
 {

@@ -65,6 +65,12 @@ ClientCore::ClientCore()
     pthread_mutex_init (&mutex_event, NULL);
 
     session = new Session();
+
+    if (CFG_GET_BOOL("autoconnect"))
+    {
+        Connect();
+        INFO("debug","autoconnetting...\n");
+    }
     StartThread (session);
 }
 

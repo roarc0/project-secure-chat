@@ -45,6 +45,7 @@ void* CoreThread(void* arg)
                  CFG_GET_STRING("server_host").c_str(),
                  CFG_GET_INT("server_port"), e.what());
             session->SetConnected(false);
+            session->ResetSocket();
         }
         c_core->WaitConnection();
         INFO("debug","* Starting receive loop!\n");

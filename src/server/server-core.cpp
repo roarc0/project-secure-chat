@@ -15,7 +15,7 @@ void server_core()
         //db_manager->set_dbfilename(CFG_GET_STRING("db_filename"));
         //db_manager->init_db();
 
-               
+
 /* ... */
 
 
@@ -23,12 +23,12 @@ void server_core()
         s_manager;
         net_manager;
 
-        net_manager->Initialize(N_NET_THREAD); // Numero thread network
-        s_sched_engine->Initialize(N_EXEC_THREAD); // Numero thread elaborazione
+        net_manager->Initialize(CFG_GET_INT("ThreadNet")); // Numero thread network
+        s_sched_engine->Initialize(CFG_GET_INT("ThreadExec")); // Numero thread elaborazione
 
         bool m_active = true;
         uint32 diff = 0;
-        struct timeval t1, t2; 
+        struct timeval t1, t2;
 
         gettimeofday(&t1, NULL);
 

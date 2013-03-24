@@ -1,5 +1,6 @@
 #include "client-core.h"
 
+// LANCIAFIAMME
 int ClientCore::StartThread(Session *sc)
 {
     int ret;
@@ -36,20 +37,21 @@ void* CoreThread(void* arg)
             while(c_core->IsConnected())
             {
                 c_core->HandleRecv();
-                msleep(1); 
+                msleep(1);
             }
         }
         catch(SocketException &e)
         {
-            INFO("debug", "receive failed (%s:%d) %s\n", // leggere dal socket
+            INFO("debug", "receive failed (%s:%d) %s\n", // read from socket
                  CFG_GET_STRING("server_host").c_str(),
                  CFG_GET_INT("server_port"), e.what());
             session->SetConnected(false);
             session->ResetSocket();
+            c_core->SignalEvent(); // disconnection event on error
         }
         c_core->WaitConnection();
-        INFO("debug","* Starting receive loop!\n");
- 
+        INFO("debug","* receive loop!\n");
+
     }
     pthread_exit(NULL);
 }
@@ -58,6 +60,10 @@ ClientCore::ClientCore()
 {
     pthread_cond_init (&cond_connection, NULL);
     pthread_mutex_init (&mutex_connection, NULL);
+
+    pthread_cond_init (&cond_event, NULL);
+    pthread_mutex_init (&mutex_event, NULL);
+
     session = new Session();
     StartThread (session);
 }
@@ -66,25 +72,33 @@ ClientCore::~ClientCore()
 {
     pthread_cond_destroy (&cond_connection);
     pthread_mutex_destroy (&mutex_connection);
+
+    pthread_cond_destroy (&cond_event);
+    pthread_mutex_destroy (&mutex_event);
 }
 
 bool ClientCore::Connect()
 {
     bool ret = session->Connect();
     if (ret)
+    {
+        SignalEvent();
         SignalConnection();
+    }
     return ret;
 }
 
 bool ClientCore::Disconnect()
 {
-    return session->Disconnect();
+    bool ret = session->Disconnect();
+    if (ret)
+        SignalEvent();
+    return ret;
 }
 
-bool ClientCore::HandleSend(const char* msg)  // comunicazione in ingresso dall'utente
+bool ClientCore::HandleSend(const char* msg)
 {
     assert(session && session->IsConnected() && msg);
-
     INFO("debug","sending message: %s\n", msg);
 
     Packet pack(0x001);
@@ -96,19 +110,55 @@ bool ClientCore::HandleSend(const char* msg)  // comunicazione in ingresso dall'
 
 void ClientCore::HandleRecv()
 {
-    //Packet pack;
-    //session->RecvPacketFromSocket(&pack);
- 
-    INFO("debug","waiting for data...\n");
- 
     Packet *pack;
+    INFO("debug","waiting for data...\n");
     pack = session->RecvPacketFromSocket();
-    
     INFO("debug","packet received...\n");
- 
+
+    eventg ev;
+     //passare il pacchetto analizzato e trasformato in evento
+    ev.who="someone";
+    ev.what="something";
+    ev.data="messaggio dal server";
+    events.push_back(ev);
+    SignalEvent();
     //char data[512]="";
     //*pack >> data;
     //INFO("debug", "received message: \"%s\"", data);
+}
 
-    // roba buffa
+eventg ClientCore::GetEvent()
+{
+    eventg ev;
+    if(!events.empty())
+    {
+        ev=events.back();
+        events.pop_back();
+    }
+    return ev;
+}
+
+void ClientCore::WaitEvent()
+{
+    pthread_cond_wait(&cond_event, &mutex_event);
+}
+
+void ClientCore::SignalEvent()
+{
+    pthread_cond_signal(&cond_event);
+}
+
+void ClientCore::WaitConnection()
+{
+    pthread_cond_wait(&cond_connection, &mutex_connection);
+}
+
+void ClientCore::SignalConnection()
+{
+    pthread_cond_signal(&cond_connection);
+}
+
+bool ClientCore::IsConnected()
+{
+    return session->IsConnected();
 }

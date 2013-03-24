@@ -61,3 +61,8 @@ bool Session::Disconnect()
 
     return true;
 }
+
+void Session::ResetSocket()
+{
+    m_Socket->InitSocket();
+}

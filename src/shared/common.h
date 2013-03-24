@@ -21,7 +21,7 @@
 #include <stdarg.h>
 #include <signal.h>
 
-
+// TODO inizio lanciafiamme
 #if COMPILER == COMPILER_GNU && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 3)
 # include <tr1/unordered_map>
 #elif COMPILER == COMPILER_GNU && __GNUC__ >= 3
@@ -62,6 +62,7 @@ namespace __gnu_cxx
 #define UNORDERED_MAP std::hash_map
 using std::hash_map;
 #endif
+// TODO fine lanciafiamme
 
 #define uint64 uint64_t
 #define uint32 uint32_t
@@ -72,17 +73,13 @@ using std::hash_map;
 #define int16 int16_t
 #define int8  int8_t
 
-
 #include "utility/file.h"
 #include "utility/logger.h"
 #include "utility/timer.h"
 #include "utility/config.h"
 #include "revision.h"
 
-typedef bool(*handler)(void *);
-
 void   welcome();
-int    exec_command(const char *fmt, ...);
 
 #endif
 

@@ -17,7 +17,7 @@ struct gui_res
     GtkWidget *text_entry;
     GtkWidget *status_bar;
     GtkToolItem *toolbar_connect;
-} guires;
+} gres;
 
 
 void push_status_bar(const gchar*);
@@ -28,7 +28,7 @@ void* GuiThread(void* arg)
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
 
-    gui_res* guires = (gui_res*) arg;
+    gui_res* gres = (gui_res*) arg;
 
     bool oldstatus = c_core->IsConnected();
     while(1)
@@ -36,14 +36,14 @@ void* GuiThread(void* arg)
         if(c_core->IsConnected() && !oldstatus)
         {
             gtk_tool_button_set_label(
-                GTK_TOOL_BUTTON(guires->toolbar_connect),
+                GTK_TOOL_BUTTON(gres->toolbar_connect),
                 "Disconnect");
             push_status_bar("Connected with server!");
         }
         if(!c_core->IsConnected() && oldstatus)
         {
             gtk_tool_button_set_label(
-                GTK_TOOL_BUTTON(guires->toolbar_connect),
+                GTK_TOOL_BUTTON(gres->toolbar_connect),
                 "Connect");
             push_status_bar("Disconnected from server!");
         }
@@ -154,16 +154,20 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
     switch(type)
     {
         case 'j': //join
-            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer, &textiter, str, -1, "lmarg", "green_fg", "bold", NULL);
+            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
+                &textiter, str, -1, "lmarg", "green_fg", "bold", NULL);
         break;
         case 'l': //leave
-            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer, &textiter, str, -1, "lmarg", "red_fg", "bold", NULL);
+            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
+                &textiter, str, -1, "lmarg", "red_fg", "bold", NULL);
         break;
         case 'm': //message
-            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer, &textiter, str, -1, "lmarg", "black_fg", NULL);
+            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
+                &textiter, str, -1, "lmarg", "black_fg", NULL);
         break;
         case 's': //server
-            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer, &textiter, str, -1, "lmarg", "yellow_fg", NULL);
+            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
+                &textiter, str, -1, "lmarg", "yellow_fg", NULL);
         break;
         default:
         break;
@@ -175,7 +179,7 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
 void button_send_click(gpointer data, gchar *str, gchar type)
 {
     stringstream ss, ss_h;
-    gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(guires.text_entry));
+    gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(gres.text_entry));
 
     if (!strcmp(text,"")) // check length
         return;
@@ -183,29 +187,29 @@ void button_send_click(gpointer data, gchar *str, gchar type)
     ss_h << text;
     if (!c_core->HandleSend((char*)ss_h.str().c_str()))
     {
-        add_message_to_chat(guires.chat_buffer, (gchar*) "<server> send failed\n", 's');
+        add_message_to_chat(gres.chat_buffer, (gchar*) "<server> send failed\n", 's');
         return;
     }
 
     if (text[0] != '\\')
     {
         ss << "<" << CFG_GET_STRING("nickname") << "> " << text << endl;
-        add_message_to_chat(guires.chat_buffer, (gchar*) ss.str().c_str(), 'm');
+        add_message_to_chat(gres.chat_buffer, (gchar*) ss.str().c_str(), 'm');
     }
 
-    gtk_entry_set_text (GTK_ENTRY(guires.text_entry), "");
+    gtk_entry_set_text (GTK_ENTRY(gres.text_entry), "");
 }
 
 void push_status_bar(const gchar *str)
 {
-    guint id = gtk_statusbar_get_context_id(GTK_STATUSBAR(guires.status_bar), "info");
-    gtk_statusbar_pop(GTK_STATUSBAR(guires.status_bar), id);
-    gtk_statusbar_push(GTK_STATUSBAR(guires.status_bar), id, str);
+    guint id = gtk_statusbar_get_context_id(GTK_STATUSBAR(gres.status_bar), "info");
+    gtk_statusbar_pop(GTK_STATUSBAR(gres.status_bar), id);
+    gtk_statusbar_push(GTK_STATUSBAR(gres.status_bar), id, str);
 }
 
 void toolbar_reset_click(gpointer data)
 {
-    GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(guires.chat_buffer);
+    GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(gres.chat_buffer);
     GtkTextIter textiter;
 
     gtk_text_buffer_get_end_iter(text_view_buffer, &textiter);
@@ -223,7 +227,7 @@ void toolbar_connect_click(gpointer data, gchar *str, gchar type)
         if(c_core->Connect())
         {
             push_status_bar("Connected with server!");
-            add_message_to_chat(guires.chat_buffer, (gchar*) "Connected!\n", 's');
+            add_message_to_chat(gres.chat_buffer, (gchar*) "Connected!\n", 's');
             //gtk_tool_button_set_label(toolbar_connect,"Disconnect");
         }
         else
@@ -237,7 +241,7 @@ void toolbar_connect_click(gpointer data, gchar *str, gchar type)
         if(c_core->Disconnect())
         {
             push_status_bar("Disconnected with server!");
-            add_message_to_chat(guires.chat_buffer, (gchar*) "Disconnected!\n", 's');
+            add_message_to_chat(gres.chat_buffer, (gchar*) "Disconnected!\n", 's');
             //gtk_tool_button_set_label(toolbar_connect,"Connect");
         }
         else
@@ -463,29 +467,29 @@ void main_gui(int argc, char **argv)
     gtk_widget_set_size_request (GTK_WIDGET (button_send), 70, 30);
     gtk_box_pack_start(GTK_BOX (hbox_inputs), button_send, FALSE, FALSE, 0);
 
-    guires.text_entry = entry_command;
-    guires.chat_buffer = view_chat_buffer;
+    gres.text_entry = entry_command;
+    gres.chat_buffer = view_chat_buffer;
     g_signal_connect(G_OBJECT(entry_command), "activate", G_CALLBACK(button_send_click), NULL);
     g_signal_connect(G_OBJECT(button_send), "clicked", G_CALLBACK(button_send_click), NULL);
 
     /* status_bar */
-    guires.status_bar = gtk_statusbar_new();
-    gtk_box_pack_start(GTK_BOX (vbox_main), guires.status_bar, FALSE, FALSE, 0);
+    gres.status_bar = gtk_statusbar_new();
+    gtk_box_pack_start(GTK_BOX (vbox_main), gres.status_bar, FALSE, FALSE, 0);
 
-    g_object_set_data(G_OBJECT(guires.status_bar), "info", (gpointer)"1");
-    g_object_set_data(G_OBJECT(guires.status_bar), "info", (gpointer) "2");
-    g_object_set_data(G_OBJECT(guires.status_bar), "info", (gpointer) "3");
+    g_object_set_data(G_OBJECT(gres.status_bar), "info", (gpointer)"1");
+    g_object_set_data(G_OBJECT(gres.status_bar), "info", (gpointer) "2");
+    g_object_set_data(G_OBJECT(gres.status_bar), "info", (gpointer) "3");
 
-    g_object_set_data(G_OBJECT(guires.status_bar), "warning", (gpointer) "A");
-    g_object_set_data(G_OBJECT(guires.status_bar), "warning", (gpointer) "B");
-    g_object_set_data(G_OBJECT(guires.status_bar), "warning", (gpointer) "C");
+    g_object_set_data(G_OBJECT(gres.status_bar), "warning", (gpointer) "A");
+    g_object_set_data(G_OBJECT(gres.status_bar), "warning", (gpointer) "B");
+    g_object_set_data(G_OBJECT(gres.status_bar), "warning", (gpointer) "C");
 
     //guint id = gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar), "info");
     //gtk_statusbar_push(GTK_STATUSBAR(status_bar), id, "* uninitialized");
 
     /* end_widgets */
     gtk_widget_show_all(window);
-    guires.toolbar_connect = toolbar_connect;
+    gres.toolbar_connect = toolbar_connect;
     
     // TODO avviare il thread in modo umano
     int ret;
@@ -493,7 +497,7 @@ void main_gui(int argc, char **argv)
     pthread_attr_t tattr;
     pthread_attr_init(&tattr);
     pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
-    pthread_create(&tid, &tattr, GuiThread, (void*)&guires);
+    pthread_create(&tid, &tattr, GuiThread, (void*)&gres);
     pthread_attr_destroy(&tattr);
     
     g_print ("* starting gtk\n");

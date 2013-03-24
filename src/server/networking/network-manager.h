@@ -11,7 +11,7 @@
 enum eNetworkType
 {
     SEND   = 0,
-    RECIVE = 1,
+    RECV   = 1,
 };
 
 typedef std::pair<Session_smart, eNetworkType> netsession_pair;

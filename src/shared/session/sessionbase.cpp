@@ -12,7 +12,7 @@ SessionBase::SessionBase(int pSock)
 
 SessionBase::~SessionBase()
 {
-    INFO("debug", "DISTRUTTORE!\n");
+    INFO("debug", "Session Base DISTRUTTORE!\n");
 
     Packet* packet = NULL;
     while (_recvQueue.next(packet))
@@ -21,7 +21,7 @@ SessionBase::~SessionBase()
     while (_sendQueue.next(packet))
         delete packet;    
 
-    if(m_Socket)
+    if (m_Socket)
         delete m_Socket;
 }
 

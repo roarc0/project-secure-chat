@@ -53,14 +53,17 @@ void* GuiThread(void* arg)
         }
         oldstatus = c_core->IsConnected();
 
-        eventg ev = c_core->GetEvent();
-        if (ev.who != "")
+        if(c_core->IsConnected())
         {
-            stringstream ss;
-            ss << "<" << ev.who << "> " << ev.data << endl;
-            add_message_to_chat(gres->chat_buffer,
-                                (gchar*) ss.str().c_str(), 'm');
+            eventg ev = c_core->GetEvent();
+            if (ev.who != "")
+            {
+                stringstream ss;
+                ss << "<" << ev.who << "> " << ev.data << endl;
+                add_message_to_chat(gres->chat_buffer,
+                                    (gchar*) ss.str().c_str(), 'm');
 
+            }
         }
         c_core->WaitEvent();
     }
@@ -396,7 +399,8 @@ void main_gui(int argc, char **argv)
     gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow_chat, TRUE, TRUE, 0);
     gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow_chat), 2);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow_chat),
-                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+                                    GTK_POLICY_NEVER,
+                                    GTK_POLICY_AUTOMATIC);
 
     view_chat = gtk_text_view_new();
     gtk_text_view_set_editable(GTK_TEXT_VIEW(view_chat), false);
@@ -426,7 +430,8 @@ void main_gui(int argc, char **argv)
     gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow_user_list, TRUE, TRUE, 0);
     gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow_user_list), 2);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow_user_list),
-                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+                                    GTK_POLICY_NEVER,
+                                    GTK_POLICY_AUTOMATIC);
     gtk_widget_show (scrolledwindow_user_list);
 
     model_user_list     = gtk_list_store_new(COLUMNS, G_TYPE_STRING, G_TYPE_INT);

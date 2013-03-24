@@ -39,7 +39,9 @@ class SessionBase
 
         LockedQueue<Packet*> _recvQueue;
         LockedQueue<Packet*> _sendQueue;
-    
+
+        Packet* recVpkt;
+        char* buffer;    
 };
 
 #endif 

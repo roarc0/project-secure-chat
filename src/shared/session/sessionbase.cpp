@@ -88,19 +88,19 @@ Packet* SessionBase::_RecvPacketFromSocket()
     // Prendi Header
     m_Socket->Recv((void*) &header, 4);
     PktHeader pkt_head(header, 4);
+
     // Prendi Resto dei Dati
-    
-    char* buf = new char[pkt_head.getSize()+1];
-    m_Socket->Recv((void*) buf, pkt_head.getSize());  
+    buffer = new char[pkt_head.getSize()];
+    m_Socket->Recv((void*) buffer, pkt_head.getSize());  
                         
-    INFO("debug","Livello Network Messaggio: %s , header %u, lunghezza %u\n", buf, pkt_head.getHeader(), pkt_head.getSize()); 
+    INFO("debug","Livello Network Messaggio: %s , header %u, lunghezza %u\n", buffer, pkt_head.getHeader(), pkt_head.getSize()); 
 
     // Impacchetta                      
-    Packet* pkt = new Packet(pkt_head.getHeader(), pkt_head.getSize());
-    *pkt << buf;
+    recVpkt = new Packet(pkt_head.getHeader(), pkt_head.getSize());
+    recVpkt->append((char*)buffer, pkt_head.getSize());
 
-    delete[] buf;
-    return pkt;
+    delete[] buffer;
+    return recVpkt;
 }
 
 void SessionBase::Handle_NULL(Packet& /*packet*/) 

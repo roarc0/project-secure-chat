@@ -80,8 +80,8 @@ struct PktHeader
         header[headerIndex++] = 0xFF & cmd;
         header[headerIndex++] = 0xFF & (cmd>>8);
         
-        header[headerIndex++] = 0xFF & (size>>8);
-        header[headerIndex++] = 0xFF & size;        
+        header[headerIndex++] = 0xFF & size; 
+        header[headerIndex++] = 0xFF & (size>>8);       
     }
 
     PktHeader(char* buffer, uint8 size)
@@ -95,7 +95,7 @@ struct PktHeader
 
     uint16 getSize()
     {
-        return ((8<<uint16(header[2]))&0xFF00) | (uint16(header[3])&0x00FF);
+        return ((8<<uint16(header[3]))&0xFF00) | (uint16(header[2])&0x00FF);
     }
 
     uint16 getHeader()

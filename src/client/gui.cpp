@@ -30,7 +30,7 @@ void* GuiThread(void* arg)
 
     gui_res* gres = (gui_res*) arg;
 
-    bool oldstatus = c_core->IsConnected();
+    bool oldstatus = false;
     while(1)
     {
         if(c_core->IsConnected() && !oldstatus)

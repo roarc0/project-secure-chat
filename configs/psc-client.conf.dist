@@ -1,6 +1,8 @@
 debug = true
 log = true
+autoconnect = true
 log_path = "logs"
 nickname = "the_doctor"
 server_host = "127.0.0.1"
 server_port = 7777
+

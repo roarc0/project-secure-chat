@@ -397,12 +397,14 @@ void main_gui(int argc, char **argv)
 
     scrolledwindow_chat = gtk_scrolled_window_new (NULL, NULL);
     gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow_chat, TRUE, TRUE, 0);
+
     gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow_chat), 2);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow_chat),
                                     GTK_POLICY_NEVER,
                                     GTK_POLICY_AUTOMATIC);
 
     view_chat = gtk_text_view_new();
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view_chat), GTK_WRAP_WORD_CHAR);
     gtk_text_view_set_editable(GTK_TEXT_VIEW(view_chat), false);
     gtk_container_add (GTK_CONTAINER (scrolledwindow_chat), view_chat);
     view_chat_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view_chat));

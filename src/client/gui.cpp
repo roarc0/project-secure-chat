@@ -83,7 +83,7 @@ GdkPixbuf *create_pixbuf(const gchar * filename)
    return pixbuf;
 }
 
-void show_about(GtkWidget *widget, gpointer data)
+void show_about()
 {
   GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file("data/psc.png", NULL);
 
@@ -203,7 +203,7 @@ void button_send_click(gpointer data, gchar *str, gchar type)
     ss_h << text;
     if (!c_core->HandleSend((char*)ss_h.str().c_str()))
     {
-        add_message_to_chat(gres.chat_buffer, (gchar*) "<server> send failed\n", 's');
+        add_message_to_chat(gres.chat_buffer, (gchar*) "<local> send failed\n", 'e');
         return;
     }
 
@@ -500,7 +500,6 @@ void main_gui(int argc, char **argv)
     gres.toolbar_connect = toolbar_connect;
 
     // TODO avviare il thread in modo umano
-    int ret;
     pthread_t tid;
     pthread_attr_t tattr;
     pthread_attr_init(&tattr);

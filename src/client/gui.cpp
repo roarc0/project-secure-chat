@@ -1,7 +1,7 @@
 #include "gui.h"
 #include "revision.h"
 
-enum 
+enum
 {
   COLUMN_STRING,
   COLUMN_INT,
@@ -69,13 +69,13 @@ GdkPixbuf *create_pixbuf(const gchar * filename)
    return pixbuf;
 }
 
-void show_about(GtkWidget *widget, gpointer data)
+void show_about(GtkWidget */*widget*/, gpointer /*data*/)
 {
   GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file("data/psc.png", NULL);
 
   GtkWidget *dialog = gtk_about_dialog_new();
   gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "psc");
-  gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), _REVISION); 
+  gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), _REVISION);
   gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog),
       "(c) Alessandro Rosetti Daniele Lazzarini Alessandro Furlanetto");
   gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog),
@@ -99,9 +99,9 @@ void show_message(gchar *message)
                                          GTK_RESPONSE_NONE,
                                          NULL);
    label = gtk_label_new (message);
-  
+
    g_signal_connect_swapped (dialog,
-                             "response", 
+                             "response",
                              G_CALLBACK (gtk_widget_destroy),
                              dialog);
    gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
@@ -109,7 +109,7 @@ void show_message(gchar *message)
    gtk_widget_show_all (dialog);
 }
 
-void destroy(GtkObject *object, gpointer user_data) 
+void destroy(GtkObject */*object*/, gpointer /*user_data*/)
 {
     gtk_main_quit();
 }
@@ -125,9 +125,9 @@ void add_user_to_list(gpointer data, gchar *str, gint num)
   pthread_mutex_lock(&mutex_user_list);
   gtk_list_store_append(GTK_LIST_STORE(model), &iter);
   gtk_list_store_set(GTK_LIST_STORE(model),
-                     &iter, 
+                     &iter,
                      COLUMN_STRING,
-                     str, 
+                     str,
                      COLUMN_INT,
                      num,
                      -1);
@@ -136,7 +136,7 @@ void add_user_to_list(gpointer data, gchar *str, gint num)
 
 void remove_user_from_list(/*gpointer data, gchar *str, gint num*/)
 {
-    
+
 }
 
 void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizzare "..."
@@ -176,7 +176,7 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
     pthread_mutex_unlock(&mutex_chat);
 }
 
-void button_send_click(gpointer data, gchar *str, gchar type)
+void button_send_click(gpointer /*data*/, gchar */*str*/, gchar /*type*/)
 {
     stringstream ss, ss_h;
     gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(gres.text_entry));
@@ -207,7 +207,7 @@ void push_status_bar(const gchar *str)
     gtk_statusbar_push(GTK_STATUSBAR(gres.status_bar), id, str);
 }
 
-void toolbar_reset_click(gpointer data)
+void toolbar_reset_click(gpointer /*data*/)
 {
     GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(gres.chat_buffer);
     GtkTextIter textiter;
@@ -219,7 +219,7 @@ void toolbar_reset_click(gpointer data)
     pthread_mutex_unlock(&mutex_chat);
 }
 
-void toolbar_connect_click(gpointer data, gchar *str, gchar type)
+void toolbar_connect_click(gpointer data, gchar */*str*/, gchar /*type*/)
 {
     GtkToolButton *toolbar_connect = GTK_TOOL_BUTTON(data);
     if (!c_core->IsConnected())
@@ -251,8 +251,8 @@ void toolbar_connect_click(gpointer data, gchar *str, gchar type)
 
 void main_gui(int argc, char **argv)
 {
-    GtkWidget *window; 
-    GtkWidget *vbox_main; 
+    GtkWidget *window;
+    GtkWidget *vbox_main;
 
     /* menubar */
     GtkWidget *menubar;
@@ -262,7 +262,7 @@ void main_gui(int argc, char **argv)
     GtkWidget *help;
     GtkWidget *about;
     GtkAccelGroup *accel_group = NULL;
-    
+
     /* toolbar */
     GtkWidget *toolbar;
     GtkToolItem *toolbar_connect;
@@ -271,7 +271,7 @@ void main_gui(int argc, char **argv)
     GtkToolItem *toolbar_exit;
 
     /* chat */
-    GtkWidget *hbox_chat; 
+    GtkWidget *hbox_chat;
     GtkWidget *scrolledwindow_chat;
     GtkWidget *view_chat;
     GtkTextBuffer *view_chat_buffer;
@@ -289,7 +289,7 @@ void main_gui(int argc, char **argv)
     GtkWidget *entry_command;
     GtkWidget *button_send;
 
-    GtkWidget *dialog;
+    // GtkWidget *dialog;
 
     GdkColor color;
     gdk_color_parse ("red", &color);
@@ -300,9 +300,9 @@ void main_gui(int argc, char **argv)
     pthread_mutex_init(&mutex_user_list, NULL);
 
     /* window */
-    window = gtk_window_new (GTK_WINDOW_TOPLEVEL); 
-    gtk_container_set_border_width(GTK_CONTAINER(window),0); 
-    gtk_window_set_urgency_hint (GTK_WINDOW(window), TRUE); 
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_container_set_border_width(GTK_CONTAINER(window),0);
+    gtk_window_set_urgency_hint (GTK_WINDOW(window), TRUE);
     gtk_window_set_title (GTK_WINDOW (window), _PROJECTNAME);
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
@@ -313,14 +313,14 @@ void main_gui(int argc, char **argv)
     g_object_unref(pixbuf);
     pixbuf = NULL;
 
-    gtk_widget_show(window); 
+    gtk_widget_show(window);
 
     g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(destroy), NULL);
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(destroy), NULL);
 
     /* vbox principale */
-    vbox_main = gtk_vbox_new (FALSE, 1); 
-    gtk_container_add(GTK_CONTAINER(window), vbox_main); 
+    vbox_main = gtk_vbox_new (FALSE, 1);
+    gtk_container_add(GTK_CONTAINER(window), vbox_main);
     gtk_container_set_border_width(GTK_CONTAINER(vbox_main),0);
 
     /* accellgroup */
@@ -368,7 +368,7 @@ void main_gui(int argc, char **argv)
         gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolbar_connect), "Disconnect");
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_connect, -1);
     g_signal_connect(G_OBJECT(toolbar_connect), "clicked", G_CALLBACK(toolbar_connect_click), NULL);
-    
+
     toolbar_reset = gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_reset, -1);
     g_signal_connect(G_OBJECT(toolbar_reset), "clicked", G_CALLBACK(toolbar_reset_click), NULL);
@@ -417,7 +417,7 @@ void main_gui(int argc, char **argv)
     scrolledwindow_user_list = gtk_scrolled_window_new (NULL, NULL);
     gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow_user_list, TRUE, TRUE, 0);
     gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow_user_list), 2);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow_user_list), 
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow_user_list),
                   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     gtk_widget_show (scrolledwindow_user_list);
 
@@ -438,10 +438,10 @@ void main_gui(int argc, char **argv)
                        NULL);               /* fine ;-) */
 
     renderer_user_list = gtk_cell_renderer_text_new();
-    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view_user_list), -1, 
-                          "?", renderer_user_list, 
-                          "text", COLUMN_INT, 
-                          NULL);          
+    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view_user_list), -1,
+                          "?", renderer_user_list,
+                          "text", COLUMN_INT,
+                          NULL);
 
     gtk_widget_show (view_user_list);
     g_object_unref(model_user_list);
@@ -459,8 +459,8 @@ void main_gui(int argc, char **argv)
     hbox_inputs = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start(GTK_BOX (vbox_main), hbox_inputs, FALSE, FALSE, 0);
 
-    vbox_inputs = gtk_vbox_new (FALSE, 0); 
-    gtk_container_add(GTK_CONTAINER(hbox_inputs), vbox_inputs); 
+    vbox_inputs = gtk_vbox_new (FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(hbox_inputs), vbox_inputs);
     entry_command = gtk_entry_new();
     gtk_container_add(GTK_CONTAINER(vbox_inputs), entry_command);
     button_send = gtk_button_new_with_label("Send");
@@ -490,18 +490,18 @@ void main_gui(int argc, char **argv)
     /* end_widgets */
     gtk_widget_show_all(window);
     gres.toolbar_connect = toolbar_connect;
-    
+
     // TODO avviare il thread in modo umano
-    int ret;
+    // int ret;
     pthread_t tid;
     pthread_attr_t tattr;
     pthread_attr_init(&tattr);
     pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
     pthread_create(&tid, &tattr, GuiThread, (void*)&gres);
     pthread_attr_destroy(&tattr);
-    
+
     g_print ("* starting gtk\n");
-    gtk_main(); 
+    gtk_main();
 
     return;
 }

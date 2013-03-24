@@ -98,12 +98,16 @@ bool ClientCore::Disconnect()
 
 bool ClientCore::HandleSend(const char* msg)
 {
-    assert(session && session->IsConnected() && msg);
+    assert(session && msg);
+
+    if (!session->IsConnected())
+        return false;
+
     INFO("debug","sending message: %s\n", msg);
 
     Packet pack(0x001);
     pack << msg;
-    session->SendPacketToSocket(&pack);
+    session->SendPacketToSocket(&pack); // TODO fare sendpacket in session del client
 
     return true;
 }

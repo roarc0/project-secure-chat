@@ -119,16 +119,20 @@ void ClientCore::HandleRecv()
     pack = session->RecvPacketFromSocket();
     INFO("debug","packet received...\n");
 
+    string str;
+    if(pack)
+        *pack >> str;
+    else
+        INFO("debug", "empty packet received\n");
+
     eventg ev;
      //passare il pacchetto analizzato e trasformato in evento
     ev.who="someone";
     ev.what="something";
-    ev.data="messaggio dal server";
+    ev.data=str;
     events.push_back(ev);
     SignalEvent();
-    //char data[512]="";
-    //*pack >> data;
-    //INFO("debug", "received message: \"%s\"", data);
+
 }
 
 eventg ClientCore::GetEvent()

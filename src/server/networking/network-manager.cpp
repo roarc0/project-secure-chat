@@ -10,10 +10,10 @@ class NetworkThread: public MethodRequest
 
     public:
 
-        NetworkThread(NetworkManager& netmanager, uint32 d) : 
+        NetworkThread(NetworkManager& netmanager, uint32 d) :
         MethodRequest(), m_netmanager(netmanager), m_diff(d), active(true)
         {
-     
+
         }
 
         ~NetworkThread()
@@ -26,10 +26,10 @@ class NetworkThread: public MethodRequest
             Packet* pkt = NULL;
 
             while (active)
-            {   
+            {
                 netsession_pair net_ses = m_netmanager.GetNextSession();
                 try
-                {   
+                {
                     if (net_ses.second == SEND)
                     {
                         pkt = net_ses.first->GetPacketToSend();
@@ -46,13 +46,13 @@ class NetworkThread: public MethodRequest
                         pkt = net_ses.first->RecvPacketFromSocket();
                         if (pkt)
                             net_ses.first->QueuePacket(pkt);
-                    } 
+                    }
                 }
                 catch(SocketException e)
                 {
                     INFO("debug", "%s \n", e.what());
-                    //net_ses.first->m_Socket->CloseSocket(); 
-                }              
+                    //net_ses.first->m_Socket->CloseSocket();
+                }
             }
             return 0;
         }
@@ -64,7 +64,7 @@ NetworkManager::NetworkManager() : sem(m_mutex)
 }
 
 int NetworkManager::Initialize(uint32 n_thread)
-{     
+{
     m_thread = n_thread;
     // +1 per l'epoll thread
     net_engine.Initialize(m_thread + 1);
@@ -76,7 +76,7 @@ int NetworkManager::Initialize(uint32 n_thread)
 }
 
 int NetworkManager::ActivateEpoll()
-{  
+{
     if (net_engine.Execute(new SocketServer(*this, 0)) != 0)
     {
         // TODO Log Errore
@@ -87,7 +87,7 @@ int NetworkManager::ActivateEpoll()
 }
 
 int NetworkManager::ActivateThreadsNetwork()
-{  
+{
     for (uint8 i = 0; i < m_thread; i++)
     {
         if (net_engine.Execute(new NetworkThread(*this, 0)) != 0)
@@ -101,7 +101,7 @@ int NetworkManager::ActivateThreadsNetwork()
 }
 
 int NetworkManager::QueueSend(Session_smart m_ses)
-{   
+{
     if (!m_ses.get())
         return -1;
 
@@ -111,7 +111,7 @@ int NetworkManager::QueueSend(Session_smart m_ses)
 }
 
 int NetworkManager::QueueRecive(Session_smart m_ses)  // TODO recv!!!
-{   
+{
     if (!m_ses.get())
         return -1;
 

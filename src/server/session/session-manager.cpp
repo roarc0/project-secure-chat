@@ -1,8 +1,9 @@
 #include "session-manager.h"
 
-SessionManager::SessionManager(): 
-m_sessionLimit(100), m_sessionActiveLimit(50)
+SessionManager::SessionManager()
 {
+    m_sessionActiveLimit = CFG_GET_INT("SessionActiveLimit");
+    m_sessionLimit = CFG_GET_INT("SessionLimit");
     channelMrg = new ChannelManager();
 }
 
@@ -33,8 +34,8 @@ void SessionManager::GetIdList(std::list<uint32>* ulist)
 Session_smart SessionManager::AddSession(int sock)
 {
     INFO("debug","* session manager creating session\n");
-    if (GetQueuedSessionCount() + addSessQueue.size() <  m_sessionLimit)
-    {        
+    if (!m_sessionLimit || (GetQueuedSessionCount() + addSessQueue.size() <  m_sessionLimit))
+    {
         Session* ses = new Session(sock);
         assert(ses);
         counted_ptr<Session> smart_ses(ses);
@@ -81,7 +82,7 @@ void SessionManager::Update(uint32 udiff)
     AddSessions_ ();
 
     // Update all sessions
-    Session* pSession;    
+    Session* pSession;
     for (SessionMap::iterator itr = m_sessions.begin(); itr != m_sessions.end(); itr++)
     {
         pSession = itr->second.get();
@@ -90,7 +91,7 @@ void SessionManager::Update(uint32 udiff)
         if (!pSession->Update(udiff, updater))
         {
             INFO("debug", "Rimuovi sessione %u \n", itr->first);
-            RemoveQueuedSession(itr->second);            
+            RemoveQueuedSession(itr->second);
             pSession->deleteSmartPointer();
             m_sessions.erase(itr);
             pSession = NULL;
@@ -170,7 +171,7 @@ bool SessionManager::RemoveQueuedSession(Session_smart sess)
 void SessionManager::AddSessions_()
 {
     // Add new sessions
-    Session_smart sess;    
+    Session_smart sess;
     uint32 next_id = 0;
 
     SessionMap::iterator itr = m_sessions.begin();
@@ -180,13 +181,13 @@ void SessionManager::AddSessions_()
         for (; itr != m_sessions.end(); itr++)
         {
             if (next_id != (itr->first-1))
-            {                  
+            {
                 break;
             }
             else
                 next_id = itr->first;
         }
-        next_id++; 
+        next_id++;
         AddSession_(next_id, sess);
     }
 }

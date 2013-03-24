@@ -10,8 +10,14 @@ void init_config(string filename)
     CFG->add_bool("log", false);
     CFG->add_string("log_path", "logs");
     CFG->add_int("server_port", 7777);
-    CFG->add_int("thread_slots", 4);
     CFG->add_string("db_filename", "server.db");
+
+    CFG->add_int("ThreadNet", 2);
+    CFG->add_int("ThreadExec", 2);
+
+    CFG->add_int("SessionActiveLimit", 100);
+    CFG->add_int("SessionLimit", 150);
+
     CFG->open_cfg();
     post_init_config();
 }
@@ -41,7 +47,7 @@ void init_log_profiles()
         l_profile->set_opt(LOG_NONE);
         LOG_PTR->add_profile(l_profile);
     }
-    
+
     if (CFG_GET_BOOL("log"))
     {
         l_profile = new log_profile("log", "");
@@ -85,7 +91,7 @@ int load_args(int argc, char **argv)
                 break;
             default:
                 break;
-        }    
+        }
 
     for (int index = optind; index < argc; index++)
         cout << "non-option argument " << argv[index] << endl;
@@ -106,9 +112,9 @@ void help_args()
 
 void check_config() // TODO inserire controlli
 {
-    if (CFG_GET_INT("thread_slots") <= 0)
+    /*if (CFG_GET_INT("thread_slots") <= 0)
     {
         //set_thread_slot_to -->>> = sysconf( _SC_NPROCESSORS_ONLN ) + 1;
-    }
+    }*/
 
 }

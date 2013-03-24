@@ -4,8 +4,8 @@
 #include <map>
 #include <pthread.h>
 #include "common.h"
-#include "queue.h"
 #include "packetfilter.h"
+#include "session.h"
 #include "channel-manager.h"
 #include "threading/mutex.h"
 #include "utility/singleton.h"

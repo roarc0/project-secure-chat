@@ -39,7 +39,7 @@ class NetworkThread: public MethodRequest
                             delete pkt;
                         }
                         else
-                            INFO("debug", "Packet NULL\n");
+                            INFO("debug", "NetworkThread: Packet to send NULL\n");
                     }
                     else // Recv
                     {
@@ -115,7 +115,7 @@ int NetworkManager::QueueRecive(Session_smart m_ses)  // TODO recv!!!
     if (!m_ses.get())
         return -1;
 
-    q_request.add(netsession_pair(m_ses, RECIVE)); // TODO recv!!!
+    q_request.add(netsession_pair(m_ses, RECV));
     sem.Signal();
     return 0;
 }

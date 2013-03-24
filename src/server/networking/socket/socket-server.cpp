@@ -5,7 +5,7 @@
 SocketServer::SocketServer(NetworkManager& netmanager, uint32 d) throw(SocketException): 
     MethodRequest(), m_netmanager(netmanager), m_diff(d), active(true)     
 {
-
+    s = NULL;   
 }
 
 SocketServer::~SocketServer()
@@ -176,12 +176,16 @@ int SocketServer::Call()
 
                         INFO("debug","epoll create session\n");
 
+                        if (s != NULL)
+                            delete s;
+
                         s = new Session_smart(s_manager->AddSession(sock_new));
                         if (s->get() == NULL)
                         {
                             close(sock_new);
                             sock_new = INVALID_SOCKET;
                             delete s;
+                            s = NULL;
                         }
                         //s_manager->AddSession(sock_new);
                         //cb_notify(new_connection_net_task());

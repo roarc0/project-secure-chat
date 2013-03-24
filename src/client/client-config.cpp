@@ -43,7 +43,7 @@ void init_log_profiles()
         l_profile->set_opt(LOG_NONE);
         LOG_PTR->add_profile(l_profile);
     }
-    
+
     if (CFG_GET_BOOL("log"))
     {
         l_profile = new log_profile("log", "");
@@ -55,7 +55,7 @@ void init_log_profiles()
 
 int load_args(int argc, char **argv)
 {
-    int opt, tmp_i;
+    int opt/*, tmp_i*/;
     opterr = 0;
 
     while ((opt = getopt (argc, argv, "c:hd")) != -1)
@@ -88,7 +88,7 @@ int load_args(int argc, char **argv)
                 break;
             default:
                 break;
-        }    
+        }
 
     for (int index = optind; index < argc; index++)
         cout << "non-option argument " << argv[index] << endl;

@@ -25,6 +25,8 @@ void* CoreThread(void* arg)
     sigset_t mask;
     sigfillset(&mask);
     pthread_sigmask(SIG_BLOCK, &mask, NULL);
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+
     Session* session = (Session*)arg;
 
     INFO("debug","* Receive thread loaded\n");
@@ -95,6 +97,7 @@ bool ClientCore::Connect()
 
 bool ClientCore::Disconnect()
 {
+    pthread_cancel(tid);
     bool ret = session->Disconnect();
     if (ret)
         SignalEvent();

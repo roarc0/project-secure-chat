@@ -104,15 +104,6 @@ void SocketServer::SetupEpoll() throw(SocketException)
         throw SocketException("[epoll_ctl()]", true);
 }
 
-void SocketServer::Kill(int sock) throw(SocketException)
-{
-    Lock lock(mutex_events);
-    // eliminare smart ... va ricercato cmq...
-    if (epoll_ctl (epoll_fd, EPOLL_CTL_DEL, sock, 0) < 0)
-        throw SocketException("[epoll_ctl()]", true);
-    // chiamare close(sock); ?
-}
-
 int SocketServer::Call()
 {
     int res = -1, sock_new, i = 0;

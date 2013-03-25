@@ -5,7 +5,7 @@
 SocketServer::SocketServer(NetworkManager& netmanager, uint32 d) throw(SocketException): 
     MethodRequest(), m_netmanager(netmanager), m_diff(d), active(true)     
 {
-    s = NULL;   
+
 }
 
 SocketServer::~SocketServer()
@@ -107,7 +107,6 @@ void SocketServer::SetupEpoll() throw(SocketException)
 int SocketServer::Call()
 {
     Init(CFG_GET_INT("server_port"));
-    //InitCallback(&handle_session_manager_task);
 
     INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
 
@@ -130,8 +129,10 @@ int SocketServer::Call()
                     (events[i].events & EPOLLHUP) ||
                     (!(events[i].events & EPOLLIN)))
                 {
-                    INFO("debug", "epoll error\n");
+                    INFO("debug", "epoll error, closing socket and deleting smart session\n");
                     close(events[i].data.fd);
+                    if (events[i].data.ptr)
+                        delete (Session_smart*) events[i].data.ptr;
                     continue;
                 }
                 else if (sock_listen == events[i].data.fd)
@@ -175,27 +176,25 @@ int SocketServer::Call()
                             throw SocketException("[epoll_ctl()]", true);
 
                         INFO("debug","epoll create session\n");
-
-                        if (s != NULL)
-                            delete s;
-
-                        s = new Session_smart(s_manager->AddSession(sock_new));
-                        if (s->get() == NULL)
+                        
+                        event.data.ptr = new Session_smart(s_manager->AddSession(sock_new));
+                        if (event.data.ptr && (((Session_smart*) event.data.ptr)->get() == NULL))
                         {
                             close(sock_new);
                             sock_new = INVALID_SOCKET;
-                            delete s;
-                            s = NULL;
+                            if (event.data.ptr)
+                            {
+                                delete (Session_smart*) event.data.ptr;
+                                event.data.ptr = NULL;
+                            }
                         }
-                        //s_manager->AddSession(sock_new);
-                        //cb_notify(new_connection_net_task());
                     }
 
                     continue;
                 }
                 else
-                {                    
-                    m_netmanager.QueueRecive(*s);
+                {
+                    m_netmanager.QueueRecive(*((Session_smart*) event.data.ptr));
                 }
             }
         }

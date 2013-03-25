@@ -18,13 +18,7 @@ using namespace std;
 
 class NetworkManager;
 
-#define MAXEVENTS 64
-
-/*
-void handle_new_connection(void *ptr)
-{
-    s_manager->AddSession(ptr);
-}*/
+#define MAXEVENTS 256
 
 class SocketServer: public MethodRequest
 {
@@ -36,9 +30,6 @@ class SocketServer: public MethodRequest
 
         int sock_listen;
         int epoll_fd;
-        
-        //TODO da estirpare
-        Session_smart* s;
 
         void SetupAddrInfo(int family, int socktype, int protocol);
         void SetBlocking(int, const bool) throw(SocketException);
@@ -59,13 +50,7 @@ class SocketServer: public MethodRequest
         ~SocketServer();
 
         void Init(int) throw(SocketException);
-
         int Call();
-
-    /*void InitCallback(void (*fptr)(void*))
-    {
-        //cb_notify->RegisterCb(fptr);
-    }*/
 };
 
 #endif

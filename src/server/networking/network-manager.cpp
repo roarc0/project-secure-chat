@@ -110,7 +110,7 @@ int NetworkManager::QueueSend(Session_smart m_ses)
     return 0;
 }
 
-int NetworkManager::QueueRecive(Session_smart m_ses)  // TODO recv!!!
+int NetworkManager::QueueRecive(Session_smart m_ses)
 {
     if (!m_ses.get())
         return -1;

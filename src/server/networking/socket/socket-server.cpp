@@ -108,7 +108,7 @@ int SocketServer::Call()
 {
     int res = -1, sock_new, i = 0;
 
-    INFO("debug", "* epoll thread started, listening on port: %d\n", CFG_GET_INT("server_port"));
+    INFO("debug", "EPOLL: thread started, listening on port: %d\n", CFG_GET_INT("server_port"));
     Init(CFG_GET_INT("server_port"));
 
     while(1)
@@ -118,7 +118,7 @@ int SocketServer::Call()
             if ((res = epoll_wait(epoll_fd, events, MAXEVENTS, -1)) < 0)
                 throw SocketException("[epoll_wait()]", true);
 
-            INFO("debug", "* epollwait res %d\n",res);
+            INFO("debug", "EPOLL: wait res %d\n",res);
 
             Lock lock(mutex_events);
             for (i = 0; i < res; i++)
@@ -127,15 +127,13 @@ int SocketServer::Call()
                     (events[i].events & EPOLLHUP) ||
                     (!(events[i].events & EPOLLIN)))
                 {
-                    INFO("debug", "epoll error, closing socket and deleting smart session\n");
-                    if (events[i].data.ptr)
-                        delete (Session_smart*) events[i].data.ptr;
+                    INFO("debug", "EPOLL: closing socket\n");
                     close(events[i].data.fd);
                     continue;
                 }
                 else if (sock_listen == events[i].data.fd)
                 {
-                    INFO("debug", "accepting\n");
+                    INFO("debug", "EPOLL: accepting new connection\n");
                     while (1)
                     {
                         struct sockaddr in_addr;
@@ -143,11 +141,14 @@ int SocketServer::Call()
                         char hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
 
                         in_len = sizeof in_addr;
-
-                        if ((sock_new = accept (sock_listen, &in_addr, &in_len)) < 0)
+                        sock_new = accept (sock_listen, &in_addr, &in_len);
+                        if (sock_new < 0)
                         {
                             if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
+                            {
+                                // We have processed all incoming connections.
                                 break;
+                            }
                             else
                             {
                                 perror("accept");
@@ -160,7 +161,7 @@ int SocketServer::Call()
                                         sbuf, sizeof sbuf,
                                         NI_NUMERICHOST | NI_NUMERICSERV) == 0)
                         {
-                            INFO("debug", "client_new %d "
+                            INFO("debug", "EPOLL: client_new %d "
                                    "(host=%s, port=%s)\n", sock_new, hbuf, sbuf);
                         }
                         else
@@ -179,7 +180,7 @@ int SocketServer::Call()
                             continue;
                         }
 
-                        INFO("debug","epoll create session\n");
+                        INFO("debug","EPOLL: create session with socket %u\n", sock_new);
 
                         if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, sock_new, &event) < 0)
                             throw SocketException("[epoll_ctl()]", true);
@@ -189,6 +190,7 @@ int SocketServer::Call()
                 }
                 else
                 {
+                    INFO("debug","EPOLL: receive event on socket %u\n", events[i].data.fd);
                     m_netmanager.QueueRecive(events[i].data.fd);
                 }
             }
@@ -196,6 +198,7 @@ int SocketServer::Call()
         catch(SocketException e)
         {
             // TODO gestire errori epoll
+            INFO("debug", "EPOLL: epoll exception\n");
             cout << e.what() << endl;
         }
     }

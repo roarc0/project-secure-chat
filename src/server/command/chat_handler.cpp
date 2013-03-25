@@ -308,7 +308,7 @@ bool ChatHandler::ShowHelpForSubCommands(ChatCommand* table, char const* cmd, ch
 
 void ChatHandler::SendSysMessage(const char *str)
 {
-    INFO ("debug", "%s \n", str);
+    INFO ("debug", "CHATHANDLER: %s \n", str);
     // TODO inseririre eventuali header appostiti
     Packet data;    
     data << str;

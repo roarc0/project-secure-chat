@@ -1,5 +1,5 @@
 #include "session.h"
-#include "opcode.h"
+#include "networking/opcode.h"
 #include "channel.h"
 #include "session-manager.h"
 #include "chat_handler.h"

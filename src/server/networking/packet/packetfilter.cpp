@@ -1,5 +1,5 @@
 #include "packetfilter.h"
-#include "opcode.h"
+#include "networking/opcode.h"
 
 bool MapSessionFilter::Process(Packet* packet)
 {

@@ -12,7 +12,7 @@ class Session : public SessionBase
   public:
     Session();
     ~Session();
-    
+
     bool Connect();
     bool Disconnect();
     void ResetSocket();
@@ -25,6 +25,12 @@ class Session : public SessionBase
     {
         connected = c;
     }
+
+    bool Update(uint32 diff);
+
+    void Handle_ClientSide(Packet& /*packet*/);
+    void HandleMessage(Packet& /*packet*/);
+    void Handle_Ping(Packet& /*packet*/);
 };
 
 #endif

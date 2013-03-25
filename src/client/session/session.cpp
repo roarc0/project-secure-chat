@@ -1,4 +1,5 @@
 #include "session.h"
+#include "networking/opcode.h"
 
 Session::Session() //: SessionBase()
 {
@@ -65,4 +66,72 @@ bool Session::Disconnect()
 void Session::ResetSocket()
 {
     m_Socket->InitSocket();
+}
+
+bool Session::Update(uint32 /*diff*/)
+{
+    Packet* packet = NULL;
+    // Delete packet after processing by default
+    bool deletePacket = true;
+
+    while (m_Socket && !m_Socket->IsClosed() &&
+            !_recvQueue.empty() && _recvQueue.next(packet))
+    {
+        if (packet->GetOpcode() >= NUM_MSG_TYPES) // Max opcode
+        {
+            INFO ("debug", "Opcode Pacchetto Non Valido\n");
+        }
+        else
+        {
+            OpcodeHandler &opHandle = opcodeTable[packet->GetOpcode()];
+            try
+            {
+                switch (opHandle.status)
+                {
+                    case STATUS_LOGGED:
+                        {
+                            (this->*opHandle.handler)(*packet);
+                        }
+                        break;
+                    case STATUS_NEVER:
+                        // Log
+                        break;
+                    case STATUS_UNHANDLED:
+                        // Log
+                        break;
+                    default:
+                        // Log
+                        break;
+                }
+            }
+            catch (...)
+            {
+                INFO ("debug", "Errore Durante Elaborazione Pacchetto\n");
+                // TODO
+            }
+        }
+
+        if (deletePacket)
+            delete packet;
+    }
+
+    if (!m_Socket || m_Socket->IsClosed())
+        return false;
+
+    return true;
+}
+
+void Session::Handle_ClientSide(Packet& /*packet*/)
+{
+    // LOG
+}
+
+void Session::Handle_Ping(Packet& /*packet*/)
+{
+
+}
+
+void Session::HandleMessage(Packet& /*packet*/)
+{
+    // TODO
 }

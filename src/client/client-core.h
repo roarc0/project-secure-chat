@@ -28,6 +28,8 @@ class ClientCore
 {
     Session*        session;
 
+    pthread_t tid;
+
     pthread_cond_t  cond_connection;
     pthread_mutex_t mutex_connection;
 

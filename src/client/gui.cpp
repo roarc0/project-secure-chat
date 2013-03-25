@@ -209,7 +209,7 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
         break;
     }
     
-    scroll_down(gres.scrolledwindow_chat);
+    //scroll_down(gres.scrolledwindow_chat);
     
     pthread_mutex_unlock(&mutex_guichange);
 }
@@ -265,6 +265,7 @@ void toolbar_connect_click(gpointer data, gchar *str, gchar type)
     GtkToolButton *toolbar_connect = GTK_TOOL_BUTTON(data);
     if (!c_core->IsConnected())
     {
+        INFO("debug", "connect button pressed\n");
         if(!c_core->Connect())
             push_status_bar("Connection failed!");
 
@@ -273,6 +274,7 @@ void toolbar_connect_click(gpointer data, gchar *str, gchar type)
 
     if(c_core->IsConnected())
     {
+        INFO("debug", "disconnect button pressed\n");
         if(!c_core->Disconnect())
             push_status_bar("Disconnection failed!?");
     }

@@ -126,13 +126,13 @@ int SocketServer::Call()
             for (i = 0; i < res; i++)
             {
                 if ((events[i].events & EPOLLERR) ||
-                    (events[i].events & EPOLLHUP) ||
+                    (events[i].events & EPOLLHUP) ||                 
                     (!(events[i].events & EPOLLIN)))
                 {
                     INFO("debug", "epoll error, closing socket and deleting smart session\n");
-                    close(events[i].data.fd);
                     if (events[i].data.ptr)
                         delete (Session_smart*) events[i].data.ptr;
+                    close(events[i].data.fd);
                     continue;
                 }
                 else if (sock_listen == events[i].data.fd)
@@ -171,11 +171,6 @@ int SocketServer::Call()
                         SetBlocking(sock_new, false);
                         event.data.fd = sock_new;
                         event.events = EPOLLIN | EPOLLET;
-
-                        if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, sock_new, &event) < 0)
-                            throw SocketException("[epoll_ctl()]", true);
-
-                        INFO("debug","epoll create session\n");
                         
                         event.data.ptr = new Session_smart(s_manager->AddSession(sock_new));
                         if (event.data.ptr && (((Session_smart*) event.data.ptr)->get() == NULL))
@@ -185,16 +180,22 @@ int SocketServer::Call()
                             if (event.data.ptr)
                             {
                                 delete (Session_smart*) event.data.ptr;
-                                event.data.ptr = NULL;
+                                event.data.ptr = NULL;                                
                             }
+                            continue;
                         }
+
+                        INFO("debug","epoll create session\n");
+
+                        if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, sock_new, &event) < 0)
+                            throw SocketException("[epoll_ctl()]", true);
                     }
 
                     continue;
                 }
                 else
                 {
-                    m_netmanager.QueueRecive(*((Session_smart*) event.data.ptr));
+                    m_netmanager.QueueRecive(*((Session_smart*) events[i].data.ptr));
                 }
             }
         }

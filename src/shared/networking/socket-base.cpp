@@ -48,6 +48,7 @@ void SocketBase::InitSocket() throw(SocketException)
 void SocketBase::CloseSocket()
 {
     close(sock);
+    //shutdown(sock, SHUT_RDWR);
     sock = INVALID_SOCKET;
 }
 

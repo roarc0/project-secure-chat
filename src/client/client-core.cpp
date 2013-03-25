@@ -4,7 +4,6 @@
 int ClientCore::StartThread(Session *sc)
 {
     int ret;
-    pthread_t tid;
     pthread_attr_t tattr;
 
     ret = pthread_attr_init(&tattr);

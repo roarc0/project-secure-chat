@@ -28,16 +28,11 @@ class SessionManager
 
         ~SessionManager();
 
-        /*void AddTaskToServe(void* ptr)
-        {
-            n_queue.push(*((net_task*)ptr));
-        }*/
-
         void GetIdList(std::list<uint32>*);
 
         Session_smart AddSession(int sock);
         bool RemoveSession (uint32 id);
-        Session* FindSession(uint32 id) const;
+        Session_smart FindSession(uint32 id) const;
 
         void Update(uint32 udiff);
 
@@ -60,7 +55,7 @@ class SessionManager
         void AddQueuedSession(Session_smart sess);
         bool RemoveQueuedSession(Session_smart sess);
         void AddSessions_();
-        void AddSession_(uint32& next_id, Session_smart sess);
+        void AddSession_(uint32 next_id, Session_smart sess);
 
         // Sessions Map
         SessionMap m_sessions;

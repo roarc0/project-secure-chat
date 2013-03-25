@@ -2,8 +2,8 @@
 #include "session-manager.h"
 #include "session.h"
 
-SocketServer::SocketServer(NetworkManager& netmanager, uint32 d) throw(SocketException): 
-    MethodRequest(), m_netmanager(netmanager)     
+SocketServer::SocketServer(NetworkManager& netmanager, uint32 d) throw(SocketException):
+    MethodRequest(), m_netmanager(netmanager)
 {
 
 }
@@ -24,7 +24,7 @@ void SocketServer::SetBlocking(int sock, const bool block)
     throw(SocketException)
 {
     int flags;
- 
+
     if(!block)
         INFO("debug", "setting socket %d non-blocking\n", sock);
 
@@ -69,13 +69,13 @@ void SocketServer::SetupSocket(int port) throw(SocketException)
 
         if (setsockopt(sock_listen, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0)
             throw SocketException("[setsockopt()]", true);
-                
+
         if (bind(sock_listen, ai_res->ai_addr, ai_res->ai_addrlen) == 0)
         {
             INFO("debug", "succesful bind!\n");
             if (serverinfo_res == NULL)
                 throw SocketException("bind failed!", false);
-            
+
             freeaddrinfo (serverinfo_res);
 
             SetBlocking(sock_listen, false);
@@ -83,8 +83,8 @@ void SocketServer::SetupSocket(int port) throw(SocketException)
             if (listen(sock_listen, SOMAXCONN) < 0)
                 throw SocketException("[listen()]", true);
             break;
-        }    
-        
+        }
+
         INFO("debug", "bind failed!!\n");
         close(sock_listen);
     }
@@ -128,12 +128,12 @@ int SocketServer::Call()
                 throw SocketException("[epoll_wait()]", true);
 
             INFO("debug", "* epollwait res %d\n",res);
-            
+
             Lock lock(mutex_events);
             for (i = 0; i < res; i++)
             {
                 if ((events[i].events & EPOLLERR) ||
-                    (events[i].events & EPOLLHUP) ||                 
+                    (events[i].events & EPOLLHUP) ||
                     (!(events[i].events & EPOLLIN)))
                 {
                     INFO("debug", "epoll error, closing socket and deleting smart session\n");
@@ -178,17 +178,13 @@ int SocketServer::Call()
                         SetBlocking(sock_new, false);
                         event.data.fd = sock_new;
                         event.events = EPOLLIN | EPOLLET;
-                        
-                        event.data.ptr = new Session_smart(s_manager->AddSession(sock_new));
-                        if (event.data.ptr && (((Session_smart*) event.data.ptr)->get() == NULL))
+
+                        Session_smart smart = s_manager->AddSession(sock_new);
+                        if (smart.get() == NULL)
                         {
                             close(sock_new);
                             sock_new = INVALID_SOCKET;
-                            if (event.data.ptr)
-                            {
-                                delete (Session_smart*) event.data.ptr;
-                                event.data.ptr = NULL;                                
-                            }
+                            event.data.ptr = NULL;
                             continue;
                         }
 
@@ -202,7 +198,7 @@ int SocketServer::Call()
                 }
                 else
                 {
-                    m_netmanager.QueueRecive(*((Session_smart*) events[i].data.ptr));
+                    m_netmanager.QueueRecive(events[i].data.fd);
                 }
             }
         }
@@ -212,7 +208,7 @@ int SocketServer::Call()
             cout << e.what() << endl;
         }
     }
-    
+
     close(sock_new);
     pthread_exit(NULL); // fa cleanup -> http://linux.die.net/man/3/pthread_exit
 }

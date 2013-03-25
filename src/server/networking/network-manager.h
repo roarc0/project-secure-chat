@@ -28,7 +28,7 @@ class NetworkManager
         int ActivateEpoll();
         int ActivateThreadsNetwork();
         int QueueSend(Session_smart m_ses);
-        int QueueRecive(Session_smart m_ses);
+        int QueueRecive(uint32 sock);
         netsession_pair GetNextSession();
 
     private:

@@ -67,14 +67,14 @@ bool SessionManager::RemoveSession(uint32 id)
 }
 
 /// Find a session by its id
-Session* SessionManager::FindSession(uint32 id) const
+Session_smart SessionManager::FindSession(uint32 id) const
 {
     SessionMap::const_iterator itr = m_sessions.find(id);
 
     if (itr != m_sessions.end())
-        return itr->second.get();
+        return itr->second;
     else
-        return NULL;
+        return Session_smart(NULL);
 }
 
 void SessionManager::Update(uint32 udiff)
@@ -172,13 +172,13 @@ void SessionManager::AddSessions_()
 {
     // Add new sessions
     Session_smart sess;
-    uint32 next_id = 0;
+    //uint32 next_id = 0;
 
     SessionMap::iterator itr = m_sessions.begin();
 
     while (addSessQueue.next(sess))
     {
-        for (; itr != m_sessions.end(); itr++)
+        /*for (; itr != m_sessions.end(); itr++)
         {
             if (next_id != (itr->first-1))
             {
@@ -187,12 +187,12 @@ void SessionManager::AddSessions_()
             else
                 next_id = itr->first;
         }
-        next_id++;
-        AddSession_(next_id, sess);
+        next_id++;*/
+        AddSession_(sess->m_Socket->GetSocket(), sess);
     }
 }
 
-void SessionManager::AddSession_(uint32& next_id, Session_smart sess)
+void SessionManager::AddSession_(uint32 next_id, Session_smart sess)
 {
     INFO("debug", "add session con next_id %d \n", next_id);
     if (m_sessionActiveLimit && GetActiveSessionCount() >= m_sessionActiveLimit)

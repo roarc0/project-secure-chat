@@ -1,4 +1,5 @@
 #include "network-manager.h"
+#include "session-manager.h"
 
 class NetworkThread: public MethodRequest
 {
@@ -110,8 +111,9 @@ int NetworkManager::QueueSend(Session_smart m_ses)
     return 0;
 }
 
-int NetworkManager::QueueRecive(Session_smart m_ses)
+int NetworkManager::QueueRecive(uint32 sock)
 {
+    Session_smart m_ses = s_manager->FindSession(sock);
     if (!m_ses.get())
         return -1;
 

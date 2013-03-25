@@ -33,7 +33,7 @@ void SessionManager::GetIdList(std::list<uint32>* ulist)
 
 Session_smart SessionManager::AddSession(int sock)
 {
-    INFO("debug","* session manager creating session\n");
+    INFO("debug","SESSION-MANAGER: creating session\n");
     if (!m_sessionQueueLimit || (GetQueuedSessionCount() + addSessQueue.size() <  m_sessionQueueLimit))
     {
         Session* ses = new Session(sock);
@@ -41,12 +41,12 @@ Session_smart SessionManager::AddSession(int sock)
         counted_ptr<Session> smart_ses(ses);
         smart_ses->setSmartPointer(smart_ses);
         addSessQueue.add(smart_ses);
-        INFO("debug","* new session created on sock: %d\n", sock);
+        INFO("debug","SESSION-MANAGER: new session created on sock: %d\n", sock);
         return smart_ses;
     }
     else
     {
-        counted_ptr<Session> ses;
+        Session_smart ses(NULL);
         return ses;
         // Disconetti sessione
     }
@@ -90,7 +90,7 @@ void SessionManager::Update(uint32 udiff)
         // If return false we must delete it
         if (!pSession->Update(udiff, updater))
         {
-            INFO("debug", "Rimuovi sessione %u \n", itr->first);
+            INFO("debug", "SESSION-MANAGER: Rimuovi sessione %u \n", itr->first);
             RemoveQueuedSession(itr->second);
             pSession->deleteSmartPointer();
             m_sessions.erase(itr);
@@ -194,7 +194,7 @@ void SessionManager::AddSessions_()
 
 void SessionManager::AddSession_(uint32 next_id, Session_smart sess)
 {
-    INFO("debug", "add session con next_id %d \n", next_id);
+    INFO("debug", "SESSION-MANAGER: add session con next_id %d \n", next_id);
     if (m_sessionActiveLimit && GetActiveSessionCount() >= m_sessionActiveLimit)
     {
         AddQueuedSession(sess);

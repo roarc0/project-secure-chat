@@ -12,7 +12,7 @@ SessionBase::SessionBase(int pSock)
 
 SessionBase::~SessionBase()
 {
-    INFO("debug", "Session Base DISTRUTTORE!\n");
+    INFO("debug", "SESSIONBASE: distruttore\n");
 
     Packet* packet = NULL;
     while (_recvQueue.next(packet))
@@ -69,7 +69,7 @@ int SessionBase::_SendPacketToSocket(const Packet& pct)
     // Inserire Criptazione
     memcpy((void*)rawData, (char*) header.header, header.getHeaderLength());
     memcpy((void*)(rawData + header.getHeaderLength()), (char*) pct.contents(), pct.size());
-    INFO("debug", "Pacchetto Inviato nel Socket %s\n", pct.contents());
+    INFO("debug", "SESSIONBASE: Pacchetto Inviato nel Socket %s\n", pct.contents());
     m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
     delete[] rawData;
     return 0;
@@ -94,7 +94,7 @@ Packet* SessionBase::_RecvPacketFromSocket()
     buffer = new char[pkt_head.getSize()];
     m_Socket->Recv((void*) buffer, pkt_head.getSize());
 
-    INFO("debug","Livello Network Messaggio: %s , header %u, lunghezza %u\n", buffer, pkt_head.getHeader(), pkt_head.getSize());
+    INFO("debug","SESSIONBASE: Recv Messaggio: %s , header %u, lunghezza %u\n", buffer, pkt_head.getHeader(), pkt_head.getSize());
 
     // Impacchetta
     recVpkt = new Packet(pkt_head.getHeader(), pkt_head.getSize());

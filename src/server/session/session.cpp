@@ -155,11 +155,11 @@ void Session::HandleMessage(Packet& packet)
     if (ChatHandler(this).ParseCommands(msg.c_str()) > 0)
         return;
 
-    INFO ("debug", "Livello Esecuzione Messaggio: %s\n", msg.c_str());
+    INFO ("debug", "SESSION: Livello Esecuzione Messaggio: %s\n", msg.c_str());
 
     // Test send non funzionerà mai
     Packet respacket;
-    respacket << "Il Server ha ascoltato il tuo messaggio e lo ha ingorato brutalmente.";
+    respacket << "Server: Messaggio Ricevuto";
     SendPacket(&respacket);
     //TODO
 }

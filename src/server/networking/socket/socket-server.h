@@ -46,7 +46,6 @@ class SocketServer: public MethodRequest
 
     void Init(int) throw(SocketException);
     int  Call();
-    void Kill(int) throw(SocketException);
 };
 
 #endif

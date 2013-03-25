@@ -1,7 +1,7 @@
 #include "socket-client.h"
 
 void SocketClient::Connect(const string &foreignAddress,
-    unsigned short foreignPort) throw(SocketException) 
+    unsigned short foreignPort) throw(SocketException)
 {
     sockaddr_in destAddr;
     FillAddr(foreignAddress, foreignPort, destAddr);
@@ -13,12 +13,10 @@ void SocketClient::Connect(const string &foreignAddress,
     }
 }
 
-void SocketClient::Disconnect() throw(SocketException) 
+void SocketClient::Disconnect() throw(SocketException)
 {
     if (close(sock) < 0)
     {
         throw SocketException("Socket close failed [close()]", true);
     }
-    sock = INVALID_SOCKET;
-    InitSocket();
 }

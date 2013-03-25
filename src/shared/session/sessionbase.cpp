@@ -79,7 +79,7 @@ Packet* SessionBase::RecvPacketFromSocket()
 {
     if (!m_Socket || m_Socket->IsClosed())
         return NULL;
-
+    INFO("debug","SESSIONBASE: calling recv\n");
     return _RecvPacketFromSocket();
 }
 
@@ -88,15 +88,15 @@ Packet* SessionBase::_RecvPacketFromSocket()
     char header[4];
     // Prendi Header
     m_Socket->Recv((void*) &header, 4);
+    INFO("debug","SESSIONBASE: recv called\n");
     PktHeader pkt_head(header, 4);
 
     // Prendi Resto dei Dati
     buffer = new char[pkt_head.getSize()];
     m_Socket->Recv((void*) buffer, pkt_head.getSize());
 
-    INFO("debug","SESSIONBASE: Recv Messaggio: %s , header %u, lunghezza %u\n", buffer, pkt_head.getHeader(), pkt_head.getSize());
+    INFO("debug","SESSIONBASE: msg: %s , header %u, len %u\n", buffer, pkt_head.getHeader(), pkt_head.getSize());
 
-    // Impacchetta
     recVpkt = new Packet(pkt_head.getHeader(), pkt_head.getSize());
     recVpkt->append((char*)buffer, pkt_head.getSize());
 

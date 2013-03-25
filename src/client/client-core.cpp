@@ -22,9 +22,9 @@ int ClientCore::StartThread(Session *sc)
 
 void* CoreThread(void* arg)
 {
-    sigset_t mask;
-    sigfillset(&mask);
-    pthread_sigmask(SIG_BLOCK, &mask, NULL);
+    //sigset_t mask;
+    //sigfillset(&mask);
+    //pthread_sigmask(SIG_BLOCK, &mask, NULL);
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 
     Session* session = (Session*)arg;
@@ -43,7 +43,7 @@ void* CoreThread(void* arg)
         }
         catch(SocketException &e)
         {
-            INFO("debug", "receive failed (%s:%d) %s\n", // read from socket
+            INFO("debug", "* recv failed (%s:%d) %s\n", // read from socket
                  CFG_GET_STRING("server_host").c_str(),
                  CFG_GET_INT("server_port"), e.what());
             session->SetConnected(false);
@@ -72,7 +72,7 @@ ClientCore::ClientCore()
         Connect();
         INFO("debug","autoconnetting...\n");
     }
-    StartThread (session);
+    //StartThread (session);
 }
 
 ClientCore::~ClientCore()
@@ -87,8 +87,10 @@ ClientCore::~ClientCore()
 bool ClientCore::Connect()
 {
     bool ret = session->Connect();
+
     if (ret)
     {
+        StartThread(session);
         SignalEvent();
         SignalConnection();
     }
@@ -97,10 +99,17 @@ bool ClientCore::Connect()
 
 bool ClientCore::Disconnect()
 {
-    pthread_cancel(tid);
     bool ret = session->Disconnect();
     if (ret)
+    {
         SignalEvent();
+        INFO("debug","thread tritolo pronto\n");
+        pthread_cancel(tid);
+        pthread_join(tid,NULL);
+        INFO("debug","thread esploso\n");
+        //pthread_kill(tid,SIGQUIT);
+        session->ResetSocket();
+    }
     return ret;
 }
 

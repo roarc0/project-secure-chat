@@ -65,7 +65,9 @@ bool Session::Disconnect()
 
 void Session::ResetSocket()
 {
-    m_Socket->InitSocket();
+    delete c_Socket;
+    c_Socket = new SocketClient(SOCK_STREAM, 0);
+    m_Socket = (SocketBase*) c_Socket;
 }
 
 bool Session::Update(uint32 /*diff*/)

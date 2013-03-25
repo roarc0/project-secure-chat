@@ -3,7 +3,7 @@
 #include "session.h"
 
 SocketServer::SocketServer(NetworkManager& netmanager, uint32 d) throw(SocketException): 
-    MethodRequest(), m_netmanager(netmanager), m_diff(d), active(true)     
+    MethodRequest(), m_netmanager(netmanager)     
 {
     pthread_mutex_init(&mutex_events, NULL);
 }
@@ -107,10 +107,11 @@ void SocketServer::SetupEpoll() throw(SocketException)
 
 void SocketServer::Kill(int sock) throw(SocketException)
 {
-    pthread_mutex_lock(&mutex_events);   
-        if (epoll_ctl (epoll_fd, EPOLL_CTL_DEL, sock, 0) < 0)
-                throw SocketException("[epoll_ctl()]", true);
-    pthread_mutex_unlock(&mutex_events); // BOOM usare il locche
+    Lock lock(mutex_events);
+    // eliminare smart ... va ricercato cmq...
+    if (epoll_ctl (epoll_fd, EPOLL_CTL_DEL, sock, 0) < 0)
+        throw SocketException("[epoll_ctl()]", true);
+    // chiamare close(sock); ?
 }
 
 int SocketServer::Call()

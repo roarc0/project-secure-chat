@@ -10,7 +10,7 @@
 
 #include "threading/method-request.h"
 #include "networking/socket-base.h"
-#include "utility/callback.h"
+#include "threading/lock.h"
 #include "network-manager.h"
 #include "session.h"
 
@@ -32,18 +32,13 @@ class SocketServer: public MethodRequest
 
     pthread_mutex_t mutex_events;
 
+    NetworkManager& m_netmanager;
+
     void SetupAddrInfo(int family, int socktype, int protocol);
     void SetBlocking(int, const bool) throw(SocketException);
 
     void SetupEpoll() throw(SocketException);
     void SetupSocket(int port) throw(SocketException);
-
-    EventCallback<void, void*> cb_notify;
-
-
-    NetworkManager& m_netmanager;
-    uint32 m_diff;
-    bool active;
 
   public:
     SocketServer(NetworkManager& netmanager, uint32 d) throw(SocketException);

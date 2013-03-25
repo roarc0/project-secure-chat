@@ -32,27 +32,31 @@ class NetworkThread: public MethodRequest
                 try
                 {
                     if (net_ses.second == SEND)
-                    {
+                    {                        
                         pkt = net_ses.first->GetPacketToSend();
                         if (pkt)
                         {
+                            INFO("debug", "NETWORKTHREAD: Send Packet Event\n");
                             net_ses.first->SendPacketToSocket(pkt);
                             delete pkt;
                         }
                         else
-                            INFO("debug", "NetworkThread: Packet to send NULL\n");
+                            INFO("debug", "NETWORKTHREAD: WARNING Packet to send NULL\n");
                     }
                     else // Recv
                     {
+                        INFO("debug", "NETWORKTHREAD: Recv Packet Event\n");
                         pkt = net_ses.first->RecvPacketFromSocket();
-                        if (pkt)
+                        if (pkt)                  
                             net_ses.first->QueuePacket(pkt);
+                        else
+                            INFO("debug", "NETWORKTHREAD: WARNING Packet Recv NULL\n");
                     }
                 }
                 catch(SocketException e)
                 {
-                    INFO("debug", "%s \n", e.what());
-                    //net_ses.first->m_Socket->CloseSocket();
+                    INFO("debug", "NETWORKTHREAD: %s , closing socket\n", e.what());
+                    net_ses.first->m_Socket->CloseSocket();
                 }
             }
             return 0;

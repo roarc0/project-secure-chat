@@ -5,12 +5,11 @@
 SocketServer::SocketServer(NetworkManager& netmanager, uint32 d) throw(SocketException): 
     MethodRequest(), m_netmanager(netmanager)     
 {
-    pthread_mutex_init(&mutex_events, NULL);
+
 }
 
 SocketServer::~SocketServer()
 {
-    pthread_mutex_destroy(&mutex_events);
     ::close(sock_listen);
     sock_listen = INVALID_SOCKET;
 }
@@ -116,13 +115,10 @@ void SocketServer::Kill(int sock) throw(SocketException)
 
 int SocketServer::Call()
 {
-    Init(CFG_GET_INT("server_port"));
-
-    INFO("debug", "* listening on port: %d\n", CFG_GET_INT("server_port"));
-
     int res = -1, sock_new, i = 0;
-    
-    INFO("debug", "* epoll thread started\n");
+
+    INFO("debug", "* epoll thread started, listening on port: %d\n", CFG_GET_INT("server_port"));
+    Init(CFG_GET_INT("server_port"));
 
     while(1)
     {
@@ -133,7 +129,7 @@ int SocketServer::Call()
 
             INFO("debug", "* epollwait res %d\n",res);
             
-            pthread_mutex_lock(&mutex_events);
+            Lock lock(mutex_events);
             for (i = 0; i < res; i++)
             {
                 if ((events[i].events & EPOLLERR) ||
@@ -209,7 +205,6 @@ int SocketServer::Call()
                     m_netmanager.QueueRecive(*((Session_smart*) events[i].data.ptr));
                 }
             }
-            pthread_mutex_unlock(&mutex_events);
         }
         catch(SocketException e)
         {

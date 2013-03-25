@@ -67,6 +67,7 @@ class SocketBase
                          throw(SocketException);
         void             CloseSocket();
         bool             IsClosed();
+        int              GetSocket() const;
 
         void             Send(const void *buffer, int bufferLen)
                          throw(SocketException);

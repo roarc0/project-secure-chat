@@ -22,9 +22,9 @@ int ClientCore::StartThread(Session *sc)
 
 void* CoreThread(void* arg)
 {
-    sigset_t mask;
+    /*sigset_t mask;
     sigfillset(&mask);
-    pthread_sigmask(SIG_BLOCK, &mask, NULL);
+    pthread_sigmask(SIG_BLOCK, &mask, NULL);*/
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 
     Session* session = (Session*)arg;
@@ -37,8 +37,11 @@ void* CoreThread(void* arg)
         {
             while(c_core->IsConnected())
             {
+                INFO("debug", "inizio RECV\n");
                 c_core->HandleRecv();
+                INFO("debug", "fine RECV\n");
                 msleep(1);
+
             }
         }
         catch(SocketException &e)

@@ -3,7 +3,7 @@
 SessionManager::SessionManager()
 {
     m_sessionActiveLimit = CFG_GET_INT("SessionActiveLimit");
-    m_sessionLimit = CFG_GET_INT("SessionLimit");
+    m_sessionQueueLimit = CFG_GET_INT("SessionQueueLimit");
     channelMrg = new ChannelManager();
 }
 
@@ -34,7 +34,7 @@ void SessionManager::GetIdList(std::list<uint32>* ulist)
 Session_smart SessionManager::AddSession(int sock)
 {
     INFO("debug","* session manager creating session\n");
-    if (!m_sessionLimit || (GetQueuedSessionCount() + addSessQueue.size() <  m_sessionLimit))
+    if (!m_sessionQueueLimit || (GetQueuedSessionCount() + addSessQueue.size() <  m_sessionQueueLimit))
     {
         Session* ses = new Session(sock);
         assert(ses);

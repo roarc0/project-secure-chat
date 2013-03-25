@@ -16,7 +16,7 @@ void init_config(string filename)
     CFG->add_int("ThreadExec", 2);
 
     CFG->add_int("SessionActiveLimit", 100);
-    CFG->add_int("SessionLimit", 150);
+    CFG->add_int("SessionQueueLimit", 50);
 
     CFG->open_cfg();
     post_init_config();

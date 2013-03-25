@@ -21,7 +21,7 @@ NEWEXCEPTION(SessionManagerException);
 
 // Classe di gestione delle sessioni aperte
 class SessionManager
-{    
+{
         friend class Singleton<SessionManager>;
 
     public:
@@ -46,9 +46,9 @@ class SessionManager
         uint32 GetQueuedSessionCount() const { return m_waitSessQueue.size(); }
         uint32 GetQueuePos(Session_smart sess);
 
-        // Session server limit
-        void SetSessionAmountLimit(uint32 limit) { m_sessionLimit = limit; }
-        uint32 GetSessionAmountLimit() const { return m_sessionLimit; }
+        // Queue session server limit
+        void SetSessionAmountLimit(uint32 limit) { m_sessionQueueLimit = limit; }
+        uint32 GetSessionAmountLimit() const { return m_sessionQueueLimit; }
 
         // Active session server limit
         void SetSessionActiveAmountLimit(uint32 limit) { m_sessionActiveLimit = limit; }
@@ -73,9 +73,9 @@ class SessionManager
         SessionQueue m_waitSessQueue;
 
         // Session server limit
-        uint32 m_sessionLimit;
+        uint32 m_sessionQueueLimit;
         // Active session server limit
-        uint32 m_sessionActiveLimit; 
+        uint32 m_sessionActiveLimit;
 
         ChannelManager* channelMrg;
 

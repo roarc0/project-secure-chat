@@ -27,10 +27,10 @@ ThreadExec = 2
 SessionActiveLimit = 100
 
 #
-#    SessionLimit
-#        Description: Maximum number of session (active + in queue).
-#            Default: 100 - (Enabled)
+#    SessionQueueLimit
+#        Description: Maximum number of session in queue.
+#            Default: 50 - (Enabled)
 #                     1+  - (Enabled)
 #                     0   - (Disabled, No limit)
 
-SessionLimit = 150
+SessionQueueLimit = 50

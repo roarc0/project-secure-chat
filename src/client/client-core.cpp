@@ -121,19 +121,19 @@ bool ClientCore::HandleSend(const char* msg)
 void ClientCore::HandleRecv()
 {
     Packet *pack;
-    INFO("debug","waiting for data...\n");
+    INFO("debug","* waiting for data...\n");
     pack = session->RecvPacketFromSocket();
-    INFO("debug","packet received...\n");
+    INFO("debug","* packet received...\n");
 
     string str;
     if(pack)
         *pack >> str;
     else
-        INFO("debug", "empty packet received\n");
+        INFO("debug", "* empty packet received\n");
 
     eventg ev;
      //passare il pacchetto analizzato e trasformato in evento
-    ev.who="someone";
+    ev.who="server";
     ev.what="something";
     ev.data=str;
     events.push_back(ev);

@@ -15,6 +15,10 @@ struct gui_res
     GtkTextBuffer *chat_buffer;
     GtkWidget *text_entry;
     GtkWidget *status_bar;
+    
+    GtkWidget *scrolledwindow_chat;
+    GtkWidget *scrolledwindow_user_list;
+    
     GtkToolItem *toolbar_connect;
 } gres;
 
@@ -40,7 +44,7 @@ void* GuiThread(void* arg)
                 "Disconnect");
             push_status_bar("Connected with server!");
             add_message_to_chat(gres->chat_buffer,
-                                (gchar*) "Connected!\n", 'e');
+                                (gchar*) "<local> Connected!\n", 'e');
         }
         if(!c_core->IsConnected() && oldstatus)
         {
@@ -49,7 +53,7 @@ void* GuiThread(void* arg)
                 "Connect");
             push_status_bar("Disconnected from server!");
             add_message_to_chat(gres->chat_buffer,
-                                (gchar*) "Disconnected!\n", 'e');
+                                (gchar*) "<local> Disconnected!\n", 'e');
         }
         oldstatus = c_core->IsConnected();
 
@@ -156,6 +160,14 @@ void remove_user_from_list(/*gpointer data, gchar *str, gint num*/)
 
 }
 
+void scroll_down(GtkWidget *scrolled)
+{
+    assert(scrolled);
+    GtkAdjustment* adjustment;
+    adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled));
+    gtk_adjustment_set_value(adjustment, gtk_adjustment_get_upper(adjustment));
+}
+
 void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizzare "..."
 {
     GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(data);
@@ -175,11 +187,15 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
         break;
         case 'l': //leave
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "red_bg", "bold", NULL);
+                &textiter, str, -1, "lmarg", "red_bg", "white_fg", "bold", NULL);
         break;
-        case 'm': //message
+        case 'm': //message received
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
                 &textiter, str, -1, "lmarg", "black_fg", NULL);
+        break;
+        case 'M': //message received
+            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
+                &textiter, str, -1, "lmarg", "black_fg", "bold", NULL);
         break;
         case 'e': //event
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
@@ -192,6 +208,9 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
         default:
         break;
     }
+    
+    scroll_down(gres.scrolledwindow_chat);
+    
     pthread_mutex_unlock(&mutex_guichange);
 }
 
@@ -200,20 +219,20 @@ void button_send_click(gpointer data, gchar *str, gchar type)
     stringstream ss, ss_h;
     gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(gres.text_entry));
 
-    if (!strcmp(text,"")) // check length
+    if (strlen(text) == 0) // TODO check max length
         return;
 
     ss_h << text;
     if (!c_core->HandleSend((char*)ss_h.str().c_str()))
     {
-        add_message_to_chat(gres.chat_buffer, (gchar*) "<local> send failed\n", 'e');
+        add_message_to_chat(gres.chat_buffer, (gchar*) "<local> send failed!\n", 'e');
         return;
     }
 
-    if (text[0] != '\\')
+    if ((text[0] != '\\') || strncmp(text, "\\send", 5))
     {
         ss << "<" << CFG_GET_STRING("nickname") << "> " << text << endl;
-        add_message_to_chat(gres.chat_buffer, (gchar*) ss.str().c_str(), 'm');
+        add_message_to_chat(gres.chat_buffer, (gchar*) ss.str().c_str(), 'M');
     }
 
     gtk_entry_set_text (GTK_ENTRY(gres.text_entry), "");
@@ -282,12 +301,11 @@ void main_gui(int argc, char **argv)
 
     /* chat */
     GtkWidget *hbox_chat;
-    GtkWidget *scrolledwindow_chat;
     GtkWidget *view_chat;
     GtkTextBuffer *view_chat_buffer;
 
     /* lista utenti */
-    GtkWidget *scrolledwindow_user_list;
+
     GtkListStore *model_user_list;
     GtkWidget *view_user_list;
     GtkCellRenderer *renderer_user_list;
@@ -395,24 +413,26 @@ void main_gui(int argc, char **argv)
     hbox_chat = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox_main), hbox_chat, TRUE, TRUE, 0);
 
-    scrolledwindow_chat = gtk_scrolled_window_new (NULL, NULL);
-    gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow_chat, TRUE, TRUE, 0);
+    gres.scrolledwindow_chat = gtk_scrolled_window_new (NULL, NULL);
+    gtk_box_pack_start (GTK_BOX (hbox_chat), gres.scrolledwindow_chat, TRUE, TRUE, 0);
 
-    gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow_chat), 2);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow_chat),
+    gtk_container_set_border_width (GTK_CONTAINER (gres.scrolledwindow_chat), 2);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (gres.scrolledwindow_chat),
                                     GTK_POLICY_NEVER,
                                     GTK_POLICY_AUTOMATIC);
 
     view_chat = gtk_text_view_new();
+    
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view_chat), GTK_WRAP_WORD_CHAR);
     gtk_text_view_set_editable(GTK_TEXT_VIEW(view_chat), false);
-    gtk_container_add (GTK_CONTAINER (scrolledwindow_chat), view_chat);
+    gtk_container_add (GTK_CONTAINER (gres.scrolledwindow_chat), view_chat);
     view_chat_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view_chat));
     gtk_text_buffer_create_tag(view_chat_buffer, "gap", "pixels_above_lines", 30, NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "lmarg", "left_margin", 5, NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "black_fg", "foreground", "black", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "white_fg", "foreground", "white", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "green_bg", "background", "lime", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "blue_bg", "background", "blue", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "red_bg", "background", "red", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "yellow_bg", "background", "yellow", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "magenta_bg", "background", "magenta", NULL);
@@ -420,21 +440,21 @@ void main_gui(int argc, char **argv)
     gtk_text_buffer_create_tag(view_chat_buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 
     /*############################################## message test */
-    add_message_to_chat(view_chat_buffer, (gchar*) "\"gufo\" has joined the chat\n", (gchar)'j');
+    add_message_to_chat(view_chat_buffer, (gchar*) "<gufo> has joined the chat\n", (gchar)'j');
     add_message_to_chat(view_chat_buffer, (gchar*) "<gufo> salve buonuomo\n", (gchar)'m');
-    add_message_to_chat(view_chat_buffer, (gchar*) "<server> reboot in 5 minutes!\n", (gchar)'s');
+    add_message_to_chat(view_chat_buffer, (gchar*) "<server> reboot scheduled in 5 minutes!\n", (gchar)'s');
     add_message_to_chat(view_chat_buffer, (gchar*) "<alec> ave!\n", (gchar)'m');
-    add_message_to_chat(view_chat_buffer, (gchar*) "<furla> ciao!\n", (gchar)'m');
-    add_message_to_chat(view_chat_buffer, (gchar*) "\"furla\" has been kicked out by \"alec\"!\n", (gchar)'l');
+    add_message_to_chat(view_chat_buffer, (gchar*) "<furla> ...\n", (gchar)'m');
+    add_message_to_chat(view_chat_buffer, (gchar*) "<alec> \"furla\" has been kicked out!\n", (gchar)'l');
     /*##############################################*/
 
-    scrolledwindow_user_list = gtk_scrolled_window_new (NULL, NULL);
-    gtk_box_pack_start (GTK_BOX (hbox_chat), scrolledwindow_user_list, TRUE, TRUE, 0);
-    gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow_user_list), 2);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow_user_list),
+    gres.scrolledwindow_user_list = gtk_scrolled_window_new (NULL, NULL);
+    gtk_box_pack_start (GTK_BOX (hbox_chat), gres.scrolledwindow_user_list, TRUE, TRUE, 0);
+    gtk_container_set_border_width (GTK_CONTAINER (gres.scrolledwindow_user_list), 2);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (gres.scrolledwindow_user_list),
                                     GTK_POLICY_NEVER,
                                     GTK_POLICY_AUTOMATIC);
-    gtk_widget_show (scrolledwindow_user_list);
+    gtk_widget_show (gres.scrolledwindow_user_list);
 
     model_user_list     = gtk_list_store_new(COLUMNS, G_TYPE_STRING, G_TYPE_INT);
     view_user_list      = gtk_tree_view_new_with_model (GTK_TREE_MODEL(model_user_list));
@@ -461,7 +481,7 @@ void main_gui(int argc, char **argv)
     gtk_widget_show (view_user_list);
     g_object_unref(model_user_list);
 
-    gtk_container_add (GTK_CONTAINER (scrolledwindow_user_list), view_user_list);
+    gtk_container_add (GTK_CONTAINER (gres.scrolledwindow_user_list), view_user_list);
     gtk_container_set_border_width (GTK_CONTAINER (view_user_list), 0);
     gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view_user_list), TRUE);
     /*############################################## user add test */

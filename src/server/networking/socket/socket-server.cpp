@@ -108,13 +108,9 @@ void SocketServer::SetupEpoll() throw(SocketException)
 void SocketServer::Kill(int sock) throw(SocketException)
 {
     pthread_mutex_lock(&mutex_events);   
-    for (int i = 0; i < MAXEVENTS; i++)
-    {
-        if (events[i].data.fd == sock)
-            if (epoll_ctl (epoll_fd, EPOLL_CTL_DEL, sock, &events[i]) < 0)
+        if (epoll_ctl (epoll_fd, EPOLL_CTL_DEL, sock, 0) < 0)
                 throw SocketException("[epoll_ctl()]", true);
-    }
-    pthread_mutex_unlock(&mutex_events);
+    pthread_mutex_unlock(&mutex_events); // BOOM usare il locche
 }
 
 int SocketServer::Call()

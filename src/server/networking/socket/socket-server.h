@@ -30,7 +30,7 @@ class SocketServer: public MethodRequest
     int sock_listen;
     int epoll_fd;
 
-    pthread_mutex_t mutex_events;
+    Mutex mutex_events;
 
     NetworkManager& m_netmanager;
 

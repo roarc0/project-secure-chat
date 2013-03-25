@@ -53,9 +53,12 @@ void SocketBase::CloseSocket()
 
 bool SocketBase::IsClosed()
 {
-    if (sock == INVALID_SOCKET)
-        return true;
-    return false;  
+    return sock == INVALID_SOCKET;
+}
+
+int SocketBase::GetSocket() const
+{
+    return sock;
 }
 
 string SocketBase::GetLocalAddress() throw(SocketException) 

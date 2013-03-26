@@ -30,7 +30,7 @@ class ChannelManager
 
         // THREADSAFE
         Channel* FindChannel(const std::string& c_name);
-        int CreateChannel(std::string& c_name);
+        bool CreateChannel(std::string& c_name);
 
         // THREADUNSAFE
         // E' thread unsafe se un altro thread sta lavorando sul puntatore del canale

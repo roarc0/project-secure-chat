@@ -155,16 +155,26 @@ void Session::HandleMessage(Packet& packet)
     packet >> msg;
 
     // Controllo se ci sono comandi
-    if (ChatHandler(this).ParseCommands(msg.c_str()) > 0)
+    if (ChatHandler(smartThis).ParseCommands(msg.c_str()) > 0)
         return;
 
     INFO ("debug", "SESSION: Livello Esecuzione Messaggio: %s\n", msg.c_str());
 
-    // Test send non funzionerà mai
-    Packet respacket;
-    respacket << "Server: Messaggio Ricevuto";
-    SendPacket(&respacket);
-    //TODO
+
+    Channel* chan = s_manager->GetChannelMrg()->FindChannel(channel_name);
+    if (chan)
+    {
+        chan->SendToAllButOne(&packet, m_id);
+        Packet respacket;
+        respacket << "Server: Messaggio Inoltrato nel canale";
+        SendPacket(&respacket);
+    }
+    else
+    {
+        Packet respacket;
+        respacket << "Server: Non sei in un canale!";
+        SendPacket(&respacket);
+    }
 }
 
 void Session::HandleJoinChannel(Packet& packet) 
@@ -194,7 +204,7 @@ void Session::HandleJoinChannel(Packet& packet)
         return;
     }
 
-    if (!pChan->CanSessionEnter(this, pass))
+    if (!pChan->CanSessionEnter(smartThis, pass))
     {
         // Invia notifica all'utente che non può entrare nel canale
         Packet pkt(SMSG_CHANNEL_NOTIFY);
@@ -203,7 +213,7 @@ void Session::HandleJoinChannel(Packet& packet)
         return;
     }
 
-    if (!pChan->AddSession(this))
+    if (!pChan->AddSession(smartThis))
     {
         Packet pkt(SMSG_CHANNEL_NOTIFY);
         pkt << "Errore Aggiunta Canale";

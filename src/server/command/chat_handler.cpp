@@ -100,7 +100,7 @@ int ChatHandler::ParseCommands(const char* text)
     std::string fullcmd = text;
 
     /// chat case (/command or !command format)
-    if (m_session)
+    if (m_session.get())
     {
         if (text[0] != '\\')
             return 0;
@@ -279,7 +279,7 @@ bool ChatHandler::ShowHelpForSubCommands(ChatCommand* table, char const* cmd, ch
         if (*subcmd && !hasStringAbbr(table[i].Name, subcmd))
             continue;
 
-        if (m_session)
+        if (m_session.get())
             list += "\n    ";
         else
             list += "\n\r    ";
@@ -364,13 +364,96 @@ bool ChatHandler::HandleHelpCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleJoinChannelCommand(const char* /*args*/) 
-{ 
+bool ChatHandler::HandleJoinChannelCommand(const char* args) 
+{
+    if (!*args)
+        return false;
+
+    char* arg1 = strtok((char*)args, " ");
+    if (!arg1)
+        return false;
+    std::string c_name = arg1;
+
+    char* arg2 = strtok(NULL, " ");
+    std::string pass = "";
+    if (arg2)
+        pass = arg2;        
+
+    if (m_session->IsInChannel())
+    {
+        SetSentErrorMessage(true);
+        SendSysMessage("Sono già in un Canale");   
+        return false;
+    }
+
+    Channel* pChan = s_manager->GetChannelMrg()->FindChannel(c_name);
+
+    if (!pChan)
+    {
+        // Notifica all'utente canale non esistente
+        SetSentErrorMessage(true);
+        SendSysMessage("Canale non Esistente");   
+        return false;
+    }
+
+    if (!pChan->CanSessionEnter(m_session, pass))
+    {
+        // Invia notifica all'utente che non può entrare nel canale
+        SetSentErrorMessage(true);
+        SendSysMessage("Password Errata"); 
+        return false;
+    }
+
+    if (!pChan->AddSession(m_session))
+    {
+        SetSentErrorMessage(true);
+        SendSysMessage("Errore Aggiunta Canale");
+        return false;
+    }
+
+    m_session->setChannel(c_name);
     return true; 
 }
 
-bool ChatHandler::HandleCreateChannelCommand(const char* /*args*/)
+bool ChatHandler::HandleCreateChannelCommand(const char* args)
 { 
+    if (!*args)
+        return false;
+
+    char* arg1 = strtok((char*)args, " ");
+    if (!arg1)
+        return false;
+    std::string c_name = arg1;
+
+    char* arg2 = strtok(NULL, " ");
+    std::string pass = "";
+    if (arg2)
+        pass = arg2;
+
+    if (m_session->IsInChannel())
+    {
+        SetSentErrorMessage(true);
+        SendSysMessage("Sono già in un Canale");   
+        return false;
+    }
+
+    if (!(s_manager->GetChannelMrg()->CreateChannel(c_name)))
+    {
+        SetSentErrorMessage(true);
+        SendSysMessage("Canale già esistente");   
+        return false;
+    }
+
+    Channel* pChan = s_manager->GetChannelMrg()->FindChannel(c_name);
+
+    if (!pChan->AddSession(m_session))
+    {
+        SetSentErrorMessage(true);
+        SendSysMessage("Errore Aggiunta Canale");
+        return false;
+    }  
+
+    m_session->setChannel(c_name);
     return true; 
 }
 

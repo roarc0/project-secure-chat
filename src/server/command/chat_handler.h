@@ -3,6 +3,8 @@
 
 #include "common.h"
 #include "session.h"
+#include "channel.h"
+#include "session-manager.h"
 
 #if COMPILER == COMPILER_GNU
 #  define ATTR_PRINTF(F, V) __attribute__ ((format (printf, F, V)))
@@ -31,11 +33,11 @@ class ChatCommand
 
 class ChatHandler
 {
-        Session* m_session;
+        Session_smart m_session;
         bool sentErrorMessage;
     public:
-        Session* GetSession() { return m_session; }
-        explicit ChatHandler(Session* session) : m_session(session) {}
+        Session_smart GetSession() { return m_session; }
+        explicit ChatHandler(Session_smart session) : m_session(session) {}
         ~ChatHandler() {}
         
         // Funzione chiamata per vedere se c'è un comando, e se c'è lo esegue

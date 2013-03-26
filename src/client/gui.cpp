@@ -170,14 +170,15 @@ void scroll_down(GtkWidget *scrolled)
 
 void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizzare "..."
 {
+    pthread_mutex_lock(&mutex_guichange);
+
     GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(data);
     GtkTextIter textiter;
     //gtk_text_buffer_get_iter_at_offset(text_view_buffer, &textiter, 0);
     //int offset = gtk_text_iter_get_offset(&textiter);
     //gtk_text_buffer_get_start_iter(buffer, &textiter);
     //gtk_text_buffer_get_end_iter(buffer, &textiter);
-
-    pthread_mutex_lock(&mutex_guichange);
+    
     gtk_text_buffer_get_end_iter(text_view_buffer, &textiter);
     switch(type)
     {

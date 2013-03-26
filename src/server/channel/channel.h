@@ -5,8 +5,8 @@
 #include "threading/lock.h"
 #include "session.h"
 
-typedef UNORDERED_MAP<uint32, Session*> mapSession;
-typedef std::pair<uint32, Session*> mapSession_pair;
+typedef UNORDERED_MAP<uint32, Session_smart> mapSession;
+typedef std::pair<uint32, Session_smart> mapSession_pair;
 
 NEWEXCEPTION(ChannelException);
 
@@ -22,7 +22,7 @@ class Channel
         // THREADSAFE
         int SetName(std::string& c_name);
         std::string GetName() const { return name; }
-        bool CanSessionEnter(Session* /*ses*/, std::string& /*pass*/) const;
+        bool CanSessionEnter(Session_smart /*ses*/, std::string& /*pass*/) const;
 
         void SendToAll(Packet* packet); 
         void SendToAllButOne(Packet* packet, uint32 id);
@@ -31,8 +31,8 @@ class Channel
         void MakeChannelChangeName(Packet* packet);
 
         // THREADSAFE
-        Session* FindSession(uint32 id);
-        bool  AddSession(Session* ses);
+        Session_smart FindSession(uint32 id);
+        bool  AddSession(Session_smart ses);
 
         //THREADUNSAFE 
         bool  RemoveSession(uint32 id);    

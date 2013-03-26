@@ -130,8 +130,7 @@ int SocketServer::Call()
             for (i = 0; i < res; i++)
             {
                 if ((events[i].events & EPOLLERR) ||
-                    (events[i].events & EPOLLHUP) ||
-                    (!(events[i].events & EPOLLIN)))
+                    (events[i].events & EPOLLHUP))
                 {
                     INFO("debug", "EPOLL: closing socket\n");
                     close(events[i].data.fd);
@@ -194,10 +193,14 @@ int SocketServer::Call()
 
                     continue;
                 }
-                else
+                else if (events[i].events & EPOLLIN)
                 {
                     INFO("debug","EPOLL: receive event on socket %u\n", events[i].data.fd);
                     m_netmanager.QueueRecive(events[i].data.fd);
+                }
+                else
+                {
+                    INFO("debug","EPOLL: evento %u non gestito sul socket %u\n", events[i].events, events[i].data.fd);
                 }
             }
         }

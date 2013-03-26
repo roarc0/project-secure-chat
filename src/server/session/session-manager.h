@@ -61,7 +61,7 @@ class SessionManager
         SessionMap m_sessions;
 
         // Sessioni in attesa di essere attivate
-        LockedQueue<Session_smart> addSessQueue;
+        LockQueue<Session_smart> addSessQueue;
 
         // Coda in Ingresso
         SessionQueue m_QueuedSessions;

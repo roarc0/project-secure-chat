@@ -16,17 +16,17 @@ class SessionBase
         virtual ~SessionBase();
 
         // THREADSAFE
-        void QueuePacket(Packet* new_packet); 
+        void QueuePacket(Packet* new_packet);
         void SendPacket(Packet* new_packet);
         void SendPacketToSocket(Packet* new_packet);
         Packet* RecvPacketFromSocket();
-        Packet* GetPacketToSend();     
+        Packet* GetPacketToSend();
 
         virtual bool IsInChannel() { return false; } // serve anche al client?
 
         // Handle
         void Handle_NULL(Packet& /*packet*/);
-        
+
         // Socket
         SocketBase* m_Socket;
     protected:
@@ -35,13 +35,13 @@ class SessionBase
         int _SendPacketToSocket(const Packet& pct);
         Packet* _RecvPacketFromSocket();
 
-        Mutex m_mutex;        
+        Mutex m_mutex;
 
-        LockedQueue<Packet*> _recvQueue;
-        LockedQueue<Packet*> _sendQueue;
+        LockQueue<Packet*> _recvQueue;
+        LockQueue<Packet*> _sendQueue;
 
         Packet* recVpkt;
-        char* buffer;    
+        char* buffer;
 };
 
-#endif 
+#endif

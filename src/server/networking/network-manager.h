@@ -33,7 +33,7 @@ class NetworkManager
 
     private:
         SchedulingEngine net_engine;
-        LockedQueue<netsession_pair> q_request;
+        LockQueue<netsession_pair> q_request;
 
         Mutex m_mutex;
         Semaphore sem;

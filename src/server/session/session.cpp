@@ -56,13 +56,16 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
     // Delete packet after processing by default
     bool deletePacket = true;
 
+    if (m_Socket->IsClosed())
+        INFO ("debug", "SESSION: Update socket Chiuso\n");
+
     while (m_Socket && !m_Socket->IsClosed() &&
             !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
             _recvQueue.next(packet, updater))
     {
         if (packet->GetOpcode() >= NUM_MSG_TYPES) // Max opcode
         {
-            INFO ("debug", "Opcode Pacchetto Non Valido\n");
+            INFO ("debug", "SESSION: Opcode Pacchetto Non Valido\n");
         }
         else
         {

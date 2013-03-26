@@ -7,6 +7,9 @@
 #include "session/session.h"
 #include "utility/queues/lock_queue.h"
 #include <vector>
+#include <sstream>
+
+using namespace std;
 
 void* CoreThread(void*);
 

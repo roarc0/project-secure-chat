@@ -40,6 +40,8 @@ class SocketServer: public MethodRequest
     void SetupEpoll() throw(SocketException);
     void SetupSocket(int port) throw(SocketException);
 
+    void CloseSocket();
+
   public:
     SocketServer(NetworkManager& netmanager, uint32 d) throw(SocketException);
     ~SocketServer();

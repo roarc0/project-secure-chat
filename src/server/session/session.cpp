@@ -166,13 +166,13 @@ void Session::HandleMessage(Packet& packet)
     {
         chan->SendToAllButOne(&packet, m_id);
         Packet respacket;
-        respacket << "Server: Messaggio Inoltrato nel canale";
+        respacket << "Message sent to channel";
         SendPacket(&respacket);
     }
     else
     {
         Packet respacket;
-        respacket << "Server: Non sei in un canale!";
+        respacket << "You have to join or create a channel";
         SendPacket(&respacket);
     }
 }
@@ -199,7 +199,7 @@ void Session::HandleJoinChannel(Packet& packet)
         // Notifica all'utente canale non esistente
         Packet pkt(SMSG_CHANNEL_NOTIFY);
 
-        pkt << "Canale non Esistente";
+        pkt << "Channel does not exists";
         SendPacket(&pkt);        
         return;
     }
@@ -208,7 +208,7 @@ void Session::HandleJoinChannel(Packet& packet)
     {
         // Invia notifica all'utente che non può entrare nel canale
         Packet pkt(SMSG_CHANNEL_NOTIFY);
-        pkt << "Password Errata";
+        pkt << "Wrong Password";
         SendPacket(&pkt);  
         return;
     }
@@ -216,7 +216,7 @@ void Session::HandleJoinChannel(Packet& packet)
     if (!pChan->AddSession(smartThis))
     {
         Packet pkt(SMSG_CHANNEL_NOTIFY);
-        pkt << "Errore Aggiunta Canale";
+        pkt << "Can't add channel";
         SendPacket(&pkt); 
         return;
     }

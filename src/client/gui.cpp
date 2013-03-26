@@ -8,7 +8,7 @@ enum
   COLUMNS
 };
 
-pthread_mutex_t  mutex_guichange;
+//pthread_mutex_t  mutex_guichange;
 
 struct gui_res
 {
@@ -28,10 +28,6 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type);
 
 void* GuiThread(void* arg)
 {
-    sigset_t mask;
-    sigfillset(&mask);
-    pthread_sigmask(SIG_BLOCK, &mask, NULL);
-
     gui_res* gres = (gui_res*) arg;
 
     bool oldstatus = false;
@@ -138,12 +134,9 @@ void destroy(GtkObject *object, gpointer user_data)
 void add_user_to_list(gpointer data, gchar *str, gint num)
 {
   GtkTreeView *view = GTK_TREE_VIEW(data);
-  GtkTreeModel *model;
+  GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
   GtkTreeIter iter;
-
-  model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
-
-  pthread_mutex_lock(&mutex_guichange);
+  //pthread_mutex_lock(&mutex_guichange);
   gtk_list_store_append(GTK_LIST_STORE(model), &iter);
   gtk_list_store_set(GTK_LIST_STORE(model),
                      &iter,
@@ -152,7 +145,7 @@ void add_user_to_list(gpointer data, gchar *str, gint num)
                      COLUMN_INT,
                      num,
                      -1);
-  pthread_mutex_unlock(&mutex_guichange);
+  //pthread_mutex_unlock(&mutex_guichange);
 }
 
 void remove_user_from_list(/*gpointer data, gchar *str, gint num*/)
@@ -168,9 +161,9 @@ void scroll_down(GtkWidget *scrolled)
     gtk_adjustment_set_value(adjustment, gtk_adjustment_get_upper(adjustment));
 }
 
-void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizzare "..."
+void add_message_to_chat(gpointer data, gchar *str, gchar type)
 {
-    pthread_mutex_lock(&mutex_guichange);
+    //pthread_mutex_lock(&mutex_guichange);
 
     GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(data);
     GtkTextIter textiter;
@@ -178,7 +171,7 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
     //int offset = gtk_text_iter_get_offset(&textiter);
     //gtk_text_buffer_get_start_iter(buffer, &textiter);
     //gtk_text_buffer_get_end_iter(buffer, &textiter);
-    
+
     gtk_text_buffer_get_end_iter(text_view_buffer, &textiter);
     switch(type)
     {
@@ -212,7 +205,7 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type) // TODO utilizza
     
     //scroll_down(gres.scrolledwindow_chat);
     
-    pthread_mutex_unlock(&mutex_guichange);
+    //pthread_mutex_unlock(&mutex_guichange);
 }
 
 void button_send_click(gpointer data, gchar *str, gchar type)
@@ -241,13 +234,13 @@ void button_send_click(gpointer data, gchar *str, gchar type)
 
 void push_status_bar(const gchar *str)
 {
-    pthread_mutex_lock(&mutex_guichange);
+    //pthread_mutex_lock(&mutex_guichange);
 
     guint id = gtk_statusbar_get_context_id(GTK_STATUSBAR(gres.status_bar), "info");
     gtk_statusbar_pop(GTK_STATUSBAR(gres.status_bar), id);
     gtk_statusbar_push(GTK_STATUSBAR(gres.status_bar), id, str);
 
-    pthread_mutex_unlock(&mutex_guichange);
+    //pthread_mutex_unlock(&mutex_guichange);
 }
 
 void toolbar_reset_click(gpointer data)
@@ -255,10 +248,10 @@ void toolbar_reset_click(gpointer data)
     GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(gres.chat_buffer);
     GtkTextIter textiter;
 
-    pthread_mutex_lock(&mutex_guichange);
+    //pthread_mutex_lock(&mutex_guichange);
     gtk_text_buffer_get_end_iter(text_view_buffer, &textiter);
     gtk_text_buffer_set_text(text_view_buffer, "", 0);
-    pthread_mutex_unlock(&mutex_guichange);
+    //pthread_mutex_unlock(&mutex_guichange);
 }
 
 void toolbar_connect_click(gpointer data, gchar *str, gchar type)
@@ -326,8 +319,12 @@ void main_gui(int argc, char **argv)
     gdk_color_parse ("red", &color);
 
     /* inits */
+    //if(!g_thread_supported())
+    //    g_thread_init(NULL);
+    gdk_threads_init();
+    gdk_threads_enter();
     gtk_init (&argc, &argv);
-    pthread_mutex_init(&mutex_guichange, NULL);
+    //pthread_mutex_init(&mutex_guichange, NULL);
 
     /* window */
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -405,6 +402,11 @@ void main_gui(int argc, char **argv)
 
     toolbar_separator = gtk_separator_tool_item_new();
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_separator, -1);
+
+//    toolbar_refresh = gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR);
+//    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_refresh, -1);
+//    g_signal_connect(G_OBJECT(toolbar_refresh), "clicked", G_CALLBACK(toolbar_refresh_click), NULL);
+
 
     toolbar_exit = gtk_tool_button_new_from_stock(GTK_STOCK_QUIT);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_exit, -1);
@@ -539,8 +541,8 @@ void main_gui(int argc, char **argv)
 
     g_print ("* starting gtk\n");
     gtk_main();
-
-    pthread_mutex_destroy(&mutex_guichange);
+    //gdk_threads_leave();
+    //pthread_mutex_destroy(&mutex_guichange);
 
     return;
 }

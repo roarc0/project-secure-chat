@@ -37,8 +37,11 @@ void* CoreThread(void* arg)
         {
             while(c_core->IsConnected())
             {
+                INFO("debug", "inizio RECV\n");
                 c_core->HandleRecv();
+                INFO("debug", "fine RECV\n");
                 msleep(1);
+
             }
         }
         catch(SocketException &e)

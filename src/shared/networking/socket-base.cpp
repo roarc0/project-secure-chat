@@ -48,7 +48,6 @@ void SocketBase::InitSocket() throw(SocketException)
 void SocketBase::CloseSocket()
 {
     close(sock);
-    //shutdown(sock, SHUT_RDWR);
     sock = INVALID_SOCKET;
 }
 
@@ -145,17 +144,20 @@ int SocketBase::Recv(void *buffer, int bufferLen)
 {
     int ret;
 
+    INFO("debug", "Inizio RECV Socket\n");
     if ((ret = ::recv(sock, (void *) buffer, bufferLen, 0)) <= 0)
     {
+        INFO("debug", "Eccezione RECV Socket\n");
         close(sock);
         sock = INVALID_SOCKET;
         //InitSocket();
 
         if (ret == 0)
-            throw SocketException("Receive failed [recv()]", false);
+            throw SocketException("Receive 0 from [recv()]", false);
         else
             throw SocketException("Receive failed [recv()]", true);
     }
+    INFO("debug", "Fine RECV Socket\n");
 
     return ret;
 }

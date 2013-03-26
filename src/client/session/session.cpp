@@ -40,8 +40,6 @@ bool Session::Connect()
 
 bool Session::Disconnect()
 {
-    assert(session);
-
     try
     {
         c_Socket->Disconnect();

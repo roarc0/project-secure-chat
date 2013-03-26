@@ -30,11 +30,11 @@
 using namespace std;
 
 #define MAX_QUEUE_CONNECTIONS 16
-#define INVALID_SOCKET 0
+#define INVALID_SOCKET -1
 
 NEWEXCEPTION(SocketException);
 
-bool FillAddr(const string &address, unsigned short port, 
+bool FillAddr(const string &address, unsigned short port,
                      sockaddr_in &addr);
 
 
@@ -52,7 +52,7 @@ class SocketBase
 
         void             SetLocalPort(unsigned short localPort)
                          throw(SocketException);
-        void             SetLocalAddressAndPort(const string &localAddress, 
+        void             SetLocalAddressAndPort(const string &localAddress,
                                                 unsigned short localPort = 0)
                          throw(SocketException);
         string           GetForeignAddress()

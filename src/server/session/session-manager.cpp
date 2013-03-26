@@ -200,6 +200,6 @@ void SessionManager::AddSession_(uint32 next_id, Session_smart sess)
         AddQueuedSession(sess);
     }
 
-    sess.get()->SetId(next_id);
+    sess->SetId(next_id);
     m_sessions.insert(usersession_pair(next_id, sess));
 }

@@ -21,18 +21,20 @@ class Session : public SessionBase
         void SetId(uint32 id) { m_id = id; }
         void setSmartPointer(Session_smart m_ses);
         void deleteSmartPointer();
+        void setChannel(std::string& cname) { channel_name = cname; }
+        std::string getChannel() { return channel_name; }
 
         // THREADSAFE 
         bool IsInChannel() { return channel_name == "" ? false : true; }        
         uint32 GetId() { return m_id; }
         void SendWaitQueue(int position);
-        void SetInQueue(bool state) { m_inQueue = state; }
+        void SetInQueue(bool state) { m_inQueue = state; }        
 
         // Handle
         void Handle_Ping(Packet& packet); 
         void Handle_ServerSide(Packet& packet);
         void HandleMessage(Packet& packet); 
-        void HandleJoinChannel(Packet& packet);       
+        void HandleJoinChannel(Packet& packet); 
   
     private:
 

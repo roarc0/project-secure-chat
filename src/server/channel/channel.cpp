@@ -15,8 +15,8 @@ void Channel::Update(uint32 t_diff)
     //Update Sessions
     for (mapSession::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        Session* pSession = itr->second;
-        MapSessionFilter updater(pSession);
+        Session_smart pSession = itr->second;
+        MapSessionFilter updater(pSession.get());
         pSession->Update(t_diff, updater);
     }
 }
@@ -26,19 +26,19 @@ bool Channel::DelayedUpdate(uint32 /*t_diff*/)
     return b_todelete ? false : true;
 }
 
-bool Channel::CanSessionEnter(Session* /*ses*/, std::string& /*pass*/) const 
+bool Channel::CanSessionEnter(Session_smart /*ses*/, std::string& /*pass*/) const 
 { 
     // TODO
     return true; 
 }
 
-Session* Channel::FindSession(uint32 id)
+Session_smart Channel::FindSession(uint32 id)
 {
     mapSession::const_iterator iter = m_sessions.find(id);
-    return (iter == m_sessions.end() ? NULL : iter->second);
+    return (iter == m_sessions.end() ? Session_smart(NULL) : iter->second);
 }
 
-bool Channel::AddSession(Session* ses)
+bool Channel::AddSession(Session_smart ses)
 {
     Lock guard(m_mutex);
     m_sessions.insert(mapSession_pair(ses->GetId(), ses));
@@ -83,7 +83,7 @@ void Channel::SendToAllButOne(Packet* packet, uint32 id)
 {
     for (mapSession::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        Session* pSession = itr->second;
+        Session_smart pSession = itr->second;
         if (pSession->GetId() != id)
             pSession->SendPacket(packet);
     }
@@ -91,7 +91,8 @@ void Channel::SendToAllButOne(Packet* packet, uint32 id)
 
 void Channel::SendToOne(Packet* packet, uint32 id)
 {
-    if (Session* ses = FindSession(id))
+    Session_smart ses = FindSession(id);
+    if (ses.get())
         ses->SendPacket(packet);
 }
 

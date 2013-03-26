@@ -88,7 +88,6 @@ Packet* SessionBase::_RecvPacketFromSocket()
     char header[4];
     // Prendi Header
     m_Socket->Recv((void*) &header, 4);
-    INFO("debug","SESSIONBASE: recv called\n");
     PktHeader pkt_head(header, 4);
 
     // Prendi Resto dei Dati

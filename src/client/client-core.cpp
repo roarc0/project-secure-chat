@@ -22,12 +22,8 @@ int ClientCore::StartThread(Session *sc)
 
 void* CoreThread(void* arg)
 {
-    //sigset_t mask;
-    //sigfillset(&mask);
-    //pthread_sigmask(SIG_BLOCK, &mask, NULL);
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-
     Session* session = (Session*)arg;
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 
     INFO("debug","* Receive thread loaded\n");
 
@@ -64,7 +60,6 @@ ClientCore::ClientCore()
 {
     pthread_cond_init (&cond_connection, NULL);
     pthread_mutex_init (&mutex_connection, NULL);
-
     pthread_cond_init (&cond_event, NULL);
     pthread_mutex_init (&mutex_event, NULL);
 
@@ -75,7 +70,6 @@ ClientCore::ClientCore()
         Connect();
         INFO("debug","autoconnetting...\n");
     }
-    //StartThread (session);
 }
 
 ClientCore::~ClientCore()
@@ -95,7 +89,7 @@ bool ClientCore::Connect()
     {
         StartThread(session);
         SignalEvent();
-        SignalConnection();
+        //SignalConnection();
     }
     return ret;
 }
@@ -146,23 +140,17 @@ void ClientCore::HandleRecv()
         INFO("debug", "* empty packet received\n");
 
     eventg ev;
-     //passare il pacchetto analizzato e trasformato in evento
     ev.who="server";
-    ev.what="something";
+    ev.what="message";
     ev.data=str;
-    events.push_back(ev);
+    events.add(ev);
     SignalEvent();
-
 }
 
 eventg ClientCore::GetEvent()
 {
     eventg ev;
-    if(!events.empty())
-    {
-        ev=events.back();
-        events.pop_back();
-    }
+    events.next(ev);
     return ev;
 }
 

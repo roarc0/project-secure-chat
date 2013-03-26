@@ -5,11 +5,11 @@
 #include "../../threading/lock.h"
 
 template <typename T>
-class mt_queue
+class MtQueue
 {
     public:
-        mt_queue();
-        ~mt_queue();
+        MtQueue();
+        ~MtQueue();
 
         T front_and_pop();
         void push(T);        
@@ -25,19 +25,19 @@ class mt_queue
 };
 
 template <typename T>
-mt_queue<T>::mt_queue()
+MtQueue<T>::MtQueue()
 {
 
 }
 
 template <typename T>
-mt_queue<T>::~mt_queue()
+MtQueue<T>::~MtQueue()
 {
 
 }
 
 template <typename T>
-T mt_queue<T>::front_and_pop()
+T MtQueue<T>::front_and_pop()
 {
     Lock guard(_mutex);
     T temp = _list.front();
@@ -46,27 +46,27 @@ T mt_queue<T>::front_and_pop()
 }
 
 template <typename T>
-void mt_queue<T>::push(T a)
+void MtQueue<T>::push(T a)
 {
     Lock guard(_mutex);
     _list.push_back(a);
 }
 
 template <typename T>
-void mt_queue<T>::erase(typename std::list<T>::iterator it)
+void MtQueue<T>::erase(typename std::list<T>::iterator it)
 {
     Lock guard(_mutex);
     _list.erase(it);
 }
 
 template <typename T>
-void mt_queue<T>::push_l(T a)
+void MtQueue<T>::push_l(T a)
 {
     _list.push_back(a);
 }
 
 template <typename T>
-void mt_queue<T>::erase_l(typename std::list<T>::iterator it)
+void MtQueue<T>::erase_l(typename std::list<T>::iterator it)
 {
     _list.erase(it);
 }

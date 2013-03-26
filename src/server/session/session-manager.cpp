@@ -37,7 +37,6 @@ Session_smart SessionManager::AddSession(int sock)
     if (!m_sessionQueueLimit || (GetQueuedSessionCount() + addSessQueue.size() <  m_sessionQueueLimit))
     {
         Session* ses = new Session(sock);
-        assert(ses);
         counted_ptr<Session> smart_ses(ses);
         smart_ses->setSmartPointer(smart_ses);
         addSessQueue.add(smart_ses);

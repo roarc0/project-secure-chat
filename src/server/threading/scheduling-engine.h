@@ -44,13 +44,13 @@ class SchedulingEngine
         {
             return m_threads.size();
         }
-    
-        MethodRequest* GetNextMethod();        
+
+        MethodRequest* GetNextMethod();
 
     private:
         std::list<MethodThread*> m_threads;
 
-        LockedQueue<MethodRequest*> q_method;
+        LockQueue<MethodRequest*> q_method;
 
         Mutex m_mutex;
         Semaphore sem;

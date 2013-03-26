@@ -21,7 +21,15 @@
 #include <stdarg.h>
 #include <signal.h>
 
-// TODO inizio lanciafiamme
+#define NEW_RETURN(POINTER,CONSTRUCTOR,RET_VAL) \
+   do{ try{ POINTER = new CONSTRUCTOR; } catch (std::bad_alloc)\
+     { errno = ENOMEM; POINTER = NULL; return RET_VAL; } \
+   }while(0)
+#define NEW(POINTER,CONSTRUCTOR) \
+   do{ try{ POINTER = new CONSTRUCTOR; } catch (std::bad_alloc)\
+     { errno = ENOMEM; POINTER = NULL; } \
+   }while(0)
+
 #if COMPILER == COMPILER_GNU && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 3)
 # include <tr1/unordered_map>
 #elif COMPILER == COMPILER_GNU && __GNUC__ >= 3

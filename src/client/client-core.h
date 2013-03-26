@@ -34,7 +34,7 @@ class ClientCore
     pthread_cond_t  cond_connection;
     pthread_mutex_t mutex_connection;
 
-    LockedQueue<eventg> events;
+    LockQueue<eventg> events;
     pthread_cond_t  cond_event;
     pthread_mutex_t mutex_event;
 

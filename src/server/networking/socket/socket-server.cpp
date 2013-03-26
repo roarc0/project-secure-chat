@@ -10,7 +10,13 @@ SocketServer::SocketServer(NetworkManager& netmanager, uint32 d) throw(SocketExc
 
 SocketServer::~SocketServer()
 {
-    ::close(sock_listen);
+    CloseSocket();
+}
+
+void SocketServer::CloseSocket()
+{
+    if (sock_listen != INVALID_SOCKET)
+        ::close(sock_listen);
     sock_listen = INVALID_SOCKET;
 }
 
@@ -86,7 +92,7 @@ void SocketServer::SetupSocket(int port) throw(SocketException)
         }
 
         INFO("debug", "bind failed!!\n");
-        close(sock_listen);
+        CloseSocket();
     }
 }
 

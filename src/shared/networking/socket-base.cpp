@@ -35,8 +35,7 @@ SocketBase::SocketBase(int socket)
 
 SocketBase::~SocketBase()
 {
-    close(sock);
-    sock = INVALID_SOCKET;
+    CloseSocket();
 }
 
 void SocketBase::InitSocket() throw(SocketException)
@@ -47,7 +46,8 @@ void SocketBase::InitSocket() throw(SocketException)
 
 void SocketBase::CloseSocket()
 {
-    close(sock);
+    if (sock != INVALID_SOCKET)
+        close(sock);
     sock = INVALID_SOCKET;
 }
 
@@ -148,8 +148,7 @@ int SocketBase::Recv(void *buffer, int bufferLen)
     if ((ret = ::recv(sock, (void *) buffer, bufferLen, 0)) <= 0)
     {
         INFO("debug", "Eccezione RECV Socket\n");
-        close(sock);
-        sock = INVALID_SOCKET;
+        CloseSocket();
         //InitSocket();
 
         if (ret == 0)

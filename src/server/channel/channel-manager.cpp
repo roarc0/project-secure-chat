@@ -74,7 +74,11 @@ void ChannelManager::Update(uint32 diff)
     // Gestione della parte ThreadUnsafe dei Canali
     for (iter = m_channels.begin(); iter != m_channels.end(); ++iter)
         if (!iter->second->DelayedUpdate(uint32(i_timer.GetCurrent())))
+        {
+            INFO ("debug", "CHANNEL-MANAGER: Rimozione canale\n");
+            delete iter->second;
             m_channels.erase(iter);
+        }
 
     i_timer.SetCurrent(0);
 }

@@ -459,6 +459,17 @@ bool ChatHandler::HandleCreateChannelCommand(const char* args)
 
 bool ChatHandler::HandleLeaveChannelCommand(const char* /*args*/)
 { 
+    if (!m_session->IsInChannel())
+    {
+        SetSentErrorMessage(true);
+        SendSysMessage("Non sono in un canale");   
+        return false;
+    }
+
+    // Rimuovere dal canale
+    Channel* cha = s_manager->GetChannelMrg()->FindChannel(m_session->getChannel());
+    if (cha)
+        cha->RemoveSession(m_session->GetId());
     return true; 
 }
 

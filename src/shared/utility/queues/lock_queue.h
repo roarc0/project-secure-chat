@@ -1,11 +1,11 @@
-#ifndef LOCKEDQUEUE_H
-#define LOCKEDQUEUE_H
+#ifndef LOCK_QUEUE_H
+#define LOCK_QUEUE_H
 
 #include <deque>
 #include "../../threading/mutex.h"
 
 template <class T, typename StorageType=std::deque<T> >
-class LockedQueue
+class LockQueue
 {
     //! Lock access to the queue.
     Mutex  _lock;
@@ -18,13 +18,13 @@ class LockedQueue
 
     public:
 
-        //! Create a LockedQueue.
-        LockedQueue(): _canceled(false)
+        //! Create a LockQueue.
+        LockQueue(): _canceled(false)
         {
         }
 
-        //! Destroy a LockedQueue.
-        virtual ~LockedQueue()
+        //! Destroy a LockQueue.
+        virtual ~LockQueue()
         {
         }
 

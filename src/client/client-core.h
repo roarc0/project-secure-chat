@@ -5,6 +5,7 @@
 #include "utility/singleton.h"
 #include "threading/thread.h"
 #include "session/session.h"
+#include "utility/queues/lock_queue.h"
 #include <vector>
 
 void* CoreThread(void*);
@@ -33,7 +34,7 @@ class ClientCore
     pthread_cond_t  cond_connection;
     pthread_mutex_t mutex_connection;
 
-    std::vector<eventg> events;
+    LockedQueue<eventg> events;
     pthread_cond_t  cond_event;
     pthread_mutex_t mutex_event;
 

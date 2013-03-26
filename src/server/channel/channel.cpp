@@ -2,12 +2,12 @@
 
 Channel::Channel(std::string& c_name) : name(c_name), b_todelete(false)
 {
-
+    INFO ("debug", "CHANNEL: Canale costruttore\n");
 }
 
 Channel::~Channel()
 {
-
+    INFO ("debug", "CHANNEL: Canale distruttore\n");
 }
 
 void Channel::Update(uint32 t_diff)
@@ -23,7 +23,7 @@ void Channel::Update(uint32 t_diff)
 
 bool Channel::DelayedUpdate(uint32 /*t_diff*/)
 {
-    return b_todelete ? false : true;
+    return m_sessions.size() ? true : false;
 }
 
 bool Channel::CanSessionEnter(Session_smart /*ses*/, std::string& /*pass*/) const 

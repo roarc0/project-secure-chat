@@ -31,6 +31,7 @@ class ChannelManager
         // THREADSAFE
         SmartChannel FindChannel(const std::string& c_name);
         SmartChannel CreateChannel(std::string& c_name);
+        void getChannelList(std::string& info);
 
         // THREADUNSAFE
         // E' thread unsafe se un altro thread sta lavorando sul puntatore del canale

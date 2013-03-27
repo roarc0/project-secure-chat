@@ -45,6 +45,12 @@ bool Channel::AddSession(Session_smart ses)
     return true;
 }
 
+int Channel::getSessionNumer()
+{
+    Lock guard(m_mutex);
+    return m_sessions.size();
+}
+
 bool Channel::RemoveSession(uint32 id)
 {
     Lock guard(m_mutex);

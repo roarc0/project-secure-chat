@@ -96,7 +96,7 @@ void show_about()
   //gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "psc");
   gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), _REVISION);
   gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog),
-      "(c) Alessandro Rosetti Daniele Lazzarini Alessandro Furlanetto");
+      "(c) 2012-2013 Alessandro Rosetti Daniele Lazzarini");
   gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog),
       "project secure chat");
   gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog),
@@ -446,8 +446,8 @@ void main_gui(int argc, char **argv)
     add_message_to_chat(view_chat_buffer, (gchar*) "<server> reboot scheduled in 5 minutes!\n", (gchar)'s');
     add_message_to_chat(view_chat_buffer, (gchar*) "<alec> ave!\n", (gchar)'m');
     add_message_to_chat(view_chat_buffer, (gchar*) "<furla> ...\n", (gchar)'m');
-    //add_message_to_chat(view_chat_buffer, (gchar*) "<alec> problem solved!\n", (gchar)'w');
-    //add_message_to_chat(view_chat_buffer, (gchar*) "<gufo> wooot!\n", (gchar)'W');
+    add_message_to_chat(view_chat_buffer, (gchar*) "<alec> problem solved!\n", (gchar)'w');
+    add_message_to_chat(view_chat_buffer, (gchar*) "<gufo> wooot!\n", (gchar)'W');
     add_message_to_chat(view_chat_buffer, (gchar*) "<alec> \"furla\" has been kicked out!\n", (gchar)'l');
     /*##############################################*/
 

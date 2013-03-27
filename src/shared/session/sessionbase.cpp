@@ -64,14 +64,16 @@ int SessionBase::_SendPacket(const Packet& pct)
 
 int SessionBase::_SendPacketToSocket(const Packet& pct)
 {
+    INFO("debug", "SESSIONBASE: Inizio invio pacchetto nel Socket %s\n", pct.contents());
     PktHeader header(pct.size()/*+OPCODE_SIZE*/, pct.GetOpcode());
     unsigned char* rawData = new unsigned char[header.getHeaderLength()+ pct.size() + 1];
     // Inserire Criptazione
     memcpy((void*)rawData, (char*) header.header, header.getHeaderLength());
     memcpy((void*)(rawData + header.getHeaderLength()), (char*) pct.contents(), pct.size());
-    INFO("debug", "SESSIONBASE: Pacchetto Inviato nel Socket %s\n", pct.contents());
+    
     m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
     delete[] rawData;
+    INFO("debug", "SESSIONBASE: Pacchetto Inviato nel Socket %s\n", pct.contents());
     return 0;
 }
 

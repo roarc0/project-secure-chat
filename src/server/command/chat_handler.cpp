@@ -40,6 +40,7 @@ ChatCommand* ChatHandler::getCommandTable()
         { "create",      SEC_USER,            &ChatHandler::HandleCreateChannelCommand,        "", NULL },
         { "leave",       SEC_USER,            &ChatHandler::HandleLeaveChannelCommand,         "", NULL },
         { "info",        SEC_USER,            &ChatHandler::HandleInfoChannelCommand,          "", NULL },
+        { "list",        SEC_USER,            &ChatHandler::HandleListChannelCommand,          "", NULL },
         { "kick",        SEC_MODERATOR,       &ChatHandler::HandleKickCommand,                 "", NULL },
         { NULL,          0,                   NULL,                                            "", NULL }
     };
@@ -482,10 +483,18 @@ bool ChatHandler::HandleInfoChannelCommand(const char* /*args*/)
     std::string info = "";
     SmartChannel sChan = m_session->getChannel();
     if (sChan.get())
-         info = "Sei nel Canale: " + sChan->GetName() + "\n"; 
-
-    s_manager->GetChannelMrg()->getChannelList(info);
+         info = "You are in the Channel: " + sChan->GetName(); 
+    else
+        info = "You are not in a Channel"; 
  
+    SendSysMessage(info.c_str());  
+    return true; 
+}
+
+bool ChatHandler::HandleListChannelCommand(const char* /*args*/)
+{ 
+    std::string info = "";
+    s_manager->GetChannelMrg()->getChannelList(info); 
     SendSysMessage(info.c_str());  
     return true; 
 }

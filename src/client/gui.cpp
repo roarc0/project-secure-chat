@@ -8,17 +8,17 @@ enum
   COLUMNS
 };
 
-//pthread_mutex_t  mutex_guichange;
+pthread_mutex_t  mutex_guichange;
 
 struct gui_res
 {
     GtkTextBuffer *chat_buffer;
     GtkWidget *text_entry;
     GtkWidget *status_bar;
-    
+
     GtkWidget *scrolledwindow_chat;
     GtkWidget *scrolledwindow_user_list;
-    
+
     GtkToolItem *toolbar_connect;
 } gres;
 
@@ -91,7 +91,7 @@ void show_about()
   GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file("data/psc.png", NULL);
 
   GtkWidget *dialog = gtk_about_dialog_new();
-  gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "psc");
+  //gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "psc");
   gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), _REVISION);
   gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog),
       "(c) Alessandro Rosetti Daniele Lazzarini Alessandro Furlanetto");
@@ -121,12 +121,12 @@ void show_message(gchar *message)
                              "response",
                              G_CALLBACK (gtk_widget_destroy),
                              dialog);
-   gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
-                      label);
+   //gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
+   //                   label);
    gtk_widget_show_all (dialog);
 }
 
-void destroy(GtkObject *object, gpointer user_data)
+void on_destroy(gpointer user_data)
 {
     gtk_main_quit();
 }
@@ -202,9 +202,9 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type)
         default:
         break;
     }
-    
+
     //scroll_down(gres.scrolledwindow_chat);
-    
+
     //pthread_mutex_unlock(&mutex_guichange);
 }
 
@@ -315,16 +315,11 @@ void main_gui(int argc, char **argv)
 
     GtkWidget *dialog;
 
-    GdkColor color;
-    gdk_color_parse ("red", &color);
-
     /* inits */
-    //if(!g_thread_supported())
-    //    g_thread_init(NULL);
     gdk_threads_init();
     gdk_threads_enter();
     gtk_init (&argc, &argv);
-    //pthread_mutex_init(&mutex_guichange, NULL);
+    pthread_mutex_init(&mutex_guichange, NULL);
 
     /* window */
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -342,8 +337,8 @@ void main_gui(int argc, char **argv)
 
     gtk_widget_show(window);
 
-    g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(destroy), NULL);
-    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(destroy), NULL);
+    g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(on_destroy), NULL);
+    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(on_destroy), NULL);
 
     /* vbox principale */
     vbox_main = gtk_vbox_new (FALSE, 1);
@@ -427,7 +422,7 @@ void main_gui(int argc, char **argv)
                                     GTK_POLICY_AUTOMATIC);
 
     view_chat = gtk_text_view_new();
-    
+
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view_chat), GTK_WRAP_WORD_CHAR);
     gtk_text_view_set_editable(GTK_TEXT_VIEW(view_chat), false);
     gtk_container_add (GTK_CONTAINER (gres.scrolledwindow_chat), view_chat);
@@ -541,8 +536,8 @@ void main_gui(int argc, char **argv)
 
     g_print ("* starting gtk\n");
     gtk_main();
-    //gdk_threads_leave();
-    //pthread_mutex_destroy(&mutex_guichange);
+    gdk_threads_leave();
+    pthread_mutex_destroy(&mutex_guichange);
 
     return;
 }

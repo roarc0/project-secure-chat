@@ -29,8 +29,10 @@ class ChannelUpdater
 
         void UpdateFinished();
 
-    private:        
+    private:
+        size_t pending_requests;         
         Mutex m_mutex;
-        size_t pending_requests;        
+        Mutex m_sem_mutex;
+        Semaphore sem;               
 };
 #endif

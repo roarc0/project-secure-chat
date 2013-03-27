@@ -33,6 +33,7 @@ class ChannelUpdater
         size_t pending_requests;         
         Mutex m_mutex;
         Mutex m_sem_mutex;
-        Semaphore sem;               
+        Semaphore sem;
+        bool active;              
 };
 #endif

@@ -30,7 +30,7 @@ class ChannelUpdateRequest: public MethodRequest
 };
 
 ChannelUpdater::ChannelUpdater() :
-pending_requests(0), sem(m_sem_mutex)
+pending_requests(0), sem(m_sem_mutex), active(false)
 {
 
 }
@@ -50,15 +50,18 @@ int ChannelUpdater::ScheduleUpdate(Channel& channel, uint32 diff)
         return -1;
     }
 
+    
     ++pending_requests;
+    active = true;
 
     return 0;
 }
 
 int ChannelUpdater::Wait()
 {
-    if (pending_requests > 0)
+    if (active)
         sem.Wait();
+    active = false;
     return 0;
 }
 

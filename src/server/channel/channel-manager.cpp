@@ -41,8 +41,8 @@ SmartChannel ChannelManager::FindChannel(const std::string& c_name)
 void ChannelManager::getChannelList(std::string& info)
 {
     stringstream ss;
-    ss << "Lista canali:" << endl;
-    // Gestione della parte ThreadSafe dei Canali
+    ss << "Channel list:" << endl;
+
     mapChannel::iterator iter = m_channels.begin();
     for (; iter != m_channels.end(); ++iter)
     {

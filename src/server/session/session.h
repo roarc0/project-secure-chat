@@ -4,9 +4,12 @@
 #include "session/sessionbase.h"
 #include "utility/counted_ptr.h"
 #include "packetfilter.h"
+#include "channel.h"
 
 class Session;
+class Channel;
 typedef counted_ptr<Session> Session_smart;
+typedef counted_ptr<Channel> SmartChannel;
 
 class Session : public SessionBase
 {
@@ -21,11 +24,11 @@ class Session : public SessionBase
         void SetId(uint32 id) { m_id = id; }
         void setSmartPointer(Session_smart m_ses);
         void deleteSmartPointer();
-        void setChannel(std::string& cname) { channel_name = cname; }
-        std::string getChannel() { return channel_name; }
+        void setChannel(SmartChannel pChan) { m_channel=(SmartChannel)pChan; }
+        SmartChannel getChannel() { return m_channel; }
 
         // THREADSAFE 
-        bool IsInChannel() { return channel_name == "" ? false : true; }        
+        bool IsInChannel() { return m_channel.get() ? true : false; }        
         uint32 GetId() { return m_id; }
         void SendWaitQueue(int position);
         void SetInQueue(bool state) { m_inQueue = state; }        
@@ -45,7 +48,7 @@ class Session : public SessionBase
         Session_smart smartThis;
         bool m_inQueue;
         // Channel
-        std::string channel_name;
+        SmartChannel m_channel;
 };
 
 #endif

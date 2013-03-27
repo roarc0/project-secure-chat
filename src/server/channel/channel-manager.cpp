@@ -12,31 +12,30 @@ ChannelManager::~ChannelManager()
 
     while (!m_channels.empty())
     {
-        delete m_channels.begin()->second;
+        // delete m_channels.begin()->second; Smart
         m_channels.erase(m_channels.begin());
     }
 }
 
-bool ChannelManager::CreateChannel(std::string& c_name)
+SmartChannel ChannelManager::CreateChannel(std::string& c_name)
 {
     Lock guard(m_mutex);
 
-    Channel* cha = FindChannel(c_name);
-    if (cha)
-        return false;
+    SmartChannel cha = FindChannel(c_name);
+    if (cha.get())
+        return SmartChannel(NULL);
 
-    cha = new Channel(c_name);
+    cha = SmartChannel(new Channel(c_name));
     m_channels[c_name] = cha;
-    return true;
-        
+    return cha;        
 }
 
-Channel* ChannelManager::FindChannel(const std::string& c_name)
+SmartChannel ChannelManager::FindChannel(const std::string& c_name)
 {
     if (c_name == "")
-        return NULL;
+        return SmartChannel(NULL);
     mapChannel::const_iterator iter = m_channels.find(c_name);
-    return (iter == m_channels.end() ? NULL : iter->second);
+    return (iter == m_channels.end() ? SmartChannel(NULL) : iter->second);
 }
 
 int ChannelManager::RemoveChannel(std::string& c_name)
@@ -46,7 +45,7 @@ int ChannelManager::RemoveChannel(std::string& c_name)
     mapChannel::iterator iter = m_channels.find(c_name);
     if (iter != m_channels.end())
     {
-        delete (iter->second);
+        // delete (iter->second); Smart
         m_channels.erase(iter);
     }
 
@@ -76,7 +75,7 @@ void ChannelManager::Update(uint32 diff)
         if (!iter->second->DelayedUpdate(uint32(i_timer.GetCurrent())))
         {
             INFO ("debug", "CHANNEL-MANAGER: Rimozione canale\n");
-            delete iter->second;
+            //delete iter->second; Smart
             m_channels.erase(iter);
         }
 

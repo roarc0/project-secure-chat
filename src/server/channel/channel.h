@@ -3,10 +3,16 @@
 
 #include "common.h"
 #include "threading/lock.h"
+#include "utility/counted_ptr.h"
 #include "session.h"
 
+class Session;
+typedef counted_ptr<Session> Session_smart;
 typedef UNORDERED_MAP<uint32, Session_smart> mapSession;
 typedef std::pair<uint32, Session_smart> mapSession_pair;
+
+class Channel;
+typedef counted_ptr<Channel> SmartChannel;
 
 NEWEXCEPTION(ChannelException);
 

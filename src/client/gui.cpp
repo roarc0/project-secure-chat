@@ -33,6 +33,7 @@ void* GuiThread(void* arg)
     bool oldstatus = false;
     while(1)
     {
+        gdk_threads_enter();
         if(c_core->IsConnected() && !oldstatus)
         {
             gtk_tool_button_set_label(
@@ -65,6 +66,7 @@ void* GuiThread(void* arg)
 
             }
         }
+        gdk_threads_leave();
         c_core->WaitEvent();
     }
 
@@ -164,22 +166,17 @@ void scroll_down(GtkWidget *scrolled)
 void add_message_to_chat(gpointer data, gchar *str, gchar type)
 {
     //pthread_mutex_lock(&mutex_guichange);
-
     GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(data);
     GtkTextIter textiter;
-    //gtk_text_buffer_get_iter_at_offset(text_view_buffer, &textiter, 0);
-    //int offset = gtk_text_iter_get_offset(&textiter);
-    //gtk_text_buffer_get_start_iter(buffer, &textiter);
-    //gtk_text_buffer_get_end_iter(buffer, &textiter);
 
     gtk_text_buffer_get_end_iter(text_view_buffer, &textiter);
     switch(type)
     {
-        case 'j': //join
+        case 'j': //user join
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
                 &textiter, str, -1, "lmarg", "green_bg", "bold", NULL);
         break;
-        case 'l': //leave
+        case 'l': //user leave
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
                 &textiter, str, -1, "lmarg", "red_bg", "white_fg", "bold", NULL);
         break;
@@ -187,15 +184,23 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type)
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
                 &textiter, str, -1, "lmarg", "black_fg", NULL);
         break;
-        case 'M': //message received
+        case 'M': //message sent
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
                 &textiter, str, -1, "lmarg", "black_fg", "bold", NULL);
         break;
-        case 'e': //event
+        case 'w': //whisp received
+            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
+                &textiter, str, -1, "lmarg", "blue_fg", NULL);
+        break;
+        case 'W': //whisp sent
+            gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
+                &textiter, str, -1, "lmarg", "blue_fg", "bold", NULL);
+        break;
+        case 'e': //local event
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
                 &textiter, str, -1, "lmarg", "magenta_bg", "white_fg", "bold", NULL);
         break;
-        case 's': //server
+        case 's': //server communication
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
                 &textiter, str, -1, "lmarg", "yellow_bg", "bold", NULL);
         break;
@@ -203,8 +208,7 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type)
         break;
     }
 
-    //scroll_down(gres.scrolledwindow_chat);
-
+    scroll_down(gres.scrolledwindow_chat);
     //pthread_mutex_unlock(&mutex_guichange);
 }
 
@@ -235,20 +239,17 @@ void button_send_click(gpointer data, gchar *str, gchar type)
 void push_status_bar(const gchar *str)
 {
     //pthread_mutex_lock(&mutex_guichange);
-
     guint id = gtk_statusbar_get_context_id(GTK_STATUSBAR(gres.status_bar), "info");
     gtk_statusbar_pop(GTK_STATUSBAR(gres.status_bar), id);
     gtk_statusbar_push(GTK_STATUSBAR(gres.status_bar), id, str);
-
     //pthread_mutex_unlock(&mutex_guichange);
 }
 
 void toolbar_reset_click(gpointer data)
 {
+    //pthread_mutex_lock(&mutex_guichange);
     GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(gres.chat_buffer);
     GtkTextIter textiter;
-
-    //pthread_mutex_lock(&mutex_guichange);
     gtk_text_buffer_get_end_iter(text_view_buffer, &textiter);
     gtk_text_buffer_set_text(text_view_buffer, "", 0);
     //pthread_mutex_unlock(&mutex_guichange);
@@ -301,7 +302,6 @@ void main_gui(int argc, char **argv)
     GtkTextBuffer *view_chat_buffer;
 
     /* lista utenti */
-
     GtkListStore *model_user_list;
     GtkWidget *view_user_list;
     GtkCellRenderer *renderer_user_list;
@@ -329,7 +329,8 @@ void main_gui(int argc, char **argv)
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
     gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
-    //setting window icon
+
+    /* setting window icon */
     GdkPixbuf *pixbuf = create_pixbuf("data/psc.png");
     gtk_window_set_icon(GTK_WINDOW(window), pixbuf);
     g_object_unref(pixbuf);
@@ -402,7 +403,6 @@ void main_gui(int argc, char **argv)
 //    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_refresh, -1);
 //    g_signal_connect(G_OBJECT(toolbar_refresh), "clicked", G_CALLBACK(toolbar_refresh_click), NULL);
 
-
     toolbar_exit = gtk_tool_button_new_from_stock(GTK_STOCK_QUIT);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_exit, -1);
     g_signal_connect(G_OBJECT(toolbar_exit), "clicked", G_CALLBACK(gtk_main_quit), NULL);
@@ -431,6 +431,7 @@ void main_gui(int argc, char **argv)
     gtk_text_buffer_create_tag(view_chat_buffer, "lmarg", "left_margin", 5, NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "black_fg", "foreground", "black", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "white_fg", "foreground", "white", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "blue_fg", "foreground", "blue", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "green_bg", "background", "lime", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "blue_bg", "background", "blue", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "red_bg", "background", "red", NULL);
@@ -445,6 +446,8 @@ void main_gui(int argc, char **argv)
     add_message_to_chat(view_chat_buffer, (gchar*) "<server> reboot scheduled in 5 minutes!\n", (gchar)'s');
     add_message_to_chat(view_chat_buffer, (gchar*) "<alec> ave!\n", (gchar)'m');
     add_message_to_chat(view_chat_buffer, (gchar*) "<furla> ...\n", (gchar)'m');
+    //add_message_to_chat(view_chat_buffer, (gchar*) "<alec> problem solved!\n", (gchar)'w');
+    //add_message_to_chat(view_chat_buffer, (gchar*) "<gufo> wooot!\n", (gchar)'W');
     add_message_to_chat(view_chat_buffer, (gchar*) "<alec> \"furla\" has been kicked out!\n", (gchar)'l');
     /*##############################################*/
 
@@ -526,7 +529,7 @@ void main_gui(int argc, char **argv)
     gtk_widget_show_all(window);
     gres.toolbar_connect = toolbar_connect;
 
-    // TODO avviare il thread in modo umano
+    // TODO avviare il thread decentemente
     pthread_t tid;
     pthread_attr_t tattr;
     pthread_attr_init(&tattr);
@@ -534,7 +537,7 @@ void main_gui(int argc, char **argv)
     pthread_create(&tid, &tattr, GuiThread, (void*)&gres);
     pthread_attr_destroy(&tattr);
 
-    g_print ("* starting gtk\n");
+    INFO ("debug", "* starting GUI (GTK+3)\n");
     gtk_main();
     gdk_threads_leave();
     pthread_mutex_destroy(&mutex_guichange);

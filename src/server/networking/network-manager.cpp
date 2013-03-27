@@ -110,7 +110,7 @@ int NetworkManager::QueueSend(Session_smart m_ses)
     if (!m_ses.get())
         return -1;
 
-    INFO("debug","NETWORK-MANAGER: queue send");
+    INFO("debug","NETWORK-MANAGER: queue send\n");
 
     q_request.add(netsession_pair(m_ses, SEND));
     sem.Signal();
@@ -123,7 +123,7 @@ int NetworkManager::QueueRecive(uint32 sock)
     if (!m_ses.get())
         return -1;
 
-    INFO("debug","NETWORK-MANAGER: queue recive");
+    INFO("debug","NETWORK-MANAGER: queue recive\n");
 
     q_request.add(netsession_pair(m_ses, RECV));
     sem.Signal();

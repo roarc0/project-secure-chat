@@ -38,6 +38,19 @@ SmartChannel ChannelManager::FindChannel(const std::string& c_name)
     return (iter == m_channels.end() ? SmartChannel(NULL) : iter->second);
 }
 
+void ChannelManager::getChannelList(std::string& info)
+{
+    stringstream ss;
+    ss << "Lista canali:" << endl;
+    // Gestione della parte ThreadSafe dei Canali
+    mapChannel::iterator iter = m_channels.begin();
+    for (; iter != m_channels.end(); ++iter)
+    {
+        ss << " " << iter->second->GetName() << " (" << iter->second->getSessionNumer() << ") " << endl;
+    }
+    info += ss.str();
+}
+
 int ChannelManager::RemoveChannel(std::string& c_name)
 {
     Lock guard(m_mutex);

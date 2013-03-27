@@ -386,9 +386,9 @@ bool ChatHandler::HandleJoinChannelCommand(const char* args)
         return false;
     }
 
-    Channel* pChan = s_manager->GetChannelMrg()->FindChannel(c_name);
+    SmartChannel sChan = s_manager->GetChannelMrg()->FindChannel(c_name);
 
-    if (!pChan)
+    if (!sChan.get())
     {
         // Notifica all'utente canale non esistente
         SetSentErrorMessage(true);
@@ -396,7 +396,7 @@ bool ChatHandler::HandleJoinChannelCommand(const char* args)
         return false;
     }
 
-    if (!pChan->CanSessionEnter(m_session, pass))
+    if (!sChan->CanSessionEnter(m_session, pass))
     {
         // Invia notifica all'utente che non può entrare nel canale
         SetSentErrorMessage(true);
@@ -404,14 +404,14 @@ bool ChatHandler::HandleJoinChannelCommand(const char* args)
         return false;
     }
 
-    if (!pChan->AddSession(m_session))
+    if (!sChan->AddSession(m_session))
     {
         SetSentErrorMessage(true);
         SendSysMessage("Errore Aggiunta Canale");
         return false;
     }
 
-    m_session->setChannel(c_name);
+    m_session->setChannel(sChan);
     PSendSysMessage("Entrato nel canale: %s", c_name.c_str()); 
     return true; 
 }
@@ -438,23 +438,22 @@ bool ChatHandler::HandleCreateChannelCommand(const char* args)
         return false;
     }
 
-    if (!(s_manager->GetChannelMrg()->CreateChannel(c_name)))
+    SmartChannel sChan = s_manager->GetChannelMrg()->CreateChannel(c_name);
+    if (!sChan.get())
     {
         SetSentErrorMessage(true);
         SendSysMessage("Canale già esistente");   
         return false;
     }
 
-    Channel* pChan = s_manager->GetChannelMrg()->FindChannel(c_name);
-
-    if (!pChan->AddSession(m_session))
+    if (!sChan->AddSession(m_session))
     {
         SetSentErrorMessage(true);
         SendSysMessage("Errore Aggiunta Canale");
         return false;
     }  
 
-    m_session->setChannel(c_name);
+    m_session->setChannel(sChan);
     PSendSysMessage("Creato canale: %s", c_name.c_str()); 
     return true; 
 }
@@ -469,10 +468,10 @@ bool ChatHandler::HandleLeaveChannelCommand(const char* /*args*/)
     }
 
     // Rimuovere dal canale
-    Channel* cha = s_manager->GetChannelMrg()->FindChannel(m_session->getChannel());
-    if (cha)
-        cha->RemoveSession(m_session->GetId());
-
+    SmartChannel sChan = m_session->getChannel();
+    sChan->RemoveSession(m_session->GetId());
+    m_session->setChannel(SmartChannel(NULL));   
+ 
     SendSysMessage("Uscito dal Canale");  
     return true; 
 }

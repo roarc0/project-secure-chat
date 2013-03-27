@@ -16,7 +16,7 @@
 
 NEWEXCEPTION(ChannelManagerException);
 
-typedef UNORDERED_MAP<std::string, Channel*> mapChannel;
+typedef UNORDERED_MAP<std::string, SmartChannel> mapChannel;
 
 class ChannelManager
 {
@@ -29,8 +29,8 @@ class ChannelManager
         ChannelUpdater* GetChannelUpdater() { return &m_updater; }
 
         // THREADSAFE
-        Channel* FindChannel(const std::string& c_name);
-        bool CreateChannel(std::string& c_name);
+        SmartChannel FindChannel(const std::string& c_name);
+        SmartChannel CreateChannel(std::string& c_name);
 
         // THREADUNSAFE
         // E' thread unsafe se un altro thread sta lavorando sul puntatore del canale

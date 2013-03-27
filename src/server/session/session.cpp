@@ -6,7 +6,7 @@
 #include "network-manager.h"
 
 Session::Session(int pSock) : SessionBase(pSock),
-m_id(0), m_inQueue(false), channel_name("")
+m_id(0), m_inQueue(false), m_channel(NULL)
 {
 
 }
@@ -160,11 +160,9 @@ void Session::HandleMessage(Packet& packet)
 
     INFO ("debug", "SESSION: Livello Esecuzione Messaggio: %s\n", msg.c_str());
 
-
-    Channel* chan = s_manager->GetChannelMrg()->FindChannel(channel_name);
-    if (chan)
+    if (m_channel.get())
     {
-        chan->SendToAllButOne(&packet, m_id);
+        m_channel->SendToAllButOne(&packet, m_id);
         Packet respacket;
         respacket << "Message sent to channel";
         SendPacket(&respacket);
@@ -177,9 +175,9 @@ void Session::HandleMessage(Packet& packet)
     }
 }
 
-void Session::HandleJoinChannel(Packet& packet) 
+void Session::HandleJoinChannel(Packet& /*packet*/) 
 {
-    if (channel_name != "")
+    /*if (channel_name != "")
     {
         // sono già in un canale
         return;
@@ -219,5 +217,5 @@ void Session::HandleJoinChannel(Packet& packet)
         pkt << "Can't add channel";
         SendPacket(&pkt); 
         return;
-    }
+    }*/
 }

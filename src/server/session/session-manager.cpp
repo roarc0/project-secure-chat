@@ -93,9 +93,9 @@ void SessionManager::Update(uint32 udiff)
             RemoveQueuedSession(itr->second);
             
             // Rimuovere dal canale
-            Channel* cha = GetChannelMrg()->FindChannel(itr->second->getChannel());
-            if (cha)
-                cha->RemoveSession(itr->second->GetId());
+            SmartChannel sChan = itr->second->getChannel();
+            if (sChan.get())
+                sChan->RemoveSession(itr->second->GetId());
 
             pSession->deleteSmartPointer();
             m_sessions.erase(itr);

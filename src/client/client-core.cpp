@@ -1,4 +1,5 @@
 #include "client-core.h"
+#include "networking/opcode.h"
 
 // LANCIAFIAMME
 int ClientCore::StartThread(Session *sc)
@@ -121,7 +122,7 @@ bool ClientCore::HandleSend(const char* msg)
 
     INFO("debug","sending message: %s\n", msg);
 
-    Packet pack(0x001);
+    Packet pack(CMSG_MESSAGE);
     pack << msg; //ss.str();
     session->SendPacketToSocket(&pack); // TODO fare sendpacket in session del client
 

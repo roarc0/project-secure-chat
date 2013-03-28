@@ -214,23 +214,34 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type)
 
 void button_send_click(gpointer data, gchar *str, gchar type)
 {
-    stringstream ss, ss_h;
+    stringstream ss;
     gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(gres.text_entry));
 
     if (strlen(text) == 0) // TODO check max length
         return;
 
-    ss_h << text;
-    if (!c_core->HandleSend((char*)ss_h.str().c_str()))
+    ss << "<" << CFG_GET_STRING("nickname") << "> " << text << endl;
+    if ((text[0] != '\\') || (strncmp(text, "\\send", 5) == 0))
+    {
+        add_message_to_chat(gres.chat_buffer, (gchar*) ss.str().c_str(), 'M');
+    }
+    else if (strncmp(text, "\\whisp", 6) == 0)
+    {
+        add_message_to_chat(gres.chat_buffer, (gchar*) ss.str().c_str(), 'W');
+    }
+    else
+    {
+        ss.str("");
+        ss << text << endl;
+        add_message_to_chat(gres.chat_buffer, (gchar*) ss.str().c_str(), 'e');
+    }
+
+    ss.str("");
+    ss << text;
+    if (!c_core->HandleSend((char*)ss.str().c_str()))
     {
         add_message_to_chat(gres.chat_buffer, (gchar*) "<local> send failed!\n", 'e');
         return;
-    }
-
-    if ((text[0] != '\\') || strncmp(text, "\\send", 5))
-    {
-        ss << "<" << CFG_GET_STRING("nickname") << "> " << text << endl;
-        add_message_to_chat(gres.chat_buffer, (gchar*) ss.str().c_str(), 'M');
     }
 
     gtk_entry_set_text (GTK_ENTRY(gres.text_entry), "");
@@ -292,6 +303,7 @@ void main_gui(int argc, char **argv)
     /* toolbar */
     GtkWidget *toolbar;
     GtkToolItem *toolbar_connect;
+    GtkToolItem *toolbar_refresh;
     GtkToolItem *toolbar_reset;
     GtkToolItem *toolbar_separator;
     GtkToolItem *toolbar_exit;
@@ -395,16 +407,16 @@ void main_gui(int argc, char **argv)
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_connect, -1);
     g_signal_connect(G_OBJECT(toolbar_connect), "clicked", G_CALLBACK(toolbar_connect_click), NULL);
 
+    toolbar_refresh = gtk_tool_button_new_from_stock(GTK_STOCK_REFRESH);
+    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_refresh, -1);
+    //g_signal_connect(G_OBJECT(toolbar_refresh), "clicked", G_CALLBACK(toolbar_refresh_click), NULL);
+
     toolbar_reset = gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_reset, -1);
     g_signal_connect(G_OBJECT(toolbar_reset), "clicked", G_CALLBACK(toolbar_reset_click), NULL);
 
     toolbar_separator = gtk_separator_tool_item_new();
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_separator, -1);
-
-//    toolbar_refresh = gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR);
-//    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_refresh, -1);
-//    g_signal_connect(G_OBJECT(toolbar_refresh), "clicked", G_CALLBACK(toolbar_refresh_click), NULL);
 
     toolbar_exit = gtk_tool_button_new_from_stock(GTK_STOCK_QUIT);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_exit, -1);
@@ -462,10 +474,6 @@ void main_gui(int argc, char **argv)
                                     GTK_POLICY_AUTOMATIC);
     gtk_widget_show (gres.scrolledwindow_user_list);
 
-    gint paned_pos = gtk_paned_get_position(GTK_PANED(paned_main));
-    INFO("debug","paned_pos = %d\n",paned_pos);
-    //gtk_paned_set_position(GTK_PANED(paned_main),50);
-
     model_user_list     = gtk_list_store_new(COLUMNS, G_TYPE_STRING, G_TYPE_STRING);
     view_user_list      = gtk_tree_view_new_with_model (GTK_TREE_MODEL(model_user_list));
     selection_user_list = gtk_tree_view_get_selection(GTK_TREE_VIEW(view_user_list));
@@ -499,8 +507,8 @@ void main_gui(int argc, char **argv)
     gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view_user_list), TRUE);
     /*############################################## user add test */
     add_user_to_list(view_user_list, (gchar*) "paradox",  (gchar*) "adm");
-    add_user_to_list(view_user_list, (gchar*) "furla", (gchar*) "mod");
-    add_user_to_list(view_user_list, (gchar*) "lazzalf",  (gchar*) "usr");
+    add_user_to_list(view_user_list, (gchar*) "lazzalf",  (gchar*) "mod");
+    add_user_to_list(view_user_list, (gchar*) "furla", (gchar*) "usr");
     /*##############################################*/
 
     /* INPUTS */
@@ -538,6 +546,9 @@ void main_gui(int argc, char **argv)
     /* end_widgets */
     gtk_widget_show_all(window);
     gres.toolbar_connect = toolbar_connect;
+
+    /* default focus on command entry */
+    gtk_widget_grab_focus (GTK_WIDGET(gres.text_entry));
 
     // TODO avviare il thread decentemente
     pthread_t tid;

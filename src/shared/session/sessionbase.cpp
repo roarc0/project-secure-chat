@@ -93,15 +93,20 @@ Packet* SessionBase::_RecvPacketFromSocket()
     PktHeader pkt_head(header, 4);
 
     // Prendi Resto dei Dati
-    buffer = new char[pkt_head.getSize()];
-    m_Socket->Recv((void*) buffer, pkt_head.getSize());
+    if (pkt_head.getSize())
+    {
+        buffer = new char[pkt_head.getSize()];
+        m_Socket->Recv((void*) buffer, pkt_head.getSize());
+    }
 
     INFO("debug","SESSIONBASE: msg: %s , header %u, len %u\n", buffer, pkt_head.getHeader(), pkt_head.getSize());
 
     recVpkt = new Packet(pkt_head.getHeader(), pkt_head.getSize());
-    recVpkt->append((char*)buffer, pkt_head.getSize());
-
-    delete[] buffer;
+    if (pkt_head.getSize())
+    {
+        recVpkt->append((char*)buffer, pkt_head.getSize());
+        delete[] buffer;
+    }
     return recVpkt;
 }
 

@@ -34,6 +34,8 @@ bool Channel::CanSessionEnter(Session_smart /*ses*/, std::string& /*pass*/) cons
 
 Session_smart Channel::FindSession(uint32 id)
 {
+    Lock guard(m_mutex);
+
     mapSession::const_iterator iter = m_sessions.find(id);
     return (iter == m_sessions.end() ? Session_smart(NULL) : iter->second);
 }

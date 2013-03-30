@@ -131,6 +131,24 @@ void Session::KickSession()
         m_Socket->CloseSocket();
 }
 
+void Session::SendSysMessage(const char *str)
+{
+    INFO ("debug", "CHATHANDLER: %s \n", str);
+    Packet data(SMSG_SYSTEM_MESSAGE, strlen(str));
+    data << str;
+    SendPacket(&data);
+}
+
+void Session::PSendSysMessage(const char *format, ...)
+{
+    va_list ap;
+    char str [2048];
+    va_start(ap, format);
+    vsnprintf(str, 2048, format, ap);
+    va_end(ap);
+    SendSysMessage(str);
+}
+
 void Session::SendWaitQueue(int position)
 {
     // Invio posizione coda
@@ -141,7 +159,9 @@ void Session::SendWaitQueue(int position)
 
 void Session::Handle_Ping(Packet& /*packet*/)
 {
-
+    Packet data(SMSG_SYSTEM_MESSAGE, 0);
+    data << "Pong";
+    SendPacket(&data);
 }
 
 void Session::Handle_ServerSide(Packet& /*packet*/)
@@ -155,8 +175,8 @@ void Session::HandleMessage(Packet& packet)
     packet >> msg;
 
     // Controllo se ci sono comandi
-    if (ChatHandler(smartThis).ParseCommands(msg.c_str()) > 0)
-        return;
+    /*if (ChatHandler(smartThis).ParseCommands(msg.c_str()) > 0)
+        return;*/
 
     INFO ("debug", "SESSION: Livello Esecuzione Messaggio: %s\n", msg.c_str());
 
@@ -175,14 +195,8 @@ void Session::HandleMessage(Packet& packet)
     }
 }
 
-void Session::HandleJoinChannel(Packet& /*packet*/) 
+void Session::HandleJoinChannel(Packet& packet) 
 {
-    /*if (channel_name != "")
-    {
-        // sono già in un canale
-        return;
-    }
-
     // prendi il nome del canale dal pacchetto
     std::string c_name = ""; 
     packet >> c_name;
@@ -190,32 +204,88 @@ void Session::HandleJoinChannel(Packet& /*packet*/)
     std::string pass = ""; 
     packet >> pass;
 
-    Channel* pChan = s_manager->GetChannelMrg()->FindChannel(c_name);
+    if (IsInChannel())
+    {
+        SendSysMessage("Sono già in un Canale");
+        return;
+    }
 
-    if (pChan)
+    SmartChannel sChan = s_manager->GetChannelMrg()->FindChannel(c_name);
+
+    if (!sChan.get())
     {
         // Notifica all'utente canale non esistente
-        Packet pkt(SMSG_CHANNEL_NOTIFY);
-
-        pkt << "Channel does not exists";
-        SendPacket(&pkt);        
+        SendSysMessage("Canale non Esistente");
         return;
     }
 
-    if (!pChan->CanSessionEnter(smartThis, pass))
+    if (!sChan->CanSessionEnter(smartThis, pass))
     {
         // Invia notifica all'utente che non può entrare nel canale
-        Packet pkt(SMSG_CHANNEL_NOTIFY);
-        pkt << "Wrong Password";
-        SendPacket(&pkt);  
+        SendSysMessage("Password Errata");
         return;
     }
 
-    if (!pChan->AddSession(smartThis))
+    if (!sChan->AddSession(smartThis))
     {
-        Packet pkt(SMSG_CHANNEL_NOTIFY);
-        pkt << "Can't add channel";
-        SendPacket(&pkt); 
+        SendSysMessage("Errore Aggiunta Canale");
         return;
-    }*/
+    }
+
+    setChannel(sChan);
+    PSendSysMessage("Entrato nel canale: %s", c_name.c_str());
+}
+
+void Session::HandleCreateChannel(Packet& packet) 
+{
+    // prendi il nome del canale dal pacchetto
+    std::string c_name = ""; 
+    packet >> c_name;
+    // prendi password dal pacchetto
+    std::string pass = ""; 
+    packet >> pass;
+
+    if (IsInChannel())
+    {
+        SendSysMessage("Sei già in un Canale");
+        return;
+    }
+
+    SmartChannel sChan = s_manager->GetChannelMrg()->CreateChannel(c_name);
+    if (!sChan.get())
+    {
+        SendSysMessage("Canale già esistente");
+        return;
+    }
+
+    if (!sChan->AddSession(smartThis))
+    {
+        SendSysMessage("Errore Aggiunta Canale");
+        return;
+    }
+
+    setChannel(sChan);
+    PSendSysMessage("Creato canale: %s", c_name.c_str());
+}
+
+void Session::HandleLeaveChannel(Packet& /*packet*/) 
+{
+    if (!IsInChannel())
+    {
+        SendSysMessage("Non sei in un canale");
+        return;
+    }
+
+    // Rimuovere dal canale
+    getChannel()->RemoveSession(GetId());
+    setChannel(SmartChannel(NULL));
+
+    SendSysMessage("Uscito dal Canale");
+}
+
+void Session::HandleListChannel(Packet& /*packet*/) 
+{
+    std::string info = "";
+    s_manager->GetChannelMrg()->getChannelList(info);
+    SendSysMessage(info.c_str());
 }

@@ -6,6 +6,12 @@
 #include "packetfilter.h"
 #include "channel.h"
 
+#if COMPILER == COMPILER_GNU
+#  define ATTR_PRINTF(F, V) __attribute__ ((format (printf, F, V)))
+#else //COMPILER != COMPILER_GNU
+#  define ATTR_PRINTF(F, V)
+#endif //COMPILER == COMPILER_GNU
+
 class Session;
 class Channel;
 typedef counted_ptr<Session> Session_smart;
@@ -38,11 +44,17 @@ class Session : public SessionBase
         void Handle_ServerSide(Packet& packet);
         void HandleMessage(Packet& packet); 
         void HandleJoinChannel(Packet& packet); 
+        void HandleCreateChannel(Packet& packet); 
+        void HandleLeaveChannel(Packet& packet); 
+        void HandleListChannel(Packet& packet); 
   
     private:
 
         virtual int _SendPacket(const Packet& pct);
         virtual int _SendPacket(Packet* pct);
+
+        void SendSysMessage(const char *str);
+        void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2, 3);
 
         uint32 m_id;
         Session_smart smartThis;

@@ -3,6 +3,10 @@
 
 #include "session/sessionbase.h"
 #include "../networking/socket-client.h"
+#include "utility/counted_ptr.h"
+
+class Session;
+typedef counted_ptr<Session> Session_smart;
 
 class Session : public SessionBase
 {

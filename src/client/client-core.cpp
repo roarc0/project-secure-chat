@@ -1,5 +1,6 @@
 #include "client-core.h"
 #include "networking/opcode.h"
+#include "chat_handler.h"
 
 // LANCIAFIAMME
 int ClientCore::StartThread(Session *sc)
@@ -121,6 +122,10 @@ bool ClientCore::HandleSend(const char* msg)
         return false;
 
     INFO("debug","sending message: %s\n", msg);
+
+
+    if (ChatHandler(session).ParseCommands(msg) > 0)
+        return true;
 
     Packet pack(CMSG_MESSAGE);
     pack << msg; //ss.str();

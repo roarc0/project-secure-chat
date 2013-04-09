@@ -5,6 +5,7 @@
 #include "utility/singleton.h"
 #include "threading/thread.h"
 #include "session/session.h"
+#include "xml-message.h"
 #include "utility/queues/lock_queue.h"
 #include <vector>
 #include <sstream>
@@ -12,21 +13,6 @@
 using namespace std;
 
 void* CoreThread(void*);
-
-
-struct eventg
-{
-    string who;
-    string what;
-    string data;
-
-    eventg()
-    {
-        who = "";
-        what = "";
-        data = "";
-    }
-};
 
 class ClientCore
 {
@@ -37,9 +23,11 @@ class ClientCore
     pthread_cond_t  cond_connection;
     pthread_mutex_t mutex_connection;
 
-    LockQueue<eventg> events;
-    pthread_cond_t  cond_event;
-    pthread_mutex_t mutex_event;
+    LockQueue<string> messages;
+    pthread_cond_t  cond_message;
+    pthread_mutex_t mutex_message;
+
+    XmlMessage xmsg;
 
     ClientCore();
 
@@ -55,9 +43,9 @@ class ClientCore
 
     int  StartThread(Session *sc);
 
-    eventg GetEvent();
-    void WaitEvent();
-    void SignalEvent();
+    string GetMessage();
+    void WaitMessage();
+    void SignalMessage();
     void WaitConnection();
     void SignalConnection();
     bool IsConnected();

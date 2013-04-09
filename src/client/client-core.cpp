@@ -1,6 +1,5 @@
 #include "client-core.h"
 #include "networking/opcode.h"
-#include "chat-handler.h"
 
 // LANCIAFIAMME
 int ClientCore::StartThread(Session *sc)
@@ -126,7 +125,7 @@ void ClientCore::HandleRecv()
 string ClientCore::GetEvent()
 {
     string msg;
-    Events.next(msg);
+    messages.next(msg);
     return msg;
 }
 

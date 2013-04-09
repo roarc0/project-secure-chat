@@ -21,6 +21,9 @@ SmartChannel ChannelManager::CreateChannel(std::string& c_name)
 {
     Lock guard(m_mutex);
 
+    if (c_name == "Default")
+        return SmartChannel(NULL);    
+
     SmartChannel cha = FindChannel(c_name);
     if (cha.get())
         return SmartChannel(NULL);
@@ -93,4 +96,18 @@ void ChannelManager::Update(uint32 diff)
         }
 
     i_timer.SetCurrent(0);
+}
+
+void ChannelManager::JoinDefaultChannel(Session_smart ses)
+{
+    std::string c_name = "Default";
+    SmartChannel cha = FindChannel(c_name);
+    if (!cha.get())
+    {
+        cha = SmartChannel(new Channel(c_name));
+        m_channels[c_name] = cha;
+    }
+    cha->AddSession(ses);
+    ses->setChannel(cha);
+    ses->SendSysMessage("Sei entrato nel canale Default");
 }

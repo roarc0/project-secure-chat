@@ -157,6 +157,8 @@ bool SessionManager::RemoveQueuedSession(Session_smart sess)
         Session_smart pop_sess = m_waitSessQueue.front();
         pop_sess->SetInQueue(false);
 
+        GetChannelMrg()->JoinDefaultChannel(sess);
+
         // TODO notifica all'utente che è stato accettato
 
         m_waitSessQueue.pop_front();
@@ -202,9 +204,14 @@ void SessionManager::AddSession_(uint32 next_id, Session_smart sess)
     INFO("debug", "SESSION-MANAGER: add session con next_id %d \n", next_id);
     if (m_sessionActiveLimit && GetActiveSessionCount() >= m_sessionActiveLimit)
     {
-        AddQueuedSession(sess);
+        AddQueuedSession(sess);    
+        sess->SetId(next_id);
+        m_sessions.insert(usersession_pair(next_id, sess));    
     }
-
-    sess->SetId(next_id);
-    m_sessions.insert(usersession_pair(next_id, sess));
+    else
+    {
+        sess->SetId(next_id);
+        m_sessions.insert(usersession_pair(next_id, sess));
+        GetChannelMrg()->JoinDefaultChannel(sess);
+    }
 }

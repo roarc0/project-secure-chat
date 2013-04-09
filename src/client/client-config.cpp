@@ -11,6 +11,8 @@ void init_config(string filename)
     CFG->add_bool("autoconnect", false);
     CFG->add_string("log_path", "logs");
     CFG->add_string("nickname", "user");
+    CFG->add_string("password", "default");
+    
     CFG->add_string("server_host", "127.0.0.1");
     CFG->add_int("server_port", 7777);
     CFG->open_cfg();

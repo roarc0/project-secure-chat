@@ -319,6 +319,7 @@ void main_gui(int argc, char **argv)
     /* input della chat */
     GtkWidget *hbox_inputs;
     GtkWidget *vbox_inputs;
+    GtkWidget *label_nick;
     GtkWidget *entry_command;
     GtkWidget *button_send;
 
@@ -508,11 +509,15 @@ void main_gui(int argc, char **argv)
     /* INPUTS */
     hbox_inputs = gtk_hbox_new (FALSE, 0);
     gtk_box_pack_start(GTK_BOX (vbox_main), hbox_inputs, FALSE, FALSE, 0);
+    
+    label_nick = gtk_label_new((gchar *) CFG_GET_STRING("nickname").c_str()); 
+    //gtk_label_set_justify (GTK_LABEL(label_nick), GTK_JUSTIFY_LEFT);
+    gtk_misc_set_alignment(GTK_MISC(label_nick),0.0,0.5);
+    gtk_box_pack_start(GTK_BOX (hbox_inputs), label_nick, FALSE, FALSE, 2 );
 
-    vbox_inputs = gtk_vbox_new (FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(hbox_inputs), vbox_inputs);
     entry_command = gtk_entry_new();
-    gtk_container_add(GTK_CONTAINER(vbox_inputs), entry_command);
+    gtk_box_pack_start(GTK_BOX (hbox_inputs), entry_command, TRUE, TRUE, 5);
+    
     button_send = gtk_button_new_with_label("Send");
     gtk_widget_set_size_request (GTK_WIDGET (button_send), 70, 30);
     gtk_box_pack_start(GTK_BOX (hbox_inputs), button_send, FALSE, FALSE, 0);

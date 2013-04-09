@@ -68,6 +68,74 @@ void Session::ResetSocket()
     m_Socket = (SocketBase*) c_Socket;
 }
 
+void Session::SendToGui(std::string& str)
+{
+    c_core->messages.add();
+}
+
+bool Session::HandleSend(const char* msg)
+{
+    if (!IsConnected())
+        return false;
+
+    INFO("debug","sending message: %s\n", msg);
+
+    if (ChatHandler(this).ParseCommands(msg) > 0)
+        return true;
+
+    Packet pack(CMSG_MESSAGE);
+    pack << xmsg.BuildMessage(CFG_GET_STRING("nickname").c_str(), msg);
+    SendPacketToSocket(&pack);
+
+    return true;
+}
+
+bool Session::Update()
+{
+    Packet* pack = RecvPacketFromSocket();
+
+    if (packet->GetOpcode() >= NUM_MSG_TYPES) // Max opcode
+    {
+        INFO ("debug", "Opcode Pacchetto Non Valido\n");
+    }
+    else
+    {
+        OpcodeHandler &opHandle = opcodeTable[packet->GetOpcode()];
+        try
+        {
+            switch (opHandle.status)
+            {
+                case STATUS_LOGGED:
+                    {
+                        (this->*opHandle.handler)(*packet);
+                    }
+                    break;
+                case STATUS_NEVER:
+                    // Log
+                    break;
+                case STATUS_UNHANDLED:
+                    // Log
+                    break;
+                default:
+                    // Log
+                    break;
+            }
+        }
+        catch (...)
+        {
+            INFO ("debug", "Errore Durante Elaborazione Pacchetto\n");
+            // TODO
+        }
+    }
+
+    delete packet;
+    
+    if (!m_Socket || m_Socket->IsClosed())
+        return false;
+
+    return true;
+}
+
 bool Session::Update(uint32 /*diff*/)
 {
     Packet* packet = NULL;
@@ -133,5 +201,11 @@ void Session::Handle_Ping(Packet& /*packet*/)
 
 void Session::HandleMessage(Packet& /*packet*/)
 {
+    SendToGui(xmsg.ReadMessage(str.c_str()));
+}
+
+void Session::HandleServerMessage(Packet& /*packet*/)
+{
     // TODO
 }
+

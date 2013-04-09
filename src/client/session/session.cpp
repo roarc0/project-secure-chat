@@ -1,6 +1,7 @@
 #include "session.h"
 #include "networking/opcode.h"
 #include "chat-handler.h"
+#include "client-core.h"
 
 Session::Session() //: SessionBase()
 {
@@ -209,8 +210,12 @@ void Session::HandleMessage(Packet& packet)
     SendToGui(xmsg.ReadMessage(str.c_str()));
 }
 
-void Session::HandleServerMessage(Packet& /*packet*/)
+void Session::HandleServerMessage(Packet& packet)
 {
-    // TODO
+    INFO ("debug", "Handle Server Message\n");
+
+    std::string str;
+    packet >> str;
+    SendToGui(str);
 }
 

@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include "networking/opcode.h"
 #include "chat-handler.h"
+#include "client-core.h"
 
 enum eChatErrorCode
 {
@@ -311,7 +312,8 @@ bool ChatHandler::ShowHelpForSubCommands(ChatCommand* table, char const* cmd, ch
 void ChatHandler::SendSysMessage(const char *str)
 {
     INFO ("debug", "CHATHANDLER: %s \n", str);
-    // TODO Segnalare errore a schermo
+    c_core->messages.add(str);
+    c_core->SignalEvent();
 }
 
 void ChatHandler::SendSysMessage(uint32 entry)

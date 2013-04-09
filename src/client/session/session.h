@@ -9,8 +9,6 @@
 class Session;
 typedef counted_ptr<Session> Session_smart;
 
-#include "client-core.h"
-
 class Session : public SessionBase
 {
     SocketClient* c_Socket;

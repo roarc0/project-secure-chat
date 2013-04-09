@@ -73,6 +73,7 @@ void Session::ResetSocket()
 void Session::SendToGui(std::string str)
 {
     c_core->messages.add(str);
+    c_core->SignalEvent();
 }
 
 bool Session::HandleSend(const char* msg)

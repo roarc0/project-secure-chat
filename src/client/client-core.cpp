@@ -113,7 +113,8 @@ bool ClientCore::Disconnect()
 
 bool ClientCore::HandleSend(const char* msg)
 {
-    return session->HandleSend(msg);
+    bool ret = session->HandleSend(msg);    
+    return ret;
 }
 
 void ClientCore::HandleRecv()

@@ -56,12 +56,12 @@ void* GuiThread(void* arg)
 
         if(c_core->IsConnected())
         {
-            string msg = c_core->GetMessage();
+            string msg = c_core->GetEvent();
             add_message_to_chat(gres->chat_buffer,
                                 (gchar*) msg.c_str(), 'm');
         }
         gdk_threads_leave();
-        c_core->WaitMessage();
+        c_core->WaitEvent();
     }
 
     pthread_exit(NULL);

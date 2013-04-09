@@ -5,7 +5,6 @@
 #include "utility/singleton.h"
 #include "threading/thread.h"
 #include "session/session.h"
-#include "xml-message.h"
 #include "utility/queues/lock_queue.h"
 #include <vector>
 #include <sstream>

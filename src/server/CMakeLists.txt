@@ -1,5 +1,5 @@
 file(GLOB_RECURSE sources_Channel channel/*.cpp channel/*.h)
-file(GLOB sources_Command command/*.cpp command/*.h)
+#file(GLOB sources_Command command/*.cpp command/*.h)
 file(GLOB_RECURSE sources_Database database/*.cpp database/*.h)
 file(GLOB sources_Networking networking/*.cpp networking/*.h)
 file(GLOB sources_Packet networking/packet/*.cpp networking/packet/*.h)
@@ -10,7 +10,7 @@ file(GLOB sources_localdir *.cpp *.h)
 
 set(server_SRCS
   ${sources_Channel}
-  ${sources_Command}
+#  ${sources_Command}
   ${sources_Database}
   ${sources_Networking}
   ${sources_Packet}
@@ -25,7 +25,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/../shared
   ${CMAKE_CURRENT_SOURCE_DIR}/channel
-  ${CMAKE_CURRENT_SOURCE_DIR}/command
+#  ${CMAKE_CURRENT_SOURCE_DIR}/command
   ${CMAKE_CURRENT_SOURCE_DIR}/database
   ${CMAKE_CURRENT_SOURCE_DIR}/networking
   ${CMAKE_CURRENT_SOURCE_DIR}/networking/packet

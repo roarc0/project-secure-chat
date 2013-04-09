@@ -2,7 +2,6 @@
 #include "networking/opcode.h"
 #include "channel.h"
 #include "session-manager.h"
-#include "chat_handler.h"
 #include "network-manager.h"
 
 Session::Session(int pSock) : SessionBase(pSock),
@@ -133,7 +132,7 @@ void Session::KickSession()
 
 void Session::SendSysMessage(const char *str)
 {
-    INFO ("debug", "CHATHANDLER: %s \n", str);
+    INFO ("debug", "SESSION: %s \n", str);
     Packet data(SMSG_SYSTEM_MESSAGE, strlen(str));
     data << str;
     SendPacket(&data);
@@ -183,15 +182,10 @@ void Session::HandleMessage(Packet& packet)
     if (m_channel.get())
     {
         m_channel->SendToAllButOne(&packet, m_id);
-        Packet respacket;
-        respacket << "Message sent to channel";
-        SendPacket(&respacket);
     }
     else
     {
-        Packet respacket;
-        respacket << "You have to join or create a channel";
-        SendPacket(&respacket);
+        SendSysMessage("You have to join or create a channel");
     }
 }
 
@@ -203,12 +197,6 @@ void Session::HandleJoinChannel(Packet& packet)
     // prendi password dal pacchetto
     std::string pass = ""; 
     packet >> pass;
-
-    if (IsInChannel())
-    {
-        SendSysMessage("Sono già in un Canale");
-        return;
-    }
 
     SmartChannel sChan = s_manager->GetChannelMrg()->FindChannel(c_name);
 
@@ -224,6 +212,13 @@ void Session::HandleJoinChannel(Packet& packet)
         // Invia notifica all'utente che non può entrare nel canale
         SendSysMessage("Password Errata");
         return;
+    }
+
+    if (IsInChannel())
+    {
+        // Rimuovere dal canale
+        getChannel()->RemoveSession(GetId());
+        setChannel(SmartChannel(NULL));
     }
 
     if (!sChan->AddSession(smartThis))
@@ -245,17 +240,18 @@ void Session::HandleCreateChannel(Packet& packet)
     std::string pass = ""; 
     packet >> pass;
 
-    if (IsInChannel())
-    {
-        SendSysMessage("Sei già in un Canale");
-        return;
-    }
-
     SmartChannel sChan = s_manager->GetChannelMrg()->CreateChannel(c_name);
     if (!sChan.get())
     {
         SendSysMessage("Canale già esistente");
         return;
+    }
+
+    if (IsInChannel())
+    {
+        // Rimuovere dal canale
+        getChannel()->RemoveSession(GetId());
+        setChannel(SmartChannel(NULL));
     }
 
     if (!sChan->AddSession(smartThis))

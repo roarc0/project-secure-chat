@@ -36,6 +36,7 @@ class ChannelManager
         // THREADUNSAFE
         // E' thread unsafe se un altro thread sta lavorando sul puntatore del canale
         int RemoveChannel(std::string& c_name);
+        void JoinDefaultChannel(Session_smart ses);
 
         void SetChannelUpdateInterval(uint32 t)
         {

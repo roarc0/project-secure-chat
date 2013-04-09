@@ -47,14 +47,14 @@ class Session : public SessionBase
         void HandleCreateChannel(Packet& packet); 
         void HandleLeaveChannel(Packet& packet); 
         void HandleListChannel(Packet& packet); 
+        
+        void SendSysMessage(const char *str);
+        void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2, 3);
   
     private:
 
         virtual int _SendPacket(const Packet& pct);
         virtual int _SendPacket(Packet* pct);
-
-        void SendSysMessage(const char *str);
-        void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2, 3);
 
         uint32 m_id;
         Session_smart smartThis;

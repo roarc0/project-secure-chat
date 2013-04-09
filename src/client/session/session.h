@@ -34,7 +34,7 @@ class Session : public SessionBase
         connected = c;
     }
 
-    void Update();    
+    bool Update();    
 
     void Handle_ClientSide(Packet& /*packet*/);    
     void Handle_Ping(Packet& /*packet*/);
@@ -47,7 +47,7 @@ class Session : public SessionBase
   private:
 
     bool Update(uint32 diff);
-    void SendToGui(std::string& str);
+    void SendToGui(std::string str);
 };
 
 #endif

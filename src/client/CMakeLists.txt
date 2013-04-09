@@ -20,6 +20,7 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
   ${GTK3_INCLUDE_DIRS}
   ${Confuse_INCLUDE_DIRS}
+  ${TINYXML_INCLUDE_DIRS}
   ${Glib_PKGCONF_INCLUDE_DIRS}
 )
 
@@ -52,6 +53,7 @@ target_link_libraries(client
   ${GTK3_LIBRARIES}  
   ${Glib_PKGCONF_LIBRARY_DIRS}
   ${Confuse_LIBRARIES}
+  ${TINYXML_LIBRARIES}
   ${OSX_LIBS}
 )
 

@@ -35,6 +35,7 @@ if( CLIENT )
     pkg_check_modules (GTK3 REQUIRED gtk+-3.0) # senza questo non linka
     find_package(GTK3 REQUIRED)
     find_package(Glib REQUIRED)
+    find_package(TinyXML REQUIRED)
     #find_package(GThread2 REQUIRED)
 endif()
 if ( SERVER )

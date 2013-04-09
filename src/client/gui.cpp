@@ -57,6 +57,8 @@ void* GuiThread(void* arg)
         if(c_core->IsConnected())
         {
             string msg = c_core->GetEvent();
+            if(msg.length() > 0 && (char) msg[msg.length()-1] != '\n')
+                msg.append("\n");
             add_message_to_chat(gres->chat_buffer,
                                 (gchar*) msg.c_str(), 'm');
         }

@@ -4,14 +4,18 @@
 #include "session/sessionbase.h"
 #include "../networking/socket-client.h"
 #include "utility/counted_ptr.h"
+#include "xml-message.h"
 
 class Session;
 typedef counted_ptr<Session> Session_smart;
+
+#include "client-core.h"
 
 class Session : public SessionBase
 {
     SocketClient* c_Socket;
     bool         connected;
+    XmlMessage   xmsg;
 
   public:
     Session();
@@ -30,11 +34,20 @@ class Session : public SessionBase
         connected = c;
     }
 
-    bool Update(uint32 diff);
+    void Update();    
 
-    void Handle_ClientSide(Packet& /*packet*/);
-    void HandleMessage(Packet& /*packet*/);
+    void Handle_ClientSide(Packet& /*packet*/);    
     void Handle_Ping(Packet& /*packet*/);
+    void HandleMessage(Packet& /*packet*/);
+    void HandleServerMessage(Packet& /*packet*/);
+    
+
+    bool HandleSend(const char* msg);
+
+  private:
+
+    bool Update(uint32 diff);
+    void SendToGui(std::string& str);
 };
 
 #endif

@@ -1,5 +1,6 @@
 #include "session.h"
 #include "networking/opcode.h"
+#include "chat-handler.h"
 
 Session::Session() //: SessionBase()
 {
@@ -68,9 +69,9 @@ void Session::ResetSocket()
     m_Socket = (SocketBase*) c_Socket;
 }
 
-void Session::SendToGui(std::string& str)
+void Session::SendToGui(std::string str)
 {
-    c_core->messages.add();
+    c_core->messages.add(str);
 }
 
 bool Session::HandleSend(const char* msg)
@@ -92,7 +93,7 @@ bool Session::HandleSend(const char* msg)
 
 bool Session::Update()
 {
-    Packet* pack = RecvPacketFromSocket();
+    Packet* packet = RecvPacketFromSocket();
 
     if (packet->GetOpcode() >= NUM_MSG_TYPES) // Max opcode
     {
@@ -199,8 +200,10 @@ void Session::Handle_Ping(Packet& /*packet*/)
 
 }
 
-void Session::HandleMessage(Packet& /*packet*/)
+void Session::HandleMessage(Packet& packet)
 {
+    std::string str;
+    packet >> str;
     SendToGui(xmsg.ReadMessage(str.c_str()));
 }
 

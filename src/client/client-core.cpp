@@ -1,6 +1,7 @@
 #include "client-core.h"
 #include "networking/opcode.h"
 #include "chat_handler.h"
+#include "xml.h"
 
 // LANCIAFIAMME
 int ClientCore::StartThread(Session *sc)
@@ -72,6 +73,8 @@ ClientCore::ClientCore()
         Connect();
         INFO("debug","autoconnetting...\n");
     }
+    
+    WriteMessage("test.xml");
 }
 
 ClientCore::~ClientCore()

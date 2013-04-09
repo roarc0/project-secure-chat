@@ -1,5 +1,5 @@
-#ifndef CRYPT_H
-#define CRYPT_H
+#ifndef _CRYPTO_H_
+#define _CRYPTO_H_
 #include <iostream>
 #include <string>
 #include <openssl/evp.h>

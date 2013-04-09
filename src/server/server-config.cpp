@@ -11,7 +11,8 @@ void init_config(string filename)
     CFG->add_string("log_path", "logs");
     CFG->add_int("server_port", 7777);
     CFG->add_string("db_filename", "server.db");
-
+    CFG->add_string("password", "default");
+    
     CFG->add_int("ThreadNet", 2);
     CFG->add_int("ThreadExec", 2);
 

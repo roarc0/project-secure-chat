@@ -49,7 +49,7 @@ void* CoreThread(void* arg)
                  CFG_GET_INT("server_port"), e.what());
             session->SetConnected(false);
             session->ResetSocket();
-            c_core->SignalMessage(); // disconnection message on error
+            c_core->SignalEvent(); // disconnection Event on error
         }
         c_core->WaitConnection();
         INFO("debug","* receive loop!\n");
@@ -62,8 +62,8 @@ ClientCore::ClientCore()
 {
     pthread_cond_init (&cond_connection, NULL);
     pthread_mutex_init (&mutex_connection, NULL);
-    pthread_cond_init (&cond_message, NULL);
-    pthread_mutex_init (&mutex_message, NULL);
+    pthread_cond_init (&cond_event, NULL);
+    pthread_mutex_init (&mutex_event, NULL);
 
     session = new Session();
 
@@ -79,8 +79,8 @@ ClientCore::~ClientCore()
     pthread_cond_destroy (&cond_connection);
     pthread_mutex_destroy (&mutex_connection);
 
-    pthread_cond_destroy (&cond_message);
-    pthread_mutex_destroy (&mutex_message);
+    pthread_cond_destroy (&cond_event);
+    pthread_mutex_destroy (&mutex_event);
 }
 
 bool ClientCore::Connect()
@@ -90,7 +90,7 @@ bool ClientCore::Connect()
     if (ret)
     {
         StartThread(session);
-        SignalMessage();
+        SignalEvent();
         //SignalConnection();
     }
     return ret;
@@ -101,7 +101,7 @@ bool ClientCore::Disconnect()
     bool ret = session->Disconnect();
     if (ret)
     {
-        SignalMessage();
+        SignalEvent();
         INFO("debug","thread tritolo pronto\n");
         pthread_cancel(tid);
         pthread_join(tid,NULL);
@@ -114,58 +114,30 @@ bool ClientCore::Disconnect()
 
 bool ClientCore::HandleSend(const char* msg)
 {
-    assert(session && msg);
-    //stringstream ss;
-    //ss << CFG_GET_STRING("nickname") << " " << msg;
-    
-    if (!session->IsConnected())
-        return false;
-
-    INFO("debug","sending message: %s\n", msg);
-
-    if (ChatHandler(session).ParseCommands(msg) > 0)
-        return true;
-
-    Packet pack(CMSG_MESSAGE);
-    pack << xmsg.BuildMessage(CFG_GET_STRING("nickname").c_str(), msg);
-    session->SendPacketToSocket(&pack); // TODO fare sendpacket in session del client
-
-    return true;
+    return session->HandleSend(msg);
 }
 
 void ClientCore::HandleRecv()
 {
-    Packet *pack;
-    INFO("debug","* waiting for data...\n");
-    pack = session->RecvPacketFromSocket();
-    INFO("debug","* packet received...\n");
-
-    string str;
-    if(pack)
-        *pack >> str;
-    else
-        INFO("debug", "* empty packet received\n");
-
-    
-    messages.add(xmsg.ReadMessage(str.c_str()));
-    SignalMessage();
+    session->Update();
+    SignalEvent();
 }
 
-string ClientCore::GetMessage()
+string ClientCore::GetEvent()
 {
-    string ev;
-    messages.next(ev);
-    return ev;
+    string msg;
+    Events.next(msg);
+    return msg;
 }
 
-void ClientCore::WaitMessage()
+void ClientCore::WaitEvent()
 {
-    pthread_cond_wait(&cond_message, &mutex_message);
+    pthread_cond_wait(&cond_event, &mutex_event);
 }
 
-void ClientCore::SignalMessage()
+void ClientCore::SignalEvent()
 {
-    pthread_cond_signal(&cond_message);
+    pthread_cond_signal(&cond_event);
 }
 
 void ClientCore::WaitConnection()

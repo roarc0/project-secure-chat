@@ -170,14 +170,13 @@ void Session::Handle_ServerSide(Packet& /*packet*/)
 
 void Session::HandleMessage(Packet& packet) 
 {
-    std::string msg;
-    packet >> msg;
+    packet.SetOpcode(SMSG_MESSAGE);
 
     // Controllo se ci sono comandi
     /*if (ChatHandler(smartThis).ParseCommands(msg.c_str()) > 0)
         return;*/
 
-    INFO ("debug", "SESSION: Livello Esecuzione Messaggio: %s\n", msg.c_str());
+    //INFO ("debug", "SESSION: Livello Esecuzione Messaggio: %s\n", msg.c_str());
 
     if (m_channel.get())
     {

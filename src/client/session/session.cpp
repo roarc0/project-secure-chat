@@ -97,6 +97,9 @@ bool Session::Update()
 {
     Packet* packet = RecvPacketFromSocket();
 
+    if (!packet)
+        return false;
+
     if (packet->GetOpcode() >= NUM_MSG_TYPES) // Max opcode
     {
         INFO ("debug", "Opcode Pacchetto Non Valido\n");

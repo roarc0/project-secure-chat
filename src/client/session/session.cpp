@@ -112,7 +112,7 @@ bool Session::Update()
                     }
                     break;
                 case STATUS_NEVER:
-                    // Log
+                    INFO ("debug", "Header NULL\n");
                     break;
                 case STATUS_UNHANDLED:
                     // Log
@@ -192,7 +192,7 @@ bool Session::Update(uint32 /*diff*/)
 
 void Session::Handle_ClientSide(Packet& /*packet*/)
 {
-    // LOG
+    INFO ("debug", "Sto ricevendo un pacchetto di un altro client!\n");
 }
 
 void Session::Handle_Ping(Packet& /*packet*/)
@@ -202,6 +202,8 @@ void Session::Handle_Ping(Packet& /*packet*/)
 
 void Session::HandleMessage(Packet& packet)
 {
+    INFO ("debug", "Handle Message\n");
+
     std::string str;
     packet >> str;
     SendToGui(xmsg.ReadMessage(str.c_str()));

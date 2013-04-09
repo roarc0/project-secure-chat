@@ -1,26 +1,57 @@
-#include "xml.h"
+#include "xml-message.h"
 
-void WriteMessage(const char* filename)
+XmlMessage::XmlMessage()
 {
-    // Make xml: <?xml ..><Hello>World</Hello>
+
+}
+
+XmlMessage::~XmlMessage()
+{
+
+}
+
+std::string XmlMessage::BuildMessage(const char* name, const char* content)
+{
     TiXmlDocument doc;
     TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "", "" );
-    TiXmlElement * element = new TiXmlElement( "Hello" );
-    TiXmlText * text = new TiXmlText( "World" );
-    element->LinkEndChild( text );
+    TiXmlElement * element = new TiXmlElement( "message" );
+    
+    TiXmlElement * element_name = new TiXmlElement( "name" );
+    TiXmlElement * element_content = new TiXmlElement( "content" );
+        
+    TiXmlText * text_name = new TiXmlText( name );
+    TiXmlText * text_content = new TiXmlText( content );
+    
+    element->LinkEndChild( element_name );
+    element->LinkEndChild( element_content );
+    
+    element_name->LinkEndChild( text_name );
+    element_content->LinkEndChild( text_content );
+    
     doc.LinkEndChild( decl );
     doc.LinkEndChild( element );
 
+    stringstream ss;
+    ss << doc;
+ 
+    return ss.str(); 
+ 
     //elem->SetAttribute( "priority", 2 );
     //elem = elem->NextSiblingElement();
-
-    doc.SaveFile(filename);
+    //doc.SaveFile(filename);
 }
 
-string ReadMessage(TiXmlDocument &doc)
+string XmlMessage::ReadMessage(const char *str)
 {
     string content;
     string name;
+
+    if(!str)
+        return "";
+        
+    TiXmlDocument doc;
+    doc.Parse(str);
+    
     TiXmlElement* root = doc.FirstChildElement();
 
     if(root == NULL)
@@ -49,7 +80,9 @@ string ReadMessage(TiXmlDocument &doc)
             if(attr != NULL);
         }
         
-        for(TiXmlNode* e = elem->FirstChild(); e != NULL; e = e->NextSibling())
+        for(TiXmlNode* e = elem->FirstChild();
+            e != NULL;
+            e = e->NextSibling())
         {
             TiXmlText* text = e->ToText();
             if(text == NULL)

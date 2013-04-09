@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include "networking/opcode.h"
-#include "chat_handler.h"
+#include "chat-handler.h"
 
 enum eChatErrorCode
 {

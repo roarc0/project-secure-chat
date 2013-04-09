@@ -1,7 +1,6 @@
 #include "client-core.h"
 #include "networking/opcode.h"
-#include "chat_handler.h"
-#include "xml.h"
+#include "chat-handler.h"
 
 // LANCIAFIAMME
 int ClientCore::StartThread(Session *sc)
@@ -50,7 +49,7 @@ void* CoreThread(void* arg)
                  CFG_GET_INT("server_port"), e.what());
             session->SetConnected(false);
             session->ResetSocket();
-            c_core->SignalEvent(); // disconnection event on error
+            c_core->SignalMessage(); // disconnection message on error
         }
         c_core->WaitConnection();
         INFO("debug","* receive loop!\n");
@@ -63,8 +62,8 @@ ClientCore::ClientCore()
 {
     pthread_cond_init (&cond_connection, NULL);
     pthread_mutex_init (&mutex_connection, NULL);
-    pthread_cond_init (&cond_event, NULL);
-    pthread_mutex_init (&mutex_event, NULL);
+    pthread_cond_init (&cond_message, NULL);
+    pthread_mutex_init (&mutex_message, NULL);
 
     session = new Session();
 
@@ -73,8 +72,6 @@ ClientCore::ClientCore()
         Connect();
         INFO("debug","autoconnetting...\n");
     }
-    
-    WriteMessage("test.xml");
 }
 
 ClientCore::~ClientCore()
@@ -82,8 +79,8 @@ ClientCore::~ClientCore()
     pthread_cond_destroy (&cond_connection);
     pthread_mutex_destroy (&mutex_connection);
 
-    pthread_cond_destroy (&cond_event);
-    pthread_mutex_destroy (&mutex_event);
+    pthread_cond_destroy (&cond_message);
+    pthread_mutex_destroy (&mutex_message);
 }
 
 bool ClientCore::Connect()
@@ -93,7 +90,7 @@ bool ClientCore::Connect()
     if (ret)
     {
         StartThread(session);
-        SignalEvent();
+        SignalMessage();
         //SignalConnection();
     }
     return ret;
@@ -104,7 +101,7 @@ bool ClientCore::Disconnect()
     bool ret = session->Disconnect();
     if (ret)
     {
-        SignalEvent();
+        SignalMessage();
         INFO("debug","thread tritolo pronto\n");
         pthread_cancel(tid);
         pthread_join(tid,NULL);
@@ -126,12 +123,11 @@ bool ClientCore::HandleSend(const char* msg)
 
     INFO("debug","sending message: %s\n", msg);
 
-
     if (ChatHandler(session).ParseCommands(msg) > 0)
         return true;
 
     Packet pack(CMSG_MESSAGE);
-    pack << msg; //ss.str();
+    pack << xmsg.BuildMessage(CFG_GET_STRING("nickname").c_str(), msg);
     session->SendPacketToSocket(&pack); // TODO fare sendpacket in session del client
 
     return true;
@@ -150,29 +146,26 @@ void ClientCore::HandleRecv()
     else
         INFO("debug", "* empty packet received\n");
 
-    eventg ev;
-    ev.who="server";
-    ev.what="message";
-    ev.data=str;
-    events.add(ev);
-    SignalEvent();
+    
+    messages.add(xmsg.ReadMessage(str.c_str()));
+    SignalMessage();
 }
 
-eventg ClientCore::GetEvent()
+string ClientCore::GetMessage()
 {
-    eventg ev;
-    events.next(ev);
+    string ev;
+    messages.next(ev);
     return ev;
 }
 
-void ClientCore::WaitEvent()
+void ClientCore::WaitMessage()
 {
-    pthread_cond_wait(&cond_event, &mutex_event);
+    pthread_cond_wait(&cond_message, &mutex_message);
 }
 
-void ClientCore::SignalEvent()
+void ClientCore::SignalMessage()
 {
-    pthread_cond_signal(&cond_event);
+    pthread_cond_signal(&cond_message);
 }
 
 void ClientCore::WaitConnection()

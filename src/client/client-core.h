@@ -16,18 +16,15 @@ void* CoreThread(void*);
 
 class ClientCore
 {
-    Session*        session;
+    Session* session;
 
     pthread_t tid;
 
     pthread_cond_t  cond_connection;
     pthread_mutex_t mutex_connection;
 
-    LockQueue<string> messages;
-    pthread_cond_t  cond_message;
-    pthread_mutex_t mutex_message;
-
-    XmlMessage xmsg;
+    pthread_cond_t  cond_event;
+    pthread_mutex_t mutex_event;
 
     ClientCore();
 
@@ -43,14 +40,16 @@ class ClientCore
 
     int  StartThread(Session *sc);
 
-    string GetMessage();
-    void WaitMessage();
-    void SignalMessage();
+    string GetEvent();
+    void WaitEvent();
+    void SignalEvent();
     void WaitConnection();
     void SignalConnection();
     bool IsConnected();
 
     friend class Singleton<ClientCore>;
+    
+    LockQueue<string> messages;
 };
 
 #define c_core  Singleton<ClientCore>::GetInstance()

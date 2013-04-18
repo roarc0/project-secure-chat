@@ -12,6 +12,7 @@ Session::Session() //: SessionBase()
 
 Session::~Session()
 {
+    delete c_Socket;
     // TODO
 }
 

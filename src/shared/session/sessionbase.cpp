@@ -47,6 +47,8 @@ void SessionBase::SendPacket(Packet* new_packet)
 {
     if (!m_Socket || m_Socket->IsClosed() || !new_packet)
         return;
+    
+    INFO("debug", "SESSIONBASE: SendPacket\n");
 
     if (_SendPacket(*new_packet) == -1)
         m_Socket->CloseSocket();
@@ -63,6 +65,7 @@ void SessionBase::SendPacketToSocket(Packet* new_packet)
 
 int SessionBase::_SendPacket(Packet& pct)
 {
+    INFO("debug", "SESSIONBASE: _SendPacket\n");
     Packet* pkt = new Packet(pct);
     _sendQueue.add(pkt);
     return 0;
@@ -71,13 +74,13 @@ int SessionBase::_SendPacket(Packet& pct)
 int SessionBase::_SendPacketToSocket(Packet& pct)
 {
     INFO("debug", "SESSIONBASE: Sending Packet: \"%s\"\n", pct.contents());
-    unsigned char* rawData; 
+    unsigned char* rawData;
 
-    if (IsEncrypted() && pct.size())
+    /*if (IsEncrypted() && pct.size())
     {
         INFO("debug", "SESSIONBASE: Encrypting Packet  <%d bytes>",pct.size());
         pct.Encrypt(s_key);
-    }
+    }*/
 
     PktHeader header(pct.size()/*+OPCODE_SIZE*/, pct.GetOpcode());
     
@@ -115,19 +118,19 @@ Packet* SessionBase::_RecvPacketFromSocket()
 
     pct = new Packet(pkt_head.getHeader(), pkt_head.getSize());
     
-    if(!pct)
+    if (!pct)
         return NULL;
     
     if (pkt_head.getSize())
     {
         pct->append((char*)buffer, pkt_head.getSize());
 
-        if (IsEncrypted() && pkt_head.getSize())
+        /*if (IsEncrypted() && pkt_head.getSize())
         {
             INFO("debug", "SESSIONBASE: Decrypting Packet\n");
             pct->Decrypt(s_key);
             INFO("debug", "SESSIONBASE: Packet Decrypted\n");
-        }
+        }*/
 
         delete[] buffer;
     }

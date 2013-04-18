@@ -51,3 +51,10 @@ int Packet::Decrypt(ByteBuffer key)
      
     return ret;
 }
+
+void Packet::Incapsulate(Packet& pkt)
+{
+    *this<<pkt.GetOpcode();
+    *this<<pkt.size();
+    this->append(pkt.contents(), pkt.size());
+}

@@ -7,6 +7,7 @@
 
 #include "common.h"
 #include "../utility/bytebuffer.h"
+#include "../crypto/crypto.h"
 
 using namespace std;
 
@@ -23,12 +24,12 @@ enum eOpcode
 class Packet : public ByteBuffer
 {
     public:
-        Packet() : ByteBuffer(0), m_opcode(OP_NULL)
+        Packet() : ByteBuffer(0), m_opcode(OP_NULL), m_encrypted(false)
         {
             gettimeofday(&m_createTime, NULL);
         }
 
-        Packet(uint16 opcode, size_t res=200) : ByteBuffer(res), m_opcode(opcode) 
+        Packet(uint16 opcode, size_t res=200) : ByteBuffer(res), m_opcode(opcode), m_encrypted(false)
         {
             gettimeofday(&m_createTime, NULL);
         }
@@ -41,7 +42,7 @@ class Packet : public ByteBuffer
         }
 
         // costruttore di copia
-        Packet(const Packet &packet) : ByteBuffer(packet), m_opcode(packet.m_opcode), m_createTime(packet.m_createTime)
+        Packet(const Packet &packet) : ByteBuffer(packet), m_opcode(packet.m_opcode), m_createTime(packet.m_createTime), m_encrypted(packet.m_encrypted)
         {
 
         }
@@ -58,7 +59,15 @@ class Packet : public ByteBuffer
         {
             gettimeofday(&m_createTime, NULL);
         }
-
+        
+        int Encrypt(ByteBuffer key);
+        int Decrypt(ByteBuffer key);
+        
+        bool IsEncrypted() const
+        {
+            return m_encrypted;
+        }
+        
         uint32 GetTime() // In millisecondi
         {
             uint32 seconds  = m_createTime.tv_sec;  // - start.tv_sec;  TODO Quando è stato avviato il programma
@@ -69,6 +78,7 @@ class Packet : public ByteBuffer
     protected:
         uint16 m_opcode;
         timeval m_createTime;
+        bool m_encrypted;
 };
 
 #define HEADER_SIZE 4

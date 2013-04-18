@@ -1,42 +1,37 @@
 #include "packet.h"
 
-/*Packet ForgePacket(unsigned short opcode, const char *data)
+//WIP
+int Packet::Encrypt(ByteBuffer key)
 {
-    Packet packet;
+    string plaintext;
+    ByteBuffer ciphertext;
+    int retval=0;
 
-    if (data)
-        packet.m_data = data;
-
-    packet.SetOpcode(opcode);
-
-    return packet;
-}
-
-void Packet::GetRawData(unsigned char* rawData)
-{
-    if (!rawData)
-        return;
-
-    unsigned short temp;
-
-    temp = m_opcode;        // temp
-    temp &= 0x00ff;
-    rawData[0] = (unsigned char)temp;
-    temp = m_opcode;
-    temp = temp>>8;
-    rawData[1] = (unsigned char)temp;
-
-    temp = m_data.length();  // temp
-    temp &= 0x00ff;
-    rawData[2] = (unsigned char)temp;
-    temp = m_data.length();
-    temp = temp>>8;
-    rawData[3] = (unsigned char)temp;
+    key.clear();
+    key << "11111222223333344444555556666677"; // 32 Byte = 256 Bit key.
+    //plaintext << this; 
+    //std::cout << plaintext << std::endl;
+    retval = AesEncrypt(key, plaintext, ciphertext);
     
-    memcpy((void*) (rawData + OPCODE_SIZE + LENGTH_SIZE), (void*) m_data.c_str(), m_data.length());
+    if(!retval)
+        m_encrypted = true;
+    return retval;
 }
 
-unsigned int Packet::GetRawLength()
+int Packet::Decrypt(ByteBuffer key)
 {
-    return m_data.length() + OPCODE_SIZE + LENGTH_SIZE;
-}*/
+    ByteBuffer *ciphertext=this;
+    std::string plaintext;
+    int retval=0;
+
+    key.clear();
+    key << "11111222223333344444555556666677"; // 32 Byte = 256 Bit key.
+
+    //std::cout << ciphertext << std::endl;
+    retval = AesDecrypt(key, *ciphertext, plaintext);
+    //std::cout << plaintext << std::endl;
+    
+    if (!retval)
+        m_encrypted = false;
+    return retval;
+}

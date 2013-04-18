@@ -12,7 +12,7 @@ void printbyte(char b)
     printf("%X%X:", b >> 4 & 15, b & 15);
 }
 
-/******************* crypto *******************/
+/******************* crypto ******************
 
 void Crypto::setSymKey(ByteBuffer key)
 {
@@ -23,8 +23,9 @@ ByteBuffer Crypto::getSymKey()
 {
     return symKey;
 }
-    
-int Crypto::AesEncrypt(const ByteBuffer &key,
+*/
+                                                  // TODO anche il plaintext deve essere ByteBuffer
+int AesEncrypt(const ByteBuffer &key,
                const std::string &plaintext,
                ByteBuffer &ciphertext)
 {
@@ -89,7 +90,7 @@ int Crypto::AesEncrypt(const ByteBuffer &key,
     return 0;
 }
 
-int Crypto::AesDecrypt(const ByteBuffer &key,
+int AesDecrypt(const ByteBuffer &key,
                const ByteBuffer &ciphertext,
                std::string &plaintext)
 {

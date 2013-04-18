@@ -17,7 +17,7 @@ const int BlockSize=16;
 using namespace std;
 
 void printbyte(char);
-
+/*
 class CryptoException{};
 
 class Crypto
@@ -25,7 +25,12 @@ class Crypto
     ByteBuffer symKey;
     
     public:
-    Crypto (ByteBuffer k): symKey(k){};
+    Crypto (ByteBuffer k): symKey(k)
+    {
+        OpenSSL_add_all_algorithms();
+        OpenSSL_add_all_ciphers();
+        OpenSSL_add_all_digests();
+    }
 
     void setSymKey(ByteBuffer);
     ByteBuffer getSymKey();
@@ -43,6 +48,15 @@ class Crypto
     //smartBuffer AsymEncrypt(smartBuffer);
     //smartBuffer AsymDecrypt(smartBuffer);
 };
+*/
+
+int AesEncrypt(const ByteBuffer &key,
+           const std::string &plaintext,
+           ByteBuffer &ciphertext);
+
+int AesDecrypt(const ByteBuffer &key,
+           const ByteBuffer &ciphertext,
+           std::string &plaintext);
 
 #endif
 

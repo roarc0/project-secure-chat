@@ -10,7 +10,7 @@
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 
-#include "../networking/bytebuffer.h"
+#include "../utility/bytebuffer.h"
 
 const int BlockSize=16;
 

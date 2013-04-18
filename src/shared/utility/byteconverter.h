@@ -1,5 +1,5 @@
-#ifndef BYTECONVERTER_H
-#define BYTECONVERTER_H
+#ifndef _BYTECONVERTER_H_
+#define _BYTECONVERTER_H_
 
 #include "common.h"
 #include <algorithm>

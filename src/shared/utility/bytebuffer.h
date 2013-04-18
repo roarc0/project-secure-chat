@@ -1,8 +1,8 @@
 #ifndef _BYTEBUFFER_H
 #define _BYTEBUFFER_H
 
-#include "../common.h"
-#include "../utility/byteconverter.h"
+#include "common.h"
+#include "byteconverter.h"
 #include <map>
 
 class ByteBufferException

@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "../common.h"
-#include "bytebuffer.h"
+
+#include "common.h"
+#include "../utility/bytebuffer.h"
 
 using namespace std;
 

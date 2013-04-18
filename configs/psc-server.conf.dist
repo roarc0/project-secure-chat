@@ -1,0 +1,36 @@
+debug = true
+log_path = "logs"
+db_filename = "server.db"
+server_port = 7777
+
+#
+#    ThreadNet
+#        Description: Number of threads for network.
+#         Default:    2
+
+ThreadNet = 2
+
+#
+#    ThreadNet
+#        Description: Number of threads for Execution on Channels
+#         Default:    2
+
+ThreadExec = 2
+
+#
+#    SessionLimit
+#        Description: Maximum number of session active.
+#            Default: 100 - (Enabled)
+#                     1+  - (Enabled)
+#                     0   - (Disabled, No limit)
+
+SessionActiveLimit = 100
+
+#
+#    SessionQueueLimit
+#        Description: Maximum number of session in queue.
+#            Default: 50 - (Enabled)
+#                     1+  - (Enabled)
+#                     0   - (Disabled, No limit)
+
+SessionQueueLimit = 50

@@ -1,0 +1,19 @@
+#pacchetti debian-like (comando non testato)
+
+apt-get install libsqlite3-dev libopenssl-dev libconfuse-dev libarchive-dev libgtk-2.0-dev libglib-2.0-dev build-essential
+
+#configurare cmake
+
+da una cartella esterna al repository
+cmake /path/to/repository/dir -DPREFIX=/path/to/install/directory
+
+# altri parametri cmake
+-DSERVER              Build server
+-DCLIENT              Build client
+-DWITH_WARNINGS       Show all warnings during compile
+-DWITH_DEBUG          Include additional debug-code in core
+-DPREFIX              Set installation directory
+-DCONF_DIR            Set configuration directory
+-DLIBSDIR             Set library directory
+-DCMAKE_C_FLAGS       Set C_FLAGS for compile (advanced users only)
+-DCMAKE_CXX_FLAGS     Set CXX_FLAGS for compile (advanced users only)

@@ -37,7 +37,8 @@ int AesEncrypt(const ByteBuffer &key,
         return -1;
     }
     RAND_pseudo_bytes(init, BlockSize);
-    ciphertext.append((char *)init, BlockSize);//((char *)init)+BlockSize);
+    if (BlockSize)
+        ciphertext.append((char *)init, BlockSize);//((char *)init)+BlockSize);
    
     EVP_CIPHER_CTX_init(&ctx);
     EVP_EncryptInit_ex(&ctx, chp, 0, (unsigned char *)key.contents(), init);
@@ -58,7 +59,8 @@ int AesEncrypt(const ByteBuffer &key,
             return retval;
     }
 
-    ciphertext.append((char *)buffer, len); // ((char *)buffer)+len);
+    if (len)
+        ciphertext.append((char *)buffer, len); // ((char *)buffer)+len);
     delete[] buffer;
     
     len = 2*BlockSize;
@@ -75,7 +77,8 @@ int AesEncrypt(const ByteBuffer &key,
             return retval;
     }
 
-    ciphertext.append((char *)buffer, len); //((char *)buffer)+len);
+    if (len)
+        ciphertext.append((char *)buffer, len); //((char *)buffer)+len);
     delete[] buffer;
 
     EVP_CIPHER_CTX_cleanup(&ctx);

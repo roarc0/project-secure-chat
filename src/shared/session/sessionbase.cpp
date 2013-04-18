@@ -76,11 +76,11 @@ int SessionBase::_SendPacketToSocket(Packet& pct)
     INFO("debug", "SESSIONBASE: Sending Packet: \"%s\"\n", pct.contents());
     unsigned char* rawData;
 
-    /*if (IsEncrypted() && pct.size())
+    if (IsEncrypted() && pct.size())
     {
         INFO("debug", "SESSIONBASE: Encrypting Packet  <%d bytes>",pct.size());
         pct.Encrypt(s_key);
-    }*/
+    }
 
     PktHeader header(pct.size()/*+OPCODE_SIZE*/, pct.GetOpcode());
     
@@ -125,12 +125,12 @@ Packet* SessionBase::_RecvPacketFromSocket()
     {
         pct->append((char*)buffer, pkt_head.getSize());
 
-        /*if (IsEncrypted() && pkt_head.getSize())
+        if (IsEncrypted() && pkt_head.getSize())
         {
             INFO("debug", "SESSIONBASE: Decrypting Packet\n");
             pct->Decrypt(s_key);
             INFO("debug", "SESSIONBASE: Packet Decrypted\n");
-        }*/
+        }
 
         delete[] buffer;
     }

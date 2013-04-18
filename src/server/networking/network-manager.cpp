@@ -52,8 +52,11 @@ class NetworkThread: public MethodRequest
                     {
                         INFO("debug", "NETWORKTHREAD: Recv Packet Event\n");
                         pkt = net_ses.first->RecvPacketFromSocket();
-                        if (pkt)                  
+                        if (pkt)
+                        {   
+                            INFO("debug", "NETWORKTHREAD: Accodato pacchetto in coda elaborazione\n");          
                             net_ses.first->QueuePacket(pkt);
+                        }
                         else
                             INFO("debug", "NETWORKTHREAD: WARNING packet received is NULL\n");
                     }

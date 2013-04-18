@@ -25,11 +25,11 @@ void Session::deleteSmartPointer()
     smartThis = (Session_smart)NULL;
 }
 
-int Session::_SendPacket(const Packet& pct)
-{  
+int Session::_SendPacket(Packet& pct)
+{
     if (!smartThis.get())
-        return -1;
-  
+        return -1;  
+    
     Packet* pkt = new Packet(pct);
     _sendQueue.add(pkt); 
     net_manager->QueueSend(smartThis);
@@ -37,10 +37,10 @@ int Session::_SendPacket(const Packet& pct)
 }
 
 int Session::_SendPacket(Packet* pct)
-{  
+{
     if (!smartThis.get())
-        return -1;
-  
+        return -1;  
+    
     _sendQueue.add(pct); 
     net_manager->QueueSend(smartThis);
     return 0;
@@ -68,6 +68,7 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
         }
         else
         {
+            INFO ("debug", "SESSION: Ricevuto pacchetto\n");
             OpcodeHandler &opHandle = opcodeTable[packet->GetOpcode()];
             try
             {
@@ -75,6 +76,7 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
                 {
                     case STATUS_LOGGED:
                         {
+                            INFO ("debug", "SESSION: pacchetto in elaborazione\n");
                             (this->*opHandle.handler)(*packet);
                         }
                         break;
@@ -97,10 +99,10 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
                         (this->*opHandle.handler)(*packet);
                         break;
                     case STATUS_NEVER:
-                        // Log
+                        INFO ("debug", "SESSION: STATUS_NEVER, pacchetto non elaborato\n");
                         break;
                     case STATUS_UNHANDLED:
-                        // Log
+                        INFO ("debug", "SESSION: STATUS_UNHANDLED, pacchetto non elaborato\n");
                         break;
                     default:
                         // Log

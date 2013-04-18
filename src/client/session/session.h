@@ -42,10 +42,12 @@ class Session : public SessionBase
 
     bool HandleSend(const char* msg);
 
+    void SendToGui(std::string str);
+
   private:
 
     bool Update(uint32 diff);
-    void SendToGui(std::string str);
+    
 };
 
 #endif

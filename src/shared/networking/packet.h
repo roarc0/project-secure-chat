@@ -11,8 +11,8 @@
 
 using namespace std;
 
-#define   OPCODE_SIZE       sizeof(unsigned short)
-#define   LENGTH_SIZE       sizeof(unsigned short)
+#define   OPCODE_SIZE       sizeof(uint16)
+#define   LENGTH_SIZE       sizeof(uint16)
 
 enum eOpcode
 {

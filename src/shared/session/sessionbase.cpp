@@ -124,8 +124,9 @@ Packet* SessionBase::_RecvPacketFromSocket()
 
         if (IsEncrypted())
         {
-            INFO("debug", "SESSIONBASE: Decrypting Packet");
+            INFO("debug", "SESSIONBASE: Decrypting Packet\n");
             pct->Decrypt(s_key);
+            INFO("debug", "SESSIONBASE: Packet Decrypted\n");
         }
 
         delete[] buffer;

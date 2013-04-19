@@ -390,7 +390,7 @@ void main_gui(int argc, char **argv)
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(on_destroy), NULL);
 
     /* vbox principale */
-    vbox_main = gtk_vbox_new (FALSE, 1);
+    vbox_main = gtk_box_new (GTK_ORIENTATION_VERTICAL, 1);
     gtk_container_add(GTK_CONTAINER(window), vbox_main);
     gtk_container_set_border_width(GTK_CONTAINER(vbox_main),0);
 
@@ -488,7 +488,7 @@ void main_gui(int argc, char **argv)
     gtk_text_buffer_create_tag(view_chat_buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 
-    /*############################################## message test 
+    /*############################################## test messages 
     add_message_to_chat(view_chat_buffer, (gchar*) "<server> MOTD: welcome to project secure chat!\n", (gchar)'s');
     add_message_to_chat(view_chat_buffer, (gchar*) "<lazzalf> has joined the chat\n", (gchar)'j');
     add_message_to_chat(view_chat_buffer, (gchar*) "<lazzalf> salve buonuomo\n", (gchar)'m');
@@ -540,11 +540,10 @@ void main_gui(int argc, char **argv)
     gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (gres.view_user_list), TRUE);
 
     /* INPUTS */
-    hbox_inputs = gtk_hbox_new (FALSE, 0);
+    hbox_inputs = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_box_pack_start(GTK_BOX (vbox_main), hbox_inputs, FALSE, FALSE, 0);
     
     label_nick = gtk_label_new((gchar *) CFG_GET_STRING("nickname").c_str()); 
-    //gtk_label_set_justify (GTK_LABEL(label_nick), GTK_JUSTIFY_LEFT);
     gtk_misc_set_alignment(GTK_MISC(label_nick),0.0,0.5);
     gtk_box_pack_start(GTK_BOX (hbox_inputs), label_nick, FALSE, FALSE, 2 );
 

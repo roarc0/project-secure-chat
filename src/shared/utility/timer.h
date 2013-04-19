@@ -1,6 +1,8 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#include <sstream>
+#include <string>
 #include <sys/time.h>
 #include <time.h>
 #include <limits.h>
@@ -23,6 +25,8 @@ double time_diff(timer*);
 void   print_time_format(float sec);
 
 int    msleep(unsigned long milisec);
+
+std::string get_timestamp(char);
 
 struct IntervalTimer
 {

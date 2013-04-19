@@ -1,5 +1,6 @@
 #include "timer.h"
 #include <cstdio>
+#include <iomanip> // std::setw
 
 double timeval_diff(struct timeval *end_time, struct timeval *start_time)
 {
@@ -97,4 +98,26 @@ int msleep(unsigned long milisec)
     req.tv_nsec=milisec*1000000L;
     __nsleep(&req,&rem);
     return 1;
+}
+
+std::string get_timestamp(char sep)
+{
+    stringstream ss;
+    time_t epoch_time;
+    struct tm *tm_p;
+
+    epoch_time = time( NULL );
+    tm_p = localtime( &epoch_time );
+
+    if(tm_p->tm_hour < 10)
+        ss << "0";
+    ss << tm_p->tm_hour << sep;
+    if(tm_p->tm_min < 10)
+        ss << "0";
+    ss << tm_p->tm_min << sep;
+    if(tm_p->tm_sec < 10)
+        ss << "0";
+    ss << tm_p->tm_sec;
+
+    return ss.str();
 }

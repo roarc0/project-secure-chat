@@ -70,10 +70,13 @@ void* GuiThread(void* arg)
         if(c_core->IsConnected())
         {
             string msg = c_core->GetEvent();
-            if(msg.length() > 0 && (char) msg[msg.length()-1] != '\n')
-                msg.append("\n");
-            add_message_to_chat(gres->chat_buffer,
-                                (gchar*) msg.c_str(), 'm');
+            if(msg.length() > 0)
+            {
+                if (msg[msg.length()-1] != '\n')
+                    msg.append("\n");
+                add_message_to_chat(gres->chat_buffer,
+                                    (gchar*) msg.c_str(), 'm');
+            }
         }
         gdk_threads_leave();
         c_core->WaitEvent();
@@ -197,11 +200,15 @@ void scroll_down(GtkWidget *scrolled)
     gtk_adjustment_set_value(adjustment, gtk_adjustment_get_upper(adjustment));
 }
 
-void add_message_to_chat(gpointer data, gchar *str, gchar type)
+void add_message_to_chat(gpointer data, gchar *msg, gchar type)
 {
     //pthread_mutex_lock(&mutex_guichange);
     GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(data);
     GtkTextIter textiter;
+    
+    std::stringstream sstr;  // Starting Horror
+    sstr << "[" << get_timestamp(':') << "] " << msg;
+    const gchar *str = (const gchar*) sstr.str().c_str();
 
     gtk_text_buffer_get_end_iter(text_view_buffer, &textiter);
     switch(type)
@@ -254,7 +261,7 @@ void button_send_click(gpointer data, gchar *str, gchar type)
     if (strlen(text) == 0) // TODO check max length
         return;
 
-    ss << "<" << CFG_GET_STRING("nickname") << "> " << text << endl;
+    ss << CFG_GET_STRING("nickname") << ": " << text << endl;
     if ((text[0] != '\\') || (strncmp(text, "\\send", 5) == 0))
     {
         add_message_to_chat(gres.chat_buffer, (gchar*) ss.str().c_str(), 'M');
@@ -484,7 +491,7 @@ void main_gui(int argc, char **argv)
     gtk_text_buffer_create_tag(view_chat_buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 
-    /*############################################## message test */
+    /*############################################## message test 
     add_message_to_chat(view_chat_buffer, (gchar*) "<server> MOTD: welcome to project secure chat!\n", (gchar)'s');
     add_message_to_chat(view_chat_buffer, (gchar*) "<lazzalf> has joined the chat\n", (gchar)'j');
     add_message_to_chat(view_chat_buffer, (gchar*) "<lazzalf> salve buonuomo\n", (gchar)'m');
@@ -492,7 +499,7 @@ void main_gui(int argc, char **argv)
     add_message_to_chat(view_chat_buffer, (gchar*) "<furla> ...\n", (gchar)'m');
     add_message_to_chat(view_chat_buffer, (gchar*) "<paradox> problem solved!\n", (gchar)'w');
     add_message_to_chat(view_chat_buffer, (gchar*) "<lazzalf> wooot!\n", (gchar)'W');
-    add_message_to_chat(view_chat_buffer, (gchar*) "<paradox> \"furla\" has been kicked out!\n", (gchar)'l');
+    add_message_to_chat(view_chat_buffer, (gchar*) "<paradox> \"furla\" has been kicked out!\n", (gchar)'l');*/
 
 
     gres.scrolledwindow_user_list = gtk_scrolled_window_new (NULL, NULL);

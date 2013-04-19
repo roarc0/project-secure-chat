@@ -20,11 +20,19 @@ struct gui_res
     GtkWidget *scrolledwindow_user_list;
 
     GtkToolItem *toolbar_connect;
+    
+    /* Lista Utenti */
+    GtkListStore *model_user_list;
+    GtkWidget *view_user_list;
+    GtkCellRenderer *renderer_user_list;
+    GtkTreeSelection *selection_user_list;
 } gres;
 
 
 void push_status_bar(const gchar*);
 void add_message_to_chat(gpointer data, gchar *str, gchar type);
+void add_user_to_list(gpointer data, gchar *str, gchar *lev);
+void remove_user_from_list(gpointer data, const gchar *str);
 
 void* GuiThread(void* arg)
 {
@@ -42,6 +50,9 @@ void* GuiThread(void* arg)
             push_status_bar("Connected with server!");
             add_message_to_chat(gres->chat_buffer,
                                 (gchar*) "<local> Connected!\n", 'e');
+            add_user_to_list(gres->view_user_list,
+                             (gchar*) CFG_GET_STRING("nickname").c_str(),
+                             (gchar*) "*");
         }
         if(!c_core->IsConnected() && oldstatus)
         {
@@ -51,6 +62,8 @@ void* GuiThread(void* arg)
             push_status_bar("Disconnected from server!");
             add_message_to_chat(gres->chat_buffer,
                                 (gchar*) "<local> Disconnected!\n", 'e');
+            remove_user_from_list(gres->view_user_list,
+                 (gchar*) CFG_GET_STRING("nickname").c_str());
         }
         oldstatus = c_core->IsConnected();
 
@@ -146,9 +159,34 @@ void add_user_to_list(gpointer data, gchar *str, gchar *lev)
   //pthread_mutex_unlock(&mutex_guichange);
 }
 
-void remove_user_from_list(/*gpointer data, gchar *str, gint num*/)
-{
 
+void remove_user_from_list(gpointer data, const gchar *str)
+{
+    GtkTreeModel            *model;
+    GtkTreeIter             iter;
+    gboolean                r;
+    gchar                   *value;
+    
+    model = gtk_tree_view_get_model (GTK_TREE_VIEW (data));
+    
+    if (gtk_tree_model_get_iter_first (model, &iter) == FALSE)
+        return;
+        
+    for (r = gtk_tree_model_get_iter_first (model, &iter); 
+         r == TRUE; 
+         r = gtk_tree_model_iter_next (model, &iter))
+    {                
+        gtk_tree_model_get (model, &iter, COLUMN_STRING1, &value,  -1);
+        
+        if (g_ascii_strcasecmp(value, str) == 0) 
+        {
+            gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+            break;
+        }
+
+        if (value) 
+            g_free (value);        
+    }
 }
 
 void scroll_down(GtkWidget *scrolled)
@@ -186,11 +224,11 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type)
         break;
         case 'w': //whisp received
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "blue_fg", NULL);
+                &textiter, str, -1, "lmarg", "blue_bg", "white_fg", NULL);
         break;
         case 'W': //whisp sent
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "blue_fg", "bold", NULL);
+                &textiter, str, -1, "lmarg", "blue_bg", "white_fg", "bold", NULL);
         break;
         case 'e': //local event
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
@@ -311,12 +349,6 @@ void main_gui(int argc, char **argv)
     GtkWidget *hbox_chat;
     GtkWidget *view_chat;
     GtkTextBuffer *view_chat_buffer;
-
-    /* lista utenti */
-    GtkListStore *model_user_list;
-    GtkWidget *view_user_list;
-    GtkCellRenderer *renderer_user_list;
-    GtkTreeSelection *selection_user_list;
 
     /* input della chat */
     GtkWidget *hbox_inputs;
@@ -441,14 +473,14 @@ void main_gui(int argc, char **argv)
     view_chat_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view_chat));
     gtk_text_buffer_create_tag(view_chat_buffer, "gap", "pixels_above_lines", 30, NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "lmarg", "left_margin", 5, NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "black_fg", "foreground", "black", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "white_fg", "foreground", "white", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "blue_fg", "foreground", "blue", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "green_bg", "background", "lime", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "blue_bg", "background", "blue", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "red_bg", "background", "red", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "yellow_bg", "background", "yellow", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "magenta_bg", "background", "magenta", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "black_fg", "foreground", "#000000", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "white_fg", "foreground", "#ffffff", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "blue_fg", "foreground", "#3200ff", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "green_bg", "background", "#55ff00", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "blue_bg", "background", "#3200ff", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "red_bg", "background", "#ff3200", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "yellow_bg", "background", "#f7f732", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "magenta_bg", "background", "#ff32ff", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 
@@ -461,7 +493,7 @@ void main_gui(int argc, char **argv)
     add_message_to_chat(view_chat_buffer, (gchar*) "<paradox> problem solved!\n", (gchar)'w');
     add_message_to_chat(view_chat_buffer, (gchar*) "<lazzalf> wooot!\n", (gchar)'W');
     add_message_to_chat(view_chat_buffer, (gchar*) "<paradox> \"furla\" has been kicked out!\n", (gchar)'l');
-    /*##############################################*/
+
 
     gres.scrolledwindow_user_list = gtk_scrolled_window_new (NULL, NULL);
     gtk_paned_pack2 (GTK_PANED(paned_main), gres.scrolledwindow_user_list, false, false);
@@ -471,42 +503,37 @@ void main_gui(int argc, char **argv)
                                     GTK_POLICY_AUTOMATIC);
     gtk_widget_show (gres.scrolledwindow_user_list);
 
-    model_user_list     = gtk_list_store_new(COLUMNS, G_TYPE_STRING, G_TYPE_STRING);
-    view_user_list      = gtk_tree_view_new_with_model (GTK_TREE_MODEL(model_user_list));
-    selection_user_list = gtk_tree_view_get_selection(GTK_TREE_VIEW(view_user_list));
+    gres.model_user_list     = gtk_list_store_new(COLUMNS, G_TYPE_STRING, G_TYPE_STRING);
+    gres.view_user_list      = gtk_tree_view_new_with_model (GTK_TREE_MODEL(gres.model_user_list));
+    gres.selection_user_list = gtk_tree_view_get_selection(GTK_TREE_VIEW(gres.view_user_list));
 
-    gtk_tree_selection_set_mode(selection_user_list, GTK_SELECTION_SINGLE);
-    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(view_user_list), TRUE);
+    gtk_tree_selection_set_mode(gres.selection_user_list, GTK_SELECTION_SINGLE);
+    gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(gres.view_user_list), TRUE);
 
-    renderer_user_list = gtk_cell_renderer_text_new();
-    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view_user_list), /* vista */
+    gres.renderer_user_list = gtk_cell_renderer_text_new();
+    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(gres.view_user_list), /* vista */
                         -1,                  /* posizione della colonna */
                         "Name",  /* titolo della colonna */
-                        renderer_user_list,            /* cella inserita nella colonna */
+                        gres.renderer_user_list,            /* cella inserita nella colonna */
                         "text",              /* attributo colonna */
                         COLUMN_STRING1,    /* colonna inserita  */
                         NULL);               /* fine ;-) */
 
-    renderer_user_list = gtk_cell_renderer_text_new();
-    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view_user_list),
+    gres.renderer_user_list = gtk_cell_renderer_text_new();
+    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(gres.view_user_list),
                         -1,
                         "Level",
-                        renderer_user_list,
+                        gres.renderer_user_list,
                         "text",
                         COLUMN_STRING2,
                         NULL);
 
-    gtk_widget_show (view_user_list);
-    g_object_unref(model_user_list);
+    gtk_widget_show (gres.view_user_list);
+    g_object_unref(gres.model_user_list);
 
-    gtk_container_add (GTK_CONTAINER (gres.scrolledwindow_user_list), view_user_list);
-    gtk_container_set_border_width (GTK_CONTAINER (view_user_list), 0);
-    gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (view_user_list), TRUE);
-    /*############################################## user add test */
-    add_user_to_list(view_user_list, (gchar*) "paradox",  (gchar*) "adm");
-    add_user_to_list(view_user_list, (gchar*) "lazzalf",  (gchar*) "mod");
-    add_user_to_list(view_user_list, (gchar*) "furla", (gchar*) "usr");
-    /*##############################################*/
+    gtk_container_add (GTK_CONTAINER (gres.scrolledwindow_user_list), gres.view_user_list);
+    gtk_container_set_border_width (GTK_CONTAINER (gres.view_user_list), 0);
+    gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (gres.view_user_list), TRUE);
 
     /* INPUTS */
     hbox_inputs = gtk_hbox_new (FALSE, 0);

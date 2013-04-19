@@ -455,28 +455,19 @@ class ByteBuffer
 
         void print_storage() const
         {
-/*
-            if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled debug output
-                return;
-
             std::ostringstream o;
-            o << "STORAGE_SIZE: " << size();
+            o << "DATA SIZE: " << size();
             for (uint32 i = 0; i < size(); ++i)
                 o << read<uint8>(i) << " - ";
             o << " ";
 
-            sLog->outTrace(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
-*/
+            INFO("debug", "%s", o.str().c_str());
         }
 
         void textlike() const
         {
-/*
-            if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled debug output
-                return;
-
             std::ostringstream o;
-            o << "STORAGE_SIZE: " << size();
+            o << "DATA SIZE: " << size();
             for (uint32 i = 0; i < size(); ++i)
             {
                 char buf[1];
@@ -484,39 +475,46 @@ class ByteBuffer
                 o << buf;
             }
             o << " ";
-            sLog->outTrace(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
-*/
+            INFO("debug", "%s", o.str().c_str());
         }
 
         void hexlike() const
         {
-
-            //if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled debug output
-            //    return;
-
-            uint32 j = 1, k = 1;
+            int x;
+            uint8  w = 16;
 
             std::ostringstream o;
             o << "DATA SIZE: " << size() << std::endl;
-            for (uint32 i = 0; i < size(); ++i)
+            for (uint32 i = 0; i < (size() / w); ++i)
             {
-                
-                if ((i == (j * 8)) && ((i != (k * 16))))
+                for (uint32 j = 0; j<w ; j++)
                 {
-                    o << "| ";
-                    ++j;
+                     if ((i*w + j) < size())
+                     {
+                         x = read<uint8>(i*w + j);
+                         if (x < 16)
+                              o << "0";
+                         o << std::hex << x << " ";
+                     }
+                     else 
+                         o << "  ";
                 }
-                else if (i == (k * 16))
+                o << " | ";
+                for (uint32 j = 0; j<w ; j++)
                 {
-                    o << "\n";
-                    ++k;
-                    ++j;
+                    if ((i*w + j) > size())
+                        break;
+                    
+                    x = read<uint8>(i*w + j);
+                    
+                    if (!x or x=='\a' or x=='\b' or x=='\t'
+                           or x=='\n' or x=='\v' or x=='\f'
+                           or x=='\r' or x=='\e' or x=='d')
+                        o << ".";
+                    else
+                        o << (char)x; 
                 }
-
-                int x = read<uint8>(i);
-                if (x < 16)
-                    o << "0";
-                o << std::hex << x  << " ";
+                o << "\n";
             }
             o << " ";
             INFO("debug", "%s\n", o.str().c_str());

@@ -70,23 +70,24 @@ int SessionBase::_SendPacket(Packet& pct)
 
 int SessionBase::_SendPacketToSocket(Packet& pct)
 {
-    INFO("debug", "SESSIONBASE: Inizio invio pacchetto nel Socket %s\n", pct.contents());
-    PktHeader header(pct.size()/*+OPCODE_SIZE*/, pct.GetOpcode());
-    unsigned char* rawData = new unsigned char[header.getHeaderLength() + pct.size() + 1];
-    
-    // Inserire Criptazione
+    INFO("debug", "SESSIONBASE: Sending Packet: \"%s\"\n", pct.contents());
+    unsigned char* rawData; 
+
     if (IsEncrypted())
     {
-        INFO("debug", "SESSIONBASE: Encrypting Packet");
+        INFO("debug", "SESSIONBASE: Encrypting Packet  <%d bytes>",pct.size());
         pct.Encrypt(s_key);
     }
+
+    PktHeader header(pct.size()/*+OPCODE_SIZE*/, pct.GetOpcode());
     
+    rawData = new unsigned char[header.getHeaderLength() + pct.size() + 1]; // il + 1 non ci serve ?!
     memcpy((void*)rawData, (char*) header.header, header.getHeaderLength());
     memcpy((void*)(rawData + header.getHeaderLength()), (char*) pct.contents(), pct.size());
     
     m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
     delete[] rawData;
-    INFO("debug", "SESSIONBASE: Pacchetto Inviato nel Socket %s\n", pct.contents());
+    INFO("debug", "SESSIONBASE: Packet <%d bytes> Sent: \"%s\"\n", pct.size(), pct.contents());
     return 0;
 }
 
@@ -100,12 +101,10 @@ Packet* SessionBase::RecvPacketFromSocket()
 
 Packet* SessionBase::_RecvPacketFromSocket()
 {
-    char header[4];
-    // Prendi Header
-    m_Socket->Recv((void*) &header, 4);
-    PktHeader pkt_head(header, 4);
+    char header[HEADER_SIZE];
+    m_Socket->Recv((void*) &header, HEADER_SIZE);
+    PktHeader pkt_head(header, HEADER_SIZE);
 
-    // Prendi Resto dei Dati
     if (pkt_head.getSize())
     {
         buffer = new char[pkt_head.getSize()];

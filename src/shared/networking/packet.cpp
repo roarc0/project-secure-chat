@@ -36,7 +36,7 @@ int Packet::Decrypt(ByteBuffer key)
     ciphertext->hexlike();
 
     ret = AesDecrypt(key, *ciphertext, plaintext);
-    std::cout << std::endl << "DECRYPTED:  " << plaintext << std::endl;
+    std::cout << std::endl << "DECRYPTED:  \"" << plaintext << "\""<< std::endl;
     
     if (!ret)
     {

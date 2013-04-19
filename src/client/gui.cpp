@@ -102,7 +102,7 @@ GdkPixbuf *create_pixbuf(const gchar * filename)
 
 void show_about()
 {
-  GdkPixbuf *pixbuf = gdk_pixbuf_new_from_file("data/psc.png", NULL);
+  GdkPixbuf *pixbuf = create_pixbuf("data/psc.png");
 
   GtkWidget *dialog = gtk_about_dialog_new();
   //gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "psc");
@@ -374,7 +374,7 @@ void main_gui(int argc, char **argv)
 
     /* window */
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_container_set_border_width(GTK_CONTAINER(window),0);
+    gtk_container_set_border_width(GTK_CONTAINER(window), 0);
     gtk_window_set_urgency_hint (GTK_WINDOW(window), TRUE);
     gtk_window_set_title (GTK_WINDOW (window), _PROJECTNAME);
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
@@ -382,10 +382,7 @@ void main_gui(int argc, char **argv)
     gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
 
     /* setting window icon */
-    GdkPixbuf *pixbuf = create_pixbuf("data/psc.png");
-    gtk_window_set_icon(GTK_WINDOW(window), pixbuf);
-    g_object_unref(pixbuf);
-    pixbuf = NULL;
+    gtk_window_set_icon(GTK_WINDOW(window), create_pixbuf("data/psc.png"));
 
     gtk_widget_show(window);
 

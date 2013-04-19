@@ -43,7 +43,8 @@ int Packet::Decrypt(ByteBuffer key)
         INFO("debug", "PACKET: Decrypted\n");
         m_encrypted = false;
         this->clear();
-        this->append(plaintext);
+        this->append((uint8*)plaintext.c_str(), plaintext.length());
+        
     }
     else
         INFO("debug", "PACKET: Decryption failed\n");

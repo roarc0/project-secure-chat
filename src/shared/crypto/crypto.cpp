@@ -37,7 +37,7 @@ int AesEncrypt(const ByteBuffer &key,
         return -1;
     }
     RAND_pseudo_bytes(init, BlockSize);
-    //ciphertext.assign((char *)init, ((char *)init)+BlockSize);
+    ciphertext.append((char *)init, BlockSize);//((char *)init)+BlockSize);
    
     EVP_CIPHER_CTX_init(&ctx);
     EVP_EncryptInit_ex(&ctx, chp, 0, (unsigned char *)key.contents(), init);

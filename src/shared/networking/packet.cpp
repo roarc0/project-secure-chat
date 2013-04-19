@@ -1,37 +1,52 @@
 #include "packet.h"
 
 //WIP
+// usare bytebuffer anche per plaintext ( da cambiare funzioni di crypto.cpp )
+
 int Packet::Encrypt(ByteBuffer key)
 {
-    string plaintext;
+    string plaintext = (const char*) this->contents(); // usare direttamente il puntatore del ByteBuffer
     ByteBuffer ciphertext;
-    int retval=0;
+    int ret=0;
 
-    key.clear();
-    key << "11111222223333344444555556666677"; // 32 Byte = 256 Bit key.
-    //plaintext << this; 
-    //std::cout << plaintext << std::endl;
-    retval = AesEncrypt(key, plaintext, ciphertext);
+    std::cout << std::endl << "ENCRYPTING: " << plaintext << std::endl;
+    ret = AesEncrypt(key, plaintext, ciphertext);
+    ciphertext.hexlike();
     
-    if(!retval)
+    if(!ret)
+    {
+        INFO("debug", "PACKET: Encrypted\n");
         m_encrypted = true;
-    return retval;
+        this->clear();
+        this->append(ciphertext.contents(), ciphertext.size());
+    }
+    else
+        INFO("debug", "PACKET: Encryption failed\n");
+    
+    return ret;
 }
 
 int Packet::Decrypt(ByteBuffer key)
 {
-    ByteBuffer *ciphertext=this;
+    ByteBuffer *ciphertext = (ByteBuffer*) this; // Mother Of God
     std::string plaintext;
-    int retval=0;
+    int ret=0;
 
-    key.clear();
-    key << "11111222223333344444555556666677"; // 32 Byte = 256 Bit key.
+    std::cout << std::endl << "DECRYPTING: " << std::endl;
+    ciphertext->hexlike();
 
-    //std::cout << ciphertext << std::endl;
-    retval = AesDecrypt(key, *ciphertext, plaintext);
-    //std::cout << plaintext << std::endl;
+    ret = AesDecrypt(key, *ciphertext, plaintext);
+    std::cout << std::endl << "DECRYPTED:  " << plaintext << std::endl;
     
-    if (!retval)
+    if (!ret)
+    {
+        INFO("debug", "PACKET: Decrypted\n");
         m_encrypted = false;
-    return retval;
+        this->clear();
+        this->append(plaintext);
+    }
+    else
+        INFO("debug", "PACKET: Decryption failed\n");
+     
+    return ret;
 }

@@ -76,7 +76,7 @@ void Session::SendToGui(std::string str)
     c_core->SignalEvent();
 }
 
-bool Session::HandleSend(const char* msg) //, bool encrypt=false)
+bool Session::HandleSend(const char* msg)
 {
     if (!IsConnected())
         return false;
@@ -89,12 +89,6 @@ bool Session::HandleSend(const char* msg) //, bool encrypt=false)
     Packet pack(CMSG_MESSAGE);
     pack << xmsg.BuildMessage(CFG_GET_STRING("nickname").c_str(), msg);
     
-    /*if (encrypt)
-    {
-        ByteBuffer key;
-        pack.Encrypt(key);
-    }*/
-    
     SendPacketToSocket(&pack);
 
     return true;
@@ -106,12 +100,6 @@ bool Session::Update()
 
     if (!packet)
         return false;
-        
-    /*if (packet.IsEncrypted()) // :\ lo vede dall'header? va impostato il bool in ricezione.
-    {
-        ByteBuffer key;
-        pack.Decrypt(key);
-    }*/
 
     if (packet->GetOpcode() >= NUM_MSG_TYPES) // Max opcode
     {

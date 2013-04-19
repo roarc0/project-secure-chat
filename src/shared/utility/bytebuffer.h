@@ -31,10 +31,7 @@ class ByteBufferPositionException : public ByteBufferException
     protected:
         void PrintError() const
         {
-            /*ACE_Stack_Trace trace;
 
-            sLog->outError(LOG_FILTER_NETWORKIO, "Attempted to %s value with size: "SIZEFMTD" in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD")\n[Stacktrace: %s]", (_add ? "put" : "get"), ValueSize, Pos, Size, trace.c_str());
-*/
         }
 
     private:
@@ -53,10 +50,7 @@ class ByteBufferSourceException : public ByteBufferException
     protected:
         void PrintError() const
         {
-            //ACE_Stack_Trace trace;
 
-            //sLog->outError(LOG_FILTER_NETWORKIO, "Attempted to put a %s in ByteBuffer (pos: "SIZEFMTD" size: "SIZEFMTD")\n[Stacktrace: %s]",
-            //    (ValueSize > 0 ? "NULL-pointer" : "zero-sized value"), Pos, Size, trace.c_str());
         }
 };
 
@@ -496,19 +490,17 @@ class ByteBuffer
 
         void hexlike() const
         {
-/*
-            if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled debug output
-                return;
+
+            //if (!sLog->ShouldLog(LOG_FILTER_NETWORKIO, LOG_LEVEL_TRACE)) // optimize disabled debug output
+            //    return;
 
             uint32 j = 1, k = 1;
 
             std::ostringstream o;
-            o << "STORAGE_SIZE: " << size();
-
+            o << "DATA SIZE: " << size() << std::endl;
             for (uint32 i = 0; i < size(); ++i)
             {
-                char buf[3];
-                snprintf(buf, 1, "%2X ", read<uint8>(i));
+                
                 if ((i == (j * 8)) && ((i != (k * 16))))
                 {
                     o << "| ";
@@ -521,11 +513,13 @@ class ByteBuffer
                     ++j;
                 }
 
-                o << buf;
+                int x = read<uint8>(i);
+                if (x < 16)
+                    o << "0";
+                o << std::hex << x  << " ";
             }
             o << " ";
-            sLog->outTrace(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
-*/
+            INFO("debug", "%s\n", o.str().c_str());
         }
 
     protected:

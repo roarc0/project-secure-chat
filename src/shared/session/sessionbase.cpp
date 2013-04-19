@@ -73,7 +73,7 @@ int SessionBase::_SendPacketToSocket(Packet& pct)
     INFO("debug", "SESSIONBASE: Sending Packet: \"%s\"\n", pct.contents());
     unsigned char* rawData; 
 
-    if (IsEncrypted())
+    if (IsEncrypted() && pct.size())
     {
         INFO("debug", "SESSIONBASE: Encrypting Packet  <%d bytes>",pct.size());
         pct.Encrypt(s_key);
@@ -122,7 +122,7 @@ Packet* SessionBase::_RecvPacketFromSocket()
     {
         pct->append((char*)buffer, pkt_head.getSize());
 
-        if (IsEncrypted())
+        if (IsEncrypted() && pkt_head.getSize())
         {
             INFO("debug", "SESSIONBASE: Decrypting Packet\n");
             pct->Decrypt(s_key);

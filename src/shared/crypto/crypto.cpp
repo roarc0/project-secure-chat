@@ -12,19 +12,7 @@ void printbyte(char b)
     printf("%X%X:", b >> 4 & 15, b & 15);
 }
 
-/******************* crypto ******************
-
-void Crypto::setSymKey(ByteBuffer key)
-{
-    symKey = key;
-}
-
-ByteBuffer Crypto::getSymKey()
-{
-    return symKey;
-}
-*/
-                                                  // TODO anche il plaintext deve essere ByteBuffer
+// TODO anche il plaintext deve essere ByteBuffer
 int AesEncrypt(const ByteBuffer &key,
                const std::string &plaintext,
                ByteBuffer &ciphertext)
@@ -35,17 +23,19 @@ int AesEncrypt(const ByteBuffer &key,
     int retval=0;
     unsigned char *buffer=0;
 
-    if (key.size()==16)
+    if (key.size()==17)
     {
-            chp = EVP_aes_128_cbc();
+        chp = EVP_aes_128_cbc();
     }
-    else if (key.size()==32)
+    else if (key.size()==33)
     {
-            chp = EVP_aes_256_cbc();
+        chp = EVP_aes_256_cbc();
     }
     else
-            return -1;
-
+    {
+        INFO("debug","CRYPTO: wrong key size -> %d\n", key.size());
+        return -1;
+    }
     RAND_pseudo_bytes(init, BlockSize);
     //ciphertext.assign((char *)init, ((char *)init)+BlockSize);
    
@@ -64,6 +54,7 @@ int AesEncrypt(const ByteBuffer &key,
     if (retval < 0)
     {
             delete[] buffer;
+            INFO("debug","CRYPTO: encryption error\n");
             return retval;
     }
 
@@ -80,6 +71,7 @@ int AesEncrypt(const ByteBuffer &key,
     if (retval<0)
     {
             delete[] buffer;
+            INFO("debug","CRYPTO: encryption error while finalizing\n");
             return retval;
     }
 
@@ -100,11 +92,11 @@ int AesDecrypt(const ByteBuffer &key,
         int retval=0;
         unsigned char *buffer=0;
         
-        if (key.size()==16)
+        if (key.size()==17)
         {
                 chp = EVP_aes_128_cbc();
         }
-        else if (key.size()==32)
+        else if (key.size()==33)
         {
                 chp = EVP_aes_256_cbc();
         } else

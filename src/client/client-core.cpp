@@ -85,11 +85,10 @@ ClientCore::~ClientCore()
 bool ClientCore::Connect()
 {
     bool ret = session->Connect();
-
+    SignalEvent();
     if (ret)
     {
         StartThread(session);
-        SignalEvent();
         //SignalConnection();
     }
     return ret;

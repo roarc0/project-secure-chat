@@ -100,6 +100,6 @@ string XmlMessage::ReadMessage(const char *str)
      }
 
      stringstream ss;
-     ss << "<" << name << "> " << content << std::  endl;
+     ss << name << ": " << content << std::  endl;
      return ss.str();
 }

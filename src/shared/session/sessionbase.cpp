@@ -4,7 +4,6 @@ SessionBase::SessionBase()
 {
     m_Socket = NULL;
     s_enc = enc_AES256;
-    //s_key.clear();
     s_key << "11111222223333344444555556666677";
 }
 
@@ -12,7 +11,6 @@ SessionBase::SessionBase(int pSock)
 {
     m_Socket = new SocketBase(pSock);
     s_enc = enc_AES256;
-    //s_key.clear();
     s_key << "11111222223333344444555556666677";
 }
 

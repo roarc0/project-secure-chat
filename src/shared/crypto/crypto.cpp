@@ -1,15 +1,25 @@
-#include <cstring>
-#include <openssl/evp.h>
-#include <openssl/rand.h>
-#include <vector>
-
 #include "crypto.h"
 
-using namespace std;
+#include <openssl/evp.h>
+#include <openssl/aes.h>
+#include <openssl/rand.h>
 
-void printbyte(char b)
+int GenerateSessionKey(ByteBuffer &key, int size)
 {
-    printf("%X%X:", b >> 4 & 15, b & 15);
+    uint8 *buf;
+
+    if (size != 16 && size != 32)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+    
+    buf = new uint8[size];
+    RAND_bytes(buf, size);
+    key.clear();
+    key.append(buf, size);
+    
+    return 0;
 }
 
 // TODO anche il plaintext deve essere ByteBuffer
@@ -17,7 +27,7 @@ int AesEncrypt(const ByteBuffer &key,
                const std::string &plaintext,
                ByteBuffer &ciphertext)
 {
-    unsigned char init[BlockSize];
+    unsigned char init[BLOCK_SIZE];
     EVP_CIPHER_CTX ctx;
     const EVP_CIPHER *chp=0;
     int retval=0;
@@ -36,13 +46,13 @@ int AesEncrypt(const ByteBuffer &key,
         INFO("debug","CRYPTO: wrong key size -> %d\n", key.size());
         return -1;
     }
-    RAND_pseudo_bytes(init, BlockSize);
-    ciphertext.append((char *)init, BlockSize);//((char *)init)+BlockSize);
+    RAND_pseudo_bytes(init, BLOCK_SIZE);
+    ciphertext.append((char *)init, BLOCK_SIZE);
    
     EVP_CIPHER_CTX_init(&ctx);
     EVP_EncryptInit_ex(&ctx, chp, 0, (unsigned char *)key.contents(), init);
 
-    int len = plaintext.length()+2*BlockSize;
+    int len = plaintext.length()+2*BLOCK_SIZE;
     buffer = new unsigned char[len];
     retval = EVP_EncryptUpdate(
             &ctx,
@@ -58,10 +68,10 @@ int AesEncrypt(const ByteBuffer &key,
             return retval;
     }
 
-    ciphertext.append((char *)buffer, len); // ((char *)buffer)+len);
+    ciphertext.append((char *)buffer, len);
     delete[] buffer;
     
-    len = 2*BlockSize;
+    len = 2*BLOCK_SIZE;
     buffer = new unsigned char[len];
     retval = EVP_EncryptFinal_ex(
             &ctx,
@@ -75,7 +85,7 @@ int AesEncrypt(const ByteBuffer &key,
             return retval;
     }
 
-    ciphertext.append((char *)buffer, len); //((char *)buffer)+len);
+    ciphertext.append((char *)buffer, len);
     delete[] buffer;
 
     EVP_CIPHER_CTX_cleanup(&ctx);
@@ -86,7 +96,7 @@ int AesDecrypt(const ByteBuffer &key,
                const ByteBuffer &ciphertext,
                std::string &plaintext)
 {
-        unsigned char init[BlockSize];
+        unsigned char init[BLOCK_SIZE];
         EVP_CIPHER_CTX ctx;
         const EVP_CIPHER *chp=0;
         int retval=0;
@@ -105,7 +115,7 @@ int AesDecrypt(const ByteBuffer &key,
         }
 
         const char *buf = (const char*)ciphertext.contents();
-        for (int i=0; i<BlockSize; i++)
+        for (int i=0; i<BLOCK_SIZE; i++)
         {
                 init[i] = *buf;
                 buf++;
@@ -114,13 +124,13 @@ int AesDecrypt(const ByteBuffer &key,
         EVP_CIPHER_CTX_init(&ctx);
         EVP_DecryptInit_ex(&ctx, chp, 0, (unsigned char *)key.contents(), init);
 
-        int len = ciphertext.size() - BlockSize;
+        int len = ciphertext.size() - BLOCK_SIZE;
         buffer = new unsigned char[len];
         retval = EVP_DecryptUpdate(
                 &ctx,
                 buffer,
                 &len, 
-                ((unsigned char *)ciphertext.contents()) + BlockSize,
+                ((unsigned char *)ciphertext.contents()) + BLOCK_SIZE,
                 len);
 
        
@@ -133,7 +143,7 @@ int AesDecrypt(const ByteBuffer &key,
         plaintext.append((char *)buffer, ((char *)buffer)+len);
         delete[] buffer;
 
-        len = 2*BlockSize;
+        len = 2*BLOCK_SIZE;
         buffer = new unsigned char[len];
         retval = EVP_DecryptFinal_ex(
                 &ctx,

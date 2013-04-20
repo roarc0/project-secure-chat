@@ -96,7 +96,7 @@ Packet* SessionBase::RecvPacketFromSocket()
 {
     if (!m_Socket || m_Socket->IsClosed())
         return NULL;
-    INFO("debug","SESSIONBASE: calling recv\n");
+    INFO("debug","SESSIONBASE: Calling recv\n");
     return _RecvPacketFromSocket();
 }
 
@@ -112,7 +112,7 @@ Packet* SessionBase::_RecvPacketFromSocket()
         m_Socket->Recv((void*) buffer, pkt_head.getSize());
     }
 
-    INFO("debug","SESSIONBASE: msg: %s , header %u, len %u\n", buffer, pkt_head.getHeader(), pkt_head.getSize());
+    INFO("debug","SESSIONBASE: Message: %s , header %u, len %u\n", buffer, pkt_head.getHeader(), pkt_head.getSize());
 
     pct = new Packet(pkt_head.getHeader(), pkt_head.getSize());
     

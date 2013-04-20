@@ -82,7 +82,7 @@ bool Session::HandleSend(const char* msg)
     if (!IsConnected())
         return false;
 
-    INFO("debug","sending message: %s\n", msg);
+    INFO("debug","SESSION: Sending message: %s\n", msg);
 
     if (ChatHandler(this).ParseCommands(msg) > 0)
         return true;
@@ -104,7 +104,7 @@ bool Session::Update()
 
     if (packet->GetOpcode() >= NUM_MSG_TYPES) // Max opcode
     {
-        INFO ("debug", "Opcode Pacchetto Non Valido\n");
+        INFO ("debug", "SESSION: Opcode is not valid\n");
     }
     else
     {
@@ -119,7 +119,7 @@ bool Session::Update()
                     }
                     break;
                 case STATUS_NEVER:
-                    INFO ("debug", "Header NULL\n");
+                    INFO ("debug", "SESSION: Header is NULL\n");
                     break;
                 case STATUS_UNHANDLED:
                     // Log
@@ -131,7 +131,7 @@ bool Session::Update()
         }
         catch (...)
         {
-            INFO ("debug", "Errore Durante Elaborazione Pacchetto\n");
+            INFO ("debug", "SESSION: Packet elaboration error\n");
             // TODO
         }
     }
@@ -155,7 +155,7 @@ bool Session::Update(uint32 /*diff*/)
     {
         if (packet->GetOpcode() >= NUM_MSG_TYPES) // Max opcode
         {
-            INFO ("debug", "Opcode Pacchetto Non Valido\n");
+            INFO ("debug", "SESSION: Opcode is not valid\n");
         }
         else
         {
@@ -182,7 +182,7 @@ bool Session::Update(uint32 /*diff*/)
             }
             catch (...)
             {
-                INFO ("debug", "Errore Durante Elaborazione Pacchetto\n");
+                INFO ("debug", "SESSION: Packet elaboration error\n");
                 // TODO
             }
         }
@@ -209,19 +209,13 @@ void Session::Handle_Ping(Packet& /*packet*/)
 
 void Session::HandleMessage(Packet& packet)
 {
-    INFO ("debug", "Handle Message\n");
-
-    std::string str;
-    packet >> str;
-    SendToGui(xmsg.ReadMessage(str.c_str()));
+    INFO ("debug", "SESSION: Handling Message\n");
+    SendToGui(xmsg.ReadMessage((const char*)packet.contents()));
 }
 
 void Session::HandleServerMessage(Packet& packet)
 {
     INFO ("debug", "Handle Server Message\n");
-
-    std::string str;
-    packet >> str;
-    SendToGui(str);
+    SendToGui((const char*)packet.contents());
 }
 

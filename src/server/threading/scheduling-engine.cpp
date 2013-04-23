@@ -68,7 +68,6 @@ int SchedulingEngine::Execute(MethodRequest* m_req)
     if (!m_req)
         return -1;
 
-    INFO ("debug", "SCHEDULING_ENGINE: Signal\n");
     q_method.add(m_req);    
     sem.Signal();  
     return 0;
@@ -77,7 +76,6 @@ int SchedulingEngine::Execute(MethodRequest* m_req)
 MethodRequest* SchedulingEngine::GetNextMethod()
 {
     sem.Wait();
-    INFO ("debug", "SCHEDULING_ENGINE: Signal Received\n");
     MethodRequest* ret = NULL;
     q_method.next(ret);
     return ret;

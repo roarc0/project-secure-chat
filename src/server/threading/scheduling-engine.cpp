@@ -6,7 +6,10 @@ void MethodThread::Execute(void* /*arg*/)
     {        
         MethodRequest* meth = sched_engine->GetNextMethod();
         if (!meth)
+        {   
+            INFO ("debug", "METHODTHREAD: method NULL\n");
             continue;
+        }
 
         meth->Call();
 

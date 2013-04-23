@@ -1,0 +1,19 @@
+syntax: glob
+*.o
+*~
+*.Po
+*.dirstamp
+Makefile
+Makefile.in
+INSTALL
+*.log
+doc.out
+doc.lof
+doc.ind
+doc.ilg
+doc.idx
+doc.aux
+doc.synctex.gz
+doc.toc
+doc.pdf
+build/*

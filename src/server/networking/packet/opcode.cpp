@@ -10,7 +10,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     { "SMSG_SYSTEM_MESSAGE",         STATUS_NEVER,       PROCESS_INPLACE,           &Session::Handle_ServerSide                     },
     { "CMSG_MESSAGE",                STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandleMessage                         },
     { "SMSG_MESSAGE",                STATUS_NEVER,       PROCESS_INPLACE,           &Session::Handle_ServerSide                     },
-    { "CMSG_WHISP",                  STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandleMessage                         },
+    { "CMSG_WHISP",                  STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandleWhisp                           },
     { "SMSG_WHISP",                  STATUS_NEVER,       PROCESS_INPLACE,           &Session::Handle_ServerSide                     },
     { "CMSG_CREATE_CHANNEL",         STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandleCreateChannel                   },
     { "CMSG_JOIN_CHANNEL",           STATUS_LOGGED,      PROCESS_THREADUNSAFE,      &Session::HandleJoinChannel                     },

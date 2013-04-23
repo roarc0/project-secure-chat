@@ -31,7 +31,7 @@ class Semaphore
         void Signal()
         {
             (*_mutex).Acquire();
-            int prior_value = value++;
+            value++;
             (*_mutex).Release();
             pthread_cond_signal(&_cond);
         }

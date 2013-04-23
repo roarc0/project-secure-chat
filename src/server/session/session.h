@@ -32,17 +32,20 @@ class Session : public SessionBase
         void deleteSmartPointer();
         void setChannel(SmartChannel pChan) { m_channel=(SmartChannel)pChan; }
         SmartChannel getChannel() { return m_channel; }
+        int SetNick(std::string& str);
 
         // THREADSAFE 
         bool IsInChannel() { return m_channel.get() ? true : false; }        
         uint32 GetId() { return m_id; }
         void SendWaitQueue(int position);
-        void SetInQueue(bool state) { m_inQueue = state; }        
+        void SetInQueue(bool state) { m_inQueue = state; }    
+        std::string* GetNickPtr(){ return &nick; }       
 
         // Handle
         void Handle_Ping(Packet& packet); 
         void Handle_ServerSide(Packet& packet);
         void HandleMessage(Packet& packet); 
+        void HandleWhisp(Packet& packet);
         void HandleJoinChannel(Packet& packet); 
         void HandleCreateChannel(Packet& packet); 
         void HandleLeaveChannel(Packet& packet); 
@@ -57,6 +60,7 @@ class Session : public SessionBase
         virtual int _SendPacket(Packet* pct);
 
         uint32 m_id;
+        std::string nick;
         Session_smart smartThis;
         bool m_inQueue;
         // Channel

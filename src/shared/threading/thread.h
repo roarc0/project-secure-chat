@@ -15,6 +15,7 @@ class Thread
       static void* EntryPoint(void*);
       virtual void Setup();
       virtual void Execute(void*);
+      virtual void Exit();
       void * Arg() const {return arg_;}
       void Arg(void* a){arg_ = a;}
       

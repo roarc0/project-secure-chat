@@ -216,8 +216,12 @@ void add_message_to_chat(gpointer data, gchar *msg, gchar type)
     INFO("debug","GUI: Adding Message: \"%s\" to chat\n", (char*) msg);
     
     std::stringstream sstr;  // Starting Horror
-    sstr << "[" << get_timestamp(':') << "] " << msg;
-    gchar *str = (gchar*) sstr.str().c_str();
+    sstr << "[" << get_timestamp(':') << "] " << (char*)msg;
+
+    const std::string& tmp = sstr.str();
+    const char* cstr = tmp.c_str();
+
+    gchar *str = (gchar*)cstr;
 
     gtk_text_buffer_get_end_iter(text_view_buffer, &textiter);
     switch(type)

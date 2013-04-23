@@ -6,9 +6,12 @@ Thread::Thread() : tid_(0)
 }
 
 Thread::~Thread() 
-{
+{  
     if (tid_)
+    {
+        Exit();
         pthread_kill(tid_, SIGKILL);
+    }
 }
 
 int Thread::Start(void* arg)

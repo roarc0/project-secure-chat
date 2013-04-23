@@ -30,8 +30,9 @@ class Semaphore
         }
         void Signal()
         {
-            Lock locked(*_mutex);
+            (*_mutex).Acquire();
             int prior_value = value++;
+            (*_mutex).Release();
             if (prior_value == 0)
                 pthread_cond_signal(&_cond);
         }

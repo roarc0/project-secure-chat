@@ -95,7 +95,7 @@ int NetworkManager::ActivateEpoll()
 {
     if (net_engine.Execute(new SocketServer(*this, 0)) != 0)
     {
-        // TODO Log Errore
+        INFO ("debug", "NETWORKMANAGER: fail activate epoll \n");
         return -1;
     }
 
@@ -108,7 +108,7 @@ int NetworkManager::ActivateThreadsNetwork()
     {
         if (net_engine.Execute(new NetworkThread(*this, 0)) != 0)
         {
-            // TODO Log Errore
+            INFO ("debug", "NETWORKMANAGER: fail activate network thread \n");
             return -1;
         }
     }

@@ -39,6 +39,7 @@ class ClientCore
 
     int  StartThread(Session *sc);
 
+    bool EmptyEvents();
     string GetEvent();
     void WaitEvent();
     void SignalEvent();

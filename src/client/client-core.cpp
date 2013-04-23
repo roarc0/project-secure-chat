@@ -120,6 +120,11 @@ void ClientCore::HandleRecv()
     session->Update();    
 }
 
+bool ClientCore::EmptyEvents()
+{
+    return messages.empty();
+}
+
 string ClientCore::GetEvent()
 {
     string msg;

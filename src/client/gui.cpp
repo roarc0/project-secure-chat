@@ -78,6 +78,10 @@ void* GuiThread(void* arg)
                                     (gchar*) msg.c_str(), 'm');
             }
         }
+        
+        if(!c_core->EmptyEvents())
+            continue;
+        
         gdk_threads_leave();
         c_core->WaitEvent();
     }

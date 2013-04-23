@@ -11,8 +11,7 @@ void MethodThread::Execute(void* /*arg*/)
         meth->Call();
 
         delete meth;
-    } 
-    Exit();   
+    }
 }
 
 SchedulingEngine::SchedulingEngine(): sem(m_mutex), b_active(false)
@@ -24,7 +23,7 @@ SchedulingEngine::~SchedulingEngine()
 {
     while (!m_threads.empty())
     {
-        delete *m_threads.begin();
+        delete *(m_threads.begin());
         m_threads.erase(m_threads.begin());
     }   
 }

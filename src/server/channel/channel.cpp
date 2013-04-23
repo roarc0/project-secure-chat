@@ -1,4 +1,5 @@
 #include "channel.h"
+#include "networking/opcode.h"
 
 Channel::Channel(std::string& c_name) : name(c_name), b_todelete(false)
 {
@@ -42,8 +43,13 @@ Session_smart Channel::FindSession(uint32 id)
 
 bool Channel::AddSession(Session_smart ses)
 {
-    Lock guard(m_mutex);
+    m_mutex.Acquire();
     m_sessions.insert(mapSession_pair(ses->GetId(), ses));
+    m_mutex.Release();
+    // Invio ingresso nel canale
+    Packet new_packet(SMSG_JOIN_CHANNEL, 0);
+    new_packet << *(ses->GetNickPtr());
+    SendToAllButOne(&new_packet, ses->GetId());
     return true;
 }
 
@@ -55,14 +61,21 @@ int Channel::getSessionNumer()
 
 bool Channel::RemoveSession(uint32 id)
 {
-    Lock guard(m_mutex);
+    m_mutex.Acquire();
 
     mapSession::iterator iter = m_sessions.find(id);
     if (iter != m_sessions.end())
     {
-        m_sessions.erase(iter);
+        Session_smart ses = iter->second;
+        m_sessions.erase(iter);     
+        m_mutex.Release();   
+        // Invio uscita dal canale
+        Packet new_packet(SMSG_LEAVE_CHANNEL, 0);
+        new_packet << *(ses->GetNickPtr());
+        SendToAllButOne(&new_packet, ses->GetId());
         return true;
     }
+    m_mutex.Release();
     return false;
 }
 

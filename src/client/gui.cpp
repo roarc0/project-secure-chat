@@ -69,15 +69,20 @@ void* GuiThread(void* arg)
 
         if(c_core->IsConnected())
         {
-            string msg = c_core->GetEvent();
-            if(msg.length() > 0)
+            Message_t msg = c_core->GetEvent();
+            
+            if(msg.data.length() > 0)
             {
-                if (msg[msg.length()-1] != '\n')
-                    msg.append("\n");
+                if (msg.data[msg.data.length()-1] != '\n')
+                    msg.data.append("\n");
                 add_message_to_chat(gres->chat_buffer,
-                                    (gchar*) msg.c_str(), 'm');
+                                    (gchar*) msg.data.c_str(), msg.type);
             }
+            else
+                INFO("debug", "GUI: message is null\n ");
         }
+        
+        gdk_threads_leave();
         
         if(!c_core->EmptyEvents())
         {
@@ -85,7 +90,6 @@ void* GuiThread(void* arg)
             continue;
         }
         
-        gdk_threads_leave();
         c_core->WaitEvent();
     }
 
@@ -260,35 +264,41 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type)
 
 void button_send_click(gpointer data, gchar *str, gchar type)
 {
-    stringstream ss;
+    Message_t msg;
     gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(gres.text_entry));
 
     if (strlen(text) == 0) // TODO check max length
         return;
 
-    ss << CFG_GET_STRING("nickname") << ": " << text << endl;
+    msg.timestamp = true;
+
     if ((text[0] != '\\') || (strncmp(text, "\\send", 5) == 0))
     {
-        add_message_to_chat(gres.chat_buffer, (gchar*) ss.str().c_str(), 'M');
+        msg.type='M';
     }
     else if (strncmp(text, "\\whisp", 6) == 0)
     {
-        add_message_to_chat(gres.chat_buffer, (gchar*) ss.str().c_str(), 'W');
+        msg.type='W';
     }
     else
     {
-        ss.str("");
-        ss << text << endl;
-        add_message_to_chat(gres.chat_buffer, (gchar*) ss.str().c_str(), 'e');
+        msg.type='e';
     }
+    
+    msg.data = text;
 
-    ss.str("");
-    ss << text;
-    if (!c_core->HandleSend((char*)ss.str().c_str()))
+    if (!c_core->HandleSend(text))
     {
-        add_message_to_chat(gres.chat_buffer, (gchar*) "<local> send failed!\n", 'e');
+        msg.data="Send failed!\n";
+        msg.type = 'e';
+        msg.timestamp = false;
+        c_core->AddMessage(msg.data, msg.type, msg.timestamp);
+        c_core->SignalEvent();
         return;
     }
+
+    c_core->AddMessage(msg.data, msg.type, msg.timestamp);
+    c_core->SignalEvent();
 
     gtk_entry_set_text (GTK_ENTRY(gres.text_entry), "");
 }

@@ -311,8 +311,11 @@ bool ChatHandler::ShowHelpForSubCommands(ChatCommand* table, char const* cmd, ch
 
 void ChatHandler::SendSysMessage(const char *str)
 {
-    INFO ("debug", "CHATHANDLER: %s \n", str);
-    c_core->messages.add(str);
+    Message_t msg(str,'e', false);
+
+    INFO ("debug", "CHATHANDLER: %s \n", str);    
+
+    c_core->messages.add(msg);
     c_core->SignalEvent();
 }
 

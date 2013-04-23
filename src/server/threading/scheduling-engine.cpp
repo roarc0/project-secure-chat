@@ -38,7 +38,7 @@ int SchedulingEngine::Initialize(uint32 n_thread)
 
         if (m_thread->Start(NULL) != 0)
         {
-            // Errore nella creazione del thread
+            INFO ("debug", "SCHED_ENGINE: Fail create thread!\n");
             continue;   
         }   
         m_threads.push_front(m_thread);

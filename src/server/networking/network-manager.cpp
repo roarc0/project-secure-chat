@@ -83,10 +83,11 @@ int NetworkManager::Initialize(uint32 n_thread)
 {
     m_thread = n_thread;
     // +1 per l'epoll thread
+    INFO("debug","NETWORKMANAGER: Starting %d threads\n", (m_thread + 1));
     net_engine.Initialize(m_thread + 1);
-    if (ActivateEpoll() != 0)
-        return -1;
     if (ActivateThreadsNetwork() != 0)
+        return -1;
+    if (ActivateEpoll() != 0)
         return -1;
     return 0;
 }

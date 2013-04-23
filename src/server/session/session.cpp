@@ -158,6 +158,18 @@ void Session::SendWaitQueue(int position)
     SendPacket(&new_packet);   
 }
 
+int Session::SetNick(std::string& str)
+{
+    Session_smart ses = s_manager->FindSession(str);
+    if (!ses.get())
+    {
+        return -1;
+        //SendSysMessage("Nick già esistente");
+    }
+    nick = str;
+    return 0; 
+}
+
 void Session::Handle_Ping(Packet& /*packet*/)
 {
     Packet data(SMSG_SYSTEM_MESSAGE, 0);
@@ -188,6 +200,21 @@ void Session::HandleMessage(Packet& packet)
     {
         SendSysMessage("You have to join or create a channel");
     }
+}
+
+void Session::HandleWhisp(Packet& packet) 
+{    
+    std::string nick;
+    packet >> nick;
+
+    Session_smart ses = s_manager->FindSession(nick);
+    if (!ses.get())
+    {
+        SendSysMessage("User not found");
+    }
+
+    packet.SetOpcode(SMSG_WHISP);
+    ses->SendPacket(&packet);
 }
 
 void Session::HandleJoinChannel(Packet& packet) 

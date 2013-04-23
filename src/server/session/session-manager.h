@@ -33,6 +33,7 @@ class SessionManager
         Session_smart AddSession(int sock);
         bool RemoveSession (uint32 id);
         Session_smart FindSession(uint32 id) const;
+        Session_smart FindSession(std::string str) const;
 
         void Update(uint32 udiff);
 

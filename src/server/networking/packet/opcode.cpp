@@ -14,7 +14,9 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     { "SMSG_WHISP",                  STATUS_NEVER,       PROCESS_INPLACE,           &Session::Handle_ServerSide                     },
     { "CMSG_CREATE_CHANNEL",         STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandleCreateChannel                   },
     { "CMSG_JOIN_CHANNEL",           STATUS_LOGGED,      PROCESS_THREADUNSAFE,      &Session::HandleJoinChannel                     },
+    { "SMSG_JOIN_CHANNEL",           STATUS_LOGGED,      PROCESS_THREADUNSAFE,      &Session::Handle_ServerSide                     },
     { "CMSG_LEAVE_CHANNEL",          STATUS_LOGGED,      PROCESS_THREADUNSAFE,      &Session::HandleLeaveChannel                    },
+    { "SMSG_LEAVE_CHANNEL",          STATUS_LOGGED,      PROCESS_THREADUNSAFE,      &Session::Handle_ServerSide                     },
     { "CMSG_CHANNEL_LIST",           STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandleListChannel                     },  
     { "CMSG_CHANNEL_INFO",           STATUS_LOGGED,      PROCESS_INPLACE,           &Session::Handle_NULL                           },    
 };

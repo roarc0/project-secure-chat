@@ -80,7 +80,10 @@ void* GuiThread(void* arg)
         }
         
         if(!c_core->EmptyEvents())
+        {
+            INFO("debug","GUI: There's another event to be handled\n");
             continue;
+        }
         
         gdk_threads_leave();
         c_core->WaitEvent();
@@ -209,10 +212,12 @@ void add_message_to_chat(gpointer data, gchar *msg, gchar type)
     //pthread_mutex_lock(&mutex_guichange);
     GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(data);
     GtkTextIter textiter;
+
+    INFO("debug","GUI: Adding Message: \"%s\" to chat\n", (char*) msg);
     
     std::stringstream sstr;  // Starting Horror
     sstr << "[" << get_timestamp(':') << "] " << msg;
-    const gchar *str = (const gchar*) sstr.str().c_str();
+    gchar *str = (gchar*) sstr.str().c_str();
 
     gtk_text_buffer_get_end_iter(text_view_buffer, &textiter);
     switch(type)

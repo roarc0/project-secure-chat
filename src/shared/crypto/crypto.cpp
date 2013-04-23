@@ -24,7 +24,7 @@ int GenerateSessionKey(ByteBuffer &key, int size)
 
 // TODO anche il plaintext deve essere ByteBuffer
 int AesEncrypt(const ByteBuffer &key,
-               const std::string &plaintext,
+               const ByteBuffer &plaintext,
                ByteBuffer &ciphertext)
 {
     unsigned char init[BLOCK_SIZE];
@@ -53,14 +53,14 @@ int AesEncrypt(const ByteBuffer &key,
     EVP_CIPHER_CTX_init(&ctx);
     EVP_EncryptInit_ex(&ctx, chp, 0, (unsigned char *)key.contents(), init);
 
-    int len = plaintext.length()+2*BLOCK_SIZE;
+    int len = plaintext.size()+2*BLOCK_SIZE;
     buffer = new unsigned char[len];
     retval = EVP_EncryptUpdate(
             &ctx,
             buffer,
             &len, 
-            (unsigned char *)plaintext.c_str(),
-            plaintext.length());
+            (unsigned char *)plaintext.contents(),
+            plaintext.size());
 
     if (retval < 0)
     {
@@ -69,7 +69,8 @@ int AesEncrypt(const ByteBuffer &key,
             return retval;
     }
 
-    ciphertext.append((char *)buffer, len);
+    if (len)
+        ciphertext.append((char *)buffer, len);
 
     delete[] buffer;
     
@@ -87,7 +88,8 @@ int AesEncrypt(const ByteBuffer &key,
             return retval;
     }
 
-    ciphertext.append((char *)buffer, len);
+    if (len)
+        ciphertext.append((char *)buffer, len);
 
     delete[] buffer;
 
@@ -97,7 +99,7 @@ int AesEncrypt(const ByteBuffer &key,
 
 int AesDecrypt(const ByteBuffer &key,
                const ByteBuffer &ciphertext,
-               std::string &plaintext)
+               ByteBuffer &plaintext)
 {
         unsigned char init[BLOCK_SIZE];
         EVP_CIPHER_CTX ctx;
@@ -143,7 +145,8 @@ int AesDecrypt(const ByteBuffer &key,
                 return retval;
         }
 
-        plaintext.append((char *)buffer, ((char *)buffer)+len);
+        if (len)
+            plaintext.append((char *)buffer, len);
         delete[] buffer;
 
         len = 2*BLOCK_SIZE;
@@ -159,7 +162,8 @@ int AesDecrypt(const ByteBuffer &key,
                 return retval;
         }
 
-        plaintext.append((char *)buffer, ((char *)buffer)+len);
+        if (len)
+            plaintext.append((char *)buffer, len);
         delete[] buffer;
 
         EVP_CIPHER_CTX_cleanup(&ctx);

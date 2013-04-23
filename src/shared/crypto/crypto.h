@@ -10,12 +10,12 @@
 int GenerateSessionKey(ByteBuffer &key, int size);
 
 int AesEncrypt(const ByteBuffer &key,
-               const std::string &plaintext,
+               const ByteBuffer &plaintext,
                ByteBuffer &ciphertext);
 
 int AesDecrypt(const ByteBuffer &key,
                const ByteBuffer &ciphertext,
-               std::string &plaintext);
+               ByteBuffer &plaintext);
 
 #endif
 

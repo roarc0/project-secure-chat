@@ -15,8 +15,10 @@ enum MessageTypes
     CMSG_WHISP,
     SMSG_WHISP,
     CMSG_CREATE_CHANNEL,               
-    CMSG_JOIN_CHANNEL,                             
-    CMSG_LEAVE_CHANNEL,                           
+    CMSG_JOIN_CHANNEL,  
+    SMSG_JOIN_CHANNEL,                          
+    CMSG_LEAVE_CHANNEL,
+    SMSG_LEAVE_CHANNEL,                           
     CMSG_CHANNEL_LIST,
     CMSG_CHANNEL_INFO,       
 

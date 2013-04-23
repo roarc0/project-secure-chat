@@ -38,6 +38,8 @@ class Session : public SessionBase
     void Handle_Ping(Packet& /*packet*/);
     void HandleMessage(Packet& /*packet*/);
     void HandleServerMessage(Packet& /*packet*/);
+    void HandleJoinChannel(Packet& /*packet*/);
+    void HandleLeaveChannel(Packet& /*packet*/);
     
 
     bool HandleSend(const char* msg);

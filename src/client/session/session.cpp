@@ -220,3 +220,21 @@ void Session::HandleServerMessage(Packet& packet)
     SendToGui((const char*)packet.contents(), 'e');
 }
 
+void Session::HandleJoinChannel(Packet& packet)
+{
+    INFO ("debug", "Handle Join Message\n");
+    std::string name, msg;
+    packet >> name;
+    msg = "User " + name + " join Channel";
+    SendToGui((const char*)msg.c_str(), 'j');    
+}
+
+void Session::HandleLeaveChannel(Packet& packet)
+{
+    INFO ("debug", "Handle Leave Message\n");
+    std::string name, msg;
+    packet >> name;
+    msg = "User " + name + " leave Channel";
+    SendToGui((const char*)msg.c_str(), 'l');    
+}
+

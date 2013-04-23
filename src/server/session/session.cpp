@@ -7,7 +7,7 @@
 Session::Session(int pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), m_channel(NULL)
 {
-
+    nick = "Prova";
 }
 
 Session::~Session()
@@ -256,6 +256,12 @@ void Session::HandleJoinChannel(Packet& packet)
     }
 
     setChannel(sChan);
+
+    // Invio ingresso nel canale
+    Packet new_packet(SMSG_JOIN_CHANNEL, 0);
+    new_packet << nick;
+    sChan->SendToAllButOne(&new_packet, m_id);
+
     PSendSysMessage("Entrato nel canale: %s", c_name.c_str());
 }
 
@@ -299,6 +305,11 @@ void Session::HandleLeaveChannel(Packet& /*packet*/)
         SendSysMessage("Non sei in un canale");
         return;
     }
+
+    // Invio ingresso nel canale
+    Packet new_packet(SMSG_LEAVE_CHANNEL, 0);
+    new_packet << nick;
+    getChannel()->SendToAllButOne(&new_packet, m_id);
 
     // Rimuovere dal canale
     getChannel()->RemoveSession(GetId());

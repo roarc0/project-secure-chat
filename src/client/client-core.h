@@ -11,6 +11,31 @@
 
 using namespace std;
 
+enum MessageType
+{
+    
+};
+
+struct Message_t
+{
+    string data;
+    string nick;
+    char   type;
+    bool   timestamp;
+    
+    Message_t()
+    {
+    
+    }
+    
+    Message_t(const std::string& d, char t, bool time)
+    {
+        data = d;
+        type = t;
+        timestamp = time;
+    }
+};
+
 void* CoreThread(void*);
 
 class ClientCore
@@ -40,18 +65,19 @@ class ClientCore
     int  StartThread(Session *sc);
 
     bool EmptyEvents();
-    string GetEvent();
+    Message_t GetEvent();
     void WaitEvent();
     void SignalEvent();
     void WaitConnection();
     void SignalConnection();
     bool IsConnected();
 
-    void AddMessage(std::string& msg, bool timestamp = true);
+    void AddMessage(std::string& str, char type, bool timestamp = true);
 
     friend class Singleton<ClientCore>;
- 
-    LockQueue<string> messages;
+    
+    //private:
+    LockQueue<Message_t> messages;
 };
 
 #define c_core  Singleton<ClientCore>::GetInstance()

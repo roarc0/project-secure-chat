@@ -125,22 +125,25 @@ bool ClientCore::EmptyEvents()
     return messages.empty();
 }
 
-string ClientCore::GetEvent()
+Message_t ClientCore::GetEvent()
 {
-    string msg;
+    Message_t msg;
     messages.next(msg);
     return msg;
 }
 
-void ClientCore::AddMessage(std::string& msg, bool timestamp)
+void ClientCore::AddMessage(std::string& str, char type, bool timestamp)
 {
+    Message_t msg;
+    std::stringstream ss;
     if (timestamp)
-    {
-        std::stringstream sstr;
-        sstr << "[" << get_timestamp(':') << "] " << msg;
-        const std::string& tmp = sstr.str();
-        const char* cstr = tmp.c_str();
-    }
+        ss << "[" << get_timestamp(':') << "] ";
+    ss << str;
+    const std::string& tmp = ss.str();
+    const char* cstr = tmp.c_str();
+    msg.data = cstr;
+    msg.type = type;
+    msg.timestamp = timestamp;
     messages.add(msg);
 }
 

@@ -110,13 +110,13 @@ std::string get_timestamp(char sep)
     tm_p = localtime( &epoch_time );
 
     if(tm_p->tm_hour < 10)
-        ss << "0";
+        ss << '0';
     ss << tm_p->tm_hour << sep;
     if(tm_p->tm_min < 10)
-        ss << "0";
+        ss << '0';
     ss << tm_p->tm_min << sep;
     if(tm_p->tm_sec < 10)
-        ss << "0";
+        ss << '0';
     ss << tm_p->tm_sec;
 
     return ss.str();

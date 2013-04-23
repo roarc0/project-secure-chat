@@ -1,4 +1,5 @@
 #include "thread.h"
+#include <stdio.h>
 
 Thread::Thread() : tid_(0)
 {
@@ -9,7 +10,7 @@ Thread::~Thread()
 {
     if (tid_)
         pthread_kill(tid_, SIGKILL);
-}
+}   
 
 int Thread::Start(void* arg)
 {
@@ -19,15 +20,20 @@ int Thread::Start(void* arg)
 
     ret = pthread_attr_init(&tattr);
     if (ret != 0)
-        return ret;
+        goto end_start;
     ret = pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
     if (ret != 0)
-        return ret;
+        goto end_start;
     ret = pthread_create(&tid_, &tattr, Thread::EntryPoint, this);
     if (ret != 0)
-        return ret;
+        goto end_start;
 
     ret = pthread_attr_destroy(&tattr);
+    
+    end_start:
+    if(ret<0)
+        perror("Start");
+    
     return ret;
 }
 

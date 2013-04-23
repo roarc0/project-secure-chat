@@ -5,12 +5,10 @@
 
 int Packet::Encrypt(ByteBuffer key)
 {
-    string plaintext = (const char*) this->contents(); // usare direttamente il puntatore del ByteBuffer
     ByteBuffer ciphertext;
     int ret=0;
 
-    std::cout << std::endl << "ENCRYPTING: " << plaintext << std::endl;
-    ret = AesEncrypt(key, plaintext, ciphertext);
+    ret = AesEncrypt(key, (ByteBuffer)(*this), ciphertext);
     ciphertext.hexlike();
     
     if(!ret)
@@ -18,7 +16,8 @@ int Packet::Encrypt(ByteBuffer key)
         INFO("debug", "PACKET: Encrypted\n");
         m_encrypted = true;
         this->clear();
-        this->append(ciphertext.contents(), ciphertext.size());
+        if (ciphertext.size())
+            this->append(ciphertext.contents(), ciphertext.size());
     }
     else
         INFO("debug", "PACKET: Encryption failed\n");
@@ -29,22 +28,20 @@ int Packet::Encrypt(ByteBuffer key)
 int Packet::Decrypt(ByteBuffer key)
 {
     ByteBuffer *ciphertext = (ByteBuffer*) this; // Mother Of God
-    std::string plaintext;
+    ByteBuffer plaintext;
     int ret=0;
 
     std::cout << std::endl << "DECRYPTING: " << std::endl;
     ciphertext->hexlike();
 
     ret = AesDecrypt(key, *ciphertext, plaintext);
-    std::cout << std::endl << "DECRYPTED:  \"" << plaintext << "\""<< std::endl;
     
     if (!ret)
     {
         INFO("debug", "PACKET: Decrypted\n");
         m_encrypted = false;
         this->clear();
-        this->append((uint8*)plaintext.c_str(), plaintext.length());
-        
+        this->append(plaintext);
     }
     else
         INFO("debug", "PACKET: Decryption failed\n");
@@ -56,5 +53,6 @@ void Packet::Incapsulate(Packet& pkt)
 {
     *this<<pkt.GetOpcode();
     *this<<pkt.size();
-    this->append(pkt.contents(), pkt.size());
+    if (pkt.size())
+        this->append(pkt.contents(), pkt.size());
 }

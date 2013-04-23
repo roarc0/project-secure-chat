@@ -11,7 +11,8 @@ void MethodThread::Execute(void* /*arg*/)
         meth->Call();
 
         delete meth;
-    }    
+    } 
+    Exit();   
 }
 
 SchedulingEngine::SchedulingEngine(): sem(m_mutex), b_active(false)
@@ -38,7 +39,7 @@ int SchedulingEngine::Initialize(uint32 n_thread)
 
         if (m_thread->Start(NULL) != 0)
         {
-            INFO ("debug", "SCHED_ENGINE: Fail create thread!\n");
+            INFO ("debug", "SCHED_ENGINE: Fail Start Thread!\n");
             continue;   
         }   
         m_threads.push_front(m_thread);

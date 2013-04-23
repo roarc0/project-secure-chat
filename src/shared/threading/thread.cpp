@@ -54,3 +54,8 @@ void Thread::Execute(void* /*arg*/)
 
 }
 
+void Thread::Exit()
+{
+    pthread_exit(NULL); //return NULL;
+}
+

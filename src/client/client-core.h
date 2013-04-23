@@ -47,8 +47,10 @@ class ClientCore
     void SignalConnection();
     bool IsConnected();
 
+    void AddMessage(std::string& msg, bool timestamp = true);
+
     friend class Singleton<ClientCore>;
-    
+ 
     LockQueue<string> messages;
 };
 

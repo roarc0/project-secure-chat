@@ -207,21 +207,13 @@ void scroll_down(GtkWidget *scrolled)
     gtk_adjustment_set_value(adjustment, gtk_adjustment_get_upper(adjustment));
 }
 
-void add_message_to_chat(gpointer data, gchar *msg, gchar type)
+void add_message_to_chat(gpointer data, gchar *str, gchar type)
 {
     //pthread_mutex_lock(&mutex_guichange);
     GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(data);
     GtkTextIter textiter;
 
-    INFO("debug","GUI: Adding Message: \"%s\" to chat\n", (char*) msg);
-    
-    std::stringstream sstr;  // Starting Horror
-    sstr << "[" << get_timestamp(':') << "] " << (char*)msg;
-
-    const std::string& tmp = sstr.str();
-    const char* cstr = tmp.c_str();
-
-    gchar *str = (gchar*)cstr;
+    INFO("debug","GUI: Adding Message: \"%s\" to chat\n", (char*) str);
 
     gtk_text_buffer_get_end_iter(text_view_buffer, &textiter);
     switch(type)

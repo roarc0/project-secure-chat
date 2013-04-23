@@ -132,6 +132,18 @@ string ClientCore::GetEvent()
     return msg;
 }
 
+void ClientCore::AddMessage(std::string& msg, bool timestamp)
+{
+    if (timestamp)
+    {
+        std::stringstream sstr;
+        sstr << "[" << get_timestamp(':') << "] " << msg;
+        const std::string& tmp = sstr.str();
+        const char* cstr = tmp.c_str();
+    }
+    messages.add(msg);
+}
+
 void ClientCore::WaitEvent()
 {
     pthread_cond_wait(&cond_event, &mutex_event);

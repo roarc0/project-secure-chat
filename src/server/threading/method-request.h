@@ -7,10 +7,7 @@ class MethodRequest
         MethodRequest(){};
         virtual ~MethodRequest() {};
 
-        virtual int Call()
-        {
-            return 0;
-        }
+        virtual int Call()=0;
 };
 
 #endif

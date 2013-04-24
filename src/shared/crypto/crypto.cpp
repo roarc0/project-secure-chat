@@ -4,7 +4,7 @@
 #include <openssl/aes.h>
 #include <openssl/rand.h>
 
-int GenerateSessionKey(ByteBuffer &key, int size)
+int GenerateRandomKey(ByteBuffer &key, int size)
 {
     uint8 *buf;
 
@@ -22,7 +22,18 @@ int GenerateSessionKey(ByteBuffer &key, int size)
     return 0;
 }
 
-// TODO anche il plaintext deve essere ByteBuffer
+// funzione per generare la chiave di sessione a partire da Ka,Kb
+void Xor(ByteBuffer& data, ByteBuffer key)
+{
+    uint16 k = 0;
+ 
+    for(int i = 0; i < data.size(); i++)
+    {
+        data.contents()[i] = (uint8)(data.contents()[i] ^ key[k]);
+        k=(++k < key.size() ? k:0);
+    }
+}
+
 int AesEncrypt(const ByteBuffer &key,
                const ByteBuffer &plaintext,
                ByteBuffer &ciphertext)

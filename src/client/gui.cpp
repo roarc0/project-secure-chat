@@ -274,35 +274,35 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type)
     {
         case 'j': //user join
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "green_fg", "bold", NULL);
+                &textiter, str, -1, "lmarg", "chat_join_fg", "bold", NULL);
         break;
         case 'l': //user leave
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "red_fg", "bold", NULL);
+                &textiter, str, -1, "lmarg", "chat_leave_fg", "bold", NULL);
         break;
         case 'm': //message received
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "black_fg", NULL);
+                &textiter, str, -1, "lmarg", "chat_msg_fg", NULL);
         break;
         case 'M': //message sent
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "black_fg", "bold", NULL);
+                &textiter, str, -1, "lmarg", "chat_msg_fg", "bold", NULL);
         break;
         case 'w': //whisp received
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "blue_bg", "white_fg", NULL);
+                &textiter, str, -1, "lmarg", "chat_whisp_fg", NULL);
         break;
         case 'W': //whisp sent
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "blue_bg", "white_fg", "bold", NULL);
+                &textiter, str, -1, "lmarg", "chat_whisp_fg", "bold", NULL);
         break;
-        case 'e': //local event
+        case 'e': // server communication type 1
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "magenta_fg", "white_fg", "bold", NULL);
+                &textiter, str, -1, "lmarg", "chat_sys_msg_fg", "bold", NULL);
         break;
-        case 's': //server communication
+        case 's': //server communication type 2
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "yellow_bg", "bold", NULL);
+                &textiter, str, -1, "lmarg", "chat_sys_msg_fg", "bold", NULL);
         break;
         default:
         break;
@@ -536,10 +536,23 @@ void main_gui(int argc, char **argv)
 
     view_chat = gtk_text_view_new();
 
+    GdkRGBA color;
+    gdk_rgba_parse (&color, CFG_GET_STRING("chat_bg").c_str());
+    gtk_widget_override_background_color(GTK_WIDGET(view_chat),
+                                         GTK_STATE_FLAG_NORMAL, &color);
+
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view_chat), GTK_WRAP_WORD_CHAR);
     gtk_text_view_set_editable(GTK_TEXT_VIEW(view_chat), false);
     gtk_container_add (GTK_CONTAINER (gres.scrolledwindow_chat), view_chat);
     view_chat_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view_chat));
+    
+    gtk_text_buffer_create_tag(view_chat_buffer, "chat_bg", "background", CFG_GET_STRING("chat_bg").c_str() , NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "chat_sys_msg_fg", "foreground", CFG_GET_STRING("chat_sys_msg_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "chat_msg_fg", "foreground", CFG_GET_STRING("chat_msg_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "chat_join_fg", "foreground", CFG_GET_STRING("chat_join_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "chat_leave_fg", "foreground", CFG_GET_STRING("chat_leave_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "chat_whisp_fg", "foreground", CFG_GET_STRING("chat_whisp_fg").c_str() , NULL);
+
     gtk_text_buffer_create_tag(view_chat_buffer, "gap", "pixels_above_lines", 30, NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "lmarg", "left_margin", 5, NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "black_fg", "foreground", "#000000", NULL);

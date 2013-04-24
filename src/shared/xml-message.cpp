@@ -1,4 +1,5 @@
 #include "xml-message.h"
+#include "crypto/base64.h"
 
 std::string XMLBuildMessage(const char* name, const char* content)
 {
@@ -9,8 +10,8 @@ std::string XMLBuildMessage(const char* name, const char* content)
     TiXmlElement * element_name = new TiXmlElement( "name" );
     TiXmlElement * element_content = new TiXmlElement( "content" );
         
-    TiXmlText * text_name = new TiXmlText( name );
-    TiXmlText * text_content = new TiXmlText( content );
+    TiXmlText * text_name = new TiXmlText( EncodeBase64(name) );
+    TiXmlText * text_content = new TiXmlText( EncodeBase64(content) );
     
     element->LinkEndChild( element_name );
     element->LinkEndChild( element_content );
@@ -77,11 +78,11 @@ void XMLReadMessage(const char *str, string& name, string& content)
 
             if(elemName == "name")
             {
-                name = text->Value();
+                name = DecodeBase64(text->Value());
             }
             else if (elemName == "content")
             {
-                content = text->Value();
+                content = DecodeBase64(text->Value());
             }
         }
      }

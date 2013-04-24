@@ -3,6 +3,7 @@
 
 #include <string>
 #include "utility/bytebuffer.h"
+#include "base64.h"
 
 #define BLOCK_SIZE 16
 

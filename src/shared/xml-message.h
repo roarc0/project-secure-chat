@@ -7,15 +7,7 @@
 
 using namespace std;
 
-class XmlMessage
-{
-
-  public:
-    XmlMessage();
-    ~XmlMessage();
-
-    string BuildMessage(const char *, const char *);
-    string ReadMessage(const char *);
-};
+string XMLBuildMessage(const char *, const char *);
+void   XMLReadMessage(const char *, string&, string&);
 
 #endif

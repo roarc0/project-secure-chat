@@ -1,16 +1,6 @@
 #include "xml-message.h"
 
-XmlMessage::XmlMessage()
-{
-
-}
-
-XmlMessage::~XmlMessage()
-{
-
-}
-
-std::string XmlMessage::BuildMessage(const char* name, const char* content)
+std::string XMLBuildMessage(const char* name, const char* content)
 {
     TiXmlDocument doc;
     TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "", "" );
@@ -41,13 +31,10 @@ std::string XmlMessage::BuildMessage(const char* name, const char* content)
     //doc.SaveFile(filename);
 }
 
-string XmlMessage::ReadMessage(const char *str)
+void XMLReadMessage(const char *str, string& name, string& content)
 {
-    string content;
-    string name;
-
     if(!str)
-        return "";
+        return;
         
     TiXmlDocument doc;
     doc.Parse(str);
@@ -58,7 +45,7 @@ string XmlMessage::ReadMessage(const char *str)
     {
         cerr << "Failed to load file: No root element." << endl;
         doc.Clear();
-        return "";
+        return;
     }
     
     for(TiXmlElement* elem = root->FirstChildElement();
@@ -98,8 +85,4 @@ string XmlMessage::ReadMessage(const char *str)
             }
         }
      }
-
-     stringstream ss;
-     ss << name << ": " << content << std::  endl;
-     return ss.str();
 }

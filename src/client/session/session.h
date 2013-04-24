@@ -13,7 +13,6 @@ class Session : public SessionBase
 {
     SocketClient* c_Socket;
     bool         connected;
-    XmlMessage   xmsg;
 
   public:
     Session();
@@ -44,7 +43,7 @@ class Session : public SessionBase
 
     bool HandleSend(const char* msg);
 
-    void SendToGui(std::string str, char type);
+    void SendToGui(std::string str, std::string nick, char type);
 
   private:
 

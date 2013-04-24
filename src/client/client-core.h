@@ -73,7 +73,8 @@ class ClientCore
     void SignalConnection();
     bool IsConnected();
 
-    void AddMessage(std::string& str, char type, bool timestamp = true);
+    void AddMessage(const std::string& str, const std::string& nick,
+                    char type, bool timestamp = true);
 
     friend class Singleton<ClientCore>;
     

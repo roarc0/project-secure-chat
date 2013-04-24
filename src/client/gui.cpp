@@ -167,11 +167,47 @@ void on_destroy(gpointer user_data)
     gtk_main_quit();
 }
 
+bool find_user_from_list(gpointer data, const gchar *str)
+{
+    GtkTreeModel            *model;
+    GtkTreeIter             iter;
+    gboolean                r;
+    gchar                   *value;
+    
+    model = gtk_tree_view_get_model (GTK_TREE_VIEW (data));
+    
+    if (gtk_tree_model_get_iter_first (model, &iter) == FALSE)
+        return false;
+        
+    for (r = gtk_tree_model_get_iter_first (model, &iter); 
+         r == TRUE; 
+         r = gtk_tree_model_iter_next (model, &iter))
+    {                
+        gtk_tree_model_get (model, &iter, COLUMN_STRING1, &value,  -1);
+        
+        if (g_ascii_strcasecmp(value, str) == 0)
+        {
+            if (value) 
+                g_free (value);        
+            return true;
+        }
+    
+        if (value) 
+            g_free (value);        
+    }
+    
+    return false;
+}
+
 void add_user_to_list(gpointer data, gchar *str, gchar *lev)
 {
   GtkTreeView *view = GTK_TREE_VIEW(data);
   GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
   GtkTreeIter iter;
+  
+  if (find_user_from_list(data, str))
+      return;
+  
   //pthread_mutex_lock(&mutex_guichange);
   gtk_list_store_append(GTK_LIST_STORE(model), &iter);
   gtk_list_store_set(GTK_LIST_STORE(model),
@@ -191,6 +227,9 @@ void remove_user_from_list(gpointer data, const gchar *str)
     GtkTreeIter             iter;
     gboolean                r;
     gchar                   *value;
+    
+    if (!find_user_from_list(data, str))
+        return;
     
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (data));
     

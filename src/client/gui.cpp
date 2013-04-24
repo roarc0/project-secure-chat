@@ -26,6 +26,10 @@ struct gui_res
     GtkWidget *view_user_list;
     GtkCellRenderer *renderer_user_list;
     GtkTreeSelection *selection_user_list;
+    
+    /* Chat */
+    GtkWidget *view_chat;
+    GtkTextBuffer *view_chat_buffer;
 } gres;
 
 
@@ -139,6 +143,20 @@ void show_about()
   g_object_unref(pixbuf), pixbuf = NULL;
   gtk_dialog_run(GTK_DIALOG (dialog));
   gtk_widget_destroy(dialog);
+}
+
+void select_font(gpointer parent)
+{
+    GtkWidget* dialog = gtk_font_chooser_dialog_new("Font", GTK_WINDOW(parent));
+    
+    gtk_dialog_run(GTK_DIALOG (dialog));
+    
+    PangoFontDescription *font_desc = gtk_font_chooser_get_font_desc(GTK_FONT_CHOOSER(dialog));
+    
+    if (font_desc)
+        gtk_widget_modify_font(gres.view_chat, font_desc);
+
+    gtk_widget_destroy(dialog);
 }
 
 void show_message(gchar *message)
@@ -401,7 +419,7 @@ void main_gui(int argc, char **argv)
     GtkWidget *menubar;
     GtkWidget *filemenu,*helpmenu;
     GtkWidget *file;
-    GtkWidget *connect,*open,*sep,*quit;
+    GtkWidget *connect,*open, *font,*sep,*quit;
     GtkWidget *help;
     GtkWidget *about;
     GtkAccelGroup *accel_group = NULL;
@@ -419,8 +437,6 @@ void main_gui(int argc, char **argv)
 
     /* chat */
     GtkWidget *hbox_chat;
-    GtkWidget *view_chat;
-    GtkTextBuffer *view_chat_buffer;
 
     /* input della chat */
     GtkWidget *hbox_inputs;
@@ -471,6 +487,7 @@ void main_gui(int argc, char **argv)
     file = gtk_menu_item_new_with_label("File");
     connect = gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW, NULL);
     open = gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN, NULL);
+    font = gtk_image_menu_item_new_from_stock(GTK_STOCK_SELECT_FONT, NULL);
     sep = gtk_separator_menu_item_new();
     quit = gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, accel_group);
     help = gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP, NULL);
@@ -478,6 +495,7 @@ void main_gui(int argc, char **argv)
 
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(file), filemenu);
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), connect);
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), font);
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep);
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), quit);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), file);
@@ -489,6 +507,7 @@ void main_gui(int argc, char **argv)
     gtk_box_pack_start(GTK_BOX(vbox_main), menubar, FALSE, FALSE, 0);
 
     g_signal_connect(G_OBJECT(quit), "activate", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(G_OBJECT(font), "activate", G_CALLBACK(select_font), G_OBJECT(window));
     g_signal_connect(G_OBJECT(about), "activate", G_CALLBACK(show_about), NULL);
 
     /* toolbar */
@@ -534,49 +553,49 @@ void main_gui(int argc, char **argv)
                                     GTK_POLICY_NEVER,
                                     GTK_POLICY_AUTOMATIC);
 
-    view_chat = gtk_text_view_new();
+    gres.view_chat = gtk_text_view_new();
 
     GdkRGBA color;
     gdk_rgba_parse (&color, CFG_GET_STRING("chat_bg").c_str());
-    gtk_widget_override_background_color(GTK_WIDGET(view_chat),
+    gtk_widget_override_background_color(GTK_WIDGET(gres.view_chat),
                                          GTK_STATE_FLAG_NORMAL, &color);
 
     PangoFontDescription *font_desc = pango_font_description_from_string(CFG_GET_STRING("chat_font").c_str());
     if (font_desc)
-        gtk_widget_modify_font(view_chat, font_desc);
+        gtk_widget_modify_font(gres.view_chat, font_desc);
 
-    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view_chat), GTK_WRAP_WORD_CHAR);
-    gtk_text_view_set_cursor_visible (GTK_TEXT_VIEW (view_chat), FALSE);
-    gtk_text_view_set_left_margin (GTK_TEXT_VIEW (view_chat), 1);
-    gtk_text_view_set_right_margin (GTK_TEXT_VIEW (view_chat), 1);
-    gtk_text_view_set_editable(GTK_TEXT_VIEW(view_chat), FALSE);
-    gtk_container_add (GTK_CONTAINER (gres.scrolledwindow_chat), view_chat);
-    view_chat_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view_chat));
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(gres.view_chat), GTK_WRAP_WORD_CHAR);
+    gtk_text_view_set_cursor_visible (GTK_TEXT_VIEW (gres.view_chat), FALSE);
+    gtk_text_view_set_left_margin (GTK_TEXT_VIEW (gres.view_chat), 1);
+    gtk_text_view_set_right_margin (GTK_TEXT_VIEW (gres.view_chat), 1);
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(gres.view_chat), FALSE);
+    gtk_container_add (GTK_CONTAINER (gres.scrolledwindow_chat), gres.view_chat);
+    gres.view_chat_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(gres.view_chat));
     
-    gtk_text_buffer_create_tag(view_chat_buffer, "chat_bg", "background", CFG_GET_STRING("chat_bg").c_str() , NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "chat_sys_msg_fg", "foreground", CFG_GET_STRING("chat_sys_msg_fg").c_str() , NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "chat_msg_fg", "foreground", CFG_GET_STRING("chat_msg_fg").c_str() , NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "chat_join_fg", "foreground", CFG_GET_STRING("chat_join_fg").c_str() , NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "chat_leave_fg", "foreground", CFG_GET_STRING("chat_leave_fg").c_str() , NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "chat_whisp_fg", "foreground", CFG_GET_STRING("chat_whisp_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "chat_bg", "background", CFG_GET_STRING("chat_bg").c_str() , NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "chat_sys_msg_fg", "foreground", CFG_GET_STRING("chat_sys_msg_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "chat_msg_fg", "foreground", CFG_GET_STRING("chat_msg_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "chat_join_fg", "foreground", CFG_GET_STRING("chat_join_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "chat_leave_fg", "foreground", CFG_GET_STRING("chat_leave_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "chat_whisp_fg", "foreground", CFG_GET_STRING("chat_whisp_fg").c_str() , NULL);
 
-    gtk_text_buffer_create_tag(view_chat_buffer, "gap", "pixels_above_lines", 30, NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "lmarg", "left_margin", 5, NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "black_fg", "foreground", "#000000", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "white_fg", "foreground", "#ffffff", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "blue_fg", "foreground", "#3200ff", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "magenta_fg", "foreground", "#ff32ff", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "green_fg", "foreground", "#55ff00", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "red_fg", "foreground", "#ff3200", NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "gap", "pixels_above_lines", 30, NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "lmarg", "left_margin", 5, NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "black_fg", "foreground", "#000000", NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "white_fg", "foreground", "#ffffff", NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "blue_fg", "foreground", "#3200ff", NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "magenta_fg", "foreground", "#ff32ff", NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "green_fg", "foreground", "#55ff00", NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "red_fg", "foreground", "#ff3200", NULL);
     
-    gtk_text_buffer_create_tag(view_chat_buffer, "green_bg", "background", "#55ff00", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "blue_bg", "background", "#3200ff", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "red_bg", "background", "#ff3200", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "yellow_bg", "background", "#f7f732", NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "magenta_bg", "background", "#ff32ff", NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "green_bg", "background", "#55ff00", NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "blue_bg", "background", "#3200ff", NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "red_bg", "background", "#ff3200", NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "yellow_bg", "background", "#f7f732", NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "magenta_bg", "background", "#ff32ff", NULL);
     
-    gtk_text_buffer_create_tag(view_chat_buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
-    gtk_text_buffer_create_tag(view_chat_buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
+    gtk_text_buffer_create_tag(gres.view_chat_buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 
     gres.scrolledwindow_user_list = gtk_scrolled_window_new (NULL, NULL);
     gtk_paned_pack2 (GTK_PANED(paned_main), gres.scrolledwindow_user_list, false, false);
@@ -634,7 +653,7 @@ void main_gui(int argc, char **argv)
     gtk_box_pack_start(GTK_BOX (hbox_inputs), button_send, FALSE, FALSE, 0);
 
     gres.text_entry = entry_command;
-    gres.chat_buffer = view_chat_buffer;
+    gres.chat_buffer = gres.view_chat_buffer;
     g_signal_connect(G_OBJECT(entry_command), "activate", G_CALLBACK(button_send_click), NULL);
     g_signal_connect(G_OBJECT(button_send), "clicked", G_CALLBACK(button_send_click), NULL);
 

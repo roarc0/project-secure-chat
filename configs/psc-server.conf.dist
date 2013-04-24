@@ -34,3 +34,7 @@ SessionActiveLimit = 100
 #                     0   - (Disabled, No limit)
 
 SessionQueueLimit = 50
+
+
+priv_key = "server.pem"
+pub_key = "server.pub"

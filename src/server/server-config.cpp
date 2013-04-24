@@ -13,6 +13,9 @@ void init_config(string filename)
     CFG->add_string("db_filename", "server.db");
     CFG->add_string("password", "default");
     
+    CFG->add_string("priv_key", "server.pem");
+    CFG->add_string("pub_key", "server.pub");
+    
     CFG->add_int("ThreadNet", 2);
     CFG->add_int("ThreadExec", 2);
 

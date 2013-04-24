@@ -6,6 +6,7 @@
 Session::Session() //: SessionBase()
 {
     connected = false;
+    nickname = CFG_GET_STRING("nickname");
     c_Socket = new SocketClient(SOCK_STREAM, 0);
     m_Socket = (SocketBase*) c_Socket;
 }
@@ -14,6 +15,16 @@ Session::~Session()
 {
     delete c_Socket;
     // TODO
+}
+
+std::string Session::GetNickname()
+{
+    return nickname;
+}
+
+void Session::SetNickname(const std::string& n)
+{
+    nickname = n;
 }
 
 bool Session::Connect()
@@ -89,7 +100,7 @@ bool Session::HandleSend(const char* msg)
         return true;
 
     Packet pack(CMSG_MESSAGE);
-    pack << XMLBuildMessage(CFG_GET_STRING("nickname").c_str(), msg);
+    pack << XMLBuildMessage(GetNickname().c_str(), msg);
     
     SendPacketToSocket(&pack);
 

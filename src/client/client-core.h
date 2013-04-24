@@ -72,6 +72,9 @@ class ClientCore
     void WaitConnection();
     void SignalConnection();
     bool IsConnected();
+    
+    std::string GetNickname();
+    void SetNickname(const std::string&);
 
     void AddMessage(const std::string& str, const std::string& nick,
                     char type, bool timestamp = true);

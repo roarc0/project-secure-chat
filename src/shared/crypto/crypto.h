@@ -7,7 +7,9 @@
 
 #define BLOCK_SIZE 16
 
-int GenerateSessionKey(ByteBuffer &key, int size);
+int GenerateRandomKey(ByteBuffer &key, int size);
+
+void Xor(ByteBuffer& data, ByteBuffer key);
 
 int AesEncrypt(const ByteBuffer &key,
                const ByteBuffer &plaintext,

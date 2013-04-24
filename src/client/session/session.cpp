@@ -71,10 +71,10 @@ void Session::ResetSocket()
     m_Socket = (SocketBase*) c_Socket;
 }
 
-void Session::SendToGui(std::string str, char type)
+void Session::SendToGui(std::string msg, std::string nick, char type)
 {
     bool timestamp = ((type == 'm') ? true:false);
-    c_core->AddMessage(str, type, timestamp);
+    c_core->AddMessage(msg, nick, type, timestamp);
     c_core->SignalEvent();
 }
 
@@ -89,7 +89,7 @@ bool Session::HandleSend(const char* msg)
         return true;
 
     Packet pack(CMSG_MESSAGE);
-    pack << xmsg.BuildMessage(CFG_GET_STRING("nickname").c_str(), msg);
+    pack << XMLBuildMessage(CFG_GET_STRING("nickname").c_str(), msg);
     
     SendPacketToSocket(&pack);
 
@@ -200,7 +200,7 @@ bool Session::Update(uint32 /*diff*/)
 
 void Session::Handle_ClientSide(Packet& /*packet*/)
 {
-    INFO ("debug", "Sto ricevendo un pacchetto di un altro client!\n");
+    INFO ("debug", "Receiving packet from another client!!\n");
 }
 
 void Session::Handle_Ping(Packet& /*packet*/)
@@ -211,13 +211,15 @@ void Session::Handle_Ping(Packet& /*packet*/)
 void Session::HandleMessage(Packet& packet)
 {
     INFO ("debug", "SESSION: Handling Message\n");
-    SendToGui(xmsg.ReadMessage((const char*)packet.contents()), 'm');
+    std::string msg, nick;
+    XMLReadMessage((const char*)packet.contents(), nick, msg);
+    SendToGui(msg, nick, 'm');
 }
 
 void Session::HandleServerMessage(Packet& packet)
 {
     INFO ("debug", "Handle Server Message\n");
-    SendToGui((const char*)packet.contents(), 'e');
+    SendToGui((const char*)packet.contents(), "", 'e');
 }
 
 void Session::HandleJoinChannel(Packet& packet)
@@ -225,8 +227,8 @@ void Session::HandleJoinChannel(Packet& packet)
     INFO ("debug", "Handle Join Message\n");
     std::string name, msg;
     packet >> name;
-    msg = "User " + name + " join Channel";
-    SendToGui((const char*)msg.c_str(), 'j');    
+    msg = "\"" + name + "\" has joined the channel";
+    SendToGui((const char*)msg.c_str(), "", 'j');    
 }
 
 void Session::HandleLeaveChannel(Packet& packet)
@@ -234,7 +236,7 @@ void Session::HandleLeaveChannel(Packet& packet)
     INFO ("debug", "Handle Leave Message\n");
     std::string name, msg;
     packet >> name;
-    msg = "User " + name + " leave Channel";
-    SendToGui((const char*)msg.c_str(), 'l');    
+    msg = "\"" + name + "\" has left the channel";
+    SendToGui((const char*)msg.c_str(), "", 'l');    
 }
 

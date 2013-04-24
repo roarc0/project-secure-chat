@@ -132,16 +132,20 @@ Message_t ClientCore::GetEvent()
     return msg;
 }
 
-void ClientCore::AddMessage(std::string& str, char type, bool timestamp)
+void ClientCore::AddMessage(const std::string& str, const string& nick,
+                            char type, bool timestamp)
 {
     Message_t msg;
     std::stringstream ss;
     if (timestamp)
-        ss << "[" << get_timestamp(':') << "] ";
+        ss << "(" << get_timestamp(':') << ") ";
+    if (!nick.empty())
+        ss << nick << ": ";
     ss << str;
     const std::string& tmp = ss.str();
     const char* cstr = tmp.c_str();
     msg.data = cstr;
+    msg.nick = nick;
     msg.type = type;
     msg.timestamp = timestamp;
     messages.add(msg);

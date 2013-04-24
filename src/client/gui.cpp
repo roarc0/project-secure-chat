@@ -317,10 +317,8 @@ void button_send_click(gpointer data, gchar *str, gchar type)
     Message_t msg;
     gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(gres.text_entry));
 
-    if (strlen(text) == 0) // TODO check max length
+    if (strlen(text) == 0 || !c_core->IsConnected()) // TODO check max length
         return;
-
-    msg.timestamp = true;
 
     if ((text[0] != '\\') || (strncmp(text, "\\send", 5) == 0))
     {
@@ -335,20 +333,22 @@ void button_send_click(gpointer data, gchar *str, gchar type)
         msg.type='e';
     }
     
+    msg.timestamp = true;    
     msg.data = text;
+    msg.nick = CFG_GET_STRING("nickname");
+
+    c_core->AddMessage(msg.data, msg.nick, msg.type, msg.timestamp);
+    c_core->SignalEvent();
 
     if (!c_core->HandleSend(text))
     {
         msg.data="Send failed!\n";
         msg.type = 'e';
         msg.timestamp = false;
-        c_core->AddMessage(msg.data, msg.type, msg.timestamp);
+        c_core->AddMessage(msg.data, "", msg.type, msg.timestamp);
         c_core->SignalEvent();
         return;
     }
-
-    c_core->AddMessage(msg.data, msg.type, msg.timestamp);
-    c_core->SignalEvent();
 
     gtk_entry_set_text (GTK_ENTRY(gres.text_entry), "");
 }

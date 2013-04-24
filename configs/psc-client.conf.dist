@@ -12,3 +12,6 @@ chat_msg_fg =  "#000"
 chat_join_fg =  "#55ff00"
 chat_leave_fg =  "#ff3200"
 chat_whisp_fg =  "#3200ff"
+
+priv_key = "client.pem"
+pub_key = "client.pub"

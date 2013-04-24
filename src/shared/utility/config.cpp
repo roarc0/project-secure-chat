@@ -1,4 +1,5 @@
 #include "config.h"
+#include <string.h>
 
 config* config::cfg_singleton = NULL;
 
@@ -23,10 +24,23 @@ string config::get_cfg_filename()
     return cfg_filename;
 }
 
+void config::delete_cfg_opt_t()
+{
+    if(!opts)
+        return;
+
+    for (int i = 0; opts[i].type != CFGT_NONE; i++)
+    { 
+        if(opts[i].type == CFGT_STR)
+            delete[] opts[i].def.string;
+    }
+    
+    delete[] opts;
+}
+
 cfg_opt_t *config::build_cfg_opt_t()
 {
-    if(opts)
-        delete[] opts;
+    delete_cfg_opt_t();
 
     opts = new cfg_opt_t[l_cfgopt_t.size() + 1];
     list<cfg_opt_t>::iterator itr = l_cfgopt_t.begin();
@@ -65,10 +79,7 @@ void config::close_cfg()
         cfg_free(cfg);
     cfg = NULL;
    
-    if(opts)
-    {
-        delete[] opts;
-    }
+    delete_cfg_opt_t();
     opts = NULL;
 }
 
@@ -86,7 +97,9 @@ void config::add_int(const char *id, int value)
 
 void config::add_string(const char *id, string value)
 {
-    cfg_opt_t cfg_tmp = CFG_STR((char*)id, (char*)value.c_str(), CFGF_NONE);
+    char *str = new char[value.length() + 1];
+    strcpy(str,value.c_str());
+    cfg_opt_t cfg_tmp = CFG_STR((char*)id, str, CFGF_NONE);
     l_cfgopt_t.push_back(cfg_tmp);
 }
 

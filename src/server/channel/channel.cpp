@@ -2,12 +2,12 @@
 
 Channel::Channel(std::string& c_name) : name(c_name), b_todelete(false)
 {
-    INFO ("debug", "CHANNEL: Canale costruttore\n");
+    INFO ("debug", "CHANNEL: Channel constructor\n");
 }
 
 Channel::~Channel()
 {
-    INFO ("debug", "CHANNEL: Canale distruttore\n");
+    INFO ("debug", "CHANNEL: Channel destructor\n");
 }
 
 void Channel::Update(uint32 t_diff)

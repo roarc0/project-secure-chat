@@ -383,7 +383,7 @@ bool ChatHandler::HandleJoinChannelCommand(const char* args)
     if (m_session->IsInChannel())
     {
         SetSentErrorMessage(true);
-        SendSysMessage("Sono già in un Canale");
+        SendSysMessage("Already in a channel");
         return false;
     }
 
@@ -393,7 +393,7 @@ bool ChatHandler::HandleJoinChannelCommand(const char* args)
     {
         // Notifica all'utente canale non esistente
         SetSentErrorMessage(true);
-        SendSysMessage("Canale non Esistente");
+        SendSysMessage("Channel does not exists");
         return false;
     }
 
@@ -401,19 +401,19 @@ bool ChatHandler::HandleJoinChannelCommand(const char* args)
     {
         // Invia notifica all'utente che non può entrare nel canale
         SetSentErrorMessage(true);
-        SendSysMessage("Password Errata");
+        SendSysMessage("Wrong Password");
         return false;
     }
 
     if (!sChan->AddSession(m_session))
     {
         SetSentErrorMessage(true);
-        SendSysMessage("Errore Aggiunta Canale");
+        SendSysMessage("Error adding channel");
         return false;
     }
 
     m_session->setChannel(sChan);
-    PSendSysMessage("Entrato nel canale: %s", c_name.c_str());
+    PSendSysMessage("Joined channel: %s", c_name.c_str());
     return true;
 }
 
@@ -435,7 +435,7 @@ bool ChatHandler::HandleCreateChannelCommand(const char* args)
     if (m_session->IsInChannel())
     {
         SetSentErrorMessage(true);
-        SendSysMessage("Sei già in un Canale");
+        SendSysMessage("Already in a channel");
         return false;
     }
 
@@ -443,19 +443,19 @@ bool ChatHandler::HandleCreateChannelCommand(const char* args)
     if (!sChan.get())
     {
         SetSentErrorMessage(true);
-        SendSysMessage("Canale già esistente");
+        SendSysMessage("Channel already exists");
         return false;
     }
 
     if (!sChan->AddSession(m_session))
     {
         SetSentErrorMessage(true);
-        SendSysMessage("Errore Aggiunta Canale");
+        SendSysMessage("Error adding channel");
         return false;
     }
 
     m_session->setChannel(sChan);
-    PSendSysMessage("Creato canale: %s", c_name.c_str());
+    PSendSysMessage("Created new channel: %s", c_name.c_str());
     return true;
 }
 
@@ -464,7 +464,7 @@ bool ChatHandler::HandleLeaveChannelCommand(const char* /*args*/)
     if (!m_session->IsInChannel())
     {
         SetSentErrorMessage(true);
-        SendSysMessage("Non sei in un canale");
+        SendSysMessage("You are not in a channel");
         return false;
     }
 
@@ -473,7 +473,7 @@ bool ChatHandler::HandleLeaveChannelCommand(const char* /*args*/)
     sChan->RemoveSession(m_session->GetId());
     m_session->setChannel(SmartChannel(NULL));
 
-    SendSysMessage("Uscito dal Canale");
+    SendSysMessage("Channel left");
     return true;
 }
 

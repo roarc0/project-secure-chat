@@ -25,7 +25,7 @@ struct Message_t
     
     Message_t()
     {
-    
+        nick = "user";
     }
     
     Message_t(const std::string& d, char t, bool time)
@@ -33,6 +33,7 @@ struct Message_t
         data = d;
         type = t;
         timestamp = time;
+        nick = "user";
     }
 };
 

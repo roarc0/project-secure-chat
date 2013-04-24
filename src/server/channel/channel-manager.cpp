@@ -90,7 +90,7 @@ void ChannelManager::Update(uint32 diff)
     for (iter = m_channels.begin(); iter != m_channels.end(); ++iter)
         if (!iter->second->DelayedUpdate(uint32(i_timer.GetCurrent())))
         {
-            INFO ("debug", "CHANNEL-MANAGER: Rimozione canale\n");
+            INFO ("debug", "CHANNEL-MANAGER: Removing channel\n");
             //delete iter->second; Smart
             m_channels.erase(iter);
         }
@@ -109,5 +109,5 @@ void ChannelManager::JoinDefaultChannel(Session_smart ses)
     }
     cha->AddSession(ses);
     ses->setChannel(cha);
-    ses->SendSysMessage("Sei entrato nel canale Default");
+    ses->SendSysMessage("Default channel joined");
 }

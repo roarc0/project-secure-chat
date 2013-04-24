@@ -274,11 +274,11 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type)
     {
         case 'j': //user join
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "green_bg", "bold", NULL);
+                &textiter, str, -1, "lmarg", "green_fg", "bold", NULL);
         break;
         case 'l': //user leave
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "red_bg", "white_fg", "bold", NULL);
+                &textiter, str, -1, "lmarg", "red_fg", "bold", NULL);
         break;
         case 'm': //message received
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
@@ -546,24 +546,17 @@ void main_gui(int argc, char **argv)
     gtk_text_buffer_create_tag(view_chat_buffer, "white_fg", "foreground", "#ffffff", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "blue_fg", "foreground", "#3200ff", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "magenta_fg", "foreground", "#ff32ff", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "green_fg", "foreground", "#55ff00", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "red_fg", "foreground", "#ff3200", NULL);
+    
     gtk_text_buffer_create_tag(view_chat_buffer, "green_bg", "background", "#55ff00", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "blue_bg", "background", "#3200ff", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "red_bg", "background", "#ff3200", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "yellow_bg", "background", "#f7f732", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "magenta_bg", "background", "#ff32ff", NULL);
+    
     gtk_text_buffer_create_tag(view_chat_buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
-
-    /*############################################## test messages 
-    add_message_to_chat(view_chat_buffer, (gchar*) "<server> MOTD: welcome to project secure chat!\n", (gchar)'s');
-    add_message_to_chat(view_chat_buffer, (gchar*) "<lazzalf> has joined the chat\n", (gchar)'j');
-    add_message_to_chat(view_chat_buffer, (gchar*) "<lazzalf> salve buonuomo\n", (gchar)'m');
-    add_message_to_chat(view_chat_buffer, (gchar*) "<paradox> ave!\n", (gchar)'m');
-    add_message_to_chat(view_chat_buffer, (gchar*) "<furla> ...\n", (gchar)'m');
-    add_message_to_chat(view_chat_buffer, (gchar*) "<paradox> problem solved!\n", (gchar)'w');
-    add_message_to_chat(view_chat_buffer, (gchar*) "<lazzalf> wooot!\n", (gchar)'W');
-    add_message_to_chat(view_chat_buffer, (gchar*) "<paradox> \"furla\" has been kicked out!\n", (gchar)'l');*/
-
 
     gres.scrolledwindow_user_list = gtk_scrolled_window_new (NULL, NULL);
     gtk_paned_pack2 (GTK_PANED(paned_main), gres.scrolledwindow_user_list, false, false);

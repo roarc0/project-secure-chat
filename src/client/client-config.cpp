@@ -13,6 +13,13 @@ void init_config(string filename)
     CFG->add_string("nickname", "user");
     CFG->add_string("password", "default");
     
+    CFG->add_string("chat_bg", "#fff");
+    CFG->add_string("chat_sys_msg_fg", "#ff32ff");
+    CFG->add_string("chat_msg_fg", "#000");
+    CFG->add_string("chat_join_fg", "#55ff00");
+    CFG->add_string("chat_leave_fg", "#ff3200");
+    CFG->add_string("chat_whisp_fg", "#3200ff");
+        
     CFG->add_string("server_host", "127.0.0.1");
     CFG->add_int("server_port", 7777);
     CFG->open_cfg();

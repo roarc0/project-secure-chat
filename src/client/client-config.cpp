@@ -15,7 +15,8 @@ void init_config(string filename)
     
     CFG->add_string("priv_key", "client.pem");
     CFG->add_string("pub_key", "client.pub");
-       
+    
+    CFG->add_string("chat_font", "Arial 10");
     CFG->add_string("chat_bg", "#fff");
     CFG->add_string("chat_sys_msg_fg", "#ff32ff");
     CFG->add_string("chat_msg_fg", "#000");

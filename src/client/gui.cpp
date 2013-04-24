@@ -541,8 +541,15 @@ void main_gui(int argc, char **argv)
     gtk_widget_override_background_color(GTK_WIDGET(view_chat),
                                          GTK_STATE_FLAG_NORMAL, &color);
 
+    PangoFontDescription *font_desc = pango_font_description_from_string(CFG_GET_STRING("chat_font").c_str());
+    if (font_desc)
+        gtk_widget_modify_font(view_chat, font_desc);
+
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(view_chat), GTK_WRAP_WORD_CHAR);
-    gtk_text_view_set_editable(GTK_TEXT_VIEW(view_chat), false);
+    gtk_text_view_set_cursor_visible (GTK_TEXT_VIEW (view_chat), FALSE);
+    gtk_text_view_set_left_margin (GTK_TEXT_VIEW (view_chat), 1);
+    gtk_text_view_set_right_margin (GTK_TEXT_VIEW (view_chat), 1);
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(view_chat), FALSE);
     gtk_container_add (GTK_CONTAINER (gres.scrolledwindow_chat), view_chat);
     view_chat_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(view_chat));
     

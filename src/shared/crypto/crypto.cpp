@@ -1,8 +1,26 @@
 #include "crypto.h"
-
 #include <openssl/evp.h>
 #include <openssl/aes.h>
 #include <openssl/rand.h>
+#include <openssl/sha.h>
+#include <iomanip>
+
+void SHA256_digest(const char* data, int length, string& digest)
+{
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX ctx;
+    SHA256_Init(&ctx);
+    SHA256_Update(&ctx, data, length);
+    SHA256_Final(hash, &ctx);
+    
+    stringstream ss;
+
+    ss.fill('0');
+    ss << std::hex;
+    for(int i=0; i<SHA256_DIGEST_LENGTH; i++)
+        ss << std::setw(2) << (int) hash[i];
+    digest = ss.str();
+}
 
 int GenerateRandomKey(ByteBuffer &key, int size)
 {

@@ -12,11 +12,14 @@ typedef counted_ptr<Session> Session_smart;
 class Session : public SessionBase
 {
     SocketClient* c_Socket;
-    bool         connected;
-
+    bool          connected;
+    string        nickname;
   public:
     Session();
     ~Session();
+
+    std::string GetNickname();
+    void SetNickname(const std::string&);
 
     bool Connect();
     bool Disconnect();

@@ -175,3 +175,13 @@ bool ClientCore::IsConnected()
 {
     return session->IsConnected();
 }
+
+std::string ClientCore::GetNickname()
+{
+    return session->GetNickname();
+}
+
+void ClientCore::SetNickname(const std::string& n)
+{
+    session->SetNickname(n);
+}

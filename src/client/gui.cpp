@@ -30,6 +30,7 @@ struct gui_res
     /* Chat */
     GtkWidget *view_chat;
     GtkTextBuffer *view_chat_buffer;
+    GtkWidget *label_nick;
 } gres;
 
 
@@ -145,6 +146,49 @@ void show_about()
   gtk_widget_destroy(dialog);
 }
 
+void set_nick(GtkWidget *widget, gpointer parent)
+{
+    GtkWidget* dialog = gtk_dialog_new_with_buttons ("Select Name",
+                                                 GTK_WINDOW(parent),
+                                                 (GtkDialogFlags) (GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT),
+                                                 GTK_STOCK_OK,
+                                                 GTK_RESPONSE_ACCEPT,
+                                                 GTK_STOCK_CANCEL,
+                                                 GTK_RESPONSE_REJECT,
+                                                 NULL);
+    
+    GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));    
+    GtkWidget *entry = gtk_entry_new();
+
+    gtk_container_set_border_width(GTK_CONTAINER (content_area), 5);
+         
+    gtk_container_add (GTK_CONTAINER (content_area), entry);
+    gtk_widget_show_all (dialog);
+    
+    gint result = gtk_dialog_run(GTK_DIALOG (dialog));
+
+    gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(entry));
+    INFO("debug", "GUI: result %d\n", (int)result);
+
+    switch (result)
+    {
+        case GTK_RESPONSE_ACCEPT:
+            
+            INFO("debug" "GUI: new nickname %s\n", text);
+            if (strlen(text))
+            {
+                gtk_label_set_text(GTK_LABEL(gres.label_nick), text);
+                c_core->SetNickname(text);
+            }
+            break;
+
+        default:
+        break;
+    }
+
+    gtk_widget_destroy(dialog);
+}
+
 void select_font(gpointer parent)
 {
     GtkWidget* dialog = gtk_font_chooser_dialog_new("Font", GTK_WINDOW(parent));
@@ -159,6 +203,7 @@ void select_font(gpointer parent)
     gtk_widget_destroy(dialog);
 }
 
+// TODO update
 void show_message(gchar *message)
 {
    GtkWidget *dialog, *label;
@@ -353,7 +398,7 @@ void button_send_click(gpointer data, gchar *str, gchar type)
     
     msg.timestamp = true;    
     msg.data = text;
-    msg.nick = CFG_GET_STRING("nickname");
+    msg.nick = c_core->GetNickname();
 
     c_core->AddMessage(msg.data, msg.nick, msg.type, msg.timestamp);
     c_core->SignalEvent();
@@ -390,7 +435,7 @@ void toolbar_reset_click(gpointer data)
     //pthread_mutex_unlock(&mutex_guichange);
 }
 
-void toolbar_connect_click(gpointer data, gchar *str, gchar type)
+void toolbar_connect_click(gpointer data)
 {
     GtkToolButton *toolbar_connect = GTK_TOOL_BUTTON(data);
     if (!c_core->IsConnected())
@@ -420,6 +465,7 @@ void main_gui(int argc, char **argv)
     GtkWidget *filemenu,*helpmenu;
     GtkWidget *file;
     GtkWidget *connect,*open, *font,*sep,*quit;
+    GtkWidget *nickname;
     GtkWidget *help;
     GtkWidget *about;
     GtkAccelGroup *accel_group = NULL;
@@ -441,7 +487,6 @@ void main_gui(int argc, char **argv)
     /* input della chat */
     GtkWidget *hbox_inputs;
     GtkWidget *vbox_inputs;
-    GtkWidget *label_nick;
     GtkWidget *entry_command;
     GtkWidget *button_send;
 
@@ -485,6 +530,7 @@ void main_gui(int argc, char **argv)
     helpmenu = gtk_menu_new();
 
     file = gtk_menu_item_new_with_label("File");
+    nickname = gtk_menu_item_new_with_label("Nickname");
     connect = gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW, NULL);
     open = gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN, NULL);
     font = gtk_image_menu_item_new_from_stock(GTK_STOCK_SELECT_FONT, NULL);
@@ -495,6 +541,7 @@ void main_gui(int argc, char **argv)
 
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(file), filemenu);
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), connect);
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), nickname);
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), font);
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep);
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), quit);
@@ -509,6 +556,7 @@ void main_gui(int argc, char **argv)
     g_signal_connect(G_OBJECT(quit), "activate", G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect(G_OBJECT(font), "activate", G_CALLBACK(select_font), G_OBJECT(window));
     g_signal_connect(G_OBJECT(about), "activate", G_CALLBACK(show_about), NULL);
+    g_signal_connect(G_OBJECT(nickname), "activate", G_CALLBACK(set_nick), G_OBJECT(window));
 
     /* toolbar */
     toolbar = gtk_toolbar_new();
@@ -526,7 +574,7 @@ void main_gui(int argc, char **argv)
 
     toolbar_refresh = gtk_tool_button_new_from_stock(GTK_STOCK_REFRESH);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_refresh, -1);
-    //g_signal_connect(G_OBJECT(toolbar_refresh), "clicked", G_CALLBACK(toolbar_refresh_click), NULL);
+    //g_signal_connect(G_OBJECT(toolbar_refresh), "clicked", G_CALLBACK(set_nick), G_OBJECT(window));
 
     toolbar_reset = gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR);
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_reset, -1);
@@ -641,9 +689,9 @@ void main_gui(int argc, char **argv)
     hbox_inputs = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_box_pack_start(GTK_BOX (vbox_main), hbox_inputs, FALSE, FALSE, 0);
     
-    label_nick = gtk_label_new((gchar *) CFG_GET_STRING("nickname").c_str()); 
-    gtk_misc_set_alignment(GTK_MISC(label_nick),0.0,0.5);
-    gtk_box_pack_start(GTK_BOX (hbox_inputs), label_nick, FALSE, FALSE, 2 );
+    gres.label_nick = gtk_label_new((gchar *) CFG_GET_STRING("nickname").c_str()); 
+    gtk_misc_set_alignment(GTK_MISC(gres.label_nick),0.0,0.5);
+    gtk_box_pack_start(GTK_BOX (hbox_inputs), gres.label_nick, FALSE, FALSE, 2 );
 
     entry_command = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX (hbox_inputs), entry_command, TRUE, TRUE, 5);

@@ -42,7 +42,7 @@ class Session : public SessionBase
 
     bool HandleSend(const char* msg);
 
-    void SendToGui(std::string str);
+    void SendToGui(std::string str, char type);
 
   private:
 

@@ -49,7 +49,7 @@ void* GuiThread(void* arg)
                 "Disconnect");
             push_status_bar("Connected with server!");
             add_message_to_chat(gres->chat_buffer,
-                                (gchar*) "<local> Connected!\n", 'e');
+                                (gchar*) "Connected!\n", 'e');
             add_user_to_list(gres->view_user_list,
                              (gchar*) CFG_GET_STRING("nickname").c_str(),
                              (gchar*) "*");
@@ -61,7 +61,7 @@ void* GuiThread(void* arg)
                 "Connect");
             push_status_bar("Disconnected from server!");
             add_message_to_chat(gres->chat_buffer,
-                                (gchar*) "<local> Disconnected!\n", 'e');
+                                (gchar*) "Disconnected!\n", 'e');
             remove_user_from_list(gres->view_user_list,
                  (gchar*) CFG_GET_STRING("nickname").c_str());
         }
@@ -77,6 +77,17 @@ void* GuiThread(void* arg)
                     msg.data.append("\n");
                 add_message_to_chat(gres->chat_buffer,
                                     (gchar*) msg.data.c_str(), msg.type);
+                if (msg.type == 'j')
+                {
+                    add_user_to_list(gres->view_user_list,
+                     (gchar*) msg.nick.c_str(),
+                     (gchar*) "*");
+                }
+                else if (msg.type == 'l')
+                {
+                    remove_user_from_list(gres->view_user_list,
+                                         (gchar*) msg.nick.c_str());
+                }
             }
             else
                 INFO("debug", "GUI: message is null\n ");
@@ -248,7 +259,7 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type)
         break;
         case 'e': //local event
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
-                &textiter, str, -1, "lmarg", "magenta_bg", "white_fg", "bold", NULL);
+                &textiter, str, -1, "lmarg", "magenta_fg", "white_fg", "bold", NULL);
         break;
         case 's': //server communication
             gtk_text_buffer_insert_with_tags_by_name (text_view_buffer,
@@ -495,6 +506,7 @@ void main_gui(int argc, char **argv)
     gtk_text_buffer_create_tag(view_chat_buffer, "black_fg", "foreground", "#000000", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "white_fg", "foreground", "#ffffff", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "blue_fg", "foreground", "#3200ff", NULL);
+    gtk_text_buffer_create_tag(view_chat_buffer, "magenta_fg", "foreground", "#ff32ff", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "green_bg", "background", "#55ff00", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "blue_bg", "background", "#3200ff", NULL);
     gtk_text_buffer_create_tag(view_chat_buffer, "red_bg", "background", "#ff3200", NULL);

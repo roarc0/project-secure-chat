@@ -71,9 +71,10 @@ void Session::ResetSocket()
     m_Socket = (SocketBase*) c_Socket;
 }
 
-void Session::SendToGui(std::string str)
+void Session::SendToGui(std::string str, char type)
 {
-    c_core->AddMessage(str,'m',true);
+    bool timestamp = ((type == 'm') ? true:false);
+    c_core->AddMessage(str, type, timestamp);
     c_core->SignalEvent();
 }
 
@@ -210,12 +211,12 @@ void Session::Handle_Ping(Packet& /*packet*/)
 void Session::HandleMessage(Packet& packet)
 {
     INFO ("debug", "SESSION: Handling Message\n");
-    SendToGui(xmsg.ReadMessage((const char*)packet.contents()));
+    SendToGui(xmsg.ReadMessage((const char*)packet.contents()), 'm');
 }
 
 void Session::HandleServerMessage(Packet& packet)
 {
     INFO ("debug", "Handle Server Message\n");
-    SendToGui((const char*)packet.contents());
+    SendToGui((const char*)packet.contents(), 'e');
 }
 

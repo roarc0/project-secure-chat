@@ -6,6 +6,7 @@ nickname = "the_doctor"
 server_host = "127.0.0.1"
 server_port = 7777
 
+chat_font = "Arial 10"
 chat_bg = "#fff"
 chat_sys_msg_fg =  "#ff32ff"
 chat_msg_fg =  "#000"

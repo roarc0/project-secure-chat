@@ -73,7 +73,7 @@ void Session::ResetSocket()
 
 void Session::SendToGui(std::string msg, std::string nick, char type)
 {
-    bool timestamp = ((type == 'm') ? true:false);
+    bool timestamp = ((type == 'e') ? false:true);
     c_core->AddMessage(msg, nick, type, timestamp);
     c_core->SignalEvent();
 }

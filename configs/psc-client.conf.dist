@@ -6,3 +6,9 @@ nickname = "the_doctor"
 server_host = "127.0.0.1"
 server_port = 7777
 
+chat_bg = "#fff"
+chat_sys_msg_fg =  "#ff32ff"
+chat_msg_fg =  "#000"
+chat_join_fg =  "#55ff00"
+chat_leave_fg =  "#ff3200"
+chat_whisp_fg =  "#3200ff"

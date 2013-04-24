@@ -40,6 +40,7 @@ class config
     
   private:
                 config();
+    void        delete_cfg_opt_t();
     cfg_opt_t*  build_cfg_opt_t();
 
     static config*    cfg_singleton;

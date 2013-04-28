@@ -1,24 +1,11 @@
 #include "server-core.h"
 
-#define N_NET_THREAD 2
-#define N_EXEC_THREAD 4
-
-/*void handle_session_manager_task(void *ptr)
-{
-    s_manager->AddTaskToServe(ptr);
-}*/
-
 void server_core()
 {
     try
     {
         //db_manager->set_dbfilename(CFG_GET_STRING("db_filename"));
         //db_manager->init_db();
-
-
-/* ... */
-
-
 
         s_manager;
         net_manager;
@@ -27,25 +14,22 @@ void server_core()
         s_sched_engine->Initialize(CFG_GET_INT("ThreadExec")); // Numero thread elaborazione
 
         bool m_active = true;
-        uint32 diff = 0;
-        struct timeval t1, t2;
-
-        gettimeofday(&t1, NULL);
+        double diff = 0;
+        struct timer tm;
 
         while(m_active)
         {
+            time_start(&tm);
             try
             {
                 msleep(100);
 
-                // calcola diff
-                gettimeofday(&t2, NULL);
-                diff = (t2.tv_sec - t1.tv_sec) * 1000 + (t2.tv_usec - t1.tv_usec)/1000;
+                time_stop(&tm);
+                diff = time_diff(&tm);
                 if (diff == 0)
                     diff = 1;
-                t1 = t2;
 
-                s_manager->Update(diff);
+                s_manager->Update((uint32)diff);
             }
             catch(...)
             {
@@ -55,6 +39,6 @@ void server_core()
     }
     catch(...)
     {
-        INFO("debug", "default init exception");
+        INFO("debug", "SERVER_CORE: default init exception");
     }
 }

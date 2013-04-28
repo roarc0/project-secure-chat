@@ -29,6 +29,9 @@ class SessionBase
         Packet* RecvPacketFromSocket();
         Packet* GetPacketToSend();
         
+        std::string GetNickname();
+        void SetNickname(const std::string&);
+        
         bool IsEncrypted() const
         {
             return s_enc != enc_NONE;
@@ -52,6 +55,8 @@ class SessionBase
         virtual int _SendPacket(Packet& new_packet);
         int _SendPacketToSocket(Packet& pct);
         Packet* _RecvPacketFromSocket();
+        
+        std::string nickname;
 
         Mutex m_mutex;
 

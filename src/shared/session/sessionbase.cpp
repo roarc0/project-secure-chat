@@ -16,7 +16,7 @@ SessionBase::SessionBase(int pSock)
 
 SessionBase::~SessionBase()
 {
-    INFO("debug", "SESSIONBASE: distruttore\n");
+    INFO("debug", "SESSIONBASE: destructor\n");
 
     Packet* packet = NULL;
     while (_recvQueue.next(packet))
@@ -71,12 +71,12 @@ int SessionBase::_SendPacket(Packet& pct)
 
 int SessionBase::_SendPacketToSocket(Packet& pct)
 {
-    INFO("debug", "SESSIONBASE: Sending Packet: \"%s\"\n", pct.contents());
+    INFO("debug", "SESSIONBASE: sending packet: \"%s\"\n", pct.contents());
     unsigned char* rawData;
 
     if (IsEncrypted() && pct.size())
     {
-        INFO("debug", "SESSIONBASE: Encrypting Packet  <%d bytes>",pct.size());
+        INFO("debug", "SESSIONBASE: encrypting packet  <%d bytes>\n",pct.size());
         pct.Encrypt(s_key);
     }
 
@@ -88,7 +88,7 @@ int SessionBase::_SendPacketToSocket(Packet& pct)
     
     m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
     delete[] rawData;
-    INFO("debug", "SESSIONBASE: Packet <%d bytes> Sent: \"%s\"\n", pct.size(), pct.contents());
+    INFO("debug", "SESSIONBASE: packet <%d bytes> sent: \"%s\"\n", pct.size(), pct.contents());
     return 0;
 }
 
@@ -96,7 +96,7 @@ Packet* SessionBase::RecvPacketFromSocket()
 {
     if (!m_Socket || m_Socket->IsClosed())
         return NULL;
-    INFO("debug","SESSIONBASE: Calling recv\n");
+    INFO("debug","SESSIONBASE: receiving packet\n");
     return _RecvPacketFromSocket();
 }
 
@@ -112,7 +112,7 @@ Packet* SessionBase::_RecvPacketFromSocket()
         m_Socket->Recv((void*) buffer, pkt_head.getSize());
     }
 
-    INFO("debug","SESSIONBASE: Message: %s , header %u, len %u\n", buffer, pkt_head.getHeader(), pkt_head.getSize());
+    INFO("debug","SESSIONBASE: message: %s , header %d, len %d\n", buffer, pkt_head.getHeader(), pkt_head.getSize());
 
     pct = new Packet(pkt_head.getHeader(), pkt_head.getSize());
     
@@ -125,9 +125,9 @@ Packet* SessionBase::_RecvPacketFromSocket()
 
         if (IsEncrypted() && pkt_head.getSize())
         {
-            INFO("debug", "SESSIONBASE: Decrypting Packet\n");
+            INFO("debug", "SESSIONBASE: decrypting packet\n");
             pct->Decrypt(s_key);
-            INFO("debug", "SESSIONBASE: Packet Decrypted\n");
+            INFO("debug", "SESSIONBASE: packet decrypted\n");
         }
 
         delete[] buffer;
@@ -139,3 +139,14 @@ void SessionBase::Handle_NULL(Packet& /*packet*/)
 {
     // LOG
 };
+
+std::string SessionBase::GetNickname()
+{
+    return nickname;
+}
+
+void SessionBase::SetNickname(const std::string& n)
+{
+    nickname = n;
+}
+

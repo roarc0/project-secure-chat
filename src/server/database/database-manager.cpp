@@ -13,15 +13,15 @@ void DatabaseManager::InitDb()
     if (!file_exists(db_filename.c_str()))
     {
         new_db = true;
-        INFO("debug", "* creating new db ... \"%s\"\n", db_filename.c_str());
+        INFO("debug", "DATABASE_MANAGER: creating new db ... \"%s\"\n", db_filename.c_str());
     }
     else
-        INFO("debug", "* opening db ... \"%s\"\n", db_filename.c_str());
+        INFO("debug", "DATABASE_MANAGER: opening db ... \"%s\"\n", db_filename.c_str());
 
     ret = sqlite3_open(db_filename.c_str(), &handle);
     if (ret)
     { 
-        INFO("debug", "* can't open db ... \"%s\"\n", sqlite3_errmsg(handle));
+        INFO("debug", "DATABASE_MANAGER: can't open db ... \"%s\"\n", sqlite3_errmsg(handle));
         sqlite3_close(handle);
         exit(1);
     }

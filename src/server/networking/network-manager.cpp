@@ -26,13 +26,13 @@ class NetworkThread: public MethodRequest
         {
             Packet* pkt = NULL;
             
-            INFO("debug", "NETWORKTHREAD: Started\n");
+            INFO("debug", "NETWORKTHREAD: started\n");
             
             while (active)
             {
-                INFO("debug", "NETWORKTHREAD: Wait\n");
+                INFO("debug", "NETWORKTHREAD: wait\n");
                 netsession_pair net_ses = m_netmanager.GetNextSession();
-                INFO("debug", "NETWORKTHREAD: Got Signal!\n");
+                INFO("debug", "NETWORKTHREAD: got Signal!\n");
                 
                 try
                 {
@@ -41,7 +41,7 @@ class NetworkThread: public MethodRequest
                         pkt = net_ses.first->GetPacketToSend();
                         if (pkt)
                         {
-                            INFO("debug", "NETWORKTHREAD: Send Packet Event\n");
+                            INFO("debug", "NETWORKTHREAD: send packet event\n");
                             net_ses.first->SendPacketToSocket(pkt);
                             delete pkt;
                         }
@@ -68,7 +68,7 @@ class NetworkThread: public MethodRequest
                 }
             }
             
-            INFO("debug", "NETWORKTHREAD: Killed\n");
+            INFO("debug", "NETWORKTHREAD: killed\n");
             
             return 0;
         }
@@ -83,7 +83,7 @@ int NetworkManager::Initialize(uint32 n_thread)
 {
     m_thread = n_thread;
     // +1 per l'epoll thread
-    INFO("debug","NETWORKMANAGER: Starting %d threads\n", (m_thread + 1));
+    INFO("debug","NETWORKMANAGER: starting %d threads\n", (m_thread + 1));
     net_engine.Initialize(m_thread + 1);
     if (ActivateThreadsNetwork() != 0)
         return -1;
@@ -96,7 +96,7 @@ int NetworkManager::ActivateEpoll()
 {
     if (net_engine.Execute(new SocketServer(*this, 0)) != 0)
     {
-        INFO ("debug", "NETWORKMANAGER: Can't start epoll thread\n");
+        INFO ("debug", "NETWORKMANAGER: can't start epoll thread\n");
         return -1;
     }
 
@@ -109,7 +109,7 @@ int NetworkManager::ActivateThreadsNetwork()
     {
         if (net_engine.Execute(new NetworkThread(*this, 0)) != 0)
         {
-            INFO ("debug", "NETWORKMANAGER: Can't start network thread\n");
+            INFO ("debug", "NETWORKMANAGER: can't start network thread\n");
             return -1;
         }
     }
@@ -125,7 +125,7 @@ int NetworkManager::QueueSend(Session_smart m_ses)
     q_request.add(netsession_pair(m_ses, SEND));
     sem.Signal();
     
-    INFO("debug","NETWORK-MANAGER: send queued\n");
+    INFO("debug","NETWORKMANAGER: send queued\n");
    
     return 0;
 }
@@ -135,14 +135,14 @@ int NetworkManager::QueueRecive(uint32 sock)
     Session_smart m_ses = s_manager->FindSession(sock);
     if (!m_ses.get())
     {
-        INFO("debug","NETWORK-MANAGER: session for socket %d not found\n", sock);
+        INFO("debug","NETWORKMANAGER: session for socket %d not found\n", sock);
         return -1;
     }
 
     q_request.add(netsession_pair(m_ses, RECV));
     sem.Signal();
     
-    INFO("debug","NETWORK-MANAGER: queue recive\n");
+    INFO("debug","NETWORKMANAGER: recive queued\n");
     
     return 0;
 }

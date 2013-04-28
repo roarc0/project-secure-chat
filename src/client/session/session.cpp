@@ -17,16 +17,6 @@ Session::~Session()
     // TODO
 }
 
-std::string Session::GetNickname()
-{
-    return nickname;
-}
-
-void Session::SetNickname(const std::string& n)
-{
-    nickname = n;
-}
-
 bool Session::Connect()
 {
     try

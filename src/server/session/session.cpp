@@ -93,7 +93,7 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
                     case STATUS_LOGGING:
                         if (m_inQueue)
                         {
-                            INFO ("debug", "SESSION: packet Injection, while in queue\n");
+                            INFO ("debug", "SESSION: packet injection, while in queue\n");
                             break; // For Packet Injection
                         }
                         (this->*opHandle.handler)(*packet);
@@ -220,10 +220,10 @@ void Session::HandleWhisp(Packet& packet)
 void Session::HandleJoinChannel(Packet& packet) 
 {
     // prendi il nome del canale dal pacchetto
-    std::string c_name = ""; 
+    std::string c_name; 
     packet >> c_name;
     // prendi password dal pacchetto
-    std::string pass = ""; 
+    std::string pass; 
     packet >> pass;
 
     SmartChannel sChan = s_manager->GetChannelMrg()->FindChannel(c_name);
@@ -309,7 +309,7 @@ void Session::HandleLeaveChannel(Packet& /*packet*/)
 
 void Session::HandleListChannel(Packet& /*packet*/) 
 {
-    std::string info = "";
+    std::string info;
     s_manager->GetChannelMrg()->getChannelList(info);
     SendSysMessage(info.c_str());
 }

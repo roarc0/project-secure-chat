@@ -13,14 +13,14 @@ int Packet::Encrypt(ByteBuffer key)
     
     if(!ret)
     {
-        INFO("debug", "PACKET: Encrypted\n");
+        INFO("debug", "PACKET: encrypted\n");
         m_encrypted = true;
         this->clear();
         if (ciphertext.size())
             this->append(ciphertext.contents(), ciphertext.size());
     }
     else
-        INFO("debug", "PACKET: Encryption failed\n");
+        INFO("debug", "PACKET: encryption failed\n");
     
     return ret;
 }
@@ -31,20 +31,20 @@ int Packet::Decrypt(ByteBuffer key)
     ByteBuffer plaintext;
     int ret=0;
 
-    std::cout << std::endl << "DECRYPTING: " << std::endl;
+    INFO("debug", "PACKET: decrypting\n");
     ciphertext->hexlike();
 
     ret = AesDecrypt(key, *ciphertext, plaintext);
     
     if (!ret)
     {
-        INFO("debug", "PACKET: Decrypted\n");
+        INFO("debug", "PACKET: decrypted\n");
         m_encrypted = false;
         this->clear();
         this->append(plaintext);
     }
     else
-        INFO("debug", "PACKET: Decryption failed\n");
+        INFO("debug", "PACKET: decryption failed\n");
      
     return ret;
 }

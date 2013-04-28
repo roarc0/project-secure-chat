@@ -41,7 +41,7 @@ int SchedulingEngine::Initialize(uint32 n_thread)
 
         if (m_thread->Start(NULL) != 0)
         {
-            INFO ("debug", "SCHED_ENGINE: Fail Start Thread!\n");
+            INFO ("debug", "SCHED_ENGINE: can't start scheduling engine!\n");
             continue;   
         }   
         m_threads.push_front(m_thread);

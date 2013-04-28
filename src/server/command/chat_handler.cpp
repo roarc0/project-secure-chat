@@ -335,7 +335,7 @@ void ChatHandler::PSendSysMessage(uint32 entry, ...)
 {
     const char* format = ChatCommandErrorTable[entry].Error.c_str();
     va_list ap;
-    char str [2048];
+    char str [2048];   /* MOTHER OF GOD */
     va_start(ap, entry);
     vsnprintf(str, 2048, format, ap);
     va_end(ap);

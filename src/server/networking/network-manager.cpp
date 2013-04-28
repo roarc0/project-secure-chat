@@ -46,19 +46,19 @@ class NetworkThread: public MethodRequest
                             delete pkt;
                         }
                         else
-                            INFO("debug", "NETWORKTHREAD: WARNING packet to send is NULL\n");
+                            INFO("debug", "NETWORKTHREAD: WARNING can't send NULL packet\n");
                     }
                     else // Recv
                     {
-                        INFO("debug", "NETWORKTHREAD: Recv Packet Event\n");
+                        INFO("debug", "NETWORKTHREAD: receiving packet event\n");
                         pkt = net_ses.first->RecvPacketFromSocket();
                         if (pkt)
                         {   
-                            INFO("debug", "NETWORKTHREAD: Accodato pacchetto in coda elaborazione\n");          
+                            INFO("debug", "NETWORKTHREAD: packet queued in elaboration queue.\n");          
                             net_ses.first->QueuePacket(pkt);
                         }
                         else
-                            INFO("debug", "NETWORKTHREAD: WARNING packet received is NULL\n");
+                            INFO("debug", "NETWORKTHREAD: WARNING can't send NULL packet\n");
                     }
                 }
                 catch(SocketException e)
@@ -96,7 +96,7 @@ int NetworkManager::ActivateEpoll()
 {
     if (net_engine.Execute(new SocketServer(*this, 0)) != 0)
     {
-        INFO ("debug", "NETWORKMANAGER: fail activate epoll \n");
+        INFO ("debug", "NETWORKMANAGER: Can't start epoll thread\n");
         return -1;
     }
 
@@ -109,7 +109,7 @@ int NetworkManager::ActivateThreadsNetwork()
     {
         if (net_engine.Execute(new NetworkThread(*this, 0)) != 0)
         {
-            INFO ("debug", "NETWORKMANAGER: fail activate network thread \n");
+            INFO ("debug", "NETWORKMANAGER: Can't start network thread\n");
             return -1;
         }
     }
@@ -125,7 +125,7 @@ int NetworkManager::QueueSend(Session_smart m_ses)
     q_request.add(netsession_pair(m_ses, SEND));
     sem.Signal();
     
-    INFO("debug","NETWORK-MANAGER: queue send\n");
+    INFO("debug","NETWORK-MANAGER: send queued\n");
    
     return 0;
 }

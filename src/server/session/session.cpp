@@ -7,7 +7,7 @@
 Session::Session(int pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), m_channel(NULL)
 {
-    nick = "namelessone";
+    nickname = "namelessone";
 }
 
 Session::~Session()
@@ -156,18 +156,6 @@ void Session::SendWaitQueue(int position)
     Packet new_packet(SMSG_QUEUE_POSITION, 4);
     new_packet<<uint32(position);
     SendPacket(&new_packet);   
-}
-
-int Session::SetNick(std::string& str)
-{
-    Session_smart ses = s_manager->FindSession(str);
-    if (!ses.get())
-    {
-        return -1;
-        //SendSysMessage("Nick già esistente");
-    }
-    nick = str;
-    return 0; 
 }
 
 void Session::Handle_Ping(Packet& /*packet*/)

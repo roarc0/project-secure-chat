@@ -4,6 +4,7 @@
 #include "common.h"
 #include "threading/lock.h"
 #include "utility/counted_ptr.h"
+#include "xml-message.h"
 #include "session.h"
 
 class Session;

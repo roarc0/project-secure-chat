@@ -30,6 +30,7 @@ class SessionBase
         Packet* GetPacketToSend();
         
         std::string GetNickname();
+        const std::string* GetNicknamePtr(); /* MOTHER OF GOD*/
         void SetNickname(const std::string&);
         
         bool IsEncrypted() const

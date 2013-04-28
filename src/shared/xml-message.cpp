@@ -24,12 +24,7 @@ std::string XMLBuildMessage(const char* name, const char* content)
 
     stringstream ss;
     ss << doc;
- 
-    std::string sss = XMLBuildUpdate("alec", "join");
-    std::string nx,sx;
-    XMLReadUpdate(sss.c_str(), nx,sx);
-    INFO("debug", "XML: %s - %s #\n", nx.c_str(),sx.c_str());
- 
+
     return ss.str(); 
 }
 

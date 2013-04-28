@@ -32,7 +32,7 @@ void SocketServer::SetBlocking(int sock, const bool block)
     int flags;
 
     if(!block)
-        INFO("debug", "setting socket %d non-blocking\n", sock);
+        INFO("debug", "SOCKET: setting socket %d non-blocking\n", sock);
 
     if ((flags = fcntl (sock, F_GETFL, 0)) < 0)
         throw SocketException("[setBlocking() -> fnctl()]", true);
@@ -78,7 +78,7 @@ void SocketServer::SetupSocket(int port) throw(SocketException)
 
         if (bind(sock_listen, ai_res->ai_addr, ai_res->ai_addrlen) == 0)
         {
-            INFO("debug", "succesful bind!\n");
+            INFO("debug", "SOCKET: succesful bind!\n");
             if (serverinfo_res == NULL)
                 throw SocketException("bind failed!", false);
 
@@ -91,7 +91,7 @@ void SocketServer::SetupSocket(int port) throw(SocketException)
             break;
         }
 
-        INFO("debug", "bind failed!!\n");
+        INFO("debug", "SOCKET: bind failed!!\n");
         CloseSocket();
     }
 }
@@ -114,7 +114,7 @@ int SocketServer::Call()
 {
     int res = -1, sock_new, i = 0;
 
-    INFO("debug", "SOCKET: Listening on port: %d\n", CFG_GET_INT("server_port"));
+    INFO("debug", "SOCKET: listening on port: %d\n", CFG_GET_INT("server_port"));
     Init(CFG_GET_INT("server_port"));
 
     while(1)
@@ -124,7 +124,7 @@ int SocketServer::Call()
             if ((res = epoll_wait(epoll_fd, events, MAXEVENTS, -1)) < 0)
                 throw SocketException("[epoll_wait()]", true);
 
-            INFO("debug", "SOCKET: Wait res %d\n",res);
+            INFO("debug", "SOCKET: epoll_wait result is %d\n",res);
 
             Lock lock(mutex_events);
             for (i = 0; i < res; i++)
@@ -132,13 +132,13 @@ int SocketServer::Call()
                 if ((events[i].events & EPOLLERR) ||
                     (events[i].events & EPOLLHUP))
                 {
-                    INFO("debug", "SOCKET: Closing socket\n");
+                    INFO("debug", "SOCKET: closing socket\n");
                     close(events[i].data.fd);
                     continue;
                 }
                 else if (sock_listen == events[i].data.fd)
                 {
-                    INFO("debug", "SOCKET: Accepting new connection\n");
+                    INFO("debug", "SOCKET: accepting new connection\n");
                     while (1)
                     {
                         struct sockaddr in_addr;
@@ -165,7 +165,7 @@ int SocketServer::Call()
                                         sbuf, sizeof sbuf,
                                         NI_NUMERICHOST | NI_NUMERICSERV) == 0)
                         {
-                            INFO("debug", "SOCKET: New Connection %d "
+                            INFO("debug", "SOCKET: new connection %d "
                                    "(host=%s, port=%s)\n", sock_new, hbuf, sbuf);
                         }
                         else
@@ -184,7 +184,7 @@ int SocketServer::Call()
                             continue;
                         }
 
-                        INFO("debug","SOCKET: Creating New Session, socket %u\n", sock_new);
+                        INFO("debug","SOCKET: creating new session, socket %u\n", sock_new);
 
                         if (epoll_ctl (epoll_fd, EPOLL_CTL_ADD, sock_new, &event) < 0)
                             throw SocketException("[epoll_ctl()]", true);
@@ -194,12 +194,12 @@ int SocketServer::Call()
                 }
                 else if (events[i].events & EPOLLIN)
                 {
-                    INFO("debug","SOCKET: Receive Event on socket %u\n", events[i].data.fd);
+                    INFO("debug","SOCKET: receive event on socket %u\n", events[i].data.fd);
                     m_netmanager.QueueRecive(events[i].data.fd);
                 }
                 else
                 {
-                    INFO("debug","SOCKET: Event %u not handled on socket %u\n", events[i].events, events[i].data.fd);
+                    INFO("debug","SOCKET: event %u not handled on socket %u\n", events[i].events, events[i].data.fd);
                 }
             }
         }

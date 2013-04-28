@@ -7,7 +7,7 @@
 Session::Session(int pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), m_channel(NULL)
 {
-    nick = "Prova";
+    nick = "namelessone";
 }
 
 Session::~Session()
@@ -56,7 +56,7 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
     bool deletePacket = true;
 
     if (m_Socket->IsClosed())
-        INFO ("debug", "SESSION: Update socket Chiuso\n");
+        INFO ("debug", "SESSION: socket closed\n");
 
     while (m_Socket && !m_Socket->IsClosed() &&
             !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
@@ -64,11 +64,11 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
     {
         if (packet->GetOpcode() >= NUM_MSG_TYPES) // Max opcode
         {
-            INFO ("debug", "SESSION: Opcode Pacchetto Non Valido\n");
+            INFO ("debug", "SESSION: opcode is not valid\n");
         }
         else
         {
-            INFO ("debug", "SESSION: Ricevuto pacchetto\n");
+            INFO ("debug", "SESSION: packet received\n");
             OpcodeHandler &opHandle = opcodeTable[packet->GetOpcode()];
             try
             {
@@ -76,7 +76,7 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
                 {
                     case STATUS_LOGGED:
                         {
-                            INFO ("debug", "SESSION: pacchetto in elaborazione\n");
+                            INFO ("debug", "SESSION: processing packet\n");
                             (this->*opHandle.handler)(*packet);
                         }
                         break;
@@ -93,16 +93,16 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
                     case STATUS_LOGGING:
                         if (m_inQueue)
                         {
-                            INFO ("debug", "Rilevato Packet Injection durante la coda\n");
+                            INFO ("debug", "SESSION: packet Injection, while in queue\n");
                             break; // For Packet Injection
                         }
                         (this->*opHandle.handler)(*packet);
                         break;
                     case STATUS_NEVER:
-                        INFO ("debug", "SESSION: STATUS_NEVER, pacchetto non elaborato\n");
+                        INFO ("debug", "SESSION: STATUS_NEVER, packet hasn't been processed\n");
                         break;
                     case STATUS_UNHANDLED:
-                        INFO ("debug", "SESSION: STATUS_UNHANDLED, pacchetto non elaborato\n");
+                        INFO ("debug", "SESSION: STATUS_UNHANDLED, packet hasn't been processed\n");
                         break;
                     default:
                         // Log
@@ -111,7 +111,7 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
             }
             catch (...)
             {
-                INFO ("debug", "Errore Durante Elaborazione Pacchetto\n");
+                INFO ("debug", "SESSION: error handling packet\n");
                 // TODO
             }
         }
@@ -190,7 +190,7 @@ void Session::HandleMessage(Packet& packet)
     /*if (ChatHandler(smartThis).ParseCommands(msg.c_str()) > 0)
         return;*/
 
-    //INFO ("debug", "SESSION: Livello Esecuzione Messaggio: %s\n", msg.c_str());
+    //INFO ("debug", "SESSION: Executing message: %s\n", msg.c_str());
 
     if (m_channel.get())
     {
@@ -231,14 +231,14 @@ void Session::HandleJoinChannel(Packet& packet)
     if (!sChan.get())
     {
         // Notifica all'utente canale non esistente
-        SendSysMessage("Canale non Esistente");
+        SendSysMessage("Channel does not exists");
         return;
     }
 
     if (!sChan->CanSessionEnter(smartThis, pass))
     {
         // Invia notifica all'utente che non può entrare nel canale
-        SendSysMessage("Password Errata");
+        SendSysMessage("Wrong password");
         return;
     }
 
@@ -251,12 +251,12 @@ void Session::HandleJoinChannel(Packet& packet)
 
     if (!sChan->AddSession(smartThis))
     {
-        SendSysMessage("Errore Aggiunta Canale");
+        SendSysMessage("Error adding channel");
         return;
     }
 
     setChannel(sChan);
-    PSendSysMessage("Entrato nel canale: %s", c_name.c_str());
+    PSendSysMessage("Joined channel: %s", c_name.c_str());
 }
 
 void Session::HandleCreateChannel(Packet& packet) 
@@ -271,7 +271,7 @@ void Session::HandleCreateChannel(Packet& packet)
     SmartChannel sChan = s_manager->GetChannelMrg()->CreateChannel(c_name);
     if (!sChan.get())
     {
-        SendSysMessage("Canale già esistente");
+        SendSysMessage("Channel already exists");
         return;
     }
 
@@ -284,19 +284,19 @@ void Session::HandleCreateChannel(Packet& packet)
 
     if (!sChan->AddSession(smartThis))
     {
-        SendSysMessage("Errore Aggiunta Canale");
+        SendSysMessage("Error adding channel");
         return;
     }
 
     setChannel(sChan);
-    PSendSysMessage("Creato canale: %s", c_name.c_str());
+    PSendSysMessage("Creating new channel: %s", c_name.c_str());
 }
 
 void Session::HandleLeaveChannel(Packet& /*packet*/) 
 {
     if (!IsInChannel())
     {
-        SendSysMessage("Non sei in un canale");
+        SendSysMessage("You aren't in any channel");
         return;
     }
 
@@ -304,7 +304,7 @@ void Session::HandleLeaveChannel(Packet& /*packet*/)
     getChannel()->RemoveSession(GetId());
     setChannel(SmartChannel(NULL));
 
-    SendSysMessage("Uscito dal Canale");
+    SendSysMessage("Channel left");
 }
 
 void Session::HandleListChannel(Packet& /*packet*/) 

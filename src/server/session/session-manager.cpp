@@ -98,7 +98,7 @@ void SessionManager::Update(uint32 udiff)
         // If return false we must delete it
         if (!pSession->Update(udiff, updater))
         {
-            INFO("debug", "SESSION-MANAGER: Rimuovi sessione %u \n", itr->first);
+            INFO("debug", "SESSION-MANAGER: remove session %u \n", itr->first);
             RemoveQueuedSession(itr->second);
             
             // Rimuovere dal canale
@@ -210,7 +210,7 @@ void SessionManager::AddSessions_()
 
 void SessionManager::AddSession_(uint32 next_id, Session_smart sess)
 {
-    INFO("debug", "SESSION-MANAGER: add session con next_id %d \n", next_id);
+    INFO("debug", "SESSION-MANAGER: add session, next_id %d \n", next_id);
     if (m_sessionActiveLimit && GetActiveSessionCount() >= m_sessionActiveLimit)
     {
         AddQueuedSession(sess);    

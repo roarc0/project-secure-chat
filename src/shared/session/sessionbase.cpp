@@ -145,6 +145,11 @@ std::string SessionBase::GetNickname()
     return nickname;
 }
 
+const std::string* SessionBase::GetNicknamePtr()
+{
+    return &nickname;
+}
+
 void SessionBase::SetNickname(const std::string& n)
 {
     nickname = n;

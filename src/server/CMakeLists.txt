@@ -34,6 +34,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/threading
   ${Sqlite_INCLUDE_DIRS}  
   ${Confuse_INCLUDE_DIRS}
+  ${TINYXML_INCLUDE_DIRS}
   ${OPENSSL_INCLUDE_DIR}
 )
 
@@ -65,6 +66,7 @@ target_link_libraries(server
   ${Sqlite_LIBRARIES}
   ${OPENSSL_LIBRARIES}
   ${OPENSSL_EXTRA_LIBRARIES}  
+  ${TINYXML_LIBRARIES}
   ${OSX_LIBS}
 )
 

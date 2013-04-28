@@ -223,11 +223,13 @@ void Session::HandleServerMessage(Packet& packet)
     SendToGui((const char*)packet.contents(), "", 'e');
 }
 
+// TODO usare un solo handle e controllare status
 void Session::HandleJoinChannel(Packet& packet)
 {
     INFO ("debug", "Handle Join Message\n");
-    std::string name, msg;
-    packet >> name;
+    std::string name, status, msg;
+    //packet >> name;
+    XMLReadUpdate((const char*)packet.contents(), name, status);
     msg = "\"" + name + "\" has joined the channel";
     SendToGui((const char*)msg.c_str(), "", 'j');    
 }
@@ -235,8 +237,9 @@ void Session::HandleJoinChannel(Packet& packet)
 void Session::HandleLeaveChannel(Packet& packet)
 {
     INFO ("debug", "Handle Leave Message\n");
-    std::string name, msg;
-    packet >> name;
+    std::string name, status, msg;
+    //packet >> name;
+    XMLReadUpdate((const char*)packet.contents(), name, status);
     msg = "\"" + name + "\" has left the channel";
     SendToGui((const char*)msg.c_str(), "", 'l');    
 }

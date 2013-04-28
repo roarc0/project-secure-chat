@@ -16,8 +16,6 @@ typedef struct timer
     struct timeval stop;
 } timer;
 
-double timeval_diff(struct timeval *, struct timeval *); // deprecated
-
 void   time_start(timer*);
 void   time_stop(timer*);
 double time_diff(timer*);

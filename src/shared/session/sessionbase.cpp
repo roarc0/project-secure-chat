@@ -2,23 +2,23 @@
 
 SessionBase::SessionBase()
 {
-    logged = false;
     m_Socket = NULL;
-    s_enc = enc_AES256;
+    s_login = LOGIN_INIT;
+    s_enc = ENC_AES256;
     s_key << "11111222223333344444555556666677";
 }
 
 SessionBase::SessionBase(int pSock)
 {
-    logged = false;
     m_Socket = new SocketBase(pSock);
-    s_enc = enc_AES256;
+    s_login = LOGIN_INIT;
+    s_enc = ENC_AES256;
     s_key << "11111222223333344444555556666677";
 }
 
 SessionBase::~SessionBase()
 {
-    INFO("debug", "SESSIONBASE: destructor\n");
+    INFO("debug", "SESSION_BASE: destructor\n");
 
     Packet* packet = NULL;
     while (_recvQueue.next(packet))
@@ -48,7 +48,7 @@ void SessionBase::SendPacket(Packet* new_packet)
     if (!m_Socket || m_Socket->IsClosed() || !new_packet)
         return;
     
-    INFO("debug", "SESSIONBASE: SendPacket\n");
+    INFO("debug", "SESSION_BASE: SendPacket\n");
 
     if (_SendPacket(*new_packet) == -1)
         m_Socket->CloseSocket();
@@ -65,7 +65,7 @@ void SessionBase::SendPacketToSocket(Packet* new_packet)
 
 int SessionBase::_SendPacket(Packet& pct)
 {
-    INFO("debug", "SESSIONBASE: _SendPacket\n");
+    INFO("debug", "SESSION_BASE: _SendPacket\n");
     Packet* pkt = new Packet(pct);
     _sendQueue.add(pkt);
     return 0;
@@ -73,12 +73,12 @@ int SessionBase::_SendPacket(Packet& pct)
 
 int SessionBase::_SendPacketToSocket(Packet& pct)
 {
-    INFO("debug", "SESSIONBASE: sending packet: \"%s\"\n", pct.contents());
+    INFO("debug", "SESSION_BASE: sending packet: \"%s\"\n", pct.contents());
     unsigned char* rawData;
 
     if (IsEncrypted() && pct.size())
     {
-        INFO("debug", "SESSIONBASE: encrypting packet  <%d bytes>\n",pct.size());
+        INFO("debug", "SESSION_BASE: encrypting packet  <%d bytes>\n",pct.size());
         pct.Encrypt(s_key);
     }
 
@@ -90,7 +90,7 @@ int SessionBase::_SendPacketToSocket(Packet& pct)
     
     m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
     delete[] rawData;
-    INFO("debug", "SESSIONBASE: packet <%d bytes> sent: \"%s\"\n", pct.size(), pct.contents());
+    INFO("debug", "SESSION_BASE: packet <%d bytes> sent: \"%s\"\n", pct.size(), pct.contents());
     return 0;
 }
 
@@ -98,7 +98,7 @@ Packet* SessionBase::RecvPacketFromSocket()
 {
     if (!m_Socket || m_Socket->IsClosed())
         return NULL;
-    INFO("debug","SESSIONBASE: receiving packet\n");
+    INFO("debug","SESSION_BASE: receiving packet\n");
     return _RecvPacketFromSocket();
 }
 
@@ -114,7 +114,7 @@ Packet* SessionBase::_RecvPacketFromSocket()
         m_Socket->Recv((void*) buffer, pkt_head.getSize());
     }
 
-    INFO("debug","SESSIONBASE: message: %s , header %d, len %d\n", buffer, pkt_head.getHeader(), pkt_head.getSize());
+    INFO("debug","SESSION_BASE: message: %s , header %d, len %d\n", buffer, pkt_head.getHeader(), pkt_head.getSize());
 
     pct = new Packet(pkt_head.getHeader(), pkt_head.getSize());
     
@@ -127,9 +127,9 @@ Packet* SessionBase::_RecvPacketFromSocket()
 
         if (IsEncrypted() && pkt_head.getSize())
         {
-            INFO("debug", "SESSIONBASE: decrypting packet\n");
+            INFO("debug", "SESSION_BASE: decrypting packet\n");
             pct->Decrypt(s_key);
-            INFO("debug", "SESSIONBASE: packet decrypted\n");
+            INFO("debug", "SESSION_BASE: packet decrypted\n");
         }
 
         delete[] buffer;

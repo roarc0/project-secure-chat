@@ -10,9 +10,17 @@
 
 enum SessionEncryption
 {
-    enc_NONE = 0,
-    enc_AES128,
-    enc_AES256
+    ENC_NONE = 0,
+    ENC_AES128,
+    ENC_AES256
+};
+
+enum SessionLogin
+{
+    LOGIN_INIT = 0,
+    LOGIN_STEP_1,
+    LOGIN_STEP_2,
+    LOGIN_AUTHENTICATED
 };
 
 class SessionBase
@@ -34,29 +42,30 @@ class SessionBase
         
         bool IsEncrypted() const
         {
-            return s_enc != enc_NONE;
+            return s_enc != ENC_NONE;
         }
         
-        void SetEncryption(const ByteBuffer& key, SessionEncryption type=enc_AES128)
+        void SetEncryption(const ByteBuffer& key, SessionEncryption type=ENC_AES128)
         {
             s_key = key;
             s_enc = type;
         }
         
-        bool IsLogged() const
+        bool IsAuthenticated() const
         {
-            return logged;
+            return s_login == LOGIN_AUTHENTICATED;
         }
 
         virtual bool IsInChannel() { return false; } // serve anche al client?
 
         void Handle_NULL(Packet& /*packet*/);
-        SocketBase* m_Socket;
+        
+        SocketBase* m_Socket; // TODO protected
     protected:
 
-        bool SetLogged(bool l)
+        bool SetLoginStatus(SessionLogin l)
         {
-            logged = l;
+            s_login = l;
         }
 
         virtual int _SendPacket(Packet& new_packet);
@@ -64,12 +73,11 @@ class SessionBase
         Packet* _RecvPacketFromSocket();
         
         std::string username;
-        bool logged;
-
-        Mutex m_mutex;
-
+        SessionLogin s_login;
         SessionEncryption s_enc;
         ByteBuffer s_key;
+        
+        Mutex m_mutex;
 
         LockQueue<Packet*> _recvQueue;
         LockQueue<Packet*> _sendQueue;

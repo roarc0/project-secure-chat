@@ -48,7 +48,7 @@ bool Channel::AddSession(Session_smart ses)
     m_mutex.Release();
     // Invio ingresso nel canale
     Packet new_packet(SMSG_JOIN_CHANNEL, 0);
-    new_packet << XMLBuildUpdate(ses->GetNickname().c_str(), "join"); //new_packet << ses->GetNickname();
+    new_packet << XMLBuildUpdate(ses->GetUsername()->c_str(), "join");
     SendToAllButOne(&new_packet, ses->GetId());
     return true;
 }
@@ -71,8 +71,7 @@ bool Channel::RemoveSession(uint32 id)
         m_mutex.Release();   
         // Invio uscita dal canale
         Packet new_packet(SMSG_LEAVE_CHANNEL, 0);
-        //new_packet << *(ses->GetNickPtr());
-        new_packet << XMLBuildUpdate(ses->GetNickname().c_str(), "leave");  // leave e join non servirebbero
+        new_packet << XMLBuildUpdate(ses->GetUsername()->c_str(), "leave");  // leave e join non servirebbero
                                                                     // ma in questo modo si potrebbe fare un solo opcode che gestisce
                                                                     // entrambi i cambi di stato
         SendToAllButOne(&new_packet, ses->GetId());

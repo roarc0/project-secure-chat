@@ -33,14 +33,14 @@ void SessionManager::GetIdList(std::list<uint32>* ulist)
 
 Session_smart SessionManager::AddSession(int sock)
 {
-    INFO("debug","SESSION-MANAGER: creating session\n");
+    INFO("debug","SESSION_MANAGER: creating session\n");
     if (!m_sessionQueueLimit || (GetQueuedSessionCount() + addSessQueue.size() <  m_sessionQueueLimit))
     {
         Session* ses = new Session(sock);
         counted_ptr<Session> smart_ses(ses);
         smart_ses->setSmartPointer(smart_ses);
         addSessQueue.add(smart_ses);
-        INFO("debug","SESSION-MANAGER: new session created on sock: %d\n", sock);
+        INFO("debug","SESSION_MANAGER: new session created on sock: %d\n", sock);
         return smart_ses;
     }
     else
@@ -80,7 +80,7 @@ Session_smart SessionManager::FindSession(uint32 id) const
 Session_smart SessionManager::FindSession(std::string str) const
 {
     for (SessionMap::const_iterator iter = m_sessions.begin(); iter != m_sessions.end(); ++iter)
-        if (*(iter->second->GetNicknamePtr()) == str)
+        if (*(iter->second->GetUsername()) == str)
             return iter->second;
     return Session_smart(NULL);
 }
@@ -98,7 +98,7 @@ void SessionManager::Update(uint32 udiff)
         // If return false we must delete it
         if (!pSession->Update(udiff, updater))
         {
-            INFO("debug", "SESSION-MANAGER: remove session %u \n", itr->first);
+            INFO("debug", "SESSION_MANAGER: remove session %u \n", itr->first);
             RemoveQueuedSession(itr->second);
             
             // Rimuovere dal canale
@@ -210,7 +210,7 @@ void SessionManager::AddSessions_()
 
 void SessionManager::AddSession_(uint32 next_id, Session_smart sess)
 {
-    INFO("debug", "SESSION-MANAGER: add session, next_id %d \n", next_id);
+    INFO("debug", "SESSION_MANAGER: add session, next_id %d \n", next_id);
     if (m_sessionActiveLimit && GetActiveSessionCount() >= m_sessionActiveLimit)
     {
         AddQueuedSession(sess);    

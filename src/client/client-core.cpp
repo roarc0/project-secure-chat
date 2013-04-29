@@ -132,20 +132,20 @@ Message_t ClientCore::GetEvent()
     return msg;
 }
 
-void ClientCore::AddMessage(const std::string& str, const string& nick,
+void ClientCore::AddMessage(const std::string& str, const string& user,
                             char type, bool timestamp)
 {
     Message_t msg;
     std::stringstream ss;
     if (timestamp)
         ss << "(" << get_timestamp(':') << ") ";
-    if (!nick.empty())
-        ss << nick << ": ";
+    if (!user.empty())
+        ss << user << ": ";
     ss << str;
     const std::string& tmp = ss.str();
     const char* cstr = tmp.c_str();
     msg.data = cstr;
-    msg.nick = nick;
+    msg.user = user;
     msg.type = type;
     msg.timestamp = timestamp;
     messages.add(msg);
@@ -176,12 +176,12 @@ bool ClientCore::IsConnected()
     return session->IsConnected();
 }
 
-std::string ClientCore::GetNickname()
+std::string ClientCore::GetUsername()
 {
-    return session->GetNickname();
+    return *(session->GetUsername());
 }
 
-void ClientCore::SetNickname(const std::string& n)
+void ClientCore::SetUsername(const std::string& n)
 {
-    session->SetNickname(n);
+    session->SetUsername(n);
 }

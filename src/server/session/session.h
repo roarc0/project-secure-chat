@@ -47,7 +47,8 @@ class Session : public SessionBase
         void HandleJoinChannel(Packet& packet); 
         void HandleCreateChannel(Packet& packet); 
         void HandleLeaveChannel(Packet& packet); 
-        void HandleListChannel(Packet& packet); 
+        void HandleListChannel(Packet& packet);
+        void HandleLogin(Packet& packet);
         
         void SendSysMessage(const char *str);
         void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2, 3);

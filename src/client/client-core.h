@@ -19,13 +19,13 @@ enum MessageType
 struct Message_t
 {
     string data;
-    string nick;
+    string user;
     char   type;
     bool   timestamp;
     
     Message_t()
     {
-        nick = "user";
+        user = "user";
     }
     
     Message_t(const std::string& d, char t, bool time)
@@ -33,7 +33,7 @@ struct Message_t
         data = d;
         type = t;
         timestamp = time;
-        nick = "user";
+        user = "user";
     }
 };
 
@@ -73,8 +73,8 @@ class ClientCore
     void SignalConnection();
     bool IsConnected();
     
-    std::string GetNickname();
-    void SetNickname(const std::string&);
+    std::string GetUsername();
+    void SetUsername(const std::string&);
 
     void AddMessage(const std::string& str, const std::string& nick,
                     char type, bool timestamp = true);

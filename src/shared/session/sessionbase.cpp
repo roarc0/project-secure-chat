@@ -2,6 +2,7 @@
 
 SessionBase::SessionBase()
 {
+    logged = false;
     m_Socket = NULL;
     s_enc = enc_AES256;
     s_key << "11111222223333344444555556666677";
@@ -9,6 +10,7 @@ SessionBase::SessionBase()
 
 SessionBase::SessionBase(int pSock)
 {
+    logged = false;
     m_Socket = new SocketBase(pSock);
     s_enc = enc_AES256;
     s_key << "11111222223333344444555556666677";
@@ -140,18 +142,13 @@ void SessionBase::Handle_NULL(Packet& /*packet*/)
     // LOG
 };
 
-std::string SessionBase::GetNickname()
+const std::string* SessionBase::GetUsername()
 {
-    return nickname;
+    return &username;
 }
 
-const std::string* SessionBase::GetNicknamePtr()
+void SessionBase::SetUsername(const std::string& n)
 {
-    return &nickname;
-}
-
-void SessionBase::SetNickname(const std::string& n)
-{
-    nickname = n;
+    username = n;
 }
 

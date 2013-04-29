@@ -21,7 +21,9 @@ enum MessageTypes
     SMSG_LEAVE_CHANNEL,                           
     CMSG_CHANNEL_LIST,
     CMSG_CHANNEL_INFO,       
-
+    CMSG_LOGIN,
+    SMSG_LOGIN,
+    
     NUM_MSG_TYPES,                                  
 };
 

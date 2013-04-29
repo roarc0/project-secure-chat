@@ -38,8 +38,7 @@ class Session : public SessionBase
     void HandleServerMessage(Packet& /*packet*/);
     void HandleJoinChannel(Packet& /*packet*/);
     void HandleLeaveChannel(Packet& /*packet*/);
-    
-
+    void HandleLogin(Packet& packet);
     bool HandleSend(const char* msg);
 
     void SendToGui(std::string str, std::string nick, char type);

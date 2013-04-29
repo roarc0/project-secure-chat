@@ -52,13 +52,13 @@ ChatCommand* ChatHandler::getCommandTable()
 
     static ChatCommand commandTable[] =
     {
-        { "channel",      SEC_USER,     NULL,                 "", channelCommandTable     },
-        { "utility",      SEC_USER,     NULL,                 "", utilityCommandTable     },
+        { "channel",      SEC_USER,     NULL,                                    "", channelCommandTable     },
+        { "utility",      SEC_USER,     NULL,                                    "", utilityCommandTable     },
         { "ping",         SEC_USER,     &ChatHandler::HandlePingCommand,         "", NULL },
         { "commands",     SEC_USER,     &ChatHandler::HandleCommandsCommand,     "", NULL },
         { "help",         SEC_USER,     &ChatHandler::HandleHelpCommand,         "Syntax: \help [$command]  Display instructions for the given $command.", NULL },
-        { "login",        SEC_USER,     &ChatHandler::HandleLoginCommand,     "", NULL },
-        { NULL,           0,            NULL,                 "", NULL                    }
+        { "login",        SEC_USER,     &ChatHandler::HandleLoginCommand,        "", NULL },
+        { NULL,           0,            NULL,                                     "", NULL                    }
     };
 
     return commandTable;

@@ -415,7 +415,11 @@ void button_send_click(gpointer data, gchar *str, gchar type)
 
     if (strlen(text) == 0 || !c_core->IsConnected()) // TODO check max length
         return;
-
+        
+    msg.timestamp = true;    
+    msg.data = text;
+    msg.user = c_core->GetUsername();
+    
     if ((text[0] != '\\') || (strncmp(text, "\\send", 5) == 0))
     {
         msg.type='M';
@@ -426,14 +430,14 @@ void button_send_click(gpointer data, gchar *str, gchar type)
     }
     else
     {
+        msg.timestamp = false;    
+        msg.user = "";
         msg.type='e';
     }
     
-    msg.timestamp = true;    
-    msg.data = text;
-    msg.user = c_core->GetUsername();
 
-    c_core->AddMessage(msg.data, msg.user, msg.type, msg.timestamp);
+
+    c_core->AddMessage(msg.data, msg.user, msg.type, msg.timestamp); /* TODO get message add lock!! */
     c_core->SignalEvent();
 
     if (!c_core->HandleSend(text))

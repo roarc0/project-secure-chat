@@ -53,9 +53,9 @@ ChatCommand* ChatHandler::getCommandTable()
 
     static ChatCommand commandTable[] =
     {
-        { "login",        SEC_USER,     &ChatHandler::HandleLoginCommand,        "", NULL },
         { "channel",      SEC_USER,     NULL,                 "", channelCommandTable     },
         { "utility",      SEC_USER,     NULL,                 "", utilityCommandTable     },
+        { "login",        SEC_USER,     &ChatHandler::HandleLoginCommand,        "", NULL },
         { "ping",         SEC_USER,     &ChatHandler::HandlePingCommand,         "", NULL },
         { "commands",     SEC_USER,     &ChatHandler::HandleCommandsCommand,     "", NULL },
         { "help",         SEC_USER,     &ChatHandler::HandleHelpCommand,         "Syntax: .help [$command]  Display usage instructions for the given $command.", NULL },
@@ -430,7 +430,11 @@ bool ChatHandler::HandlePingCommand(const char* /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleLoginCommand(const char* /*args*/)
+bool ChatHandler::HandleLoginCommand(const char* args)
 {
-    INFO ("debug", "CHAT_HANDLER: LOGIN procedure\n");
+    INFO ("debug", "CHAT_HANDLER: LOGIN procedure: %s\n", args);
+    Packet data(CMSG_LOGIN, 0);
+    data << args;
+    m_session->SendPacketToSocket(&data);
+    return true;
 }

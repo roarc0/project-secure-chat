@@ -19,4 +19,6 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     { "SMSG_LEAVE_CHANNEL",          STATUS_LOGGED,      PROCESS_THREADUNSAFE,      &Session::HandleServerSide                     },
     { "CMSG_CHANNEL_LIST",           STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandleListChannel                    },
     { "CMSG_CHANNEL_INFO",           STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandleNULL                           },
+    { "CMSG_LOGIN",                  STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleLogin                          },
+    { "SMSG_LOGIN",                  STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleServerSide                     }, 
 };

@@ -1,4 +1,4 @@
-#if !defined _SINGLETON_H_
+#ifndef _SINGLETON_H_
 #define _SINGLETON_H_
 
 template <class T>

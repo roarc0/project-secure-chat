@@ -45,9 +45,6 @@ class ClientCore
 
     pthread_t tid;
 
-    pthread_cond_t  cond_connection;
-    pthread_mutex_t mutex_connection;
-
     pthread_cond_t  cond_event;
     pthread_mutex_t mutex_event;
 
@@ -63,25 +60,21 @@ class ClientCore
     bool HandleSend(const char*);
     void HandleRecv();
 
-    int  StartThread(Session *sc);
-
     bool EmptyEvents();
     Message_t GetEvent();
     void WaitEvent();
     void SignalEvent();
-    void WaitConnection();
-    void SignalConnection();
     bool IsConnected();
     
     std::string GetUsername();
-    void SetUsername(const std::string&);
+    bool SetUsername(const std::string&); // deprecated
 
     void AddMessage(const std::string& str, const std::string& nick,
                     char type, bool timestamp = true);
 
     friend class Singleton<ClientCore>;
     
-    //private:
+    private:
     LockQueue<Message_t> messages;
 };
 

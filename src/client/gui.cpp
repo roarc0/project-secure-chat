@@ -1,5 +1,6 @@
 #include "gui.h"
 #include "revision.h"
+#include "threading/thread.h"
 
 enum
 {
@@ -12,25 +13,50 @@ pthread_mutex_t  mutex_guichange;
 
 struct gui_res
 {
-    GtkTextBuffer *chat_buffer;
+    GtkWidget *window;
+    GtkWidget *vbox_main;
+
+    /* menubar (MOTHER OF NAMES) */
+    GtkWidget *menubar, *filemenu,*helpmenu, *file;
+    GtkWidget *connect,*open, *font, *sep, *quit;
+    GtkWidget *nickname, *help, *about;
+    GtkAccelGroup *accel_group = NULL;
+
+    /* toolbar */
+    GtkWidget *toolbar;
+    GtkToolItem *toolbar_connect;
+    GtkToolItem *toolbar_refresh;
+    GtkToolItem *toolbar_reset;
+    GtkToolItem *toolbar_separator;
+    GtkToolItem *toolbar_exit;
+
+    /* paned */
+    GtkWidget *paned_main;
+
+    GtkWidget *dialog;
     GtkWidget *text_entry;
     GtkWidget *status_bar;
 
-    GtkWidget *scrolledwindow_chat;
-    GtkWidget *scrolledwindow_user_list;
-
-    GtkToolItem *toolbar_connect;
-    
-    /* Lista Utenti */
+    /* user list */
     GtkListStore *model_user_list;
     GtkWidget *view_user_list;
     GtkCellRenderer *renderer_user_list;
     GtkTreeSelection *selection_user_list;
-    
+    GtkWidget *scrolledwindow_user_list;
+        
     /* Chat */
+    GtkWidget *hbox_chat;
     GtkWidget *view_chat;
     GtkTextBuffer *view_chat_buffer;
     GtkWidget *label_nick;
+    GtkWidget *scrolledwindow_chat;
+    GtkTextBuffer *chat_buffer;
+    
+    /* input */
+    GtkWidget *hbox_inputs;
+    GtkWidget *vbox_inputs;
+    GtkWidget *entry_command;
+    GtkWidget *button_send;
 } gres;
 
 
@@ -44,59 +70,67 @@ void* GuiThread(void* arg)
     gui_res* gres = (gui_res*) arg;
 
     bool oldstatus = false;
+    
+    //msleep(1000);
+    if (CFG_GET_BOOL("autoconnect"))
+    {
+        INFO("debug","GUI: autoconnetting...\n");
+        c_core->Connect();
+    }
+    
     while(1)
     {
         gdk_threads_enter();
+        
         if(c_core->IsConnected() && !oldstatus)
         {
             gtk_tool_button_set_label(
                 GTK_TOOL_BUTTON(gres->toolbar_connect),
                 "Disconnect");
             push_status_bar("Connected with server!");
-            add_message_to_chat(gres->chat_buffer,
-                                (gchar*) "Connected!\n", 'e');
+            //add_message_to_chat(gres->chat_buffer,
+            //                    (gchar*) "Connected!\n", 'e');
             add_user_to_list(gres->view_user_list,
                              (gchar*) CFG_GET_STRING("nickname").c_str(),
                              (gchar*) "*");
         }
+        
         if(!c_core->IsConnected() && oldstatus)
         {
             gtk_tool_button_set_label(
                 GTK_TOOL_BUTTON(gres->toolbar_connect),
                 "Connect");
             push_status_bar("Disconnected from server!");
-            add_message_to_chat(gres->chat_buffer,
-                                (gchar*) "Disconnected!\n", 'e');
+            //add_message_to_chat(gres->chat_buffer,
+            //                    (gchar*) "Disconnected!\n", 'e');
             remove_user_from_list(gres->view_user_list,
                  (gchar*) CFG_GET_STRING("nickname").c_str());
         }
+        
         oldstatus = c_core->IsConnected();
 
-        if(c_core->IsConnected())
+        Message_t msg = c_core->GetEvent();
+        
+        if(msg.data.length() > 0)
         {
-            Message_t msg = c_core->GetEvent();
-            
-            if(msg.data.length() > 0)
+            if (msg.data[msg.data.length()-1] != '\n')
+                msg.data.append("\n");
+            add_message_to_chat(gres->chat_buffer,
+                                (gchar*) msg.data.c_str(), msg.type);
+            if (msg.type == 'j')
             {
-                if (msg.data[msg.data.length()-1] != '\n')
-                    msg.data.append("\n");
-                add_message_to_chat(gres->chat_buffer,
-                                    (gchar*) msg.data.c_str(), msg.type);
-                if (msg.type == 'j')
-                {
-                    add_user_to_list(gres->view_user_list,
-                     (gchar*) msg.user.c_str(),
-                     (gchar*) "*");
-                }
-                else if (msg.type == 'l')
-                {
-                    remove_user_from_list(gres->view_user_list,
-                                         (gchar*) msg.user.c_str());
-                }
+                add_user_to_list(gres->view_user_list,
+                 (gchar*) msg.user.c_str(),
+                 (gchar*) "*");
             }
-            else
-                INFO("debug", "GUI: message is null\n ");
+            else if (msg.type == 'l')
+            {
+                remove_user_from_list(gres->view_user_list,
+                                     (gchar*) msg.user.c_str());
+            }
         }
+        else
+            INFO("debug", "GUI: message is null\n ");
         
         gdk_threads_leave();
         
@@ -283,7 +317,6 @@ void add_user_to_list(gpointer data, gchar *str, gchar *lev)
   //pthread_mutex_unlock(&mutex_guichange);
 }
 
-
 void remove_user_from_list(gpointer data, const gchar *str)
 {
     GtkTreeModel            *model;
@@ -457,41 +490,6 @@ void toolbar_connect_click(gpointer data)
 
 void main_gui(int argc, char **argv)
 {
-    GtkWidget *window;
-    GtkWidget *vbox_main;
-
-    /* menubar */
-    GtkWidget *menubar;
-    GtkWidget *filemenu,*helpmenu;
-    GtkWidget *file;
-    GtkWidget *connect,*open, *font,*sep,*quit;
-    GtkWidget *nickname;
-    GtkWidget *help;
-    GtkWidget *about;
-    GtkAccelGroup *accel_group = NULL;
-
-    /* toolbar */
-    GtkWidget *toolbar;
-    GtkToolItem *toolbar_connect;
-    GtkToolItem *toolbar_refresh;
-    GtkToolItem *toolbar_reset;
-    GtkToolItem *toolbar_separator;
-    GtkToolItem *toolbar_exit;
-
-    /* paned */
-    GtkWidget *paned_main;
-
-    /* chat */
-    GtkWidget *hbox_chat;
-
-    /* input della chat */
-    GtkWidget *hbox_inputs;
-    GtkWidget *vbox_inputs;
-    GtkWidget *entry_command;
-    GtkWidget *button_send;
-
-    GtkWidget *dialog;
-
     /* inits */
     gdk_threads_init();
     gdk_threads_enter();
@@ -499,102 +497,102 @@ void main_gui(int argc, char **argv)
     pthread_mutex_init(&mutex_guichange, NULL);
 
     /* window */
-    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    gtk_container_set_border_width(GTK_CONTAINER(window), 0);
-    gtk_window_set_urgency_hint (GTK_WINDOW(window), TRUE);
-    gtk_window_set_title (GTK_WINDOW (window), _PROJECTNAME);
-    gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
-    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-    gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
+    gres.window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    gtk_container_set_border_width(GTK_CONTAINER(gres.window), 0);
+    gtk_window_set_urgency_hint (GTK_WINDOW(gres.window), TRUE);
+    gtk_window_set_title (GTK_WINDOW (gres.window), _PROJECTNAME);
+    gtk_window_set_default_size(GTK_WINDOW(gres.window), 800, 600);
+    gtk_window_set_position(GTK_WINDOW(gres.window), GTK_WIN_POS_CENTER);
+    gtk_window_set_resizable(GTK_WINDOW(gres.window), TRUE);
 
     /* setting window icon */
-    gtk_window_set_icon(GTK_WINDOW(window), create_pixbuf("data/psc.png"));
+    gtk_window_set_icon(GTK_WINDOW(gres.window), create_pixbuf("data/psc.png"));
 
-    gtk_widget_show(window);
+    gtk_widget_show(gres.window);
 
-    g_signal_connect(G_OBJECT(window), "delete_event", G_CALLBACK(on_destroy), NULL);
-    g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(on_destroy), NULL);
+    g_signal_connect(G_OBJECT(gres.window), "delete_event", G_CALLBACK(on_destroy), NULL);
+    g_signal_connect(G_OBJECT(gres.window), "destroy", G_CALLBACK(on_destroy), NULL);
 
     /* vbox principale */
-    vbox_main = gtk_box_new (GTK_ORIENTATION_VERTICAL, 1);
-    gtk_container_add(GTK_CONTAINER(window), vbox_main);
-    gtk_container_set_border_width(GTK_CONTAINER(vbox_main),0);
+    gres.vbox_main = gtk_box_new (GTK_ORIENTATION_VERTICAL, 1);
+    gtk_container_add(GTK_CONTAINER(gres.window), gres.vbox_main);
+    gtk_container_set_border_width(GTK_CONTAINER(gres.vbox_main),0);
 
     /* accellgroup */
-    accel_group = gtk_accel_group_new();
-    gtk_window_add_accel_group(GTK_WINDOW(window), accel_group);
+    gres.accel_group = gtk_accel_group_new();
+    gtk_window_add_accel_group(GTK_WINDOW(gres.window), gres.accel_group);
 
     /* menubar */
-    menubar = gtk_menu_bar_new();
-    filemenu = gtk_menu_new();
-    helpmenu = gtk_menu_new();
+    gres.menubar = gtk_menu_bar_new();
+    gres.filemenu = gtk_menu_new();
+    gres.helpmenu = gtk_menu_new();
 
-    file = gtk_menu_item_new_with_label("File");
-    nickname = gtk_menu_item_new_with_label("Nickname");
-    connect = gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW, NULL);
-    open = gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN, NULL);
-    font = gtk_image_menu_item_new_from_stock(GTK_STOCK_SELECT_FONT, NULL);
-    sep = gtk_separator_menu_item_new();
-    quit = gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, accel_group);
-    help = gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP, NULL);
-    about = gtk_image_menu_item_new_from_stock(GTK_STOCK_ABOUT, NULL);
+    gres.file = gtk_menu_item_new_with_label("File");
+    gres.nickname = gtk_menu_item_new_with_label("Nickname");
+    gres.connect = gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW, NULL);
+    gres.open = gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN, NULL);
+    gres.font = gtk_image_menu_item_new_from_stock(GTK_STOCK_SELECT_FONT, NULL);
+    gres.sep = gtk_separator_menu_item_new();
+    gres.quit = gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, gres.accel_group);
+    gres.help = gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP, NULL);
+    gres.about = gtk_image_menu_item_new_from_stock(GTK_STOCK_ABOUT, NULL);
 
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(file), filemenu);
-    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), connect);
-    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), nickname);
-    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), font);
-    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep);
-    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), quit);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menubar), file);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(gres.file), gres.filemenu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.connect);
+    gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.nickname);
+    gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.font);
+    gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.sep);
+    gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.quit);
+    gtk_menu_shell_append(GTK_MENU_SHELL(gres.menubar), gres.file);
 
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(help), helpmenu);
-    gtk_menu_shell_append(GTK_MENU_SHELL(helpmenu), about);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menubar), help);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(gres.help), gres.helpmenu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(gres.helpmenu), gres.about);
+    gtk_menu_shell_append(GTK_MENU_SHELL(gres.menubar), gres.help);
 
-    gtk_box_pack_start(GTK_BOX(vbox_main), menubar, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(gres.vbox_main), gres.menubar, FALSE, FALSE, 0);
 
-    g_signal_connect(G_OBJECT(quit), "activate", G_CALLBACK(gtk_main_quit), NULL);
-    g_signal_connect(G_OBJECT(font), "activate", G_CALLBACK(select_font), G_OBJECT(window));
-    g_signal_connect(G_OBJECT(about), "activate", G_CALLBACK(show_about), NULL);
-    g_signal_connect(G_OBJECT(nickname), "activate", G_CALLBACK(set_nick), G_OBJECT(window));
+    g_signal_connect(G_OBJECT(gres.quit), "activate", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(G_OBJECT(gres.font), "activate", G_CALLBACK(select_font), G_OBJECT(gres.window));
+    g_signal_connect(G_OBJECT(gres.about), "activate", G_CALLBACK(show_about), NULL);
+    g_signal_connect(G_OBJECT(gres.nickname), "activate", G_CALLBACK(set_nick), G_OBJECT(gres.window));
 
     /* toolbar */
-    toolbar = gtk_toolbar_new();
-    gtk_toolbar_set_style(GTK_TOOLBAR(toolbar), GTK_TOOLBAR_BOTH);
+    gres.toolbar = gtk_toolbar_new();
+    gtk_toolbar_set_style(GTK_TOOLBAR(gres.toolbar), GTK_TOOLBAR_BOTH);
 
-    gtk_container_set_border_width(GTK_CONTAINER(toolbar), 2);
+    gtk_container_set_border_width(GTK_CONTAINER(gres.toolbar), 2);
 
-    toolbar_connect = gtk_tool_button_new_from_stock(GTK_STOCK_NETWORK);
+    gres.toolbar_connect = gtk_tool_button_new_from_stock(GTK_STOCK_NETWORK);
     if (!c_core->IsConnected())
-        gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolbar_connect), "Connect");
+        gtk_tool_button_set_label(GTK_TOOL_BUTTON(gres.toolbar_connect), "Connect");
     else
-        gtk_tool_button_set_label(GTK_TOOL_BUTTON(toolbar_connect), "Disconnect");
-    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_connect, -1);
-    g_signal_connect(G_OBJECT(toolbar_connect), "clicked", G_CALLBACK(toolbar_connect_click), NULL);
+        gtk_tool_button_set_label(GTK_TOOL_BUTTON(gres.toolbar_connect), "Disconnect");
+    gtk_toolbar_insert(GTK_TOOLBAR(gres.toolbar), gres.toolbar_connect, -1);
+    g_signal_connect(G_OBJECT(gres.toolbar_connect), "clicked", G_CALLBACK(toolbar_connect_click), NULL);
 
-    toolbar_refresh = gtk_tool_button_new_from_stock(GTK_STOCK_REFRESH);
-    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_refresh, -1);
-    //g_signal_connect(G_OBJECT(toolbar_refresh), "clicked", G_CALLBACK(set_nick), G_OBJECT(window));
+    gres.toolbar_refresh = gtk_tool_button_new_from_stock(GTK_STOCK_REFRESH);
+    gtk_toolbar_insert(GTK_TOOLBAR(gres.toolbar), gres.toolbar_refresh, -1);
+    //g_signal_connect(G_OBJECT(gres.toolbar_refresh), "clicked", G_CALLBACK(set_nick), G_OBJECT(gres.window));
 
-    toolbar_reset = gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR);
-    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_reset, -1);
-    g_signal_connect(G_OBJECT(toolbar_reset), "clicked", G_CALLBACK(toolbar_reset_click), NULL);
+    gres.toolbar_reset = gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR);
+    gtk_toolbar_insert(GTK_TOOLBAR(gres.toolbar), gres.toolbar_reset, -1);
+    g_signal_connect(G_OBJECT(gres.toolbar_reset), "clicked", G_CALLBACK(toolbar_reset_click), NULL);
 
-    toolbar_separator = gtk_separator_tool_item_new();
-    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_separator, -1);
+    gres.toolbar_separator = gtk_separator_tool_item_new();
+    gtk_toolbar_insert(GTK_TOOLBAR(gres.toolbar), gres.toolbar_separator, -1);
 
-    toolbar_exit = gtk_tool_button_new_from_stock(GTK_STOCK_QUIT);
-    gtk_toolbar_insert(GTK_TOOLBAR(toolbar), toolbar_exit, -1);
-    g_signal_connect(G_OBJECT(toolbar_exit), "clicked", G_CALLBACK(gtk_main_quit), NULL);
+    gres.toolbar_exit = gtk_tool_button_new_from_stock(GTK_STOCK_QUIT);
+    gtk_toolbar_insert(GTK_TOOLBAR(gres.toolbar), gres.toolbar_exit, -1);
+    g_signal_connect(G_OBJECT(gres.toolbar_exit), "clicked", G_CALLBACK(gtk_main_quit), NULL);
 
-    gtk_box_pack_start(GTK_BOX(vbox_main), toolbar, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(gres.vbox_main), gres.toolbar, FALSE, FALSE, 0);
 
     /* Paned */
-    paned_main = gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);
-    gtk_box_pack_start(GTK_BOX(vbox_main), paned_main, TRUE, TRUE, 0);
+    gres.paned_main = gtk_paned_new (GTK_ORIENTATION_HORIZONTAL);
+    gtk_box_pack_start(GTK_BOX(gres.vbox_main), gres.paned_main, TRUE, TRUE, 0);
 
     gres.scrolledwindow_chat = gtk_scrolled_window_new (NULL, NULL);
-    gtk_paned_pack1 (GTK_PANED(paned_main), gres.scrolledwindow_chat, true, true);
+    gtk_paned_pack1 (GTK_PANED(gres.paned_main), gres.scrolledwindow_chat, true, true);
 
     gtk_container_set_border_width (GTK_CONTAINER (gres.scrolledwindow_chat), 2);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (gres.scrolledwindow_chat),
@@ -646,7 +644,7 @@ void main_gui(int argc, char **argv)
     gtk_text_buffer_create_tag(gres.view_chat_buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 
     gres.scrolledwindow_user_list = gtk_scrolled_window_new (NULL, NULL);
-    gtk_paned_pack2 (GTK_PANED(paned_main), gres.scrolledwindow_user_list, false, false);
+    gtk_paned_pack2 (GTK_PANED(gres.paned_main), gres.scrolledwindow_user_list, false, false);
     gtk_container_set_border_width (GTK_CONTAINER (gres.scrolledwindow_user_list), 2);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (gres.scrolledwindow_user_list),
                                     GTK_POLICY_NEVER,
@@ -686,56 +684,40 @@ void main_gui(int argc, char **argv)
     gtk_tree_view_set_rules_hint (GTK_TREE_VIEW (gres.view_user_list), TRUE);
 
     /* INPUTS */
-    hbox_inputs = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-    gtk_box_pack_start(GTK_BOX (vbox_main), hbox_inputs, FALSE, FALSE, 0);
+    gres.hbox_inputs = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+    gtk_box_pack_start(GTK_BOX (gres.vbox_main), gres.hbox_inputs, FALSE, FALSE, 0);
     
     gres.label_nick = gtk_label_new((gchar *) CFG_GET_STRING("nickname").c_str()); 
     gtk_misc_set_alignment(GTK_MISC(gres.label_nick),0.0,0.5);
-    gtk_box_pack_start(GTK_BOX (hbox_inputs), gres.label_nick, FALSE, FALSE, 2 );
+    gtk_box_pack_start(GTK_BOX (gres.hbox_inputs), gres.label_nick, FALSE, FALSE, 2 );
 
-    entry_command = gtk_entry_new();
-    gtk_box_pack_start(GTK_BOX (hbox_inputs), entry_command, TRUE, TRUE, 5);
+    gres.entry_command = gtk_entry_new();
+    gtk_box_pack_start(GTK_BOX (gres.hbox_inputs), gres.entry_command, TRUE, TRUE, 5);
     
-    button_send = gtk_button_new_with_label("Send");
-    gtk_widget_set_size_request (GTK_WIDGET (button_send), 70, 30);
-    gtk_box_pack_start(GTK_BOX (hbox_inputs), button_send, FALSE, FALSE, 0);
+    gres.button_send = gtk_button_new_with_label("Send");
+    gtk_widget_set_size_request (GTK_WIDGET (gres.button_send), 70, 30);
+    gtk_box_pack_start(GTK_BOX (gres.hbox_inputs), gres.button_send, FALSE, FALSE, 0);
 
-    gres.text_entry = entry_command;
+    gres.text_entry = gres.entry_command;
     gres.chat_buffer = gres.view_chat_buffer;
-    g_signal_connect(G_OBJECT(entry_command), "activate", G_CALLBACK(button_send_click), NULL);
-    g_signal_connect(G_OBJECT(button_send), "clicked", G_CALLBACK(button_send_click), NULL);
+    g_signal_connect(G_OBJECT(gres.entry_command), "activate", G_CALLBACK(button_send_click), NULL);
+    g_signal_connect(G_OBJECT(gres.button_send), "clicked", G_CALLBACK(button_send_click), NULL);
 
     /* status_bar */
     gres.status_bar = gtk_statusbar_new();
-    gtk_box_pack_start(GTK_BOX (vbox_main), gres.status_bar, FALSE, FALSE, 0);
-
-    g_object_set_data(G_OBJECT(gres.status_bar), "info", (gpointer)"1");
-    g_object_set_data(G_OBJECT(gres.status_bar), "info", (gpointer) "2");
-    g_object_set_data(G_OBJECT(gres.status_bar), "info", (gpointer) "3");
-
-    g_object_set_data(G_OBJECT(gres.status_bar), "warning", (gpointer) "A");
-    g_object_set_data(G_OBJECT(gres.status_bar), "warning", (gpointer) "B");
-    g_object_set_data(G_OBJECT(gres.status_bar), "warning", (gpointer) "C");
-
-    //guint id = gtk_statusbar_get_context_id(GTK_STATUSBAR(status_bar), "info");
-    //gtk_statusbar_push(GTK_STATUSBAR(status_bar), id, "* uninitialized");
+    gtk_box_pack_start(GTK_BOX (gres.vbox_main), gres.status_bar, FALSE, FALSE, 0);
 
     /* end_widgets */
-    gtk_widget_show_all(window);
-    gres.toolbar_connect = toolbar_connect;
+    gtk_widget_show_all(gres.window);
 
     /* default focus on command entry */
     gtk_widget_grab_focus (GTK_WIDGET(gres.text_entry));
 
-    // TODO avviare il thread decentemente
+    INFO ("debug", "GUI: starting GUI thread\n");
     pthread_t tid;
-    pthread_attr_t tattr;
-    pthread_attr_init(&tattr);
-    pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
-    pthread_create(&tid, &tattr, GuiThread, (void*)&gres);
-    pthread_attr_destroy(&tattr);
+    StartThread(GuiThread, (void*)&gres, tid);
 
-    INFO ("debug", "* starting GUI (GTK+3)\n");
+    INFO ("debug", "GUI: starting GTK+3\n");
     gtk_main();
     gdk_threads_leave();
     pthread_mutex_destroy(&mutex_guichange);

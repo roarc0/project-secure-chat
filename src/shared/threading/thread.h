@@ -25,4 +25,6 @@ class Thread
       pthread_t tid_;
 };
 
+int StartThread(void* (*fptr)(void*), void *data, pthread_t& tid);
+
 #endif

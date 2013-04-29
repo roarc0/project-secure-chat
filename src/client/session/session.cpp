@@ -27,10 +27,13 @@ bool Session::Connect() // TODO add user,password
     {
         c_Socket->Connect(CFG_GET_STRING("server_host"),
                           CFG_GET_INT("server_port"));
+        SetConnected(true);                  
         SendToGui(str_connect.c_str(), "",'e');
-        
         string str_login = "\\login " + username + " password";
-        HandleSend(str_login.c_str()); // trigger login procedure
+        if(!HandleSend(str_login.c_str())) // trigger login procedure
+        {
+            INFO("debug", "SESSION: Unable to send login command\n");
+        }
     }
     catch(SocketException &e)
     {
@@ -50,7 +53,6 @@ bool Session::Connect() // TODO add user,password
     INFO("debug", "SESSION: connection successful %s:%d\n",
          CFG_GET_STRING("server_host").c_str(),
          CFG_GET_INT("server_port"));
-    SetConnected(true);
 
     return true;
 }

@@ -82,7 +82,7 @@ int SessionBase::_SendPacketToSocket(Packet& pct)
 
     if (IsEncrypted() && pct.size())
     {
-        INFO("debug", "SESSION_BASE: encrypting packet  <%d bytes>\n",pct.size());
+        INFO("debug", "SESSION_BASE: encrypting packet  <%d bytes>\n", pct.size());
         pct.Encrypt(s_key);
     }
 
@@ -94,7 +94,7 @@ int SessionBase::_SendPacketToSocket(Packet& pct)
     
     m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
     delete[] rawData;
-    INFO("debug", "SESSION_BASE: packet <%d bytes> sent: \"%s\"\n", pct.size(), pct.contents());
+    INFO("debug", "SESSION_BASE: packet <%d bytes> sent\n", pct.size());
     return 0;
 }
 

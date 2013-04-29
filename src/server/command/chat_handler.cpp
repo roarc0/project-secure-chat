@@ -57,6 +57,7 @@ ChatCommand* ChatHandler::getCommandTable()
         { "ping",         SEC_USER,     &ChatHandler::HandlePingCommand,         "", NULL },
         { "commands",     SEC_USER,     &ChatHandler::HandleCommandsCommand,     "", NULL },
         { "help",         SEC_USER,     &ChatHandler::HandleHelpCommand,         "Syntax: \help [$command]  Display instructions for the given $command.", NULL },
+        { "login",        SEC_USER,     &ChatHandler::HandleLoginCommand,     "", NULL },
         { NULL,           0,            NULL,                 "", NULL                    }
     };
 
@@ -508,5 +509,12 @@ bool ChatHandler::HandlePingCommand(const char* /*args*/)
     Packet data(SMSG_SYSTEM_MESSAGE, 5);
     data << "Pong";
     m_session->SendPacket(&data);
+    return true;
+}
+
+bool ChatHandler::HandleLoginCommand(const char* /*args*/)
+{
+    INFO("debug", "CHAT_HANDLER: login command\n");
+
     return true;
 }

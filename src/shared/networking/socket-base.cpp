@@ -135,6 +135,7 @@ void SocketBase::Send(const void *buffer, int bufferLen)
 {
     if (::send(sock, (void *) buffer, bufferLen, 0) < 0)
     {
+        INFO("debug", "SOCKET_BASE: socket send error\n");
         throw SocketException("Send failed [send()]", true);
     }
 }
@@ -144,19 +145,16 @@ int SocketBase::Recv(void *buffer, int bufferLen)
 {
     int ret;
 
-    INFO("debug", "SOCKET_BASE: receiving from socket\n");
     if ((ret = ::recv(sock, (void *) buffer, bufferLen, 0)) <= 0)
     {
-        INFO("debug", "SOCKET_BASE: socket error\n");
+        INFO("debug", "SOCKET_BASE: socket recv error\n");
         CloseSocket();
-        //InitSocket();
 
         if (ret == 0)
             throw SocketException("Receive 0 from [recv()]", false);
         else
             throw SocketException("Receive failed [recv()]", true);
     }
-    INFO("debug", "SOCKET_BASE: receive done\n");
 
     return ret;
 }

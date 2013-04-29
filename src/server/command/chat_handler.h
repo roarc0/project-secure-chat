@@ -16,7 +16,8 @@ enum AccountTypes
 {
     SEC_USER           = 0,
     SEC_MODERATOR      = 1,
-    SEC_ADMINISTRATOR  = 2
+    SEC_ADMINISTRATOR  = 2,
+    SEC_GUEST          = 3
 };
 
 class ChatHandler;
@@ -71,7 +72,7 @@ class ChatHandler
         bool HandleListChannelCommand(const char *args);
         bool HandleKickCommand(const char *args);
         bool HandlePingCommand(const char *args);
- 
+        bool HandleLoginCommand(const char* args);
  };
  
  #endif // CHAT_HANDLER_H

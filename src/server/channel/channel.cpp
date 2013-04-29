@@ -27,7 +27,7 @@ bool Channel::DelayedUpdate(uint32 /*t_diff*/)
     return m_sessions.size() ? true : false;
 }
 
-bool Channel::CanSessionEnter(Session_smart /*ses*/, std::string& /*pass*/) const 
+bool Channel::CanEnterSession(Session_smart /*ses*/, std::string& /*pass*/) const
 { 
     // TODO
     return true; 

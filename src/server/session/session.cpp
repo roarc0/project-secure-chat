@@ -7,7 +7,7 @@
 Session::Session(int pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), m_channel(NULL)
 {
-    username = "namelessone";
+    username = "user";
 }
 
 Session::~Session()
@@ -158,14 +158,14 @@ void Session::SendWaitQueue(int position)
     SendPacket(&new_packet);   
 }
 
-void Session::Handle_Ping(Packet& /*packet*/)
+void Session::HandlePing(Packet& /*packet*/)
 {
     Packet data(SMSG_SYSTEM_MESSAGE, 0);
     data << "Pong";
     SendPacket(&data);
 }
 
-void Session::Handle_ServerSide(Packet& /*packet*/)
+void Session::HandleServerSide(Packet& /*packet*/)
 {
     //LOG
 }
@@ -305,5 +305,6 @@ void Session::HandleListChannel(Packet& /*packet*/)
 void Session::HandleLogin(Packet& packet)
 {
     INFO ("debug", "SESSION: LOGIN procedure\n");
+    // TODO GET USERNAME
     
 }

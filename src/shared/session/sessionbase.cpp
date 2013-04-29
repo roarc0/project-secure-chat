@@ -118,7 +118,7 @@ Packet* SessionBase::_RecvPacketFromSocket()
         m_Socket->Recv((void*) buffer, pkt_head.getSize());
     }
 
-    INFO("debug","SESSION_BASE: message: %s , header %d, len %d\n", buffer, pkt_head.getHeader(), pkt_head.getSize());
+    INFO("debug","SESSION_BASE: packet [header %d, length %d]\n", pkt_head.getHeader(), pkt_head.getSize());
 
     pct = new Packet(pkt_head.getHeader(), pkt_head.getSize());
     
@@ -135,25 +135,34 @@ Packet* SessionBase::_RecvPacketFromSocket()
             pct->Decrypt(s_key);
             INFO("debug", "SESSION_BASE: packet decrypted\n");
         }
+        
+        INFO("debug","SESSION_BASE: packet content:\n%s\n", (char*)pct->contents());
+
 
         delete[] buffer;
     }
     return pct;
 }
 
-void SessionBase::Handle_NULL(Packet& /*packet*/)
+void SessionBase::HandleNULL(Packet& /*packet*/)
 {
-    // LOG
-};
+    INFO("debug", "SESSIONBASE: handling null message\n");
+}
 
 const std::string* SessionBase::GetUsername()
 {
     return &username;
 }
 
-void SessionBase::SetUsername(const std::string& n)
+bool SessionBase::SetUsername(const std::string& n)
 {
-    username = n;
+    /* TODO validate username ( can't contain white spaces )
+    if(username is not valid )
+        return false;
+    */    
+    
+    username = n; 
+    return true;
 }
 
 bool SessionBase::IsEncrypted() const
@@ -178,7 +187,7 @@ bool SessionBase::IsConnected() const
     return s_status >= STATUS_CONNECTED;
 }
 
-void SessionBase::SetConnected(bool c)
+void SessionBase::SetConnected(bool c) // reset encryption ecc...
 {
     if(c)
         s_status = STATUS_CONNECTED;

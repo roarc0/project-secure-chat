@@ -144,10 +144,10 @@ int SocketBase::Recv(void *buffer, int bufferLen)
 {
     int ret;
 
-    INFO("debug", "SOCKETBASE: receiving from socket\n");
+    INFO("debug", "SOCKET_BASE: receiving from socket\n");
     if ((ret = ::recv(sock, (void *) buffer, bufferLen, 0)) <= 0)
     {
-        INFO("debug", "SOCKETBASE: socket error\n");
+        INFO("debug", "SOCKET_BASE: socket error\n");
         CloseSocket();
         //InitSocket();
 
@@ -156,7 +156,7 @@ int SocketBase::Recv(void *buffer, int bufferLen)
         else
             throw SocketException("Receive failed [recv()]", true);
     }
-    INFO("debug", "SOCKETBASE: receive done\n");
+    INFO("debug", "SOCKET_BASE: receive done\n");
 
     return ret;
 }

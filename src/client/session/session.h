@@ -12,7 +12,6 @@ typedef counted_ptr<Session> Session_smart;
 class Session : public SessionBase
 {
     SocketClient* c_Socket;
-    bool          connected;
   public:
     Session();
     ~Session();
@@ -23,8 +22,8 @@ class Session : public SessionBase
 
     bool Update();    
 
-    void Handle_ClientSide(Packet& /*packet*/);    
-    void Handle_Ping(Packet& /*packet*/);
+    void HandleClientSide(Packet& /*packet*/);    
+    void HandlePing(Packet& /*packet*/);
     void HandleMessage(Packet& /*packet*/);
     void HandleServerMessage(Packet& /*packet*/);
     void HandleJoinChannel(Packet& /*packet*/);

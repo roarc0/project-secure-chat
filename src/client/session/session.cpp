@@ -5,7 +5,6 @@
 
 Session::Session() //: SessionBase()
 {
-    connected = false;
     username = CFG_GET_STRING("nickname");
     c_Socket = new SocketClient(SOCK_STREAM, 0);
     m_Socket = (SocketBase*) c_Socket;
@@ -14,19 +13,32 @@ Session::Session() //: SessionBase()
 Session::~Session()
 {
     delete c_Socket;
-    // TODO
 }
 
-bool Session::Connect()
+bool Session::Connect() // TODO add user,password
 {
     try
     {
         c_Socket->Connect(CFG_GET_STRING("server_host"),
                           CFG_GET_INT("server_port"));
+                          
+        /*
+        TODO
+           send login login message.
+               input ( user, sha256(password) )
+               
+               login steps... notifications.
+               
+               output ( is logedd or not.)
+        TODO
+        */
+        
+        string str_login = "\\login " + username + " password";
+        HandleSend(str_login.c_str()); // trigger login procedure
     }
     catch(SocketException &e)
     {
-        INFO("debug", "SESSION: connection failed     %s:%d (%s)\n",
+        INFO("debug", "SESSION: connection failed %s:%d (%s)\n",
              CFG_GET_STRING("server_host").c_str(),
              CFG_GET_INT("server_port"), e.what());
         SetConnected(false);
@@ -51,7 +63,7 @@ bool Session::Disconnect()
     }
     catch(SocketException &e)
     {
-        INFO("debug", "SESSION: disconnection failed     %s:%d (%s)\n",
+        INFO("debug", "SESSION: disconnection failed %s:%d (%s)\n",
              CFG_GET_STRING("server_host").c_str(),
              CFG_GET_INT("server_port"), e.what());
 
@@ -215,12 +227,12 @@ bool Session::Update(uint32 /*diff*/)
     return true;
 }
 
-void Session::Handle_ClientSide(Packet& /*packet*/)
+void Session::HandleClientSide(Packet& /*packet*/)
 {
     INFO ("debug", "SESSION: receiving packet from another client!!\n");
 }
 
-void Session::Handle_Ping(Packet& /*packet*/)
+void Session::HandlePing(Packet& /*packet*/)
 {
     INFO ("debug", "SESSION: receiving ping!\n");
 }

@@ -40,8 +40,8 @@ class Session : public SessionBase
         void SetInQueue(bool state) { m_inQueue = state; }    
 
         // Handle
-        void Handle_Ping(Packet& packet); 
-        void Handle_ServerSide(Packet& packet);
+        void HandlePing(Packet& packet); 
+        void HandleServerSide(Packet& packet);
         void HandleMessage(Packet& packet); 
         void HandleWhisp(Packet& packet);
         void HandleJoinChannel(Packet& packet); 
@@ -61,7 +61,6 @@ class Session : public SessionBase
         uint32 m_id;
         Session_smart smartThis;
         bool m_inQueue;
-        // Channel
         SmartChannel m_channel;
 };
 

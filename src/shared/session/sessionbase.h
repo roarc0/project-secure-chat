@@ -17,14 +17,14 @@ enum SessionEncryption
 
 enum SessionStatus
 {
-    STATUS_DISCONNECTED = 0,
+    STATUS_NONE,
+    STATUS_DISCONNECTED,
     STATUS_CONNECTED,
     STATUS_LOGIN_INIT,
     STATUS_LOGIN_STEP_1,
     STATUS_LOGIN_STEP_2,
     STATUS_AUTHENTICATED,
     STATUS_REJECTED,
-    STATUS_NONE
 };
 
 class SessionBase
@@ -42,7 +42,7 @@ class SessionBase
         Packet* GetPacketToSend();
         
         const std::string* GetUsername();
-        void SetUsername(const std::string&);
+        bool SetUsername(const std::string&);
         bool IsEncrypted() const;
         void SetEncryption(const ByteBuffer&, SessionEncryption);
         bool IsAuthenticated() const;
@@ -52,7 +52,7 @@ class SessionBase
         
         virtual bool IsInChannel() { return false; } // serve anche al client?
 
-        void Handle_NULL(Packet& /*packet*/);
+        void HandleNULL(Packet& /*packet*/);
         
         SocketBase* m_Socket; // TODO protected
     protected:

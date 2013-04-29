@@ -15,12 +15,16 @@ enum SessionEncryption
     ENC_AES256
 };
 
-enum SessionLogin
+enum SessionStatus
 {
-    LOGIN_INIT = 0,
-    LOGIN_STEP_1,
-    LOGIN_STEP_2,
-    LOGIN_AUTHENTICATED
+    STATUS_DISCONNECTED = 0,
+    STATUS_CONNECTED,
+    STATUS_LOGIN_INIT,
+    STATUS_LOGIN_STEP_1,
+    STATUS_LOGIN_STEP_2,
+    STATUS_AUTHENTICATED,
+    STATUS_REJECTED,
+    STATUS_NONE
 };
 
 class SessionBase
@@ -39,28 +43,13 @@ class SessionBase
         
         const std::string* GetUsername();
         void SetUsername(const std::string&);
+        bool IsEncrypted() const;
+        void SetEncryption(const ByteBuffer&, SessionEncryption);
+        bool IsAuthenticated() const;
+        bool IsConnected() const;
+        void SetConnected(bool);
+        SessionStatus GetSessionStatus() const;
         
-        bool IsEncrypted() const
-        {
-            return s_enc != ENC_NONE;
-        }
-        
-        void SetEncryption(const ByteBuffer& key, SessionEncryption type=ENC_AES128)
-        {
-            s_key = key;
-            s_enc = type;
-        }
-        
-        bool IsAuthenticated() const
-        {
-            return s_login == LOGIN_AUTHENTICATED;
-        }
-        
-        SessionLogin GetLoginStatus() const
-        {
-            return s_login;
-        }
-
         virtual bool IsInChannel() { return false; } // serve anche al client?
 
         void Handle_NULL(Packet& /*packet*/);
@@ -68,9 +57,9 @@ class SessionBase
         SocketBase* m_Socket; // TODO protected
     protected:
 
-        void SetLoginStatus(SessionLogin l)
+        void SetLoginStatus(SessionStatus l)
         {
-            s_login = l;
+            s_status = l;
         }
 
         virtual int _SendPacket(Packet& new_packet);
@@ -78,7 +67,7 @@ class SessionBase
         Packet* _RecvPacketFromSocket();
         
         std::string username;
-        SessionLogin s_login;
+        SessionStatus s_status;
         SessionEncryption s_enc;
         ByteBuffer s_key;
         

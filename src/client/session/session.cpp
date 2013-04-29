@@ -117,13 +117,13 @@ bool Session::Update()
             {
                 case STATUS_LOGGING:
                 {
-                        INFO ("debug", "SESSION: login procedure status is: %d\n", GetLoginStatus());
+                        INFO ("debug", "SESSION: login procedure status is: %d\n", GetSessionStatus());
                 }    
                 break;
                 case STATUS_LOGGED:
                 {
                         /*if(!IsAuthenticated())
-                            INFO ("debug", "SESSION: login required\n", GetLoginStatus());
+                            INFO ("debug", "SESSION: login required\n", GetSessionStatus()); // Drop session
                         else*/
                             (this->*opHandle.handler)(*packet);
                 }
@@ -176,13 +176,13 @@ bool Session::Update(uint32 /*diff*/)
                 {
                     case STATUS_LOGGING:
                     {
-                        INFO ("debug", "SESSION: login procedure status is: %d\n", GetLoginStatus());
+                        INFO ("debug", "SESSION: login procedure status is: %d\n", GetSessionStatus());
                     }    
                     break;
                     case STATUS_LOGGED:
                     {
                         /*if(!IsAuthenticated())
-                            INFO ("debug", "SESSION: login required\n", GetLoginStatus());
+                            INFO ("debug", "SESSION: login required\n", GetSessionStatus());
                         else*/
                             (this->*opHandle.handler)(*packet);
                     }

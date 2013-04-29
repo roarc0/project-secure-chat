@@ -20,15 +20,6 @@ class Session : public SessionBase
     bool Connect();
     bool Disconnect();
     void ResetSocket();
-    bool IsConnected() const
-    {
-        return connected;
-    }
-
-    void SetConnected(bool c)
-    {
-        connected = c;
-    }
 
     bool Update();    
 

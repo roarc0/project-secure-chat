@@ -1,7 +1,7 @@
 #ifndef OPCODE_H
 #define OPCODE_H
 
-#include "session.h"
+#include "session.h"   // quale session? siamo in shared o no? XD
 
 enum MessageTypes
 { 
@@ -27,7 +27,7 @@ enum MessageTypes
     NUM_MSG_TYPES,                                  
 };
 
-enum SessionStatus
+enum SessionReqStatus
 {
     STATUS_LOGGING = 0,                         // Collegato               
     STATUS_LOGGED,                              // Loggato           
@@ -47,7 +47,7 @@ enum PacketProcessing
 struct OpcodeHandler
 {
     char const* name;
-    SessionStatus status;
+    SessionReqStatus status;
     PacketProcessing packetProcessing;
     void (Session::*handler)(Packet& recvPacket);
 };

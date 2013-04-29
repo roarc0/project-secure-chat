@@ -3,16 +3,20 @@
 SessionBase::SessionBase()
 {
     m_Socket = NULL;
-    s_login = LOGIN_INIT;
-    s_enc = ENC_AES256;
+    s_status = STATUS_DISCONNECTED;
+
+    // TODO REMOVE
+    s_enc = ENC_AES256; // ENC_NONE;
     s_key << "11111222223333344444555556666677";
 }
 
 SessionBase::SessionBase(int pSock)
 {
     m_Socket = new SocketBase(pSock);
-    s_login = LOGIN_INIT;
-    s_enc = ENC_AES256;
+    s_status = STATUS_CONNECTED;
+    
+    // TODO REMOVE
+    s_enc = ENC_AES256; // ENC_NONE;
     s_key << "11111222223333344444555556666677";
 }
 
@@ -152,3 +156,37 @@ void SessionBase::SetUsername(const std::string& n)
     username = n;
 }
 
+bool SessionBase::IsEncrypted() const
+{
+    return s_enc != ENC_NONE;
+}
+
+void SessionBase::SetEncryption(const ByteBuffer& key,
+                                SessionEncryption type=ENC_AES128)
+{
+    s_key = key;
+    s_enc = type;
+}
+
+bool SessionBase::IsAuthenticated() const
+{
+    return s_status == STATUS_AUTHENTICATED;
+}
+
+bool SessionBase::IsConnected() const
+{
+    return s_status >= STATUS_CONNECTED;
+}
+
+void SessionBase::SetConnected(bool c)
+{
+    if(c)
+        s_status = STATUS_CONNECTED;
+    else
+        s_status = STATUS_DISCONNECTED;
+}
+
+SessionStatus SessionBase::GetSessionStatus() const
+{
+    return s_status;
+}

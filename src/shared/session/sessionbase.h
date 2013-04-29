@@ -55,6 +55,11 @@ class SessionBase
         {
             return s_login == LOGIN_AUTHENTICATED;
         }
+        
+        SessionLogin GetLoginStatus() const
+        {
+            return s_login;
+        }
 
         virtual bool IsInChannel() { return false; } // serve anche al client?
 
@@ -63,7 +68,7 @@ class SessionBase
         SocketBase* m_Socket; // TODO protected
     protected:
 
-        bool SetLoginStatus(SessionLogin l)
+        void SetLoginStatus(SessionLogin l)
         {
             s_login = l;
         }

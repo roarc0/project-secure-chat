@@ -17,21 +17,17 @@ Session::~Session()
 
 bool Session::Connect() // TODO add user,password
 {
+    /* HORROR SHOW */
+    stringstream ss;
+    ss << "Connected to " << CFG_GET_STRING("server_host")
+       << ":" << CFG_GET_INT("server_port");
+    string str_connect = ss.str();
+
     try
     {
         c_Socket->Connect(CFG_GET_STRING("server_host"),
                           CFG_GET_INT("server_port"));
-                          
-        /*
-        TODO
-           send login login message.
-               input ( user, sha256(password) )
-               
-               login steps... notifications.
-               
-               output ( is logedd or not.)
-        TODO
-        */
+        SendToGui(str_connect.c_str(), "",'e');
         
         string str_login = "\\login " + username + " password";
         HandleSend(str_login.c_str()); // trigger login procedure
@@ -42,7 +38,12 @@ bool Session::Connect() // TODO add user,password
              CFG_GET_STRING("server_host").c_str(),
              CFG_GET_INT("server_port"), e.what());
         SetConnected(false);
-
+        SendToGui("Connection failed!\n", "",'e');   
+        return false;
+    }
+    catch(...)
+    {
+        INFO("debug", "SESSION: default exception\n");
         return false;
     }
 
@@ -59,21 +60,23 @@ bool Session::Disconnect()
     try
     {
         c_Socket->Disconnect();
-        SetConnected(false);
     }
     catch(SocketException &e)
     {
         INFO("debug", "SESSION: disconnection failed %s:%d (%s)\n",
              CFG_GET_STRING("server_host").c_str(),
              CFG_GET_INT("server_port"), e.what());
+        SendToGui("Disconnection failed?!\n", "",'e');
 
         return false;
     }
-
+    
+    SetConnected(false);
     INFO("debug", "SESSION: disconnection successful %s:%d\n",
          CFG_GET_STRING("server_host").c_str(),
-         CFG_GET_INT("server_port"));
-
+         CFG_GET_INT("server_port"));        
+    SendToGui("Disconnected!\n", "",'e');
+    
     return true;
 }
 

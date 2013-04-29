@@ -68,3 +68,22 @@ void Thread::Exit()
     pthread_exit(NULL); //return NULL;
 }
 
+int StartThread(void* (*fptr)(void*), void *data, pthread_t& tid)
+{
+    int ret;
+    pthread_attr_t tattr;
+
+    ret = pthread_attr_init(&tattr);
+    if (ret != 0)
+        return ret;
+    ret = pthread_attr_setdetachstate(&tattr, PTHREAD_CREATE_DETACHED);
+    if (ret != 0)
+        return ret;
+    ret = pthread_create(&tid, &tattr, fptr, data);
+    if (ret != 0)
+        return ret;
+
+    ret = pthread_attr_destroy(&tattr);
+    return ret;
+}
+

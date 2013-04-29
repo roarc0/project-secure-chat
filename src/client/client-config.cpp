@@ -3,7 +3,7 @@
 void init_config(string filename)
 {
     if (!file_exists(filename.c_str()))
-        cout << "config file <" << filename << "> does not exists!" << endl;
+        cout << "CONFIG: config file <" << filename << "> does not exists!" << endl;
 
     CFG->set_cfg_filename(filename);
     CFG->add_bool("debug", false);
@@ -32,7 +32,7 @@ void init_config(string filename)
 
 void post_init_config()
 {
-    cout << "log_path: " << CFG_GET_STRING("log_path") << endl;
+    cout << "CONFIG: log_path: " << CFG_GET_STRING("log_path") << endl;
 
     if (!dir_exists(CFG_GET_STRING("log_path")))
         mkdir(CFG_GET_STRING("log_path").c_str(), 0777);

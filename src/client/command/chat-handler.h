@@ -69,6 +69,8 @@ class ChatHandler
         bool HandleListChannelCommand(const char *args);
         bool HandleKickCommand(const char *args);
         bool HandlePingCommand(const char *args);
+        bool HandleLoginCommand(const char* args);
+
  
  };
  

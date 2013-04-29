@@ -74,7 +74,7 @@ void* GuiThread(void* arg)
     //msleep(1000);
     if (CFG_GET_BOOL("autoconnect"))
     {
-        INFO("debug","GUI: autoconnetting...\n");
+        INFO("debug","GUI: autoconnecting...\n");
         c_core->Connect();
     }
     

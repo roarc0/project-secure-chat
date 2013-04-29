@@ -32,7 +32,7 @@ class NetworkThread: public MethodRequest
             {
                 INFO("debug", "NETWORK_THREAD: wait\n");
                 netsession_pair net_ses = m_netmanager.GetNextSession();
-                INFO("debug", "NETWORK_THREAD: got Signal!\n");
+                INFO("debug", "NETWORK_THREAD: got signal!\n");
                 
                 try
                 {
@@ -48,7 +48,7 @@ class NetworkThread: public MethodRequest
                         else
                             INFO("debug", "NETWORK_THREAD: WARNING can't send NULL packet\n");
                     }
-                    else // Recv
+                    else
                     {
                         INFO("debug", "NETWORK_THREAD: receiving packet event\n");
                         pkt = net_ses.first->RecvPacketFromSocket();
@@ -82,7 +82,7 @@ NetworkManager::NetworkManager() : sem(m_mutex)
 int NetworkManager::Initialize(uint32 n_thread)
 {
     m_thread = n_thread;
-    // +1 per l'epoll thread
+
     INFO("debug","NETWORK_MANAGER: starting %d threads\n", (m_thread + 1));
     net_engine.Initialize(m_thread + 1);
     if (ActivateThreadsNetwork() != 0)

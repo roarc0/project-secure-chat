@@ -136,8 +136,8 @@ Packet* SessionBase::_RecvPacketFromSocket()
             INFO("debug", "SESSION_BASE: packet decrypted\n");
         }
         
-        INFO("debug","SESSION_BASE: packet content:\n%s\n", (char*)pct->contents());
-
+        INFO("debug","SESSION_BASE: packet content:\n");
+        pct->hexlike();
 
         delete[] buffer;
     }
@@ -146,7 +146,7 @@ Packet* SessionBase::_RecvPacketFromSocket()
 
 void SessionBase::HandleNULL(Packet& /*packet*/)
 {
-    INFO("debug", "SESSIONBASE: handling null message\n");
+    INFO("debug", "SESSION_BASE: handling null message\n");
 }
 
 const std::string* SessionBase::GetUsername()

@@ -103,9 +103,7 @@ std::string XMLBuildUpdate(const char* name, const char* status)
 
     stringstream ss;
     ss << doc;
-
-    INFO("debug","XML: %s\n", ss.str().c_str());
-     
+ 
     return ss.str(); 
 }
 

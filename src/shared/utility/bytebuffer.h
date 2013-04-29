@@ -456,7 +456,7 @@ class ByteBuffer
         void print_storage() const
         {
             std::ostringstream o;
-            o << "DATA SIZE: " << size();
+            o << "data size: " << size();
             for (uint32 i = 0; i < size(); ++i)
                 o << read<uint8>(i) << " - ";
             o << " ";
@@ -467,7 +467,7 @@ class ByteBuffer
         void textlike() const
         {
             std::ostringstream o;
-            o << "DATA SIZE: " << size();
+            o << "data size: " << size();
             for (uint32 i = 0; i < size(); ++i)
             {
                 char buf[1];
@@ -480,44 +480,58 @@ class ByteBuffer
 
         void hexlike() const
         {
-            int x;
+            int x, n;
             uint8  w = 16;
 
             std::ostringstream o;
-            o << "DATA SIZE: " << size() << std::endl;
-            for (uint32 i = 0; i < (size() / w); ++i)
+            o << "data size: " << size() << std::endl;
+            for (uint32 i = 0; i <= (size() / w); ++i)
             {
                 for (uint32 j = 0; j<w ; j++)
                 {
-                     if ((i*w + j) < size())
+                     n = i*w + j;
+
+                     if( n < size())
                      {
-                         x = read<uint8>(i*w + j);
+                         x = read<uint8>(n);
                          if (x < 16)
                               o << "0";
                          o << std::hex << x << " ";
                      }
-                     else 
-                         o << "  ";
+                     else if((size() % w) != 0)
+                     {
+                         o << "   ";
+                     }
+
                 }
+               
+                if(((size() % w) == 0) && i == (size() / w))
+                    break;
+               
                 o << " | ";
+
                 for (uint32 j = 0; j<w ; j++)
                 {
-                    if ((i*w + j) > size())
+                    n = i*w + j;
+                    if (n >= size())
                         break;
                     
-                    x = read<uint8>(i*w + j);
+                    x = read<uint8>(n);
                     
                     if (!x or x=='\a' or x=='\b' or x=='\t'
                            or x=='\n' or x=='\v' or x=='\f'
-                           or x=='\r' or x=='\e' or x=='d')
+                           or x=='\r' or x=='\e')
                         o << ".";
                     else
                         o << (char)x; 
                 }
                 o << "\n";
             }
+            
             o << " ";
-            INFO("debug", "%s\n", o.str().c_str());
+                     
+            string str = o.str();
+            INFO("debug", "%s\n", str.c_str());
         }
 
     protected:

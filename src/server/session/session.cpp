@@ -223,7 +223,7 @@ void Session::HandleJoinChannel(Packet& packet)
         return;
     }
 
-    if (!sChan->CanSessionEnter(smartThis, pass))
+    if (!sChan->CanEnterSession(smartThis, pass))
     {
         // Invia notifica all'utente che non può entrare nel canale
         SendSysMessage("Wrong password");

@@ -26,13 +26,13 @@ class NetworkThread: public MethodRequest
         {
             Packet* pkt = NULL;
             
-            INFO("debug", "NETWORKTHREAD: started\n");
+            INFO("debug", "NETWORK_THREAD: started\n");
             
             while (active)
             {
-                INFO("debug", "NETWORKTHREAD: wait\n");
+                INFO("debug", "NETWORK_THREAD: wait\n");
                 netsession_pair net_ses = m_netmanager.GetNextSession();
-                INFO("debug", "NETWORKTHREAD: got Signal!\n");
+                INFO("debug", "NETWORK_THREAD: got Signal!\n");
                 
                 try
                 {
@@ -41,34 +41,34 @@ class NetworkThread: public MethodRequest
                         pkt = net_ses.first->GetPacketToSend();
                         if (pkt)
                         {
-                            INFO("debug", "NETWORKTHREAD: send packet event\n");
+                            INFO("debug", "NETWORK_THREAD: send packet event\n");
                             net_ses.first->SendPacketToSocket(pkt);
                             delete pkt;
                         }
                         else
-                            INFO("debug", "NETWORKTHREAD: WARNING can't send NULL packet\n");
+                            INFO("debug", "NETWORK_THREAD: WARNING can't send NULL packet\n");
                     }
                     else // Recv
                     {
-                        INFO("debug", "NETWORKTHREAD: receiving packet event\n");
+                        INFO("debug", "NETWORK_THREAD: receiving packet event\n");
                         pkt = net_ses.first->RecvPacketFromSocket();
                         if (pkt)
                         {   
-                            INFO("debug", "NETWORKTHREAD: packet queued in elaboration queue.\n");          
+                            INFO("debug", "NETWORK_THREAD: packet queued in elaboration queue.\n");          
                             net_ses.first->QueuePacket(pkt);
                         }
                         else
-                            INFO("debug", "NETWORKTHREAD: WARNING can't send NULL packet\n");
+                            INFO("debug", "NETWORK_THREAD: WARNING can't send NULL packet\n");
                     }
                 }
                 catch(SocketException e)
                 {
-                    INFO("debug", "NETWORKTHREAD: %s , closing socket\n", e.what());
+                    INFO("debug", "NETWORK_THREAD: %s , closing socket\n", e.what());
                     net_ses.first->m_Socket->CloseSocket();
                 }
             }
             
-            INFO("debug", "NETWORKTHREAD: killed\n");
+            INFO("debug", "NETWORK_THREAD: killed\n");
             
             return 0;
         }
@@ -83,7 +83,7 @@ int NetworkManager::Initialize(uint32 n_thread)
 {
     m_thread = n_thread;
     // +1 per l'epoll thread
-    INFO("debug","NETWORKMANAGER: starting %d threads\n", (m_thread + 1));
+    INFO("debug","NETWORK_MANAGER: starting %d threads\n", (m_thread + 1));
     net_engine.Initialize(m_thread + 1);
     if (ActivateThreadsNetwork() != 0)
         return -1;
@@ -96,7 +96,7 @@ int NetworkManager::ActivateEpoll()
 {
     if (net_engine.Execute(new SocketServer(*this, 0)) != 0)
     {
-        INFO ("debug", "NETWORKMANAGER: can't start epoll thread\n");
+        INFO ("debug", "NETWORK_MANAGER: can't start epoll thread\n");
         return -1;
     }
 
@@ -109,7 +109,7 @@ int NetworkManager::ActivateThreadsNetwork()
     {
         if (net_engine.Execute(new NetworkThread(*this, 0)) != 0)
         {
-            INFO ("debug", "NETWORKMANAGER: can't start network thread\n");
+            INFO ("debug", "NETWORK_MANAGER: can't start network thread\n");
             return -1;
         }
     }
@@ -125,7 +125,7 @@ int NetworkManager::QueueSend(Session_smart m_ses)
     q_request.add(netsession_pair(m_ses, SEND));
     sem.Signal();
     
-    INFO("debug","NETWORKMANAGER: send queued\n");
+    INFO("debug","NETWORK_MANAGER: send queued\n");
    
     return 0;
 }
@@ -135,14 +135,14 @@ int NetworkManager::QueueRecive(uint32 sock)
     Session_smart m_ses = s_manager->FindSession(sock);
     if (!m_ses.get())
     {
-        INFO("debug","NETWORKMANAGER: session for socket %d not found\n", sock);
+        INFO("debug","NETWORK_MANAGER: session for socket %d not found\n", sock);
         return -1;
     }
 
     q_request.add(netsession_pair(m_ses, RECV));
     sem.Signal();
     
-    INFO("debug","NETWORKMANAGER: recive queued\n");
+    INFO("debug","NETWORK_MANAGER: recive queued\n");
     
     return 0;
 }

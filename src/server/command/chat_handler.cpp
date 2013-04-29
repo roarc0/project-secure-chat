@@ -56,7 +56,7 @@ ChatCommand* ChatHandler::getCommandTable()
         { "utility",      SEC_USER,     NULL,                 "", utilityCommandTable     },
         { "ping",         SEC_USER,     &ChatHandler::HandlePingCommand,         "", NULL },
         { "commands",     SEC_USER,     &ChatHandler::HandleCommandsCommand,     "", NULL },
-        { "help",         SEC_USER,     &ChatHandler::HandleHelpCommand,         "Syntax: .help [$command]  Display usage instructions for the given $command. If no $command provided show list available commands.", NULL },
+        { "help",         SEC_USER,     &ChatHandler::HandleHelpCommand,         "Syntax: \help [$command]  Display instructions for the given $command.", NULL },
         { NULL,           0,            NULL,                 "", NULL                    }
     };
 

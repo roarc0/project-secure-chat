@@ -29,9 +29,8 @@ class SessionBase
         Packet* RecvPacketFromSocket();
         Packet* GetPacketToSend();
         
-        std::string GetNickname();
-        const std::string* GetNicknamePtr(); /* MOTHER OF GOD*/
-        void SetNickname(const std::string&);
+        const std::string* GetUsername();
+        void SetUsername(const std::string&);
         
         bool IsEncrypted() const
         {
@@ -43,21 +42,29 @@ class SessionBase
             s_key = key;
             s_enc = type;
         }
+        
+        bool IsLogged() const
+        {
+            return logged;
+        }
 
         virtual bool IsInChannel() { return false; } // serve anche al client?
 
-        // Handle
         void Handle_NULL(Packet& /*packet*/);
-
-        // Socket
         SocketBase* m_Socket;
     protected:
+
+        bool SetLogged(bool l)
+        {
+            logged = l;
+        }
 
         virtual int _SendPacket(Packet& new_packet);
         int _SendPacketToSocket(Packet& pct);
         Packet* _RecvPacketFromSocket();
         
-        std::string nickname;
+        std::string username;
+        bool logged;
 
         Mutex m_mutex;
 

@@ -7,7 +7,7 @@
 Session::Session(int pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), m_channel(NULL)
 {
-    nickname = "namelessone";
+    username = "namelessone";
 }
 
 Session::~Session()
@@ -300,4 +300,10 @@ void Session::HandleListChannel(Packet& /*packet*/)
     std::string info;
     s_manager->GetChannelMrg()->getChannelList(info);
     SendSysMessage(info.c_str());
+}
+
+void Session::HandleLogin(Packet& packet)
+{
+    INFO ("debug", "SESSION: LOGIN procedure\n");
+    
 }

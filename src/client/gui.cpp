@@ -85,13 +85,13 @@ void* GuiThread(void* arg)
                 if (msg.type == 'j')
                 {
                     add_user_to_list(gres->view_user_list,
-                     (gchar*) msg.nick.c_str(),
+                     (gchar*) msg.user.c_str(),
                      (gchar*) "*");
                 }
                 else if (msg.type == 'l')
                 {
                     remove_user_from_list(gres->view_user_list,
-                                         (gchar*) msg.nick.c_str());
+                                         (gchar*) msg.user.c_str());
                 }
             }
             else
@@ -178,7 +178,7 @@ void set_nick(GtkWidget *widget, gpointer parent)
             if (strlen(text))
             {
                 gtk_label_set_text(GTK_LABEL(gres.label_nick), text);
-                c_core->SetNickname(text);
+                c_core->SetUsername(text);
             }
             break;
 
@@ -398,9 +398,9 @@ void button_send_click(gpointer data, gchar *str, gchar type)
     
     msg.timestamp = true;    
     msg.data = text;
-    msg.nick = c_core->GetNickname();
+    msg.user = c_core->GetUsername();
 
-    c_core->AddMessage(msg.data, msg.nick, msg.type, msg.timestamp);
+    c_core->AddMessage(msg.data, msg.user, msg.type, msg.timestamp);
     c_core->SignalEvent();
 
     if (!c_core->HandleSend(text))

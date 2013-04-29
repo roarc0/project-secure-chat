@@ -115,20 +115,28 @@ bool Session::Update()
         {
             switch (opHandle.status)
             {
+                case STATUS_LOGGING:
+                {
+                        INFO ("debug", "SESSION: login procedure status is: %d\n", GetLoginStatus());
+                }    
+                break;
                 case STATUS_LOGGED:
-                    {
-                        (this->*opHandle.handler)(*packet);
-                    }
-                    break;
+                {
+                        /*if(!IsAuthenticated())
+                            INFO ("debug", "SESSION: login required\n", GetLoginStatus());
+                        else*/
+                            (this->*opHandle.handler)(*packet);
+                }
+                break;
                 case STATUS_NEVER:
                     INFO ("debug", "SESSION: header is NULL\n");
-                    break;
+                break;
                 case STATUS_UNHANDLED:
-                    // Log
-                    break;
+
+                break;
                 default:
-                    // Log
-                    break;
+
+                break;
             }
         }
         catch (...)
@@ -166,20 +174,28 @@ bool Session::Update(uint32 /*diff*/)
             {
                 switch (opHandle.status)
                 {
+                    case STATUS_LOGGING:
+                    {
+                        INFO ("debug", "SESSION: login procedure status is: %d\n", GetLoginStatus());
+                    }    
+                    break;
                     case STATUS_LOGGED:
-                        {
+                    {
+                        /*if(!IsAuthenticated())
+                            INFO ("debug", "SESSION: login required\n", GetLoginStatus());
+                        else*/
                             (this->*opHandle.handler)(*packet);
-                        }
-                        break;
+                    }
+                    break;
                     case STATUS_NEVER:
-                        // Log
-                        break;
+                        INFO ("debug", "SESSION: never!\n");
+                    break;
                     case STATUS_UNHANDLED:
-                        // Log
-                        break;
+                        INFO ("debug", "SESSION: session message not handled\n");
+                    break;
                     default:
-                        // Log
-                        break;
+                        INFO ("debug", "SESSION: session? what is a session?\n");
+                    break;
                 }
             }
             catch (...)
@@ -206,15 +222,15 @@ void Session::Handle_ClientSide(Packet& /*packet*/)
 
 void Session::Handle_Ping(Packet& /*packet*/)
 {
-
+    INFO ("debug", "SESSION: receiving ping!\n");
 }
 
 void Session::HandleMessage(Packet& packet)
 {
     INFO ("debug", "SESSION: Handling Message\n");
-    std::string msg, nick;
-    XMLReadMessage((const char*)packet.contents(), nick, msg);
-    SendToGui(msg, nick, 'm');
+    std::string msg, user;
+    XMLReadMessage((const char*)packet.contents(), user, msg);
+    SendToGui(msg, user, 'm');
 }
 
 void Session::HandleServerMessage(Packet& packet)
@@ -223,12 +239,10 @@ void Session::HandleServerMessage(Packet& packet)
     SendToGui((const char*)packet.contents(), "", 'e');
 }
 
-// TODO usare un solo handle e controllare status
-void Session::HandleJoinChannel(Packet& packet)
+void Session::HandleJoinChannel(Packet& packet) // TODO usare un solo handle e controllare status
 {
     INFO ("debug", "SESSION: Handle Join Message\n");
     std::string name, status, msg;
-    //packet >> name;
     XMLReadUpdate((const char*)packet.contents(), name, status);
     msg = "\"" + name + "\" has joined the channel";
     SendToGui((const char*)msg.c_str(), "", 'j');    
@@ -238,7 +252,6 @@ void Session::HandleLeaveChannel(Packet& packet)
 {
     INFO ("debug", "SESSION: Handle Leave Message\n");
     std::string name, status, msg;
-    //packet >> name;
     XMLReadUpdate((const char*)packet.contents(), name, status);
     msg = "\"" + name + "\" has left the channel";
     SendToGui((const char*)msg.c_str(), "", 'l');    

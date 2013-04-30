@@ -323,7 +323,7 @@ void Session::HandleLogin(Packet& packet)
         
         break;
         default:
-        
+            //s_status = STATUS_REJECTED;
         break;
     }
 }

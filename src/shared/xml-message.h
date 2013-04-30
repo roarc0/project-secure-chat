@@ -10,7 +10,11 @@ using namespace std;
 
 string XMLBuildMessage(const char *, const char *);
 void   XMLReadMessage(const char *, string&, string&);
+
 std::string XMLBuildUpdate(const char *, const char*);
-void XMLReadUpdate(const char *str, string& name, string& status);
+void XMLReadUpdate(const char *, string& , string& );
+
+std::string XMLBuildLogin(const char *, const char *);
+void XMLReadLogin(const char *, string&, string&);
 
 #endif

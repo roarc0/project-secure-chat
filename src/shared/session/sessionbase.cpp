@@ -199,3 +199,8 @@ SessionStatus SessionBase::GetSessionStatus() const
 {
     return s_status;
 }
+
+void SessionBase::SetSessionStatus(SessionStatus s)
+{
+    s_status = s;
+}

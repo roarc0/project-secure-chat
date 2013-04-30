@@ -139,9 +139,9 @@ bool Session::Update()
                 break;
                 case STATUS_LOGGED:
                 {
-                        /*if(!IsAuthenticated())
+                        if(!IsAuthenticated())
                             INFO ("debug", "SESSION: login required\n", GetSessionStatus()); // Drop session
-                        else*/
+                        else
                             (this->*opHandle.handler)(*packet);
                 }
                 break;
@@ -198,9 +198,9 @@ bool Session::Update(uint32 /*diff*/)
                     break;
                     case STATUS_LOGGED:
                     {
-                        /*if(!IsAuthenticated())
+                        if(!IsAuthenticated())
                             INFO ("debug", "SESSION: login required\n", GetSessionStatus());
-                        else*/
+                        else
                             (this->*opHandle.handler)(*packet);
                     }
                     break;

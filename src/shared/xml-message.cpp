@@ -1,5 +1,5 @@
 #include "xml-message.h"
-#include "crypto/base64.h"
+#include "crypto/crypto.h"
 
 std::string XMLBuildMessage(const char* name, const char* content)
 {
@@ -154,3 +154,83 @@ void XMLReadUpdate(const char *str, string& name, string& status)
         }
      }
 }
+
+/*
+E' un esempio, la pwd potrebbe essere usata per decifrare il certificato
+privato, o come segreto condiviso da passare in modo sicuro...
+*/
+std::string XMLBuildLogin(const char* username, const char* password)
+{
+    TiXmlDocument doc;
+    TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "", "" );
+    TiXmlElement * element = new TiXmlElement( "login" );
+    
+    TiXmlElement * element_name = new TiXmlElement( "username" );
+    TiXmlText * text_name = new TiXmlText( EncodeBase64(username) );
+
+    element->LinkEndChild( element_name );
+    element_name->LinkEndChild( text_name );
+    
+    string pwd_digest;
+    int len = strlen(password);
+    if (len)
+        SHA256_digest(password, len, pwd_digest);
+    element_name->SetAttribute("password", pwd_digest.c_str());
+    
+    doc.LinkEndChild( decl );
+    doc.LinkEndChild( element );
+
+    stringstream ss;
+    ss << doc;
+ 
+    return ss.str(); 
+}
+
+void XMLReadLogin(const char *str, string& username, string& password_digest)
+{
+    if(!str)
+        return;
+        
+    TiXmlDocument doc;
+    doc.Parse(str);
+    
+    TiXmlElement* root = doc.FirstChildElement();
+
+    if(root == NULL)
+    {
+        cerr << "Failed to load file: No root element." << endl;
+        doc.Clear();
+        return;
+    }
+    
+    for(TiXmlElement* elem = root->FirstChildElement();
+        elem != NULL;
+        elem = elem->NextSiblingElement())
+    {
+        const char* attr;
+        string elemName = elem->Value();
+        if(elemName == "username")
+        {
+            attr = elem->Attribute("password");
+            if(attr != NULL)
+            {
+                password_digest = attr;
+            }
+        }
+        
+        for(TiXmlNode* e = elem->FirstChild();
+            e != NULL;
+            e = e->NextSibling())
+        {
+            TiXmlText* text = e->ToText();
+            if(text == NULL)
+                continue;
+
+            if(elemName == "username")
+            {
+                username = DecodeBase64(text->Value());
+            }
+        }
+     }
+}
+

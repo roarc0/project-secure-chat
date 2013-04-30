@@ -515,6 +515,6 @@ bool ChatHandler::HandlePingCommand(const char* /*args*/)
 bool ChatHandler::HandleLoginCommand(const char* /*args*/)
 {
     INFO("debug", "CHAT_HANDLER: login command\n");
-
+    
     return true;
 }

@@ -434,7 +434,19 @@ bool ChatHandler::HandleLoginCommand(const char* args)
 {
     INFO ("debug", "CHAT_HANDLER: LOGIN procedure: %s\n", args);
     Packet data(CMSG_LOGIN, 0);
-    data << args;
+    data << XMLBuildLogin(CFG_GET_STRING("nickname").c_str(), "password");
+    m_session->SetSessionStatus(STATUS_AUTHENTICATED);
     m_session->SendPacketToSocket(&data);
+    
+    switch (m_session->GetSessionStatus())
+    {
+        case STATUS_CONNECTED:
+        
+        break;
+        default:
+        
+        break;
+    }
+ 
     return true;
 }

@@ -49,6 +49,7 @@ class SessionBase
         bool IsConnected() const;
         void SetConnected(bool);
         SessionStatus GetSessionStatus() const;
+        void SetSessionStatus(SessionStatus);
         
         virtual bool IsInChannel() { return false; } // serve anche al client?
 

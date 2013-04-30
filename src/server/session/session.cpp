@@ -3,6 +3,7 @@
 #include "channel.h"
 #include "session-manager.h"
 #include "network-manager.h"
+#include "xml-message.h"
 
 Session::Session(int pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), m_channel(NULL)
@@ -304,7 +305,25 @@ void Session::HandleListChannel(Packet& /*packet*/)
 
 void Session::HandleLogin(Packet& packet)
 {
-    INFO ("debug", "SESSION: LOGIN procedure\n");
-    // TODO GET USERNAME
+    INFO ("debug", "SESSION: LOGIN procedure status: %d\n", s_status);
     
+    string user, pwd;
+    XMLReadLogin((char*)packet.contents(), user, pwd);
+    
+    if (!SetUsername(user)) 
+    {
+        INFO("debug","SESSION: username \"%s\" is not valid\n", username.c_str());
+    }
+    
+    SendSysMessage("login response");
+    
+    switch (s_status)
+    {
+        case STATUS_CONNECTED:
+        
+        break;
+        default:
+        
+        break;
+    }
 }

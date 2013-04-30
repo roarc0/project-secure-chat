@@ -51,17 +51,12 @@ class SessionBase
         SessionStatus GetSessionStatus() const;
         void SetSessionStatus(SessionStatus);
         
-        virtual bool IsInChannel() { return false; } // serve anche al client?
+        virtual bool IsInChannel() { return false; }
 
         void HandleNULL(Packet& /*packet*/);
         
         SocketBase* m_Socket; // TODO protected
     protected:
-
-        void SetLoginStatus(SessionStatus l)
-        {
-            s_status = l;
-        }
 
         virtual int _SendPacket(Packet& new_packet);
         int _SendPacketToSocket(Packet& pct);

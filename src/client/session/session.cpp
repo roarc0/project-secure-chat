@@ -30,10 +30,15 @@ bool Session::Connect() // TODO add user,password
         SetConnected(true);                  
         SendToGui(str_connect.c_str(), "",'e');
         string str_login = "\\login " + username + " password";
-        if(!HandleSend(str_login.c_str())) // trigger login procedure
-        {
-            INFO("debug", "SESSION: Unable to send login command\n");
-        }
+        
+       ///Packet pack(CMSG_LOGIN);
+       //pack << str_login.c_str();
+       //SendPacketToSocket(&pack);
+        
+        //if(!HandleSend(str_login.c_str())) // trigger login procedure
+        //{
+        //    INFO("debug", "SESSION: Unable to send login command\n");
+        //}
     }
     catch(SocketException &e)
     {
@@ -139,9 +144,9 @@ bool Session::Update()
                 break;
                 case STATUS_LOGGED:
                 {
-                        if(!IsAuthenticated())
+                        /*if(!IsAuthenticated())
                             INFO ("debug", "SESSION: login required\n", GetSessionStatus()); // Drop session
-                        else
+                        else*/
                             (this->*opHandle.handler)(*packet);
                 }
                 break;
@@ -198,9 +203,11 @@ bool Session::Update(uint32 /*diff*/)
                     break;
                     case STATUS_LOGGED:
                     {
+                        /*
                         if(!IsAuthenticated())
                             INFO ("debug", "SESSION: login required\n", GetSessionStatus());
                         else
+                        */
                             (this->*opHandle.handler)(*packet);
                     }
                     break;

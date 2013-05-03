@@ -5,7 +5,7 @@
 
 Session::Session() //: SessionBase()
 {
-    username = CFG_GET_STRING("nickname");
+    username = CFG_GET_STRING("username");
     c_Socket = new SocketClient(SOCK_STREAM, 0);
     m_Socket = (SocketBase*) c_Socket;
 }
@@ -310,7 +310,7 @@ void Session::HandleLogin(Packet& packet)
         case STATUS_CONNECTED:
             {
                 Packet data(CMSG_LOGIN, 0);
-                data << XMLBuildLogin(CFG_GET_STRING("nickname").c_str(), GetPassword());
+                data << XMLBuildLogin(GetUsername()->c_str(), GetPassword());
 
                 SendPacketToSocket(&data);
                 SetSessionStatus(STATUS_LOGIN_STEP_1);

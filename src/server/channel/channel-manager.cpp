@@ -1,4 +1,5 @@
 #include "channel-manager.h"
+#include "crypto/crypto.h"
 
 ChannelManager::ChannelManager()
 {    
@@ -17,7 +18,7 @@ ChannelManager::~ChannelManager()
     }
 }
 
-SmartChannel ChannelManager::CreateChannel(std::string& c_name)
+SmartChannel ChannelManager::CreateChannel(std::string& c_name, std::string& c_pass)
 {
     Lock guard(m_mutex);
 
@@ -28,7 +29,7 @@ SmartChannel ChannelManager::CreateChannel(std::string& c_name)
     if (cha.get())
         return SmartChannel(NULL);
 
-    cha = SmartChannel(new Channel(c_name));
+    cha = SmartChannel(new Channel(c_name, c_pass));
     m_channels[c_name] = cha;
     return cha;        
 }
@@ -100,11 +101,14 @@ void ChannelManager::Update(uint32 diff)
 
 void ChannelManager::JoinDefaultChannel(Session_smart ses)
 {
-    std::string c_name = "Default";
+    std::string c_name = "Default";    
     SmartChannel cha = FindChannel(c_name);
     if (!cha.get())
     {
-        cha = SmartChannel(new Channel(c_name));
+        std::string c_pass = "";
+        std::string c_pass_sha256;
+        SHA256_digest (c_pass.c_str(), c_pass.length(), c_pass_sha256);
+        cha = SmartChannel(new Channel(c_name, c_pass_sha256));
         m_channels[c_name] = cha;
     }
     cha->AddSession(ses);

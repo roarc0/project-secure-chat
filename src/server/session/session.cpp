@@ -262,7 +262,7 @@ void Session::HandleCreateChannel(Packet& packet)
     std::string pass = ""; 
     packet >> pass;
 
-    SmartChannel sChan = s_manager->GetChannelMrg()->CreateChannel(c_name);
+    SmartChannel sChan = s_manager->GetChannelMrg()->CreateChannel(c_name, pass);
     if (!sChan.get())
     {
         SendSysMessage("Channel already exists");

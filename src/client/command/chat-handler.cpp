@@ -4,6 +4,7 @@
 #include "networking/opcode.h"
 #include "chat-handler.h"
 #include "client-core.h"
+#include "crypto/crypto.h"
 
 enum eChatErrorCode
 {
@@ -377,8 +378,17 @@ bool ChatHandler::HandleJoinChannelCommand(const char* args)
         return false;
     std::string c_name = arg1;
 
+    char* arg2 = strtok(NULL, " ");
+    std::string c_pass = "";
+    if (arg2)
+        c_pass = arg2;
+
+    std::string c_pass_sha256;
+    SHA256_digest (c_pass.c_str(), c_pass.length(), c_pass_sha256);
+
     Packet data(CMSG_JOIN_CHANNEL, 0);
     data << c_name;
+    data << c_pass_sha256;
     m_session->SendPacketToSocket(&data);
     return true;
 }
@@ -393,8 +403,17 @@ bool ChatHandler::HandleCreateChannelCommand(const char* args)
         return false;
     std::string c_name = arg1;
 
+    char* arg2 = strtok(NULL, " ");
+    std::string c_pass = "";
+    if (arg2)
+        c_pass = arg2;
+
+    std::string c_pass_sha256;
+    SHA256_digest (c_pass.c_str(), c_pass.length(), c_pass_sha256);
+
     Packet data(CMSG_CREATE_CHANNEL, 0);
     data << c_name;
+    data << c_pass_sha256;
     m_session->SendPacketToSocket(&data);
     return true;
 }

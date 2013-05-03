@@ -30,7 +30,7 @@ class ChannelManager
 
         // THREADSAFE
         SmartChannel FindChannel(const std::string& c_name);
-        SmartChannel CreateChannel(std::string& c_name);
+        SmartChannel CreateChannel(std::string& c_name, std::string& c_pass);
         void getChannelList(std::string& info);
 
         // THREADUNSAFE

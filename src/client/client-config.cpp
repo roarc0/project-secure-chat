@@ -10,7 +10,7 @@ void init_config(string filename)
     CFG->add_bool("log", false);
     CFG->add_bool("autoconnect", false);
     CFG->add_string("log_path", "logs");
-    CFG->add_string("nickname", "user");
+    CFG->add_string("username", "user");
     CFG->add_string("password", "default");
     
     CFG->add_string("priv_key", "client.pem");

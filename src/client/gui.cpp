@@ -19,7 +19,7 @@ struct gui_res
     /* menubar (MOTHER OF NAMES) */
     GtkWidget *menubar, *filemenu,*helpmenu, *file;
     GtkWidget *connect,*open, *font, *sep, *quit;
-    GtkWidget *nickname, *help, *about;
+    GtkWidget *username, *help, *about;
     GtkAccelGroup *accel_group = NULL;
 
     /* toolbar */
@@ -96,7 +96,7 @@ void* GuiThread(void* arg)
                 "Disconnect");
             push_status_bar("Connected with server!");
             add_user_to_list(gres->view_user_list,
-                             (gchar*) CFG_GET_STRING("nickname").c_str(),
+                             (gchar*) CFG_GET_STRING("username").c_str(),
                              (gchar*) "*");
         }
         
@@ -107,7 +107,7 @@ void* GuiThread(void* arg)
                 "Connect");
             push_status_bar("Disconnected from server!");
             remove_user_from_list(gres->view_user_list,
-                 (gchar*) CFG_GET_STRING("nickname").c_str());
+                 (gchar*) CFG_GET_STRING("username").c_str());
         }
         
         oldstatus = c_core->GetSession()->IsConnected();
@@ -264,49 +264,6 @@ void request_password(gpointer parent)
         break;
     }
     
-    gtk_widget_destroy(dialog);
-}
-
-void set_nick(GtkWidget *widget, gpointer parent)
-{
-    GtkWidget* dialog = gtk_dialog_new_with_buttons ("Select Name",
-                                                 GTK_WINDOW(parent),
-                                                 (GtkDialogFlags) (GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT),
-                                                 GTK_STOCK_OK,
-                                                 GTK_RESPONSE_ACCEPT,
-                                                 GTK_STOCK_CANCEL,
-                                                 GTK_RESPONSE_REJECT,
-                                                 NULL);
-    
-    GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));    
-    GtkWidget *entry = gtk_entry_new();
-
-    gtk_container_set_border_width(GTK_CONTAINER (content_area), 5);
-         
-    gtk_container_add (GTK_CONTAINER (content_area), entry);
-    gtk_widget_show_all (dialog);
-    
-    gint result = gtk_dialog_run(GTK_DIALOG (dialog));
-
-    gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(entry));
-    INFO("debug", "GUI: result %d\n", (int)result);
-
-    switch (result)
-    {
-        case GTK_RESPONSE_ACCEPT:
-            
-            INFO("debug" "GUI: new nickname %s\n", text);
-            if (strlen(text))
-            {
-                gtk_label_set_text(GTK_LABEL(gres.label_nick), text);
-                c_core->GetSession()->SetUsername(text);
-            }
-            break;
-
-        default:
-        break;
-    }
-
     gtk_widget_destroy(dialog);
 }
 
@@ -621,7 +578,7 @@ void main_gui(int argc, char **argv)
     gres.helpmenu = gtk_menu_new();
 
     gres.file = gtk_menu_item_new_with_label("File");
-    gres.nickname = gtk_menu_item_new_with_label("Nickname");
+    gres.username = gtk_menu_item_new_with_label("Password");
     gres.connect = gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW, NULL);
     gres.open = gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN, NULL);
     gres.font = gtk_image_menu_item_new_from_stock(GTK_STOCK_SELECT_FONT, NULL);
@@ -632,7 +589,7 @@ void main_gui(int argc, char **argv)
 
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(gres.file), gres.filemenu);
     gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.connect);
-    gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.nickname);
+    gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.username);
     gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.font);
     gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.sep);
     gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.quit);
@@ -647,7 +604,7 @@ void main_gui(int argc, char **argv)
     g_signal_connect(G_OBJECT(gres.quit), "activate", G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect(G_OBJECT(gres.font), "activate", G_CALLBACK(select_font), G_OBJECT(gres.window));
     g_signal_connect(G_OBJECT(gres.about), "activate", G_CALLBACK(show_about), NULL);
-    g_signal_connect(G_OBJECT(gres.nickname), "activate", G_CALLBACK(set_nick), G_OBJECT(gres.window));
+    g_signal_connect(G_OBJECT(gres.username), "activate", G_CALLBACK(request_password), G_OBJECT(gres.window));
 
     /* toolbar */
     gres.toolbar = gtk_toolbar_new();
@@ -780,7 +737,7 @@ void main_gui(int argc, char **argv)
     gres.hbox_inputs = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_box_pack_start(GTK_BOX (gres.vbox_main), gres.hbox_inputs, FALSE, FALSE, 0);
     
-    gres.label_nick = gtk_label_new((gchar *) CFG_GET_STRING("nickname").c_str()); 
+    gres.label_nick = gtk_label_new((gchar *) CFG_GET_STRING("username").c_str()); 
     gtk_misc_set_alignment(GTK_MISC(gres.label_nick),0.0,0.5);
     gtk_box_pack_start(GTK_BOX (gres.hbox_inputs), gres.label_nick, FALSE, FALSE, 2 );
 

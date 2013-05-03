@@ -18,15 +18,16 @@ class DatabaseManager
 
   public:
     DatabaseManager(); 
-    DatabaseManager(string);
+    DatabaseManager(std::string);
     ~DatabaseManager();
 
-    void SetFilename(string);
+    void SetFilename(std::string);
 
     void OpenDb();
     void CloseDb();
     
-    bool CheckUser(const string&);
+    bool CheckUser(const std::string&);
+    bool GetKey(const std::string&, std::string&);
 };
 
 #define db_manager Singleton<DatabaseManager>::GetInstance()

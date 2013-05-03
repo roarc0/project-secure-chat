@@ -75,3 +75,16 @@ bool DatabaseManager::CheckUser(const string& username)
     sqlite3_finalize(result);
     return exists;
 }
+
+bool DatabaseManager::GetKey(const string& username, std::string& key)
+{
+    bool exists = 0;
+    string query = "select password from user where username=\"" + username + "\"";
+    sqlite3_prepare_v2(handle, query.c_str(), query.length(), &result, NULL);
+
+    if(sqlite3_step(result) == SQLITE_ROW)
+        key = (const char*)sqlite3_column_text(result, 0); //sqlite3_column_name(stmt,col);
+
+    sqlite3_finalize(result);
+    return exists;
+}

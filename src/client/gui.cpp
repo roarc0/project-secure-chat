@@ -262,8 +262,6 @@ bool request_password(gpointer parent)
             
             if (strlen(text_name) && strlen(text_pwd))
             {
-                add_message_to_chat(gres.chat_buffer,
-                                (gchar*) "Password inserted\n", 'e');
                 c_core->GetSession()->SetUsername(text_name);
                 c_core->GetSession()->SetPassword(text_pwd);
                 gtk_label_set_text(GTK_LABEL(gres.label_nick), text_name);

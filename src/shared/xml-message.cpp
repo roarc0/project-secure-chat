@@ -8,12 +8,12 @@ std::string XMLBuildMessage(const char* name, const char* content)
     TiXmlElement * element = new TiXmlElement( "message" );
     
     TiXmlElement * element_name = NULL;
-    if(name)
+    if (name)
         element_name = new TiXmlElement( "name" );
     TiXmlElement * element_content = new TiXmlElement( "content" );
     
     TiXmlText * text_name = NULL;
-    if(name)
+    if (name)
     {
         INFO("debug", "XML: writing name -> %s\n", name);
         text_name = new TiXmlText( EncodeBase64(name) );
@@ -21,11 +21,11 @@ std::string XMLBuildMessage(const char* name, const char* content)
     INFO("debug", "XML: writing content -> %s\n", content);
     TiXmlText * text_content = new TiXmlText( EncodeBase64(content) );
     
-    if(element_name)
+    if (element_name)
         element->LinkEndChild( element_name );
     element->LinkEndChild( element_content );
     
-    if(element_name)
+    if (element_name)
         element_name->LinkEndChild( text_name );
     element_content->LinkEndChild( text_content );
     
@@ -41,7 +41,7 @@ std::string XMLBuildMessage(const char* name, const char* content)
 
 void XMLReadMessage(const char *str, string& name, string& content)
 {
-    if(!str)
+    if (!str)
         return;
         
     TiXmlDocument doc;
@@ -49,41 +49,41 @@ void XMLReadMessage(const char *str, string& name, string& content)
     
     TiXmlElement* root = doc.FirstChildElement();
 
-    if(root == NULL)
+    if (root == NULL)
     {
         cerr << "Failed to load file: No root element." << endl;
         doc.Clear();
         return;
     }
     
-    for(TiXmlElement* elem = root->FirstChildElement();
+    for (TiXmlElement* elem = root->FirstChildElement();
         elem != NULL;
         elem = elem->NextSiblingElement())
     {
         const char* attr;
         string elemName = elem->Value();
         //cout << "elem: " << elemName << endl;
-        if(elemName == "name")
+        if (elemName == "name")
         {
             attr = elem->Attribute("level");
-            if(attr != NULL);
+            if (attr != NULL);
         }
         
-        else if(elemName == "content")
+        else if (elemName == "content")
         {
             attr = elem->Attribute("type");
-            if(attr != NULL);
+            if (attr != NULL);
         }
         
-        for(TiXmlNode* e = elem->FirstChild();
+        for (TiXmlNode* e = elem->FirstChild();
             e != NULL;
             e = e->NextSibling())
         {
             TiXmlText* text = e->ToText();
-            if(text == NULL)
+            if (text == NULL)
                 continue;
 
-            if(elemName == "name")
+            if (elemName == "name")
             {
                 name = DecodeBase64(text->Value());
                 INFO("debug", "XML: reading name -> %s\n", name.c_str());
@@ -131,7 +131,7 @@ std::string XMLBuildUpdate(const char* name, const char* status)
 
 void XMLReadUpdate(const char *str, string& name, string& status)
 {
-    if(!str)
+    if (!str)
         return;
         
     TiXmlDocument doc;
@@ -139,38 +139,38 @@ void XMLReadUpdate(const char *str, string& name, string& status)
     
     TiXmlElement* root = doc.FirstChildElement();
 
-    if(root == NULL)
+    if (root == NULL)
     {
         cerr << "Failed to load file: No root element." << endl;
         doc.Clear();
         return;
     }
     
-    for(TiXmlElement* elem = root->FirstChildElement();
+    for (TiXmlElement* elem = root->FirstChildElement();
         elem != NULL;
         elem = elem->NextSiblingElement())
     {
         const char* attr;
         string elemName = elem->Value();
-        if(elemName == "name")
+        if (elemName == "name")
         {
             attr = elem->Attribute("status");
-            if(attr != NULL)
+            if (attr != NULL)
             {
                 status = DecodeBase64(attr);
                 INFO("debug", "XML: reading status -> %s\n", status.c_str());
             }
         }
         
-        for(TiXmlNode* e = elem->FirstChild();
+        for (TiXmlNode* e = elem->FirstChild();
             e != NULL;
             e = e->NextSibling())
         {
             TiXmlText* text = e->ToText();
-            if(text == NULL)
+            if (text == NULL)
                 continue;
 
-            if(elemName == "name")
+            if (elemName == "name")
             {
                 name = DecodeBase64(text->Value());
                 INFO("debug", "XML: reading name -> %s\n", name.c_str());
@@ -215,7 +215,7 @@ std::string XMLBuildLogin(const char* username, const char* password)
 
 void XMLReadLogin(const char *str, string& username, string& password_digest)
 {
-    if(!str)
+    if (!str)
         return;
         
     TiXmlDocument doc;
@@ -223,40 +223,108 @@ void XMLReadLogin(const char *str, string& username, string& password_digest)
     
     TiXmlElement* root = doc.FirstChildElement();
 
-    if(root == NULL)
+    if (root == NULL)
     {
         cerr << "Failed to load file: No root element." << endl;
         doc.Clear();
         return;
     }
     
-    for(TiXmlElement* elem = root->FirstChildElement();
+    for (TiXmlElement* elem = root->FirstChildElement();
         elem != NULL;
         elem = elem->NextSiblingElement())
     {
         const char* attr;
         string elemName = elem->Value();
-        if(elemName == "login")
+        if (elemName == "login")
         {
             attr = elem->Attribute("password");
-            if(attr != NULL)
+            if (attr != NULL)
             {
                 password_digest = attr;
             }
         }
         
-        for(TiXmlNode* e = elem->FirstChild();
+        for (TiXmlNode* e = elem->FirstChild();
             e != NULL;
             e = e->NextSibling())
         {
             TiXmlText* text = e->ToText();
-            if(text == NULL)
+            if (text == NULL)
                 continue;
 
-            if(elemName == "username")
+            if (elemName == "username")
             {
                 username = DecodeBase64(text->Value());
                 INFO("debug", "XML: reading username -> %s\n", username.c_str());
+            }
+        }
+     }
+}
+
+
+std::string XMLBuildLoginResponse(bool ok)
+{
+    TiXmlDocument doc;
+    TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "", "" );
+    TiXmlElement * element = new TiXmlElement( "login" );
+
+    INFO("debug", "XML: writing response -> %d\n", ok);
+    TiXmlElement * element_name = new TiXmlElement( "response" );
+    TiXmlText * text_name;
+    
+    if (ok)
+        text_name = new TiXmlText( "valid" );
+    else 
+        text_name = new TiXmlText( "invalid" );
+
+    element->LinkEndChild( element_name );
+    element_name->LinkEndChild( text_name );
+    
+    doc.LinkEndChild( decl );
+    doc.LinkEndChild( element );
+
+    stringstream ss;
+    ss << doc;
+ 
+    return ss.str(); 
+}
+
+
+void XMLReadLoginResponse(const char *str, bool& ok)
+{
+    if (!str)
+        return;
+        
+    TiXmlDocument doc;
+    doc.Parse(str);
+    
+    TiXmlElement* root = doc.FirstChildElement();
+
+    if (root == NULL)
+    {
+        cerr << "Failed to load file: No root element." << endl;
+        doc.Clear();
+        return;
+    }
+    
+    for (TiXmlElement* elem = root->FirstChildElement();
+        elem != NULL;
+        elem = elem->NextSiblingElement())
+    {
+        string elemName = elem->Value();
+        for (TiXmlNode* e = elem->FirstChild();
+            e != NULL;
+            e = e->NextSibling())
+        {
+            TiXmlText* text = e->ToText();
+            if (text == NULL)
+                continue;
+
+            if (elemName == "response")
+            {
+                ok = (strcmp(text->Value(), "valid") == 0);
+                INFO("debug", "XML: reading login response -> %s\n", text->Value());
             }
         }
      }

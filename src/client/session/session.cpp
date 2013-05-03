@@ -303,18 +303,24 @@ void Session::HandleLeaveChannel(Packet& packet)
 
 void Session::HandleLogin(Packet& packet)
 {
-    INFO ("debug", "SESSION: LOGIN procedure\n");
-    
-    SetSessionStatus(STATUS_AUTHENTICATED);
-    
-    string msg = "Please enter password";
-    SendToGui((const char*)msg.c_str(), "", 'r');
+    INFO ("debug", "SESSION: LOGIN procedure\n");    
     
     switch (GetSessionStatus())
     {
         case STATUS_CONNECTED:
-        
-        break;
+            {
+                Packet data(CMSG_LOGIN, 0);
+                data << XMLBuildLogin(CFG_GET_STRING("nickname").c_str(), GetPassword());
+
+                SendPacketToSocket(&data);
+                SetSessionStatus(STATUS_LOGIN_STEP_1);
+            }
+            break;
+        case STATUS_LOGIN_STEP_1:
+            {
+                SetSessionStatus(STATUS_AUTHENTICATED);
+            }
+            break;
         default:
         
         break;

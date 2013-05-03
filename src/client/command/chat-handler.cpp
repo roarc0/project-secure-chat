@@ -38,9 +38,9 @@ ChatCommand* ChatHandler::getCommandTable()
 {
     static ChatCommand channelCommandTable[] =
     {
-        { "join",        SEC_USER,            &ChatHandler::HandleJoinChannelCommand,          "", NULL },
-        { "create",      SEC_USER,            &ChatHandler::HandleCreateChannelCommand,        "", NULL },
-        { "leave",       SEC_USER,            &ChatHandler::HandleLeaveChannelCommand,         "", NULL },
+        { "join",        SEC_USER,            &ChatHandler::HandleJoinChannelCommand,          "Syntax: \\channel join [$name] [$pass]  Join channel $name with optional password $pass.", NULL },
+        { "create",      SEC_USER,            &ChatHandler::HandleCreateChannelCommand,        "Syntax: \\channel create [$name] [$pass]  Create channel $name with optional password $pass.", NULL },
+        { "leave",       SEC_USER,            &ChatHandler::HandleLeaveChannelCommand,         "Syntax: \\channel list  See the list of channels with number of user and if channels have a password.", NULL },
         { "info",        SEC_USER,            &ChatHandler::HandleInfoChannelCommand,          "", NULL },
         { "list",        SEC_USER,            &ChatHandler::HandleListChannelCommand,          "", NULL },
         { "kick",        SEC_MODERATOR,       &ChatHandler::HandleKickCommand,                 "", NULL },
@@ -56,10 +56,9 @@ ChatCommand* ChatHandler::getCommandTable()
     {
         { "channel",      SEC_USER,     NULL,                 "", channelCommandTable     },
         { "utility",      SEC_USER,     NULL,                 "", utilityCommandTable     },
-        { "login",        SEC_USER,     &ChatHandler::HandleLoginCommand,        "", NULL },
         { "ping",         SEC_USER,     &ChatHandler::HandlePingCommand,         "", NULL },
         { "commands",     SEC_USER,     &ChatHandler::HandleCommandsCommand,     "", NULL },
-        { "help",         SEC_USER,     &ChatHandler::HandleHelpCommand,         "Syntax: .help [$command]  Display usage instructions for the given $command.", NULL },
+        { "help",         SEC_USER,     &ChatHandler::HandleHelpCommand,         "Syntax: \\help [$command]  Display usage instructions for the given $command.", NULL },
         { NULL,           0,            NULL,                 "", NULL                    }
     };
 
@@ -447,15 +446,4 @@ bool ChatHandler::HandlePingCommand(const char* /*args*/)
     Packet data(CMSG_PING, 0);
     m_session->SendPacketToSocket(&data);
     return true;
-}
-
-bool ChatHandler::HandleLoginCommand(const char* args)
-{
-    /*INFO ("debug", "CHAT_HANDLER: LOGIN procedure: %s\n", args);
-    Packet data(CMSG_LOGIN, 0);
-    data << XMLBuildLogin(CFG_GET_STRING("nickname").c_str(), "password");
-
-    m_session->SendPacketToSocket(&data);
-
-    return true;*/
 }

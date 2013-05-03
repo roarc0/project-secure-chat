@@ -20,7 +20,7 @@ NEWEXCEPTION(ChannelException);
 class Channel
 {
     public:
-        Channel(std::string& c_name);
+        Channel(std::string& c_name, std::string& c_pass);
         ~Channel();
 
         void Update(uint32 t_diff);
@@ -49,6 +49,7 @@ class Channel
         Mutex m_mutex;
         mapSession m_sessions;
         std::string name;
+        std::string pass;
         bool b_todelete;
 };
 

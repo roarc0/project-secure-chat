@@ -1,7 +1,7 @@
 #include "channel.h"
 #include "networking/opcode.h"
 
-Channel::Channel(std::string& c_name) : name(c_name), b_todelete(false)
+Channel::Channel(std::string& c_name, std::string& c_pass) : name(c_name), pass(c_pass), b_todelete(false)
 {
     INFO ("debug", "CHANNEL: Channel constructor\n");
 }
@@ -27,10 +27,9 @@ bool Channel::DelayedUpdate(uint32 /*t_diff*/)
     return m_sessions.size() ? true : false;
 }
 
-bool Channel::CanEnterSession(Session_smart /*ses*/, std::string& /*pass*/) const
+bool Channel::CanEnterSession(Session_smart /*ses*/, std::string& c_pass) const
 { 
-    // TODO
-    return true; 
+    return c_pass == pass;
 }
 
 Session_smart Channel::FindSession(uint32 id)

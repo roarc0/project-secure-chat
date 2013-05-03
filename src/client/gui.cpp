@@ -184,6 +184,11 @@ void show_about()
   gtk_widget_destroy(dialog);
 }
 
+void entry_pwd_response(GtkWidget * widget, gpointer dialog)
+{
+    gtk_dialog_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
+}
+
 void request_password(gpointer parent)
 {
     GtkWidget* dialog = gtk_dialog_new_with_buttons ("Enter Password",
@@ -196,30 +201,59 @@ void request_password(gpointer parent)
                                                  NULL);
     
     GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));    
-    GtkWidget *entry = gtk_entry_new();
+    GtkWidget *entry_name = gtk_entry_new();
+    GtkWidget *entry_pwd = gtk_entry_new();
+    GtkWidget *label_name = gtk_label_new("username ");
+    GtkWidget *label_pwd = gtk_label_new("password ");
+
+    //GdkPixbuf *pixbuf = create_pixbuf("data/psc.png");
 
     gtk_container_set_border_width(GTK_CONTAINER (content_area), 5);
-         
-    gtk_container_add (GTK_CONTAINER (content_area), entry);
+
+    gtk_entry_set_text(GTK_ENTRY(entry_name), (gchar*) c_core->GetUsername());
+     
+    gtk_container_add (GTK_CONTAINER (content_area), label_name);        
+    gtk_container_add (GTK_CONTAINER (content_area), entry_name);
+
+    gtk_container_add (GTK_CONTAINER (content_area), label_pwd);
+    gtk_container_add (GTK_CONTAINER (content_area), entry_pwd);
+
+    if(strlen(c_core->GetUsername()))
+        gtk_widget_grab_focus (GTK_WIDGET(entry_pwd));
+    else
+        gtk_widget_grab_focus (GTK_WIDGET(entry_name));
+
     gtk_widget_show_all (dialog);
+    
+    g_signal_connect(G_OBJECT(entry_pwd), "activate", G_CALLBACK(entry_pwd_response), dialog);
     
     gint result = gtk_dialog_run(GTK_DIALOG (dialog));
 
-    gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(entry));
+    gchar *text_name = (gchar*) gtk_entry_get_text(GTK_ENTRY(entry_name));
+    gchar *text_pwd = (gchar*) gtk_entry_get_text(GTK_ENTRY(entry_pwd));
+    
     INFO("debug", "GUI: result %d\n", (int)result);
 
     switch (result)
     {
         case GTK_RESPONSE_ACCEPT:
             
-            INFO("debug" "GUI: new nickname %s\n", text);
+            INFO("debug" "GUI: login -> %s\n", text_name);
             
-            if (strlen(text))
+            if (strlen(text_name) && strlen(text_pwd))
             {
                 add_message_to_chat(gres.chat_buffer,
                                 (gchar*) "Password inserted\n", 'e');
-                c_core->GetSession()->SetPassword(text);   
+                c_core->GetSession()->SetUsername(text_name);
+                c_core->GetSession()->SetPassword(text_pwd);
+                
             }
+            else
+            {
+                add_message_to_chat(gres.chat_buffer,
+                                (gchar*) "Invalid User/Password insertion\n", 'e');            
+            }
+            
             break;
 
         default:

@@ -25,7 +25,7 @@ struct Message_t
     
     Message_t()
     {
-        user = "user";
+        user = "";
     }
     
     Message_t(const std::string& d, char t, bool time)
@@ -33,7 +33,7 @@ struct Message_t
         data = d;
         type = t;
         timestamp = time;
-        user = "user";
+        user = "";
     }
 };
 
@@ -65,6 +65,11 @@ class ClientCore
     void WaitEvent();
     void SignalEvent();
     bool IsConnected();
+    
+    Session* GetSession()
+    {
+        return session;
+    }
     
     std::string GetUsername();
     bool SetUsername(const std::string&); // deprecated

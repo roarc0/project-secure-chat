@@ -10,6 +10,7 @@
 #include "threading/mutex.h"
 #include "utility/singleton.h"
 #include "utility/queues/lock_queue.h"
+#include "database/database-manager.h"
 
 class ChannelManager;
 

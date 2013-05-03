@@ -1,32 +1,32 @@
 #ifndef DATABASE_MANAGER_H
 #define DATABASE_MANAGER_H
 
-#include  <sqlite3.h>
-#include  "utility/logger.h"
-#include  "utility/file.h"
-#include  "utility/singleton.h"
+#include <sqlite3.h>
+#include <string>
+#include "utility/logger.h"
+#include "utility/file.h"
+#include "utility/singleton.h"
 
 using namespace std;
 
 class DatabaseManager
 {
     friend class Singleton<DatabaseManager>;
-  private:
-
-    string              db_filename;
-    sqlite3*            handle;
-    sqlite3_stmt*       res;
+    std::string    filename;
+    sqlite3*       handle;
+    sqlite3_stmt*  result;
 
   public:
-
+    DatabaseManager(); 
+    DatabaseManager(string);
     ~DatabaseManager();
 
-    void SetDbFilename(string filename)
-    {
-        db_filename = filename;
-    }
+    void SetFilename(string);
 
-    void InitDb();
+    void OpenDb();
+    void CloseDb();
+    
+    bool CheckUser(const string&);
 };
 
 #define db_manager Singleton<DatabaseManager>::GetInstance()

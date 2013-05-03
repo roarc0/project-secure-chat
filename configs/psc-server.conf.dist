@@ -1,6 +1,6 @@
 debug = true
 log_path = "logs"
-db_filename = "server.db"
+db_filename = "../etc/database.sqlite"
 server_port = 7777
 
 #

@@ -277,4 +277,16 @@ void Session::HandleLogin(Packet& packet)
 {
     INFO ("debug", "SESSION: LOGIN procedure\n");
     
+    SetSessionStatus(STATUS_AUTHENTICATED);
+    
+    switch (GetSessionStatus())
+    {
+        case STATUS_CONNECTED:
+        
+        break;
+        default:
+        
+        break;
+    }
+ 
 }

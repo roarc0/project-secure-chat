@@ -10,6 +10,8 @@ using namespace std;
 
 string XMLBuildMessage(const char *, const char *);
 void   XMLReadMessage(const char *, string&, string&);
+void   XMLSetUsernameToMessage(string& str, const string& name);
+
 
 std::string XMLBuildUpdate(const char *, const char*);
 void XMLReadUpdate(const char *, string& , string& );

@@ -188,6 +188,13 @@ void Session::HandleMessage(Packet& packet)
 
     if (m_channel.get())
     {
+        std::string data;
+        packet >> data;
+        packet.clear();
+        INFO("debug", "USERNAME IS %s\n", GetUsername()->c_str());
+        XMLSetUsernameToMessage(data, *GetUsername());
+        packet << data;
+        
         m_channel->SendToAllButOne(&packet, m_id);
     }
     else
@@ -329,8 +336,10 @@ void Session::HandleLogin(Packet& packet)
     
                 if (!SetUsername(user)) 
                 {
-                    INFO("debug","SESSION: username \"%s\" is not valid\n", username.c_str());
+                    INFO("debug","SESSION: username \"%s\" is not valid\n", user.c_str());
                 }
+                else
+                    INFO("debug", "SESSION: setting username to \"%s\"\n", user.c_str());
 
                 Packet data(SMSG_LOGIN, 0);
                 SendPacket(&data);

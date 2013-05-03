@@ -288,8 +288,8 @@ void Session::HandleJoinChannel(Packet& packet) // TODO usare un solo handle e c
     INFO ("debug", "SESSION: Handle Join Message\n");
     std::string name, status, msg;
     XMLReadUpdate((const char*)packet.contents(), name, status);
-    msg = "\"" + name + "\" has joined the channel";
-    SendToGui((const char*)msg.c_str(), "", 'j');    
+    msg = "joined the channel";
+    SendToGui((const char*)msg.c_str(), name, 'j');    
 }
 
 void Session::HandleLeaveChannel(Packet& packet)
@@ -297,8 +297,8 @@ void Session::HandleLeaveChannel(Packet& packet)
     INFO ("debug", "SESSION: Handle Leave Message\n");
     std::string name, status, msg;
     XMLReadUpdate((const char*)packet.contents(), name, status);
-    msg = "\"" + name + "\" has left the channel";
-    SendToGui((const char*)msg.c_str(), "", 'l');    
+    msg = "left the channel";
+    SendToGui((const char*)msg.c_str(), name, 'l');    
 }
 
 void Session::HandleLogin(Packet& packet)

@@ -89,7 +89,7 @@ void* GuiThread(void* arg)
     {
         gdk_threads_enter();
         
-        if(c_core->IsConnected() && !oldstatus)
+        if(c_core->GetSession()->IsConnected() && !oldstatus)
         {
             gtk_tool_button_set_label(
                 GTK_TOOL_BUTTON(gres->toolbar_connect),
@@ -100,7 +100,7 @@ void* GuiThread(void* arg)
                              (gchar*) "*");
         }
         
-        if(!c_core->IsConnected() && oldstatus)
+        if(!c_core->GetSession()->IsConnected() && oldstatus)
         {
             gtk_tool_button_set_label(
                 GTK_TOOL_BUTTON(gres->toolbar_connect),
@@ -110,7 +110,7 @@ void* GuiThread(void* arg)
                  (gchar*) CFG_GET_STRING("nickname").c_str());
         }
         
-        oldstatus = c_core->IsConnected();
+        oldstatus = c_core->GetSession()->IsConnected();
 
         Message_t msg = c_core->GetEvent();
         
@@ -213,7 +213,7 @@ void request_password(gpointer parent)
 
     gtk_container_set_border_width(GTK_CONTAINER (content_area), 5);
 
-    gtk_entry_set_text(GTK_ENTRY(entry_name), (gchar*) c_core->GetUsername());
+    gtk_entry_set_text(GTK_ENTRY(entry_name), (gchar*) c_core->GetSession()->GetUsername()->c_str());
      
     gtk_container_add (GTK_CONTAINER (content_area), label_name);        
     gtk_container_add (GTK_CONTAINER (content_area), entry_name);
@@ -221,7 +221,7 @@ void request_password(gpointer parent)
     gtk_container_add (GTK_CONTAINER (content_area), label_pwd);
     gtk_container_add (GTK_CONTAINER (content_area), entry_pwd);
 
-    if(strlen(c_core->GetUsername()))
+    if(c_core->GetSession()->GetUsername()->length())
         gtk_widget_grab_focus (GTK_WIDGET(entry_pwd));
     else
         gtk_widget_grab_focus (GTK_WIDGET(entry_name));
@@ -249,6 +249,7 @@ void request_password(gpointer parent)
                                 (gchar*) "Password inserted\n", 'e');
                 c_core->GetSession()->SetUsername(text_name);
                 c_core->GetSession()->SetPassword(text_pwd);
+                gtk_label_set_text(GTK_LABEL(gres.label_nick), text_name);
             }
             else
             {
@@ -298,7 +299,7 @@ void set_nick(GtkWidget *widget, gpointer parent)
             if (strlen(text))
             {
                 gtk_label_set_text(GTK_LABEL(gres.label_nick), text);
-                c_core->SetUsername(text);
+                c_core->GetSession()->SetUsername(text);
             }
             break;
 
@@ -499,12 +500,12 @@ void button_send_click(gpointer data, gchar *str, gchar type)
     Message_t msg;
     gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(gres.text_entry));
 
-    if (strlen(text) == 0 || !c_core->IsConnected()) // TODO check max length
+    if (strlen(text) == 0 || !c_core->GetSession()->IsConnected()) // TODO check max length
         return;
         
     msg.timestamp = true;    
     msg.data = text;
-    msg.user = c_core->GetUsername();
+    msg.user = *(c_core->GetSession()->GetUsername());
     
     if ((text[0] != '\\') || (strncmp(text, "\\send", 5) == 0))
     {
@@ -561,7 +562,7 @@ void toolbar_reset_click(gpointer data)
 void toolbar_connect_click(gpointer data)
 {
     GtkToolButton *toolbar_connect = GTK_TOOL_BUTTON(data);
-    if (!c_core->IsConnected())
+    if (!c_core->GetSession()->IsConnected())
     {
         INFO("debug", "connect button pressed\n");
         request_password(gres.window);
@@ -571,7 +572,7 @@ void toolbar_connect_click(gpointer data)
         return;
     }
 
-    if(c_core->IsConnected())
+    if(c_core->GetSession()->IsConnected())
     {
         INFO("debug", "disconnect button pressed\n");
         c_core->GetSession()->ClearPassword();
@@ -655,7 +656,7 @@ void main_gui(int argc, char **argv)
     gtk_container_set_border_width(GTK_CONTAINER(gres.toolbar), 2);
 
     gres.toolbar_connect = gtk_tool_button_new_from_stock(GTK_STOCK_NETWORK);
-    if (!c_core->IsConnected())
+    if (!c_core->GetSession()->IsConnected())
         gtk_tool_button_set_label(GTK_TOOL_BUTTON(gres.toolbar_connect), "Connect");
     else
         gtk_tool_button_set_label(GTK_TOOL_BUTTON(gres.toolbar_connect), "Disconnect");

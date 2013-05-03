@@ -11,7 +11,7 @@ void* CoreThread(void* arg)
 
     try
     {
-        while(c_core->IsConnected())
+        while(session->IsConnected())
         {
             c_core->HandleRecv();
             msleep(1);
@@ -123,19 +123,4 @@ void ClientCore::WaitEvent()
 void ClientCore::SignalEvent()
 {
     pthread_cond_signal(&cond_event);
-}
-
-bool ClientCore::IsConnected()
-{
-    return session->IsConnected();
-}
-
-const char* ClientCore::GetUsername()
-{
-    return session->GetUsername()->c_str();
-}
-
-bool ClientCore::SetUsername(const std::string& n)
-{
-    return session->SetUsername(n);
 }

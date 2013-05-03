@@ -344,10 +344,10 @@ void Session::HandleLogin(Packet& packet)
                 Packet data(SMSG_LOGIN, 0);
                 SendPacket(&data);
 
-                //if ( s_manager->ValidUsername() )
+                if ( db_manager->CheckUser(user) )
                     SetSessionStatus(STATUS_AUTHENTICATED);
-                //else
-                //    SetSessionStatus(STATUS_REJECTED);
+                else
+                    SetSessionStatus(STATUS_REJECTED);
                 
                 s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
             }

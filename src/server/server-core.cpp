@@ -4,8 +4,8 @@ void server_core()
 {
     try
     {
-        //db_manager->set_dbfilename(CFG_GET_STRING("db_filename"));
-        //db_manager->init_db();
+        db_manager->SetFilename(CFG_GET_STRING("db_filename"));
+        db_manager->OpenDb();
 
         s_manager;
         net_manager;

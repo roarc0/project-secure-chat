@@ -64,7 +64,7 @@ void push_status_bar(const gchar*);
 void add_message_to_chat(gpointer data, gchar *str, gchar type);
 void add_user_to_list(gpointer data, gchar *str, gchar *lev);
 void remove_user_from_list(gpointer data, const gchar *str);
-void request_password(gpointer parent);
+bool request_password(gpointer parent);
 
 
 void* GuiThread(void* arg)
@@ -72,15 +72,16 @@ void* GuiThread(void* arg)
     gui_res* gres = (gui_res*) arg;
 
     bool oldstatus = false;
-    
     //msleep(1000);
     if (CFG_GET_BOOL("autoconnect"))
     {
+        bool proceed = false;
         INFO("debug","GUI: autoconnecting...\n");
         gdk_threads_enter();
-        request_password(gres->window);
+        proceed = request_password(gres->window);
         gdk_threads_leave();
-        c_core->Connect();
+        if(proceed)
+            c_core->Connect();
     }
     
     while(1)
@@ -163,12 +164,27 @@ GdkPixbuf *create_pixbuf(const gchar * filename)
    return pixbuf;
 }
 
+GdkPixbuf *reduce_pixbuf(GdkPixbuf * pixbuf, gint x, gint y)
+{
+    GdkPixbuf *pixbuf_reduced = NULL;
+    
+    if(pixbuf)
+    {
+        pixbuf_reduced = gdk_pixbuf_scale_simple(pixbuf, 
+                                                 x,y,
+                                                 GDK_INTERP_BILINEAR);
+        g_object_unref (G_OBJECT(pixbuf));                                            
+    }
+
+    return pixbuf_reduced;
+}
+
+
 void show_about()
 {
-  GdkPixbuf *pixbuf = create_pixbuf("data/psc.png");
+  GdkPixbuf *pixbuf = reduce_pixbuf(create_pixbuf("data/psc.png"),128,128);
 
   GtkWidget *dialog = gtk_about_dialog_new();
-  //gtk_about_dialog_set_name(GTK_ABOUT_DIALOG(dialog), "psc");
   gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), _REVISION);
   gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog),
       "(c) 2012-2013 Alessandro Rosetti Daniele Lazzarini");
@@ -187,8 +203,9 @@ void entry_pwd_response(GtkWidget * widget, gpointer dialog)
     gtk_dialog_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
 }
 
-void request_password(gpointer parent)
+bool request_password(gpointer parent)
 {
+    bool ret;
     GtkWidget* dialog = gtk_dialog_new_with_buttons ("Enter Password",
                                                  GTK_WINDOW(parent),
                                                  (GtkDialogFlags) (GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT),
@@ -203,9 +220,14 @@ void request_password(gpointer parent)
     GtkWidget *entry_pwd = gtk_entry_new();
     GtkWidget *label_name = gtk_label_new("username ");
     GtkWidget *label_pwd = gtk_label_new("password ");
+    GtkWidget *image;
+    GdkPixbuf *pixbuf = reduce_pixbuf(create_pixbuf("data/psc.png"), 48, 48);
+    if(pixbuf)
+    {
+        image = gtk_image_new_from_pixbuf(pixbuf);
+        gtk_container_add (GTK_CONTAINER (content_area), image);
+    }
 
-    //GdkPixbuf *pixbuf = create_pixbuf("data/psc.png");
-    
     gtk_entry_set_invisible_char (GTK_ENTRY(entry_pwd), '*');
     gtk_entry_set_visibility (GTK_ENTRY(entry_pwd), FALSE);
 
@@ -233,13 +255,10 @@ void request_password(gpointer parent)
     gchar *text_name = (gchar*) gtk_entry_get_text(GTK_ENTRY(entry_name));
     gchar *text_pwd = (gchar*) gtk_entry_get_text(GTK_ENTRY(entry_pwd));
     
-    INFO("debug", "GUI: result %d\n", (int)result);
-
     switch (result)
     {
         case GTK_RESPONSE_ACCEPT:
-            
-            INFO("debug" "GUI: login -> %s\n", text_name);
+            INFO("debug" "GUI: login dialog -> %s\n", text_name);
             
             if (strlen(text_name) && strlen(text_pwd))
             {
@@ -248,21 +267,24 @@ void request_password(gpointer parent)
                 c_core->GetSession()->SetUsername(text_name);
                 c_core->GetSession()->SetPassword(text_pwd);
                 gtk_label_set_text(GTK_LABEL(gres.label_nick), text_name);
+                ret = true;
             }
             else
             {
                 add_message_to_chat(gres.chat_buffer,
-                                (gchar*) "Invalid User/Password insertion\n", 'e');            
+                                (gchar*) "Invalid User/Password insertion\n", 'e');
+                ret = false;
             }
-            
-            break;
+        break;
 
         default:
-            
+            ret = false;
         break;
     }
-    
+    if(pixbuf)
+        g_object_unref (G_OBJECT(pixbuf));
     gtk_widget_destroy(dialog);
+    return ret;
 }
 
 void select_font(gpointer parent)
@@ -520,9 +542,13 @@ void toolbar_connect_click(gpointer data)
     if (!c_core->GetSession()->IsConnected())
     {
         INFO("debug", "connect button pressed\n");
-        request_password(gres.window);
-        if(!c_core->Connect())
-            push_status_bar("Connection failed!");
+        if(!request_password(gres.window))
+        {
+            push_status_bar("Insert valid credentials!");
+        }
+        else
+            if(!c_core->Connect())
+                push_status_bar("Connection failed!");
 
         return;
     }

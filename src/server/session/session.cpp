@@ -308,22 +308,30 @@ void Session::HandleListChannel(Packet& /*packet*/)
     SendSysMessage(info.c_str());
 }
 
-void Session::HandleLogin(Packet& /*packet*/)
+void Session::HandleLogin(Packet& packet)
 {
     INFO ("debug", "SESSION: LOGIN procedure status: %d\n", s_status);
-    
-    //string user, pwd;
-    //XMLReadLogin((char*)packet.contents(), user, pwd);
-    
-    //if (!SetUsername(user)) 
-    //{
-    //   INFO("debug","SESSION: username \"%s\" is not valid\n", username.c_str());
-    //}
 
     switch (s_status)
     {
         case STATUS_CONNECTED:
             {
+                Packet data(SMSG_LOGIN, 0);
+                SendPacket(&data);
+
+                SetSessionStatus(STATUS_LOGIN_STEP_1);
+            }
+            break;
+        case STATUS_LOGIN_STEP_1:
+            {
+                std::string user, pwd;
+                XMLReadLogin((char*)packet.contents(), user, pwd);
+    
+                if (!SetUsername(user)) 
+                {
+                    INFO("debug","SESSION: username \"%s\" is not valid\n", username.c_str());
+                }
+
                 Packet data(SMSG_LOGIN, 0);
                 SendPacket(&data);
 

@@ -344,8 +344,17 @@ void Session::HandleLogin(Packet& packet)
                 Packet data(SMSG_LOGIN, 0);
                 SendPacket(&data);
 
-                SetSessionStatus(STATUS_AUTHENTICATED);
+                //if ( s_manager->ValidUsername() )
+                    SetSessionStatus(STATUS_AUTHENTICATED);
+                //else
+                //    SetSessionStatus(STATUS_REJECTED);
+                
                 s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
+            }
+            break;
+        case STATUS_REJECTED:
+            {
+            
             }
             break;
         default:

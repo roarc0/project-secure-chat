@@ -187,6 +187,11 @@ bool SessionBase::IsConnected() const
     return s_status >= STATUS_CONNECTED;
 }
 
+bool SessionBase::IsRejected() const
+{
+    return s_status == STATUS_REJECTED;
+}
+
 void SessionBase::SetConnected(bool c) // reset encryption ecc...
 {
     if(c)

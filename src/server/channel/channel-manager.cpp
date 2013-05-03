@@ -44,13 +44,23 @@ SmartChannel ChannelManager::FindChannel(const std::string& c_name)
 
 void ChannelManager::getChannelList(std::string& info)
 {
+    std::string c_pass = "";
+    std::string c_pass_sha256;
+    SHA256_digest (c_pass.c_str(), c_pass.length(), c_pass_sha256);
+    Session_smart ses(NULL);
+
     stringstream ss;
     ss << "Channel list:" << endl;
 
     mapChannel::iterator iter = m_channels.begin();
     for (; iter != m_channels.end(); ++iter)
     {
-        ss << " " << iter->second->GetName() << " (" << iter->second->getSessionNumer() << ") " << endl;
+        ss << " " << iter->second->GetName() << " (" << iter->second->getSessionNumer() << ") ";
+        if (!(iter->second->CanEnterSession(ses, c_pass_sha256)))
+        {
+          ss << "*";  
+        }
+        ss << endl;
     }
     info += ss.str();
 }

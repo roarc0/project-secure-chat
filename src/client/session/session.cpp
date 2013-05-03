@@ -87,6 +87,11 @@ bool Session::Disconnect()
     return true;
 }
 
+const char* Session::GetPassword()
+{
+    return m_pwd_digest.c_str();
+}
+
 void Session::SetPassword(const char * password)
 {
     string pwd_digest;

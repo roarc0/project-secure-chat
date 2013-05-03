@@ -32,6 +32,7 @@ class Session : public SessionBase
     void HandleLogin(Packet& packet);
     bool HandleSend(const char* msg);
 
+    const char* GetPassword();
     void SetPassword(const char *);
     bool IsPasswordSet();
     void ClearPassword();

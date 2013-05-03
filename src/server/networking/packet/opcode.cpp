@@ -6,7 +6,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     { "MSG_NULL_ACTION",             STATUS_NEVER,       PROCESS_INPLACE,           &Session::HandleNULL                           },
     { "CMSG_PING",                   STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandlePing                           },
     { "SMSG_PING",                   STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandleServerSide                     },
-    { "SMSG_QUEUE_POSITION",         STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandleServerSide                     },
+    { "SMSG_QUEUE_POSITION",         STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleServerSide                     },
     { "SMSG_SYSTEM_MESSAGE",         STATUS_NEVER,       PROCESS_INPLACE,           &Session::HandleServerSide                     },
     { "CMSG_MESSAGE",                STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandleMessage                        },
     { "SMSG_MESSAGE",                STATUS_NEVER,       PROCESS_INPLACE,           &Session::HandleServerSide                     },

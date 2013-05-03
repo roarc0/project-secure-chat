@@ -17,7 +17,7 @@ enum SessionEncryption
 
 enum SessionStatus
 {
-    STATUS_NONE,
+    STATUS_NONE = 0,
     STATUS_DISCONNECTED,
     STATUS_CONNECTED,
     STATUS_LOGIN_INIT,

@@ -31,9 +31,9 @@ bool Session::Connect() // TODO add user,password
         SendToGui(str_connect.c_str(), "",'e');
         string str_login = "\\login " + username + " password";
         
-       ///Packet pack(CMSG_LOGIN);
-       //pack << str_login.c_str();
-       //SendPacketToSocket(&pack);
+        //Packet pack(CMSG_LOGIN, str_login.size());
+        //pack << str_login.c_str();
+        //SendPacketToSocket(&pack);
         
         //if(!HandleSend(str_login.c_str())) // trigger login procedure
         //{
@@ -139,12 +139,15 @@ bool Session::Update()
             {
                 case STATUS_LOGGING:
                 {
-                    INFO ("debug", "SESSION: login procedure status is: %d\n", GetSessionStatus());
+                    INFO ("debug", "SESSION: login procedure status is: %d\n", GetSessionStatus());                    
                 }    
                 break;
                 case STATUS_LOGGED:
                 {
-                    (this->*opHandle.handler)(*packet);
+                    if (IsAuthenticated())
+                        (this->*opHandle.handler)(*packet);
+                    else
+                        INFO ("debug", "SESSION: executing packet not authenticated\n");
                 }
                 break;
                 case STATUS_NEVER:

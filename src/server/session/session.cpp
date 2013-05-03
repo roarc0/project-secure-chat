@@ -75,8 +75,14 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
             {
                 switch (opHandle.status)
                 {
-                    case STATUS_LOGGED:
+                    case STATUS_LOGGING:
                         {
+                            if (m_inQueue)
+                            {
+                                INFO ("debug", "SESSION: packet injection, while in queue\n");
+                                break; // For Packet Injection
+                            }
+
                             INFO ("debug", "SESSION: processing packet\n");
                             (this->*opHandle.handler)(*packet);
                         }
@@ -91,14 +97,13 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
                             (this->*opHandle.handler)(*packet);
                         }
                         break;
-                    case STATUS_LOGGING:
-                        if (m_inQueue)
+                    case STATUS_LOGGED:
+                        if (!IsAuthenticated())
                         {
-                            INFO ("debug", "SESSION: packet injection, while in queue\n");
-                            break; // For Packet Injection
+                            INFO ("debug", "SESSION: executing packet not authenticated\n");
+                            break;
                         }
                         (this->*opHandle.handler)(*packet);
-                        break;
                     case STATUS_NEVER:
                         INFO ("debug", "SESSION: STATUS_NEVER, packet hasn't been processed\n");
                         break;
@@ -303,27 +308,31 @@ void Session::HandleListChannel(Packet& /*packet*/)
     SendSysMessage(info.c_str());
 }
 
-void Session::HandleLogin(Packet& packet)
+void Session::HandleLogin(Packet& /*packet*/)
 {
     INFO ("debug", "SESSION: LOGIN procedure status: %d\n", s_status);
     
-    string user, pwd;
-    XMLReadLogin((char*)packet.contents(), user, pwd);
+    //string user, pwd;
+    //XMLReadLogin((char*)packet.contents(), user, pwd);
     
-    if (!SetUsername(user)) 
-    {
-        INFO("debug","SESSION: username \"%s\" is not valid\n", username.c_str());
-    }
-    
-    SendSysMessage("login response");
-    
+    //if (!SetUsername(user)) 
+    //{
+    //   INFO("debug","SESSION: username \"%s\" is not valid\n", username.c_str());
+    //}
+
     switch (s_status)
     {
         case STATUS_CONNECTED:
-        
-        break;
+            {
+                Packet data(SMSG_LOGIN, 0);
+                SendPacket(&data);
+
+                SetSessionStatus(STATUS_AUTHENTICATED);
+                s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
+            }
+            break;
         default:
             //s_status = STATUS_REJECTED;
-        break;
+            break;
     }
 }

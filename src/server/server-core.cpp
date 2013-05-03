@@ -14,22 +14,25 @@ void server_core()
         s_sched_engine->Initialize(CFG_GET_INT("ThreadExec")); // Numero thread elaborazione
 
         bool m_active = true;
-        double diff = 0;
-        struct timer tm;
+        uint32 diff = 0;
+        struct timeval t1, t2;
+
+        gettimeofday(&t1, NULL);
 
         while(m_active)
         {
-            time_start(&tm);
             try
             {
                 msleep(100);
 
-                time_stop(&tm);
-                diff = time_diff(&tm);
+                // calcola diff
+                gettimeofday(&t2, NULL);
+                diff = (t2.tv_sec - t1.tv_sec) * 1000 + (t2.tv_usec - t1.tv_usec)/1000;
                 if (diff == 0)
                     diff = 1;
-
-                s_manager->Update((uint32)diff);
+                t1 = t2;
+ 
+                s_manager->Update(diff);
             }
             catch(...)
             {

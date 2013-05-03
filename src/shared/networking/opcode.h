@@ -1,7 +1,7 @@
 #ifndef OPCODE_H
 #define OPCODE_H
 
-#include "session.h"   // quale session? siamo in shared o no? XD
+#include "session.h"
 
 enum MessageTypes
 { 

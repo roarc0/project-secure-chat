@@ -139,7 +139,8 @@ bool Session::Update()
             {
                 case STATUS_LOGGING:
                 {
-                    INFO ("debug", "SESSION: login procedure status is: %d\n", GetSessionStatus());                    
+                    INFO ("debug", "SESSION: login procedure status is: %d\n", GetSessionStatus()); 
+                    (this->*opHandle.handler)(*packet);                   
                 }    
                 break;
                 case STATUS_LOGGED:

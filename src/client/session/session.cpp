@@ -87,6 +87,25 @@ bool Session::Disconnect()
     return true;
 }
 
+void Session::SetPassword(const char * password)
+{
+    string pwd_digest;
+    assert(password);
+    SHA256_digest(password, strlen(password), pwd_digest);
+    m_pwd_digest = password;
+    INFO("debug", "SESSION: setting password digest: %s\n", pwd_digest.c_str());
+}
+
+bool Session::IsPasswordSet()
+{
+    return !m_pwd_digest.empty();
+}
+
+void Session::ClearPassword()
+{
+    m_pwd_digest = "";
+}
+
 void Session::ResetSocket()
 {
     delete c_Socket;
@@ -282,6 +301,9 @@ void Session::HandleLogin(Packet& packet)
     INFO ("debug", "SESSION: LOGIN procedure\n");
     
     SetSessionStatus(STATUS_AUTHENTICATED);
+    
+    string msg = "Please enter password";
+    SendToGui((const char*)msg.c_str(), "", 'r');
     
     switch (GetSessionStatus())
     {

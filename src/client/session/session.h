@@ -12,6 +12,7 @@ typedef counted_ptr<Session> Session_smart;
 class Session : public SessionBase
 {
     SocketClient* c_Socket;
+    string        m_pwd_digest;
   public:
     Session();
     ~Session();
@@ -31,6 +32,10 @@ class Session : public SessionBase
     void HandleLogin(Packet& packet);
     bool HandleSend(const char* msg);
 
+    void SetPassword(const char *);
+    bool IsPasswordSet();
+    void ClearPassword();
+    
     void SendToGui(std::string str, std::string nick, char type);
 
   private:

@@ -64,6 +64,8 @@ void push_status_bar(const gchar*);
 void add_message_to_chat(gpointer data, gchar *str, gchar type);
 void add_user_to_list(gpointer data, gchar *str, gchar *lev);
 void remove_user_from_list(gpointer data, const gchar *str);
+void request_password(gpointer parent);
+
 
 void* GuiThread(void* arg)
 {
@@ -75,7 +77,12 @@ void* GuiThread(void* arg)
     if (CFG_GET_BOOL("autoconnect"))
     {
         INFO("debug","GUI: autoconnecting...\n");
-        c_core->Connect();
+        if(c_core->Connect())
+        {
+            gdk_threads_enter();
+            request_password(gres->window);
+            gdk_threads_leave();
+        }
     }
     
     while(1)
@@ -88,8 +95,6 @@ void* GuiThread(void* arg)
                 GTK_TOOL_BUTTON(gres->toolbar_connect),
                 "Disconnect");
             push_status_bar("Connected with server!");
-            //add_message_to_chat(gres->chat_buffer,
-            //                    (gchar*) "Connected!\n", 'e');
             add_user_to_list(gres->view_user_list,
                              (gchar*) CFG_GET_STRING("nickname").c_str(),
                              (gchar*) "*");
@@ -101,8 +106,6 @@ void* GuiThread(void* arg)
                 GTK_TOOL_BUTTON(gres->toolbar_connect),
                 "Connect");
             push_status_bar("Disconnected from server!");
-            //add_message_to_chat(gres->chat_buffer,
-            //                    (gchar*) "Disconnected!\n", 'e');
             remove_user_from_list(gres->view_user_list,
                  (gchar*) CFG_GET_STRING("nickname").c_str());
         }
@@ -117,6 +120,7 @@ void* GuiThread(void* arg)
                 msg.data.append("\n");
             add_message_to_chat(gres->chat_buffer,
                                 (gchar*) msg.data.c_str(), msg.type);
+            
             if (msg.type == 'j')
             {
                 add_user_to_list(gres->view_user_list,
@@ -178,6 +182,52 @@ void show_about()
   g_object_unref(pixbuf), pixbuf = NULL;
   gtk_dialog_run(GTK_DIALOG (dialog));
   gtk_widget_destroy(dialog);
+}
+
+void request_password(gpointer parent)
+{
+    GtkWidget* dialog = gtk_dialog_new_with_buttons ("Enter Password",
+                                                 GTK_WINDOW(parent),
+                                                 (GtkDialogFlags) (GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT),
+                                                 GTK_STOCK_OK,
+                                                 GTK_RESPONSE_ACCEPT,
+                                                 GTK_STOCK_CANCEL,
+                                                 GTK_RESPONSE_REJECT,
+                                                 NULL);
+    
+    GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));    
+    GtkWidget *entry = gtk_entry_new();
+
+    gtk_container_set_border_width(GTK_CONTAINER (content_area), 5);
+         
+    gtk_container_add (GTK_CONTAINER (content_area), entry);
+    gtk_widget_show_all (dialog);
+    
+    gint result = gtk_dialog_run(GTK_DIALOG (dialog));
+
+    gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(entry));
+    INFO("debug", "GUI: result %d\n", (int)result);
+
+    switch (result)
+    {
+        case GTK_RESPONSE_ACCEPT:
+            
+            INFO("debug" "GUI: new nickname %s\n", text);
+            
+            if (strlen(text))
+            {
+                add_message_to_chat(gres.chat_buffer,
+                                (gchar*) "Password inserted\n", 'e');
+                c_core->GetSession()->SetPassword(text);   
+            }
+            break;
+
+        default:
+            
+        break;
+    }
+    
+    gtk_widget_destroy(dialog);
 }
 
 void set_nick(GtkWidget *widget, gpointer parent)
@@ -478,6 +528,7 @@ void toolbar_connect_click(gpointer data)
     if (!c_core->IsConnected())
     {
         INFO("debug", "connect button pressed\n");
+        request_password(gres.window);
         if(!c_core->Connect())
             push_status_bar("Connection failed!");
 
@@ -487,6 +538,7 @@ void toolbar_connect_click(gpointer data)
     if(c_core->IsConnected())
     {
         INFO("debug", "disconnect button pressed\n");
+        c_core->GetSession()->ClearPassword();
         if(!c_core->Disconnect())
             push_status_bar("Disconnection failed!?");
     }

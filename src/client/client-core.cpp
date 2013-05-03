@@ -130,9 +130,9 @@ bool ClientCore::IsConnected()
     return session->IsConnected();
 }
 
-std::string ClientCore::GetUsername()
+const char* ClientCore::GetUsername()
 {
-    return *(session->GetUsername());
+    return session->GetUsername()->c_str();
 }
 
 bool ClientCore::SetUsername(const std::string& n)

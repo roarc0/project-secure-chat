@@ -51,18 +51,19 @@ void XMLReadMessage(const char *str, string& name, string& content)
         elem != NULL;
         elem = elem->NextSiblingElement())
     {
-        const char* attr = NULL;
+        const char* attr;
         string elemName = elem->Value();
         //cout << "elem: " << elemName << endl;
-        if (elemName == "name")
+        if(elemName == "name")
         {
             attr = elem->Attribute("level");
-            //if (attr != NULL){};
+            if(attr != NULL);
         }
-        else if (elemName == "content")
+        
+        else if(elemName == "content")
         {
             attr = elem->Attribute("type");
-            //if(attr != NULL){};
+            if(attr != NULL);
         }
         
         for(TiXmlNode* e = elem->FirstChild();

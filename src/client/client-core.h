@@ -71,8 +71,8 @@ class ClientCore
         return session;
     }
     
-    std::string GetUsername();
-    bool SetUsername(const std::string&); // deprecated
+    const char* GetUsername();
+    bool SetUsername(const std::string&);
 
     void AddMessage(const std::string& str, const std::string& nick,
                     char type, bool timestamp = true);

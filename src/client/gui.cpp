@@ -77,12 +77,10 @@ void* GuiThread(void* arg)
     if (CFG_GET_BOOL("autoconnect"))
     {
         INFO("debug","GUI: autoconnecting...\n");
-        if(c_core->Connect())
-        {
-            gdk_threads_enter();
-            request_password(gres->window);
-            gdk_threads_leave();
-        }
+        gdk_threads_enter();
+        request_password(gres->window);
+        gdk_threads_leave();
+        c_core->Connect();
     }
     
     while(1)

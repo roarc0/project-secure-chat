@@ -7,18 +7,26 @@ std::string XMLBuildMessage(const char* name, const char* content)
     TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "", "" );
     TiXmlElement * element = new TiXmlElement( "message" );
     
-    TiXmlElement * element_name = new TiXmlElement( "name" );
+    TiXmlElement * element_name = NULL;
+    if(name)
+        element_name = new TiXmlElement( "name" );
     TiXmlElement * element_content = new TiXmlElement( "content" );
     
-    INFO("debug", "XML: writing name -> %s\n", name);
-    TiXmlText * text_name = new TiXmlText( EncodeBase64(name) );
+    TiXmlText * text_name = NULL;
+    if(name)
+    {
+        INFO("debug", "XML: writing name -> %s\n", name);
+        text_name = new TiXmlText( EncodeBase64(name) );
+    }
     INFO("debug", "XML: writing content -> %s\n", content);
     TiXmlText * text_content = new TiXmlText( EncodeBase64(content) );
     
-    element->LinkEndChild( element_name );
+    if(element_name)
+        element->LinkEndChild( element_name );
     element->LinkEndChild( element_content );
     
-    element_name->LinkEndChild( text_name );
+    if(element_name)
+        element_name->LinkEndChild( text_name );
     element_content->LinkEndChild( text_content );
     
     doc.LinkEndChild( decl );
@@ -29,6 +37,7 @@ std::string XMLBuildMessage(const char* name, const char* content)
 
     return ss.str(); 
 }
+
 
 void XMLReadMessage(const char *str, string& name, string& content)
 {
@@ -86,6 +95,13 @@ void XMLReadMessage(const char *str, string& name, string& content)
             }
         }
      }
+}
+
+void XMLSetUsernameToMessage(string& str, const string& name)
+{
+    string content, tmp_name;
+    XMLReadMessage(str.c_str(), tmp_name, content);
+    str = XMLBuildMessage(name.c_str(), content.c_str());
 }
 
 std::string XMLBuildUpdate(const char* name, const char* status)
@@ -167,6 +183,7 @@ void XMLReadUpdate(const char *str, string& name, string& status)
 E' un esempio, la pwd potrebbe essere usata per decifrare il certificato
 privato, o come segreto condiviso da passare in modo sicuro...
 */
+
 std::string XMLBuildLogin(const char* username, const char* password)
 {
     TiXmlDocument doc;
@@ -174,9 +191,11 @@ std::string XMLBuildLogin(const char* username, const char* password)
     TiXmlElement * element = new TiXmlElement( "login" );
 
     INFO("debug", "XML: writing username -> %s\n", username);
+    TiXmlElement * element_name = new TiXmlElement( "username" );
     TiXmlText * text_name = new TiXmlText( EncodeBase64(username) );
 
-    element->LinkEndChild( text_name );
+    element->LinkEndChild( element_name );
+    element_name->LinkEndChild( text_name );
     
     string pwd_digest;
     int len = strlen(password);
@@ -233,7 +252,7 @@ void XMLReadLogin(const char *str, string& username, string& password_digest)
             if(text == NULL)
                 continue;
 
-            if(elemName == "login")
+            if(elemName == "username")
             {
                 username = DecodeBase64(text->Value());
                 INFO("debug", "XML: reading username -> %s\n", username.c_str());

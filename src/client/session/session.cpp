@@ -97,7 +97,7 @@ void Session::SetPassword(const char * password)
     string pwd_digest;
     assert(password);
     SHA256_digest(password, strlen(password), pwd_digest);
-    m_pwd_digest = password;
+    m_pwd_digest = pwd_digest;
     INFO("debug", "SESSION: setting password digest: %s\n", pwd_digest.c_str());
 }
 

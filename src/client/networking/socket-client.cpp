@@ -8,7 +8,6 @@ void SocketClient::Connect(const string &foreignAddress,
 
     if (::connect(sock, (sockaddr *) &destAddr, sizeof(destAddr)) < 0)
     {
-        //close(sock); // per la riconnessione
         throw SocketException("Connect failed [connect()]", true);
     }
 }

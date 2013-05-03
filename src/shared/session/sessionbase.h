@@ -17,13 +17,13 @@ enum SessionEncryption
 
 enum SessionStatus
 {
-    STATUS_NONE = 0,
+    STATUS_NONE = 0,    
+    STATUS_REJECTED,
     STATUS_DISCONNECTED,
     STATUS_CONNECTED,
     STATUS_LOGIN_STEP_1,
     STATUS_LOGIN_STEP_2,
-    STATUS_AUTHENTICATED,
-    STATUS_REJECTED,
+    STATUS_AUTHENTICATED
 };
 
 class SessionBase

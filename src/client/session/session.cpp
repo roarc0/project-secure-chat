@@ -15,7 +15,7 @@ Session::~Session()
     delete c_Socket;
 }
 
-bool Session::Connect() // TODO add user,password
+bool Session::Connect()
 {
     /* HORROR SHOW */
     stringstream ss;
@@ -29,16 +29,6 @@ bool Session::Connect() // TODO add user,password
                           CFG_GET_INT("server_port"));
         SetConnected(true);                  
         SendToGui(str_connect.c_str(), "",'e');
-        string str_login = "\\login " + username + " password";
-        
-        //Packet pack(CMSG_LOGIN, str_login.size());
-        //pack << str_login.c_str();
-        //SendPacketToSocket(&pack);
-        
-        //if(!HandleSend(str_login.c_str())) // trigger login procedure
-        //{
-        //    INFO("debug", "SESSION: Unable to send login command\n");
-        //}
     }
     catch(SocketException &e)
     {
@@ -318,7 +308,24 @@ void Session::HandleLogin(Packet& packet)
             break;
         case STATUS_LOGIN_STEP_1:
             {
-                SetSessionStatus(STATUS_AUTHENTICATED);
+                string xml;
+                packet >> xml;
+                bool response;
+                XMLReadLoginResponse(xml.c_str(), response);
+                if(response)
+                {
+                    SendToGui("Login succeeded!", "", 'e'); 
+                    SetSessionStatus(STATUS_AUTHENTICATED);
+                }
+                else
+                {
+                    SendToGui("Login failed!", "", 'e');    
+                    SetSessionStatus(STATUS_REJECTED);
+                    m_Socket->CloseSocket();
+                    ResetSocket();
+                    
+                }
+
             }
             break;
         default:

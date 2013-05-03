@@ -342,23 +342,28 @@ void Session::HandleLogin(Packet& packet)
                     INFO("debug", "SESSION: setting username to \"%s\"\n", user.c_str());
 
                 Packet data(SMSG_LOGIN, 0);
+                
+                
+                
+                bool exists = db_manager->CheckUser(user);
+                string xml = XMLBuildLoginResponse(exists);
+                
+                data << xml.c_str();
                 SendPacket(&data);
-
-                if ( db_manager->CheckUser(user) )
+                
+                if (exists)
                     SetSessionStatus(STATUS_AUTHENTICATED);
                 else
                     SetSessionStatus(STATUS_REJECTED);
-                
+
                 s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
             }
             break;
         case STATUS_REJECTED:
-            {
-            
-            }
-            break;
         default:
-            //s_status = STATUS_REJECTED;
-            break;
+            {
+                // kill the session.
+            }
+        break;
     }
 }

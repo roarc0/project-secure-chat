@@ -190,6 +190,7 @@ bool SessionBase::IsConnected() const
 bool SessionBase::IsRejected() const
 {
     return s_status == STATUS_REJECTED;
+    
 }
 
 void SessionBase::SetConnected(bool c) // reset encryption ecc...
@@ -197,7 +198,10 @@ void SessionBase::SetConnected(bool c) // reset encryption ecc...
     if(c)
         s_status = STATUS_CONNECTED;
     else
+    {
         s_status = STATUS_DISCONNECTED;
+        m_Socket->CloseSocket();
+    }
 }
 
 SessionStatus SessionBase::GetSessionStatus() const

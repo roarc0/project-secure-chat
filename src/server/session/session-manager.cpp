@@ -1,4 +1,5 @@
 #include "session-manager.h"
+#include "networking/opcode.h"
 
 SessionManager::SessionManager()
 {
@@ -148,8 +149,12 @@ bool SessionManager::RemoveQueuedSession(Session_smart sess)
     for (; iter != m_waitSessQueue.end(); ++iter, ++position)
     {
         if ((*iter).get() == sess.get())
-        {
+        {            
             sess->SetInQueue(false);
+
+            Packet pkt(CMSG_LOGIN);
+            sess->HandleLogin(pkt);
+
             iter = m_waitSessQueue.erase(iter);
             found = true;                                   // removing queued session
             break;
@@ -166,7 +171,8 @@ bool SessionManager::RemoveQueuedSession(Session_smart sess)
         Session_smart pop_sess = m_waitSessQueue.front();
         pop_sess->SetInQueue(false);
 
-        GetChannelMrg()->JoinDefaultChannel(sess);
+        Packet pkt(CMSG_LOGIN);
+        pop_sess->HandleLogin(pkt);
 
         // TODO notifica all'utente che è stato accettato
 
@@ -213,7 +219,7 @@ void SessionManager::AddSession_(uint32 next_id, Session_smart sess)
     INFO("debug", "SESSION_MANAGER: add session, next_id %d \n", next_id);
     if (m_sessionActiveLimit && GetActiveSessionCount() >= m_sessionActiveLimit)
     {
-        AddQueuedSession(sess);    
+        AddQueuedSession(sess);
         sess->SetId(next_id);
         m_sessions.insert(usersession_pair(next_id, sess));    
     }
@@ -221,6 +227,8 @@ void SessionManager::AddSession_(uint32 next_id, Session_smart sess)
     {
         sess->SetId(next_id);
         m_sessions.insert(usersession_pair(next_id, sess));
-        GetChannelMrg()->JoinDefaultChannel(sess);
+
+        Packet pkt(CMSG_LOGIN);
+        sess->HandleLogin(pkt);
     }
 }

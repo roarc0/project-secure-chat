@@ -45,7 +45,7 @@ void Xor(ByteBuffer& data, ByteBuffer key)
 {
     uint16 k = 0;
  
-    for(int i = 0; i < data.size(); i++)
+    for(uint32 i = 0; i < uint32(data.size()); i++)
     {
         data.contents()[i] = (uint8)(data.contents()[i] ^ key[k]);
         k=(++k < key.size() ? k:0);

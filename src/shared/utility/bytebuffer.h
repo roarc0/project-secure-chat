@@ -491,7 +491,7 @@ class ByteBuffer
                 {
                      n = i*w + j;
 
-                     if( n < size())
+                     if( n < int(size()))
                      {
                          x = read<uint8>(n);
                          if (x < 16)
@@ -513,7 +513,7 @@ class ByteBuffer
                 for (uint32 j = 0; j<w ; j++)
                 {
                     n = i*w + j;
-                    if (n >= size())
+                    if (n >= int(size()))
                         break;
                     
                     x = read<uint8>(n);

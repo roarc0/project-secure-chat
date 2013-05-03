@@ -432,11 +432,11 @@ bool ChatHandler::HandlePingCommand(const char* /*args*/)
 
 bool ChatHandler::HandleLoginCommand(const char* args)
 {
-    INFO ("debug", "CHAT_HANDLER: LOGIN procedure: %s\n", args);
+    /*INFO ("debug", "CHAT_HANDLER: LOGIN procedure: %s\n", args);
     Packet data(CMSG_LOGIN, 0);
     data << XMLBuildLogin(CFG_GET_STRING("nickname").c_str(), "password");
 
     m_session->SendPacketToSocket(&data);
 
-    return true;
+    return true;*/
 }

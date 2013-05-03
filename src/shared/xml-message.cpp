@@ -172,19 +172,17 @@ std::string XMLBuildLogin(const char* username, const char* password)
     TiXmlDocument doc;
     TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "", "" );
     TiXmlElement * element = new TiXmlElement( "login" );
-    
-    TiXmlElement * element_name = new TiXmlElement( "username" );
+
     INFO("debug", "XML: writing username -> %s\n", username);
     TiXmlText * text_name = new TiXmlText( EncodeBase64(username) );
 
-    element->LinkEndChild( element_name );
-    element_name->LinkEndChild( text_name );
+    element->LinkEndChild( text_name );
     
     string pwd_digest;
     int len = strlen(password);
     if (len)
         SHA256_digest(password, len, pwd_digest);
-    element_name->SetAttribute("password", pwd_digest.c_str());
+    element->SetAttribute("password", pwd_digest.c_str());
     
     doc.LinkEndChild( decl );
     doc.LinkEndChild( element );
@@ -218,7 +216,7 @@ void XMLReadLogin(const char *str, string& username, string& password_digest)
     {
         const char* attr;
         string elemName = elem->Value();
-        if(elemName == "username")
+        if(elemName == "login")
         {
             attr = elem->Attribute("password");
             if(attr != NULL)
@@ -235,7 +233,7 @@ void XMLReadLogin(const char *str, string& username, string& password_digest)
             if(text == NULL)
                 continue;
 
-            if(elemName == "username")
+            if(elemName == "login")
             {
                 username = DecodeBase64(text->Value());
                 INFO("debug", "XML: reading username -> %s\n", username.c_str());

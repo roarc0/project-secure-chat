@@ -64,15 +64,11 @@ class ClientCore
     Message_t GetEvent();
     void WaitEvent();
     void SignalEvent();
-    bool IsConnected();
     
     Session* GetSession()
     {
         return session;
     }
-    
-    const char* GetUsername();
-    bool SetUsername(const std::string&);
 
     void AddMessage(const std::string& str, const std::string& nick,
                     char type, bool timestamp = true);

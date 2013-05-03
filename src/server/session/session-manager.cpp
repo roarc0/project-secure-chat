@@ -77,7 +77,7 @@ Session_smart SessionManager::FindSession(uint32 id) const
         return Session_smart(NULL);
 }
 
-/// Find a session by its nick
+/// Find a session by its username
 Session_smart SessionManager::FindSession(std::string str) const
 {
     for (SessionMap::const_iterator iter = m_sessions.begin(); iter != m_sessions.end(); ++iter)

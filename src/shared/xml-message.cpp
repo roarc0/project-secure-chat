@@ -201,7 +201,7 @@ std::string XMLBuildLogin(const char* username, const char* password)
     int len = strlen(password);
     if (len)
         SHA256_digest(password, len, pwd_digest);
-    INFO("debug", "XML: writing password  -> %s\n", pwd_digest.c_str());
+    INFO("debug", "XML: writing password -> %s\n", pwd_digest.c_str());
     element->SetAttribute("password", pwd_digest.c_str());
     
     doc.LinkEndChild( decl );

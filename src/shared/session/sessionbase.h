@@ -46,6 +46,7 @@ class SessionBase
         void SetEncryption(const ByteBuffer&, SessionEncryption);
         bool IsAuthenticated() const;
         bool IsConnected() const;
+        bool IsRejected() const;
         void SetConnected(bool);
         SessionStatus GetSessionStatus() const;
         void SetSessionStatus(SessionStatus);

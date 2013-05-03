@@ -207,6 +207,9 @@ void request_password(gpointer parent)
     GtkWidget *label_pwd = gtk_label_new("password ");
 
     //GdkPixbuf *pixbuf = create_pixbuf("data/psc.png");
+    
+    gtk_entry_set_invisible_char (GTK_ENTRY(entry_pwd), '*');
+    gtk_entry_set_visibility (GTK_ENTRY(entry_pwd), FALSE);
 
     gtk_container_set_border_width(GTK_CONTAINER (content_area), 5);
 
@@ -246,7 +249,6 @@ void request_password(gpointer parent)
                                 (gchar*) "Password inserted\n", 'e');
                 c_core->GetSession()->SetUsername(text_name);
                 c_core->GetSession()->SetPassword(text_pwd);
-                
             }
             else
             {

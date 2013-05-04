@@ -41,7 +41,7 @@ Session_smart SessionManager::AddSession(int sock)
         counted_ptr<Session> smart_ses(ses);
         smart_ses->setSmartPointer(smart_ses);
         addSessQueue.add(smart_ses);
-        INFO("debug","SESSION_MANAGER: new session created on sock: %d\n", sock);
+        INFO("debug","SESSION_MANAGER: new session created with sock: %d\n", sock);
         return smart_ses;
     }
     else
@@ -99,7 +99,7 @@ void SessionManager::Update(uint32 udiff)
         // If return false we must delete it
         if (!pSession->Update(udiff, updater))
         {
-            INFO("debug", "SESSION_MANAGER: remove session %u \n", itr->first);
+            INFO("debug", "SESSION_MANAGER: removing session %u \n", itr->first);
             RemoveQueuedSession(itr->second);
             
             // Rimuovere dal canale

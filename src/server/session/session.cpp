@@ -324,9 +324,8 @@ void Session::HandleLogin(Packet& packet)
         case STATUS_CONNECTED:
             {
                 Packet data(SMSG_LOGIN, 0);
-                SendPacket(&data);
-
                 SetSessionStatus(STATUS_LOGIN_STEP_1);
+                SendPacket(&data);
             }
             break;
         case STATUS_LOGIN_STEP_1:
@@ -337,8 +336,12 @@ void Session::HandleLogin(Packet& packet)
                 
                 XMLReadLogin((char*)packet.contents(), user, pwd);
                 
+                // servono dei lock? se io verifico che la sessione nn è già collegata
+                // si può avviare un altro login contemporaneo ch passa lo stesso punto
+                // prima di aver settato l'utente?
+
                 valid = s_manager->FindSession(user).is_null();
-            
+
                 if (!valid)
                     INFO("debug","SESSION: username \"%s\" is already loggedin\n", user.c_str());
                 else
@@ -354,11 +357,7 @@ void Session::HandleLogin(Packet& packet)
                             INFO("debug","SESSION: username \"%s\" doesn't exist\n", user.c_str());
                     }
                 }
-                
-                string xml = XMLBuildLoginResponse(valid);
-                data << xml.c_str();
-                SendPacket(&data);
-                
+
                 if (valid)
                 {
                     INFO("debug", "SESSION: username \"%s\" accepted\n", user.c_str());
@@ -366,16 +365,22 @@ void Session::HandleLogin(Packet& packet)
                 }
                 else
                     SetSessionStatus(STATUS_REJECTED);
+                
+                string xml = XMLBuildLoginResponse(valid);
+                data << xml.c_str();                
+                SendPacket(&data);
             }
             break;
             
         case STATUS_AUTHENTICATED:
             s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
         break;
+        
         case STATUS_REJECTED:
         default:
             {
-                // kill the session.
+                // client should kill the session.
+                // if not kill it after a while
             }
         break;
     }

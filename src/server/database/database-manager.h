@@ -26,8 +26,8 @@ class DatabaseManager
     void OpenDb();
     void CloseDb();
     
-    bool CheckUser(const std::string&);
-    bool GetKey(const std::string&, std::string&);
+    bool UserExists(const std::string&);
+    bool UserGetKey(const std::string&, std::string&);
 };
 
 #define db_manager Singleton<DatabaseManager>::GetInstance()

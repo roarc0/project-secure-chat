@@ -59,7 +59,7 @@ void DatabaseManager::OpenDb()
     }
 }
 
-bool DatabaseManager::CheckUser(const string& username)
+bool DatabaseManager::UserExists(const string& username)
 {
     bool exists = 0;
     string query = "select * from user where username=\"" + username + "\"";
@@ -76,7 +76,7 @@ bool DatabaseManager::CheckUser(const string& username)
     return exists;
 }
 
-bool DatabaseManager::GetKey(const string& username, std::string& key)
+bool DatabaseManager::UserGetKey(const string& username, std::string& key)
 {
     bool exists = 0;
     string query = "select password from user where username=\"" + username + "\"";

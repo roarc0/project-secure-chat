@@ -331,34 +331,47 @@ void Session::HandleLogin(Packet& packet)
             break;
         case STATUS_LOGIN_STEP_1:
             {
-                std::string user, pwd;
-                XMLReadLogin((char*)packet.contents(), user, pwd);
-    
-                if (!SetUsername(user)) 
-                {
-                    INFO("debug","SESSION: username \"%s\" is not valid\n", user.c_str());
-                }
-                else
-                    INFO("debug", "SESSION: setting username to \"%s\"\n", user.c_str());
-
                 Packet data(SMSG_LOGIN, 0);
+                std::string user, pwd;
+                bool valid = true;
                 
+                XMLReadLogin((char*)packet.contents(), user, pwd);
                 
+                valid = s_manager->FindSession(user).is_null();
+            
+                if (!valid)
+                    INFO("debug","SESSION: username \"%s\" is already loggedin\n", user.c_str());
+                else
+                {
+                    valid = SetUsername(user);
+                    if (!valid) 
+                        INFO("debug","SESSION: username \"%s\" is not valid\n", user.c_str());
+                    else
+                    {
+                        valid = db_manager->UserExists(user);  // check user existence
+                        
+                        if (!valid)
+                            INFO("debug","SESSION: username \"%s\" doesn't exist\n", user.c_str());
+                    }
+                }
                 
-                bool exists = db_manager->CheckUser(user);
-                string xml = XMLBuildLoginResponse(exists);
-                
+                string xml = XMLBuildLoginResponse(valid);
                 data << xml.c_str();
                 SendPacket(&data);
                 
-                if (exists)
+                if (valid)
+                {
+                    INFO("debug", "SESSION: username \"%s\" accepted\n", user.c_str());
                     SetSessionStatus(STATUS_AUTHENTICATED);
+                }
                 else
                     SetSessionStatus(STATUS_REJECTED);
-
-                s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
             }
             break;
+            
+        case STATUS_AUTHENTICATED:
+            s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
+        break;
         case STATUS_REJECTED:
         default:
             {

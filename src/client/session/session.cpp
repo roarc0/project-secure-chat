@@ -294,12 +294,15 @@ void Session::HandleLeaveChannel(Packet& packet)
 void Session::HandleLogin(Packet& packet)
 {
     INFO ("debug", "SESSION: LOGIN procedure\n");    
+    Packet data(CMSG_LOGIN, 0);
+    string xml;
+    bool valid;
     
     switch (GetSessionStatus())
     {
         case STATUS_CONNECTED:
             {
-                Packet data(CMSG_LOGIN, 0);
+                
                 data << XMLBuildLogin(GetUsername()->c_str(), GetPassword());
 
                 SendPacketToSocket(&data);
@@ -308,14 +311,13 @@ void Session::HandleLogin(Packet& packet)
             break;
         case STATUS_LOGIN_STEP_1:
             {
-                string xml;
                 packet >> xml;
-                bool response;
-                XMLReadLoginResponse(xml.c_str(), response);
-                if(response)
+                XMLReadLoginResponse(xml.c_str(), valid);
+                if(valid)
                 {
                     SendToGui("Login succeeded!", "", 'e'); 
                     SetSessionStatus(STATUS_AUTHENTICATED);
+                    SendPacketToSocket(&data); // ack and join default channel
                 }
                 else
                 {
@@ -323,9 +325,7 @@ void Session::HandleLogin(Packet& packet)
                     SetSessionStatus(STATUS_REJECTED);
                     m_Socket->CloseSocket();
                     ResetSocket();
-                    
                 }
-
             }
             break;
         default:

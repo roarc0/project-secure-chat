@@ -82,6 +82,12 @@ int AesEncrypt(const ByteBuffer &key,
         return -1;
     }
 
+    if (!plaintext.size())
+    {
+        INFO("debug","CRYPTO: wrong plaintext size!\n");
+        return -1;
+    }
+
     RAND_pseudo_bytes(init, BLOCK_SIZE);
     ciphertext.append((char *)init, BLOCK_SIZE);
    
@@ -149,9 +155,19 @@ int AesDecrypt(const ByteBuffer &key,
         else if (key.size()==32)
         {
                 chp = EVP_aes_256_cbc();
-        } else
+        }
+        else
         {
-                return -1;
+            INFO("debug","CRYPTO: wrong key size -> %d\n", key.size());
+            return -1;
+        }
+
+        
+        if (ciphertext.size() < BLOCK_SIZE || 
+            ciphertext.size() % BLOCK_SIZE)
+        {
+            INFO("debug","CRYPTO: wrong ciphertext size!\n");
+            return -1;
         }
 
         const char *buf = (const char*)ciphertext.contents();

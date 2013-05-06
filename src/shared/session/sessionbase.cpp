@@ -223,6 +223,7 @@ void SessionBase::SetConnected(bool c) // reset encryption ecc...
     else
     {
         s_status = STATUS_DISCONNECTED;
+        s_enc = ENC_NONE;
         m_Socket->CloseSocket();
     }
 }

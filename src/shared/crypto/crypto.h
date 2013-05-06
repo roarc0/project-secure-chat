@@ -12,7 +12,7 @@ void SHA256_digest(const char* data, int length,
 
 int  GenerateRandomKey(ByteBuffer &key, int size);
 
-void Xor(ByteBuffer& data, ByteBuffer key);
+void Xor(ByteBuffer& data, const ByteBuffer& key);
 
 int  AesEncrypt(const ByteBuffer &key,
                const ByteBuffer &plaintext,

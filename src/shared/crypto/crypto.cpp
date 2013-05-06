@@ -47,7 +47,7 @@ int GenerateRandomKey(ByteBuffer &key, int size)
 }
 
 // funzione per generare la chiave di sessione a partire da Ka,Kb
-void Xor(ByteBuffer& data, ByteBuffer key)
+void Xor(ByteBuffer& data, const ByteBuffer& key)
 {
     uint16 k = 0;
  
@@ -68,11 +68,11 @@ int AesEncrypt(const ByteBuffer &key,
     int ret=0;
     unsigned char *buffer=0;
 
-    if (key.size()==17)
+    if (key.size()==16)
     {
         chp = EVP_aes_128_cbc();
     }
-    else if (key.size()==33)
+    else if (key.size()==32)
     {
         chp = EVP_aes_256_cbc();
     }
@@ -142,11 +142,11 @@ int AesDecrypt(const ByteBuffer &key,
         int ret=0;
         unsigned char *buffer=0;
         
-        if (key.size()==17)
+        if (key.size()==16)
         {
                 chp = EVP_aes_128_cbc();
         }
-        else if (key.size()==33)
+        else if (key.size()==32)
         {
                 chp = EVP_aes_256_cbc();
         } else

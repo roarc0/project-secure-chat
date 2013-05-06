@@ -8,7 +8,7 @@
 Session::Session(int pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), m_channel(NULL)
 {
-    username = "user";
+    username = "";
 }
 
 Session::~Session()
@@ -325,23 +325,19 @@ void Session::HandleLogin(Packet& packet)
     {
         case STATUS_CONNECTED:
             {
-                Packet data(SMSG_LOGIN, 0);
                 SetSessionStatus(STATUS_LOGIN_STEP_1);
+                Packet data(SMSG_LOGIN, 0);
                 SendPacket(&data);
             }
             break;
         case STATUS_LOGIN_STEP_1:
             {
-                Packet data(SMSG_LOGIN, 0);
                 std::string user, pwd;
                 bool valid = true;
+                    
+                packet >> user;
+                packet >> pwd;
                 
-                XMLReadLogin((char*)packet.contents(), user, pwd);
-                
-                // servono dei lock? se io verifico che la sessione nn è già collegata
-                // si può avviare un altro login contemporaneo ch passa lo stesso punto
-                // prima di aver settato l'utente?
-
                 valid = s_manager->FindSession(user).is_null();
 
                 if (!valid)
@@ -368,14 +364,27 @@ void Session::HandleLogin(Packet& packet)
                 else
                     SetSessionStatus(STATUS_REJECTED);
                 
-                string xml = XMLBuildLoginResponse(valid);
-                data << xml.c_str();                
+                Packet data(SMSG_LOGIN, 1);
+                data << (uint8) valid;                
                 SendPacket(&data);
             }
             break;
             
         case STATUS_AUTHENTICATED:
-            s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
+            {
+                GenerateRandomKey(s_key, 32);
+                Packet data(SMSG_LOGIN, 32);
+                data.append(s_key);
+                SendPacketToSocket(&data);
+                
+                Xor(s_key, packet);
+                SetEncryption(s_key, ENC_AES256);
+                
+                INFO("debug", "\nKEY :\n");
+                s_key.hexlike();
+                
+                s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
+            }
         break;
         
         case STATUS_REJECTED:

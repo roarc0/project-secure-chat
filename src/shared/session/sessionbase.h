@@ -65,7 +65,7 @@ class SessionBase
         std::string username;
         SessionStatus s_status;
         SessionEncryption s_enc;
-        ByteBuffer s_key;
+        ByteBuffer s_key, s_key_tmp;
         
         Mutex m_mutex;
 

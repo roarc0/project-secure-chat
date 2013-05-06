@@ -246,15 +246,17 @@ int RsaEncrypt(const std::string key_filename,
   
     if(!key)
         return -1;
+
+    INFO("debug","CRYPTO: RSA encrypting\n");
        
     if((ret = RSA_public_encrypt(plaintext.size(),
                                  (unsigned char*)plaintext.contents(),
                                  buf, key, RSA_PKCS1_OAEP_PADDING)) == -1)
     {
         ERR_load_crypto_strings();
-        err = (char*) malloc(130*sizeof(char));
+        //err = (char*) malloc(130*sizeof(char));
         ERR_error_string(ERR_get_error(), err);
-        INFO("debug","CRYPTO: error encrypting message: %s\n", err);
+        //INFO("debug","CRYPTO: error encrypting message: %s\n", err);
         delete[] err;
     }
     else

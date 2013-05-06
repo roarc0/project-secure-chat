@@ -36,8 +36,8 @@ class SessionBase
         // THREADSAFE
         void QueuePacket(Packet* new_packet);
         void SendPacket(Packet* new_packet);
-        void SendPacketToSocket(Packet* new_packet);
-        Packet* RecvPacketFromSocket();
+        void SendPacketToSocket(Packet* new_packet, unsigned char* temp_buffer = NULL);
+        Packet* RecvPacketFromSocket(unsigned char* temp_buffer = NULL);
         Packet* GetPacketToSend();
         
         const std::string* GetUsername();
@@ -59,8 +59,8 @@ class SessionBase
     protected:
 
         virtual int _SendPacket(Packet& new_packet);
-        int _SendPacketToSocket(Packet& pct);
-        Packet* _RecvPacketFromSocket();
+        int _SendPacketToSocket(Packet& pct, unsigned char* temp_buffer = NULL);
+        Packet* _RecvPacketFromSocket(unsigned char* temp_buffer = NULL);
         
         std::string username;
         SessionStatus s_status;
@@ -73,7 +73,6 @@ class SessionBase
         LockQueue<Packet*> _sendQueue;
 
         Packet* pct;
-        char* buffer;
 };
 
 #endif

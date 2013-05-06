@@ -520,7 +520,7 @@ class ByteBuffer
                     
                     if (!x or x=='\a' or x=='\b' or x=='\t'
                            or x=='\n' or x=='\v' or x=='\f'
-                           or x=='\r' or x=='\e')
+                           or x=='\r' or x=='\e' or x <= 32)
                         o << ".";
                     else
                         o << (char)x; 

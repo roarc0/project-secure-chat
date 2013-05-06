@@ -205,34 +205,36 @@ int AesDecrypt(const ByteBuffer &key,
         return 0;
 }
 
-RSA* ReadRSAPubKeyFromFile(const char* filename)
+RSA* RsaPubKeyFromFile(const char* filename)
 {
-  RSA * key = NULL;
-  FILE* fp = fopen(filename, "r");
-  
-  if(!fp)
-      return NULL;
-  
-  INFO("debug","CRYPTO: reading pubkey\n");
-  key = PEM_read_RSAPublicKey(fp, NULL, NULL, NULL);
-  fclose(fp);
+    assert(filename);
+    RSA * key = NULL;
+    FILE* fp = fopen(filename, "r");
 
-  return key;
+    if(!fp)
+      return NULL;
+
+    INFO("debug","CRYPTO: reading public key: \"%s\"\n", filename);
+    PEM_read_RSA_PUBKEY(fp, &key, NULL, NULL); //RSAPublicKey(fp, &key, NULL, NULL);
+    fclose(fp);
+
+    return key;
 }
 
-RSA* ReadRSAPrivKeyFromFile(const char* filename)
+RSA* RsaPrivKeyFromFile(const char* filename)
 {
-  RSA * key = NULL;
-  FILE* fp = fopen(filename, "r");
-  
-  if(!fp)
-      return NULL;
-  
-  INFO("debug","CRYPTO: reading privkey\n");
-  key = PEM_read_RSAPublicKey(fp, NULL, NULL, NULL);
-  fclose(fp);
+    assert(filename);
+    RSA * key = NULL;
+    FILE* fp = fopen(filename, "r");
 
-  return key;
+    if(!fp)
+      return NULL;
+
+    INFO("debug","CRYPTO: reading private key: \"%s\"\n", filename);
+    PEM_read_RSAPrivateKey(fp, &key, NULL, NULL);
+    fclose(fp);
+
+    return key;
 }
 
 int RsaEncrypt(const std::string key_filename,
@@ -241,14 +243,18 @@ int RsaEncrypt(const std::string key_filename,
 {
     int ret = 0;
     char *err;
-    RSA *key = ReadRSAPubKeyFromFile(key_filename.c_str());
-  
+    RSA *key = RsaPubKeyFromFile(key_filename.c_str());
+    unsigned char *buf;
+    
     if(!key)
+    {
+        INFO("debug","CRYPTO: RSA error reading public key\n");
         return -1;
+    }
 
-    unsigned char *buf = (unsigned char*    ) malloc(RSA_size(key));
+    buf = (unsigned char*) malloc(RSA_size(key));
 
-    INFO("debug","CRYPTO: RSA encrypting\n");
+    INFO("debug","CRYPTO: RSA encrypting message\n");
        
     if((ret = RSA_public_encrypt(plaintext.size(),
                                  (unsigned char*)plaintext.contents(),
@@ -257,15 +263,54 @@ int RsaEncrypt(const std::string key_filename,
         ERR_load_crypto_strings();
         //err = (char*) malloc(130*sizeof(char));
         ERR_error_string(ERR_get_error(), err);
-        //INFO("debug","CRYPTO: error encrypting message: %s\n", err);
+        INFO("debug","CRYPTO: error encrypting message\n"); //: %s\n", err);
         delete[] err;
     }
-    else
+   else
     {
         ciphertext.clear();
         ciphertext.append(buf, ret);
         INFO("debug","CRYPTO: RSA encrypted message\n");
+    }   
 
+    RSA_free(key);
+    return ret;
+}
+
+int RsaDecrypt(const std::string key_filename,
+             const ByteBuffer &ciphertext,
+             ByteBuffer &plaintext)
+{
+    int ret = 0;
+    char *err;
+    RSA *key = RsaPrivKeyFromFile(key_filename.c_str());
+    unsigned char *buf;
+    
+    if(!key)
+    {
+        INFO("debug","CRYPTO: RSA error reading private key\n");
+        return -1;
+    }
+
+    buf = (unsigned char*) malloc(RSA_size(key));
+
+    INFO("debug","CRYPTO: RSA decrypting message\n");
+       
+    if((ret = RSA_private_decrypt(ciphertext.size(),
+                                 (unsigned char*)ciphertext.contents(),
+                                 buf, key, RSA_PKCS1_OAEP_PADDING)) == -1)
+    {
+        ERR_load_crypto_strings();
+        //err = (char*) malloc(130*sizeof(char));
+        ERR_error_string(ERR_get_error(), err);
+        INFO("debug","CRYPTO: error decrypting message\n"); //: %s\n", err);
+        delete[] err;
+    }
+    else
+    {
+        plaintext.clear();
+        plaintext.append(buf, ret);
+        INFO("debug","CRYPTO: RSA decrypted message\n");
     }   
 
     RSA_free(key);

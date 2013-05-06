@@ -36,5 +36,5 @@ SessionActiveLimit = 100
 SessionQueueLimit = 50
 
 
-priv_key = "server.pem"
-pub_key = "server.pub"
+priv_key = "../etc/server.pem"
+pub_key = "../etc/server.pub"

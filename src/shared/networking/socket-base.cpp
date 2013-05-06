@@ -93,10 +93,6 @@ void SocketBase::SetLocalPort(unsigned short localPort) throw(SocketException)
     localAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     localAddr.sin_port = htons(localPort);
 
-    /*int yes = 1;
-    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0)
-        throw SocketException("[setsockopt()]", true);*/
-
     if (bind(sock, (sockaddr *) &localAddr, sizeof(sockaddr_in)) < 0)
     {
         throw SocketException("Set of local port failed [bind()]", true);
@@ -108,10 +104,6 @@ void SocketBase::SetLocalAddressAndPort(const string &localAddress,
 {
     sockaddr_in localAddr;
     FillAddr(localAddress, localPort, localAddr);
-
-    /*int yes = 1;
-    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0)
-        throw SocketException("[setsockopt()]", true);*/
 
     if (bind(sock, (sockaddr *) &localAddr, sizeof(sockaddr_in)) < 0)
     {

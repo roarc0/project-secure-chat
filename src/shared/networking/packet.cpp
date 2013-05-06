@@ -1,8 +1,5 @@
 #include "packet.h"
 
-//WIP
-// usare bytebuffer anche per plaintext ( da cambiare funzioni di crypto.cpp )
-
 int Packet::Encrypt(ByteBuffer key)
 {
     ByteBuffer ciphertext;

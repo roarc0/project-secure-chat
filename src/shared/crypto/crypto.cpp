@@ -231,7 +231,8 @@ RSA* RsaPubKeyFromFile(const char* filename)
       return NULL;
 
     INFO("debug","CRYPTO: reading public key: \"%s\"\n", filename);
-    PEM_read_RSA_PUBKEY(fp, &key, NULL, NULL); //RSAPublicKey(fp, &key, NULL, NULL);
+    PEM_read_RSA_PUBKEY(fp, &key, NULL, NULL); // RSAPublicKey
+    INFO("debug","CRYPTO: %d bit public key loaded\n", RSA_size(key) * 8);
     fclose(fp);
 
     return key;
@@ -246,8 +247,9 @@ RSA* RsaPrivKeyFromFile(const char* filename)
     if(!fp)
       return NULL;
 
-    INFO("debug","CRYPTO: reading private key: \"%s\"\n", filename);
+    INFO("debug","CRYPTO: reading private key: \"%s\" [%d]\n", filename);
     PEM_read_RSAPrivateKey(fp, &key, NULL, NULL);
+    INFO("debug","CRYPTO: %d bit private key loaded\n", RSA_size(key) * 8);
     fclose(fp);
 
     return key;

@@ -51,8 +51,30 @@ int Packet::Decrypt(ByteBuffer key)
 
 void Packet::Incapsulate(Packet& pkt)
 {
-    *this<<pkt.GetOpcode();
-    *this<<pkt.size();
+    *this << uint16(pkt.GetOpcode());
+    *this << size_t(pkt.size());
+    INFO("debug","PACKET: packet incapsulate [header opcode %d, length %d]\n", pkt.GetOpcode(), pkt.size());
     if (pkt.size())
         this->append(pkt.contents(), pkt.size());
+}
+
+Packet* Packet::Decapsulate()
+{    
+    if (empty())
+        return NULL;
+
+    uint16 opcode; 
+    size_t size;
+    *this >> opcode;
+    *this >> size;
+
+    INFO("debug","PACKET: packet decapsulate [header opcode %d, length %d]\n", opcode, size);
+
+    Packet* new_pkt = new Packet(opcode, size);
+    if (!new_pkt)
+        return NULL;
+
+    read(new_pkt->contents(), size);
+    
+    return new_pkt;
 }

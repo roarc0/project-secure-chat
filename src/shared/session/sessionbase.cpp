@@ -75,10 +75,13 @@ int SessionBase::_SendPacket(Packet& pct)
     return 0;
 }
 
-int SessionBase::_SendPacketToSocket(Packet& pct)
+int SessionBase::_SendPacketToSocket(Packet& pkt)
 {
-    INFO("debug", "SESSION_BASE: sending packet: \"%s\"\n", pct.contents());
+    INFO("debug", "SESSION_BASE: sending packet: \"%s\"\n", pkt.contents());
     unsigned char* rawData;
+
+    Packet pct(0);
+    pct.Incapsulate(pkt);
 
     if (IsEncrypted() && pct.size())
     {
@@ -125,23 +128,34 @@ Packet* SessionBase::_RecvPacketFromSocket()
     if (!pct)
         return NULL;
     
+    Packet* pkt = NULL;
+
     if (pkt_head.getSize())
     {
         pct->append((char*)buffer, pkt_head.getSize());
 
         if (IsEncrypted() && pkt_head.getSize())
         {
-            INFO("debug", "SESSION_BASE: decrypting packet\n");
+            //INFO("debug", "SESSION_BASE: decrypting packet\n");
             pct->Decrypt(s_key);
-            INFO("debug", "SESSION_BASE: packet decrypted\n");
+            //INFO("debug", "SESSION_BASE: packet decrypted\n");
         }
-        
+
         INFO("debug","SESSION_BASE: packet content:\n");
         pct->hexlike();
 
+        pkt = pct->Decapsulate();
+
+        delete pct;
         delete[] buffer;
     }
-    return pct;
+    else
+    {
+        INFO("debug","SESSION_BASE: BAD BAD BAD! Must not exit! \n");
+        assert(false);
+    }
+
+    return pkt;
 }
 
 void SessionBase::HandleNULL(Packet& /*packet*/)

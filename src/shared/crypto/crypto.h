@@ -1,9 +1,9 @@
 #ifndef _CRYPTO_H_
 #define _CRYPTO_H_
 
-#include <string>
 #include "utility/bytebuffer.h"
 #include "base64.h"
+#include <string>
 
 #define BLOCK_SIZE 16
 
@@ -21,6 +21,10 @@ int  AesEncrypt(const ByteBuffer &key,
 int  AesDecrypt(const ByteBuffer &key,
                const ByteBuffer &ciphertext,
                ByteBuffer &plaintext);
+
+int RsaEncrypt(const std::string key,
+               const ByteBuffer &plaintext,
+               ByteBuffer &ciphertext);
 
 #endif
 

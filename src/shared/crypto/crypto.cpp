@@ -1,8 +1,13 @@
 #include "crypto.h"
+
 #include <openssl/evp.h>
 #include <openssl/aes.h>
 #include <openssl/rand.h>
 #include <openssl/sha.h>
+#include <openssl/pem.h>
+#include <openssl/rsa.h>
+#include <openssl/err.h>
+
 #include <iomanip>
 
 void SHA256_digest(const char* data, int length, string& digest)
@@ -37,6 +42,7 @@ int GenerateRandomKey(ByteBuffer &key, int size)
     key.clear();
     key.append(buf, size);
     
+    delete[] buf;
     return 0;
 }
 
@@ -59,7 +65,7 @@ int AesEncrypt(const ByteBuffer &key,
     unsigned char init[BLOCK_SIZE];
     EVP_CIPHER_CTX ctx;
     const EVP_CIPHER *chp=0;
-    int retval=0;
+    int ret=0;
     unsigned char *buffer=0;
 
     if (key.size()==17)
@@ -84,18 +90,18 @@ int AesEncrypt(const ByteBuffer &key,
 
     int len = plaintext.size()+2*BLOCK_SIZE;
     buffer = new unsigned char[len];
-    retval = EVP_EncryptUpdate(
+    ret = EVP_EncryptUpdate(
             &ctx,
             buffer,
             &len, 
             (unsigned char *)plaintext.contents(),
             plaintext.size());
 
-    if (retval < 0)
+    if (ret < 0)
     {
             delete[] buffer;
             INFO("debug","CRYPTO: encryption error\n");
-            return retval;
+            return ret;
     }
 
     if (len)
@@ -105,16 +111,16 @@ int AesEncrypt(const ByteBuffer &key,
     
     len = 2*BLOCK_SIZE;
     buffer = new unsigned char[len];
-    retval = EVP_EncryptFinal_ex(
+    ret = EVP_EncryptFinal_ex(
             &ctx,
             buffer,
             &len);
 
-    if (retval<0)
+    if (ret<0)
     {
             delete[] buffer;
             INFO("debug","CRYPTO: encryption error while finalizing\n");
-            return retval;
+            return ret;
     }
 
     if (len)
@@ -133,7 +139,7 @@ int AesDecrypt(const ByteBuffer &key,
         unsigned char init[BLOCK_SIZE];
         EVP_CIPHER_CTX ctx;
         const EVP_CIPHER *chp=0;
-        int retval=0;
+        int ret=0;
         unsigned char *buffer=0;
         
         if (key.size()==17)
@@ -160,7 +166,7 @@ int AesDecrypt(const ByteBuffer &key,
 
         int len = ciphertext.size() - BLOCK_SIZE;
         buffer = new unsigned char[len];
-        retval = EVP_DecryptUpdate(
+        ret = EVP_DecryptUpdate(
                 &ctx,
                 buffer,
                 &len, 
@@ -168,10 +174,10 @@ int AesDecrypt(const ByteBuffer &key,
                 len);
 
        
-        if (retval<0)
+        if (ret<0)
         {
                 delete[] buffer;
-                return retval;
+                return ret;
         }
 
         if (len)
@@ -180,15 +186,15 @@ int AesDecrypt(const ByteBuffer &key,
 
         len = 2*BLOCK_SIZE;
         buffer = new unsigned char[len];
-        retval = EVP_DecryptFinal_ex(
+        ret = EVP_DecryptFinal_ex(
                 &ctx,
                 buffer,
                 &len);
 
-        if (retval<0)
+        if (ret<0)
         {
                 delete[] buffer;
-                return retval;
+                return ret;
         }
 
         if (len)
@@ -197,4 +203,68 @@ int AesDecrypt(const ByteBuffer &key,
 
         EVP_CIPHER_CTX_cleanup(&ctx);
         return 0;
+}
+
+RSA* ReadRSAPubKeyFromFile(const char* filename)
+{
+  RSA * key = NULL;
+  FILE* fp = fopen(filename, "r");
+  
+  if(!fp)
+      return NULL;
+  
+  INFO("debug","CRYPTO: reading pubkey\n");
+  key = PEM_read_RSAPublicKey(fp, NULL, NULL, NULL);
+  fclose(fp);
+
+  return key;
+}
+
+RSA* ReadRSAPrivKeyFromFile(const char* filename)
+{
+  RSA * key = NULL;
+  FILE* fp = fopen(filename, "r");
+  
+  if(!fp)
+      return NULL;
+  
+  INFO("debug","CRYPTO: reading privkey\n");
+  key = PEM_read_RSAPublicKey(fp, NULL, NULL, NULL);
+  fclose(fp);
+
+  return key;
+}
+
+int RsaEncrypt(const std::string key_filename,
+               const ByteBuffer &plaintext,
+               ByteBuffer &ciphertext)
+{
+    int ret = 0;
+    char *err;
+    RSA *key = ReadRSAPubKeyFromFile(key_filename.c_str());
+    unsigned char *buf = (unsigned char*    ) malloc(RSA_size(key));
+  
+    if(!key)
+        return -1;
+       
+    if((ret = RSA_public_encrypt(plaintext.size(),
+                                 (unsigned char*)plaintext.contents(),
+                                 buf, key, RSA_PKCS1_OAEP_PADDING)) == -1)
+    {
+        ERR_load_crypto_strings();
+        err = (char*) malloc(130*sizeof(char));
+        ERR_error_string(ERR_get_error(), err);
+        INFO("debug","CRYPTO: error encrypting message: %s\n", err);
+        delete[] err;
+    }
+    else
+    {
+        ciphertext.clear();
+        ciphertext.append(buf, ret);
+        INFO("debug","CRYPTO: RSA encrypted message\n");
+
+    }   
+
+    RSA_free(key);
+    return ret;
 }

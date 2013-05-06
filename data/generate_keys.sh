@@ -1,7 +1,12 @@
 #!/bin/sh
 
-openssl genrsa -out server.pem 1024
-openssl rsa -in server.pem -pubout > server.pub
+SIZE=2048
 
-openssl genrsa -out client.pem 1024
-openssl rsa -in client.pem -pubout > client.pub
+genkey()
+{
+    openssl genrsa $2 -out $1.pem $SIZE
+    openssl rsa -in $1.pem -outform DER -pubout > $1.pub
+}
+
+genkey "server"
+genkey "client" "-aes256"

@@ -12,7 +12,7 @@ typedef counted_ptr<Session> Session_smart;
 class Session : public SessionBase
 {
     SocketClient* c_Socket;
-    string        m_pwd_digest;
+    string        m_pwd;
   public:
     Session();
     ~Session();

@@ -7,6 +7,8 @@
 
 #define BLOCK_SIZE 16
 
+void CryptoInit();
+
 void SHA256_digest(const char* data, int length,
                    string& digest);
 
@@ -27,8 +29,13 @@ int RsaEncrypt(const std::string key,
                ByteBuffer &ciphertext);
 
 int RsaDecrypt(const std::string key_filename,
+               const char* password,
                const ByteBuffer &ciphertext,
                ByteBuffer &plaintext);
+
+bool RsaTest(const char* pem_file,
+             const char* pub_file,
+             const char* pwd);
 
 #endif
 

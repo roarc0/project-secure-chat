@@ -79,26 +79,26 @@ bool Session::Disconnect()
 
 const char* Session::GetPassword()
 {
-    return m_pwd_digest.c_str();
+    return m_pwd.c_str();
 }
 
 void Session::SetPassword(const char * password)
 {
-    string pwd_digest;
+    /*string pwd_digest;
     assert(password);
-    SHA256_digest(password, strlen(password), pwd_digest);
-    m_pwd_digest = pwd_digest;
-    INFO("debug", "SESSION: setting password digest: %s\n", pwd_digest.c_str());
+    SHA256_digest(password, strlen(password), pwd_digest);*/
+    m_pwd = password;
+    INFO("debug", "SESSION: setting password\n"); // digest: %s\n", pwd_digest.c_str());
 }
 
 bool Session::IsPasswordSet()
 {
-    return !m_pwd_digest.empty();
+    return !m_pwd.empty();
 }
 
 void Session::ClearPassword()
 {
-    m_pwd_digest = "";
+    m_pwd = "";
 }
 
 void Session::ResetSocket()

@@ -76,7 +76,7 @@ Packet* Packet::Decapsulate()
     
     if (size)
     {
-        new_pkt->append(contents()+4, size);
+        new_pkt->append(contents()+rpos(), size);
         read_skip(size);
     }
     

@@ -73,8 +73,14 @@ Packet* Packet::Decapsulate()
     Packet* new_pkt = new Packet(opcode, size);
     if (!new_pkt)
         return NULL;
-
-    read(new_pkt->contents(), size);
     
+    if (size)
+    {
+        new_pkt->append(contents()+4, size);
+        read_skip(size);
+    }
+    
+    INFO("debug","PACKET: packet decapsulate [contents %s]\n", new_pkt->contents());
+
     return new_pkt;
 }

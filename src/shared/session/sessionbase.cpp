@@ -158,6 +158,7 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
 
         pkt = pct->Decapsulate();
 
+        pkt->hexlike();
         delete pct;
 
         if (!temp_buffer)

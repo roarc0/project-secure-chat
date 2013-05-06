@@ -179,8 +179,6 @@ void Session::HandleServerSide(Packet& /*packet*/)
 
 void Session::HandleMessage(Packet& packet) 
 {
-    packet.SetOpcode(SMSG_MESSAGE);
-
     // Controllo se ci sono comandi
     /*if (ChatHandler(smartThis).ParseCommands(msg.c_str()) > 0)
         return;*/
@@ -189,14 +187,17 @@ void Session::HandleMessage(Packet& packet)
 
     if (m_channel.get())
     {
+        packet.SetOpcode(SMSG_MESSAGE);
         std::string data;
         packet >> data;
-        packet.clear();
-        INFO("debug", "USERNAME IS %s\n", GetUsername()->c_str());
-        XMLSetUsernameToMessage(data, *GetUsername());
-        packet << data;
         
-        m_channel->SendToAllButOne(&packet, m_id);
+        INFO("debug", "USERNAME IS %s\n, DATA %s", GetUsername()->c_str(), data.c_str());
+        XMLSetUsernameToMessage(data, *GetUsername());
+
+        Packet pkt(SMSG_MESSAGE, data.size());
+        pkt << data;
+        
+        m_channel->SendToAllButOne(&pkt, m_id);
     }
     else
     {

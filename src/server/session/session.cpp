@@ -104,6 +104,7 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
                             break;
                         }
                         (this->*opHandle.handler)(*packet);
+                        break;
                     case STATUS_NEVER:
                         INFO ("debug", "SESSION: STATUS_NEVER, packet hasn't been processed\n");
                         break;

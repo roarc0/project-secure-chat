@@ -64,21 +64,21 @@ void push_status_bar(const gchar*);
 void add_message_to_chat(gpointer data, gchar *str, gchar type);
 void add_user_to_list(gpointer data, gchar *str, gchar *lev);
 void remove_user_from_list(gpointer data, const gchar *str);
-bool request_password(gpointer parent);
+bool request_auth(gpointer parent);
 
 
 void* GuiThread(void* arg)
 {
     gui_res* gres = (gui_res*) arg;
 
-    bool oldstatus = false;
-    //msleep(1000);
+    bool prev = false;
+
     if (CFG_GET_BOOL("autoconnect"))
     {
         bool proceed = false;
         INFO("debug","GUI: autoconnecting...\n");
         gdk_threads_enter();
-        proceed = request_password(gres->window);
+        proceed = request_auth(gres->window);
         gdk_threads_leave();
         if(proceed)
             c_core->Connect();
@@ -88,28 +88,29 @@ void* GuiThread(void* arg)
     {
         gdk_threads_enter();
         
-        if(c_core->GetSession()->IsConnected() && !oldstatus)
+        if(c_core->GetSession()->IsConnected() && !prev)
         {
             gtk_tool_button_set_label(
                 GTK_TOOL_BUTTON(gres->toolbar_connect),
                 "Disconnect");
             push_status_bar("Connected with server!");
+
             add_user_to_list(gres->view_user_list,
-                             (gchar*) CFG_GET_STRING("username").c_str(),
+                             (gchar*) c_core->GetSession()->GetUsername()->c_str(),
                              (gchar*) "*");
         }
         
-        if(!c_core->GetSession()->IsConnected() && oldstatus)
+        if(!c_core->GetSession()->IsConnected() && prev)
         {
             gtk_tool_button_set_label(
                 GTK_TOOL_BUTTON(gres->toolbar_connect),
                 "Connect");
             push_status_bar("Disconnected from server!");
             remove_user_from_list(gres->view_user_list,
-                 (gchar*) CFG_GET_STRING("username").c_str());
+                 (gchar*) c_core->GetSession()->GetUsername()->c_str());
         }
         
-        oldstatus = c_core->GetSession()->IsConnected();
+        prev = c_core->GetSession()->IsConnected();
 
         Message_t msg = c_core->GetEvent();
         
@@ -203,7 +204,7 @@ void entry_pwd_response(GtkWidget * widget, gpointer dialog)
     gtk_dialog_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
 }
 
-bool request_password(gpointer parent)
+bool request_auth(gpointer parent)
 {
     bool ret;
     GtkWidget* dialog = gtk_dialog_new_with_buttons ("Enter Password",
@@ -218,8 +219,8 @@ bool request_password(gpointer parent)
     GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));    
     GtkWidget *entry_name = gtk_entry_new();
     GtkWidget *entry_pwd = gtk_entry_new();
-    GtkWidget *label_name = gtk_label_new("username ");
-    GtkWidget *label_pwd = gtk_label_new("password ");
+    GtkWidget *label_name = gtk_label_new("username");
+    GtkWidget *label_pwd = gtk_label_new("password");
     GtkWidget *image;
     GdkPixbuf *pixbuf = reduce_pixbuf(create_pixbuf("data/psc.png"), 48, 48);
     if(pixbuf)
@@ -360,11 +361,12 @@ bool find_user_from_list(gpointer data, const gchar *str)
 
 void add_user_to_list(gpointer data, gchar *str, gchar *lev)
 {
+
   GtkTreeView *view = GTK_TREE_VIEW(data);
   GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
   GtkTreeIter iter;
   
-  if (find_user_from_list(data, str))
+  if (!str || find_user_from_list(data, str))
       return;
   
   //pthread_mutex_lock(&mutex_guichange);
@@ -386,7 +388,7 @@ void remove_user_from_list(gpointer data, const gchar *str)
     gboolean                r;
     gchar                   *value;
     
-    if (!find_user_from_list(data, str))
+    if (!str || !find_user_from_list(data, str))
         return;
     
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (data));
@@ -497,8 +499,6 @@ void button_send_click(gpointer data, gchar *str, gchar type)
         msg.type='e';
     }
     
-
-
     c_core->AddMessage(msg.data, msg.user, msg.type, msg.timestamp); /* TODO get message add lock!! */
     c_core->SignalEvent();
 
@@ -540,7 +540,7 @@ void toolbar_connect_click(gpointer data)
     if (!c_core->GetSession()->IsConnected())
     {
         INFO("debug", "connect button pressed\n");
-        if(!request_password(gres.window))
+        if(!request_auth(gres.window))
         {
             push_status_bar("Insert valid credentials!");
         }
@@ -626,7 +626,7 @@ void main_gui(int argc, char **argv)
     g_signal_connect(G_OBJECT(gres.quit), "activate", G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect(G_OBJECT(gres.font), "activate", G_CALLBACK(select_font), G_OBJECT(gres.window));
     g_signal_connect(G_OBJECT(gres.about), "activate", G_CALLBACK(show_about), NULL);
-    g_signal_connect(G_OBJECT(gres.username), "activate", G_CALLBACK(request_password), G_OBJECT(gres.window));
+    g_signal_connect(G_OBJECT(gres.username), "activate", G_CALLBACK(request_auth), G_OBJECT(gres.window));
 
     /* toolbar */
     gres.toolbar = gtk_toolbar_new();

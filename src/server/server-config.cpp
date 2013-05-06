@@ -10,11 +10,8 @@ void init_config(string filename)
     CFG->add_bool("log", false);
     CFG->add_string("log_path", "logs");
     CFG->add_int("server_port", 7777);
-    CFG->add_string("db_filename", "server.db");
-    CFG->add_string("password", "default");
-    
-    CFG->add_string("priv_key", "server.pem");
-    CFG->add_string("pub_key", "server.pub");
+    CFG->add_string("db_filename", "../etc/database.sqlite");
+    CFG->add_string("rsa_key_prefix", "../etc/keys/server");
     
     CFG->add_int("ThreadNet", 2);
     CFG->add_int("ThreadExec", 2);

@@ -2,7 +2,7 @@ debug = true
 log = true
 autoconnect = true
 log_path = "logs"
-username = "the_doctor"
+username = "${USER}"
 server_host = "127.0.0.1"
 server_port = 7777
 
@@ -14,5 +14,4 @@ chat_join_fg =  "#55ff00"
 chat_leave_fg =  "#ff3200"
 chat_whisp_fg =  "#3200ff"
 
-priv_key = "../etc/client.pem"
-pub_key = "../etc/client.pub"
+rsa_key_prefix = "../etc/keys/client_"

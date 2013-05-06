@@ -294,30 +294,33 @@ void Session::HandleLeaveChannel(Packet& packet)
 void Session::HandleLogin(Packet& packet)
 {
     INFO ("debug", "SESSION: LOGIN procedure\n");    
-    Packet data(CMSG_LOGIN, 0);
-    string xml;
+
     bool valid;
     
     switch (GetSessionStatus())
     {
         case STATUS_CONNECTED:
             {
-                
-                data << XMLBuildLogin(GetUsername()->c_str(), GetPassword());
-
-                SendPacketToSocket(&data);
                 SetSessionStatus(STATUS_LOGIN_STEP_1);
+                
+                Packet data(CMSG_LOGIN, 0);
+                data << *GetUsername();
+                data << GetPassword();
+                SendPacketToSocket(&data);
             }
             break;
         case STATUS_LOGIN_STEP_1:
             {
-                packet >> xml;
-                XMLReadLoginResponse(xml.c_str(), valid);
+                packet >> valid;
                 if(valid)
                 {
-                    SendToGui("Login succeeded!", "", 'e'); 
+                    SendToGui("Login succeeded!", "", 'e');
                     SetSessionStatus(STATUS_AUTHENTICATED);
-                    SendPacketToSocket(&data); // ack and join default channel
+                    
+                    GenerateRandomKey(s_key, 32);
+                    Packet data(CMSG_LOGIN, 32);
+                    data.append(s_key);
+                    SendPacketToSocket(&data);
                 }
                 else
                 {
@@ -326,6 +329,15 @@ void Session::HandleLogin(Packet& packet)
                     m_Socket->CloseSocket();
                     ResetSocket();
                 }
+            }
+            break;
+        case STATUS_AUTHENTICATED:   
+            {
+                Xor(s_key, (const ByteBuffer) packet);
+                SetEncryption(s_key, ENC_AES256);
+                
+                INFO("debug", "\nKEY :\n");
+                s_key.hexlike();
             }
             break;
         default:

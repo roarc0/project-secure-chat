@@ -4,20 +4,14 @@ SessionBase::SessionBase()
 {
     m_Socket = NULL;
     s_status = STATUS_DISCONNECTED;
-
-    // TODO REMOVE
-    s_enc = ENC_AES256; // ENC_NONE;
-    s_key << "11111222223333344444555556666677";
+    s_enc = ENC_NONE;
 }
 
 SessionBase::SessionBase(int pSock)
 {
     m_Socket = new SocketBase(pSock);
-    s_status = STATUS_CONNECTED;
-    
-    // TODO REMOVE
-    s_enc = ENC_AES256; // ENC_NONE;
-    s_key << "11111222223333344444555556666677";
+    s_status = STATUS_CONNECTED;  
+    s_enc = ENC_NONE;
 }
 
 SessionBase::~SessionBase()

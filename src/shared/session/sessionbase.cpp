@@ -80,7 +80,7 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
     INFO("debug", "SESSION_BASE: sending packet: \"%s\"\n", pkt.contents());
     unsigned char* rawData;
 
-    Packet pct(0);
+    Packet pct(0); // TODO inserire header appositi
     pct.Incapsulate(pkt);
 
     if (IsEncrypted() && pct.size())

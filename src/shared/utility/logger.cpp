@@ -103,7 +103,7 @@ bool logger::log(string profile, string fname, const char *fmt, ...)
     if (ret)
     {
         str = buffer;
-        delete[] buffer;
+        free(buffer);
         return log_static(profile, fname, str.c_str());
     }
     else
@@ -167,7 +167,7 @@ bool logger::info(string profile, const char *fmt, ...)
         cout << buffer;
         //cout.flush();
         l_profile->unlock();
-        delete[] buffer;
+        free(buffer);
         return true;
     }
     else

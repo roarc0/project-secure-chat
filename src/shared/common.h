@@ -70,7 +70,6 @@ namespace __gnu_cxx
 #define UNORDERED_MAP std::hash_map
 using std::hash_map;
 #endif
-// TODO fine lanciafiamme
 
 #define uint64 uint64_t
 #define uint32 uint32_t

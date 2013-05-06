@@ -216,7 +216,7 @@ bool SessionBase::IsRejected() const
     
 }
 
-void SessionBase::SetConnected(bool c) // reset encryption ecc...
+void SessionBase::SetConnected(bool c)
 {
     if(c)
         s_status = STATUS_CONNECTED;

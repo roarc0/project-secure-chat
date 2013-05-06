@@ -58,12 +58,12 @@ void SessionBase::SendPacket(Packet* new_packet)
         m_Socket->CloseSocket();
 }
 
-void SessionBase::SendPacketToSocket(Packet* new_packet)
+void SessionBase::SendPacketToSocket(Packet* new_packet, unsigned char* temp_buffer)
 {
     if (!m_Socket || m_Socket->IsClosed() || !new_packet)
         return;
 
-    if (_SendPacketToSocket(*new_packet) == -1)
+    if (_SendPacketToSocket(*new_packet, temp_buffer) == -1)
         m_Socket->CloseSocket();
 }
 
@@ -75,7 +75,7 @@ int SessionBase::_SendPacket(Packet& pct)
     return 0;
 }
 
-int SessionBase::_SendPacketToSocket(Packet& pkt)
+int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
 {
     INFO("debug", "SESSION_BASE: sending packet: \"%s\"\n", pkt.contents());
     unsigned char* rawData;
@@ -91,33 +91,45 @@ int SessionBase::_SendPacketToSocket(Packet& pkt)
 
     PktHeader header(pct.size()/*+OPCODE_SIZE*/, pct.GetOpcode());
     
-    rawData = new unsigned char[header.getHeaderLength() + pct.size() + 1]; // il + 1 non ci serve ?!
+    if (!temp_buffer)
+        rawData = new unsigned char[header.getHeaderLength() + pct.size() + 1]; // il + 1 non ci serve ?!
+    else 
+        rawData = temp_buffer;
+
     memcpy((void*)rawData, (char*) header.header, header.getHeaderLength());
     memcpy((void*)(rawData + header.getHeaderLength()), (char*) pct.contents(), pct.size());
     
     m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
-    delete[] rawData;
+
+    if (!temp_buffer)
+        delete[] rawData;
+
     INFO("debug", "SESSION_BASE: packet <%d bytes> sent\n", pct.size());
     return 0;
 }
 
-Packet* SessionBase::RecvPacketFromSocket()
+Packet* SessionBase::RecvPacketFromSocket(unsigned char* temp_buffer)
 {
     if (!m_Socket || m_Socket->IsClosed())
         return NULL;
     INFO("debug","SESSION_BASE: receiving packet\n");
-    return _RecvPacketFromSocket();
+    return _RecvPacketFromSocket(temp_buffer);
 }
 
-Packet* SessionBase::_RecvPacketFromSocket()
+Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
 {
     char header[HEADER_SIZE];
     m_Socket->Recv((void*) &header, HEADER_SIZE);
     PktHeader pkt_head(header, HEADER_SIZE);
 
+    unsigned char* buffer;
+
     if (pkt_head.getSize())
     {
-        buffer = new char[pkt_head.getSize()];
+        if (!temp_buffer)
+            buffer = new unsigned char[pkt_head.getSize()];
+        else
+            buffer = temp_buffer;
         m_Socket->Recv((void*) buffer, pkt_head.getSize());
     }
 
@@ -147,7 +159,9 @@ Packet* SessionBase::_RecvPacketFromSocket()
         pkt = pct->Decapsulate();
 
         delete pct;
-        delete[] buffer;
+
+        if (!temp_buffer)
+            delete[] buffer;
     }
     else
     {

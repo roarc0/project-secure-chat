@@ -8,18 +8,19 @@ class NetworkThread: public MethodRequest
         NetworkManager& m_netmanager;
         uint32 m_diff;
         bool active;
+        unsigned char* buffer;
 
     public:
 
         NetworkThread(NetworkManager& netmanager, uint32 d) :
         MethodRequest(), m_netmanager(netmanager), m_diff(d), active(true)
         {
-
+            buffer = new unsigned char[(uint32(1)<<16)-1]; // max of uint16
         }
 
         ~NetworkThread()
         {
-
+            delete[] buffer;
         }
 
         int Call()
@@ -42,7 +43,7 @@ class NetworkThread: public MethodRequest
                         if (pkt)
                         {
                             INFO("debug", "NETWORK_THREAD: send packet event\n");
-                            net_ses.first->SendPacketToSocket(pkt);
+                            net_ses.first->SendPacketToSocket(pkt, buffer);
                             delete pkt;
                         }
                         else
@@ -51,7 +52,7 @@ class NetworkThread: public MethodRequest
                     else
                     {
                         INFO("debug", "NETWORK_THREAD: receiving packet event\n");
-                        pkt = net_ses.first->RecvPacketFromSocket();
+                        pkt = net_ses.first->RecvPacketFromSocket(buffer);
                         if (pkt)
                         {   
                             INFO("debug", "NETWORK_THREAD: packet queued in elaboration queue.\n");          

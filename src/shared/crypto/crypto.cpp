@@ -270,7 +270,7 @@ int RsaEncrypt(const std::string key_filename,
 
     buf = (unsigned char*) malloc(RSA_size(key));
 
-    INFO("debug","CRYPTO: RSA encrypting message\n");
+    //INFO("debug","CRYPTO: RSA encrypting message\n");
        
     if((ret = RSA_public_encrypt(plaintext.size(),
                                  (unsigned char*)plaintext.contents(),
@@ -286,7 +286,7 @@ int RsaEncrypt(const std::string key_filename,
     {
         ciphertext.clear();
         ciphertext.append(buf, ret);
-        INFO("debug","CRYPTO: RSA encrypted message\n");
+        //INFO("debug","CRYPTO: RSA encrypted message\n");
     }   
 
     RSA_free(key);
@@ -310,7 +310,7 @@ int RsaDecrypt(const std::string key_filename,
 
     buf = (unsigned char*) malloc(RSA_size(key));
 
-    INFO("debug","CRYPTO: RSA decrypting message\n");
+    //INFO("debug","CRYPTO: RSA decrypting message\n");
        
     if((ret = RSA_private_decrypt(ciphertext.size(),
                                  (unsigned char*)ciphertext.contents(),
@@ -326,7 +326,7 @@ int RsaDecrypt(const std::string key_filename,
     {
         plaintext.clear();
         plaintext.append(buf, ret);
-        INFO("debug","CRYPTO: RSA decrypted message\n");
+        //INFO("debug","CRYPTO: RSA decrypted message\n");
     }   
 
     RSA_free(key);

@@ -35,6 +35,4 @@ SessionActiveLimit = 100
 
 SessionQueueLimit = 50
 
-
-priv_key = "../etc/server.pem"
-pub_key = "../etc/server.pub"
+rsa_key_prefix = "../etc/keys/server"

@@ -2,6 +2,8 @@
 #include "revision.h"
 #include "threading/thread.h"
 
+#define GUI_ICON "../etc/psc.png"
+
 enum
 {
   COLUMN_STRING1,
@@ -183,7 +185,7 @@ GdkPixbuf *reduce_pixbuf(GdkPixbuf * pixbuf, gint x, gint y)
 
 void show_about()
 {
-  GdkPixbuf *pixbuf = reduce_pixbuf(create_pixbuf("data/psc.png"),128,128);
+  GdkPixbuf *pixbuf = reduce_pixbuf(create_pixbuf(GUI_ICON),128,128);
 
   GtkWidget *dialog = gtk_about_dialog_new();
   gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), _REVISION);
@@ -222,7 +224,7 @@ bool request_auth(gpointer parent)
     GtkWidget *label_name = gtk_label_new("username");
     GtkWidget *label_pwd = gtk_label_new("password");
     GtkWidget *image;
-    GdkPixbuf *pixbuf = reduce_pixbuf(create_pixbuf("data/psc.png"), 48, 48);
+    GdkPixbuf *pixbuf = reduce_pixbuf(create_pixbuf(GUI_ICON), 48, 48);
     if(pixbuf)
     {
         image = gtk_image_new_from_pixbuf(pixbuf);

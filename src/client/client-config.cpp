@@ -13,8 +13,7 @@ void init_config(string filename)
     CFG->add_string("username", "user");
     CFG->add_string("password", "default");
     
-    CFG->add_string("priv_key", "client.pem");
-    CFG->add_string("pub_key", "client.pub");
+    CFG->add_string("rsa_key_prefix", "../etc/keys/client_");
     
     CFG->add_string("chat_font", "Arial 10");
     CFG->add_string("chat_bg", "#fff");

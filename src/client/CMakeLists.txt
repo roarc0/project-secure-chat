@@ -60,18 +60,33 @@ target_link_libraries(client
 if( WIN32 )
   add_custom_command(TARGET client
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/configs/psc-client.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/data/psc-client.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
   )
 endif()
 
 if( UNIX )
   install(TARGETS client DESTINATION bin)
   install(FILES  ${CMAKE_SOURCE_DIR}/data/psc.png DESTINATION bin/data/)
-  install(FILES  ${CMAKE_SOURCE_DIR}/configs/psc-client.conf.dist DESTINATION etc)
-    install(FILES  ${CMAKE_SOURCE_DIR}/data/client.pem DESTINATION etc)
-  install(FILES  ${CMAKE_SOURCE_DIR}/data/client.pub DESTINATION etc)
+  install(FILES  ${CMAKE_SOURCE_DIR}/data/psc-client.conf.dist DESTINATION etc)
+  install(FILES  ${CMAKE_SOURCE_DIR}/data/psc.png DESTINATION etc)
+    
+  install(DIRECTORY ${CMAKE_SOURCE_DIR}/data/keys/
+    DESTINATION etc/keys
+    FILES_MATCHING
+    PATTERN "*.pem"
+    PATTERN "server" EXCLUDE
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+
+  install(DIRECTORY ${CMAKE_SOURCE_DIR}/data/keys/
+    DESTINATION etc/keys
+    FILES_MATCHING
+    PATTERN "*.pub"
+    PATTERN "server" EXCLUDE
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+  
+  
 elseif( WIN32 )
   install(TARGETS client DESTINATION "${CMAKE_INSTALL_PREFIX}")
-  install(FILES ${CMAKE_SOURCE_DIR}/configs/psc-client.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(FILES ${CMAKE_SOURCE_DIR}/data/psc-client.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
 

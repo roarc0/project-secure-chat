@@ -262,7 +262,6 @@ void XMLReadLogin(const char *str, string& username, string& password_digest)
      }
 }
 
-
 std::string XMLBuildLoginResponse(bool ok)
 {
     TiXmlDocument doc;

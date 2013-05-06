@@ -26,6 +26,10 @@ int RsaEncrypt(const std::string key,
                const ByteBuffer &plaintext,
                ByteBuffer &ciphertext);
 
+int RsaDecrypt(const std::string key_filename,
+               const ByteBuffer &ciphertext,
+               ByteBuffer &plaintext);
+
 #endif
 
 

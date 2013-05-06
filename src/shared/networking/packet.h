@@ -69,6 +69,7 @@ class Packet : public ByteBuffer
         }
 
         void Incapsulate(Packet& pkt);
+        Packet* Decapsulate();
         
         uint32 GetTime() // In millisecondi
         {

@@ -242,10 +242,11 @@ int RsaEncrypt(const std::string key_filename,
     int ret = 0;
     char *err;
     RSA *key = ReadRSAPubKeyFromFile(key_filename.c_str());
-    unsigned char *buf = (unsigned char*    ) malloc(RSA_size(key));
   
     if(!key)
         return -1;
+
+    unsigned char *buf = (unsigned char*    ) malloc(RSA_size(key));
 
     INFO("debug","CRYPTO: RSA encrypting\n");
        

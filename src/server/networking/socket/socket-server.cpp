@@ -98,7 +98,7 @@ void SocketServer::SetupSocket(int port) throw(SocketException)
 
 void SocketServer::SetupEpoll() throw(SocketException)
 {
-    events = (struct epoll_event*) calloc(MAXEVENTS, sizeof(event));
+    events = (struct epoll_event*) calloc(MAXEVENTS, sizeof(epoll_event));
 
     if ((epoll_fd = epoll_create1(0)) < 0)
         throw SocketException("[epoll_create()]", true);

@@ -10,6 +10,11 @@
 
 #include <iomanip>
 
+void CryptoInit()
+{
+    OpenSSL_add_all_algorithms();
+}
+
 void SHA256_digest(const char* data, int length, string& digest)
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];
@@ -238,7 +243,7 @@ RSA* RsaPubKeyFromFile(const char* filename)
     return key;
 }
 
-RSA* RsaPrivKeyFromFile(const char* filename)
+RSA* RsaPrivKeyFromFile(const char* filename, const char* password = NULL)
 {
     assert(filename);
     RSA * key = NULL;
@@ -247,8 +252,8 @@ RSA* RsaPrivKeyFromFile(const char* filename)
     if(!fp)
       return NULL;
 
-    INFO("debug","CRYPTO: reading private key: \"%s\" [%d]\n", filename);
-    PEM_read_RSAPrivateKey(fp, &key, NULL, NULL);
+    INFO("debug","CRYPTO: reading private key: \"%s\"\n", filename);
+    PEM_read_RSAPrivateKey(fp, &key, NULL, (void*) password);
     INFO("debug","CRYPTO: %d bit private key loaded\n", RSA_size(key) * 8);
     fclose(fp);
 
@@ -271,8 +276,6 @@ int RsaEncrypt(const std::string key_filename,
     }
 
     buf = (unsigned char*) malloc(RSA_size(key));
-
-    //INFO("debug","CRYPTO: RSA encrypting message\n");
        
     if((ret = RSA_public_encrypt(plaintext.size(),
                                  (unsigned char*)plaintext.contents(),
@@ -288,7 +291,6 @@ int RsaEncrypt(const std::string key_filename,
     {
         ciphertext.clear();
         ciphertext.append(buf, ret);
-        //INFO("debug","CRYPTO: RSA encrypted message\n");
     }   
 
     RSA_free(key);
@@ -296,8 +298,9 @@ int RsaEncrypt(const std::string key_filename,
 }
 
 int RsaDecrypt(const std::string key_filename,
-             const ByteBuffer &ciphertext,
-             ByteBuffer &plaintext)
+               const char* password,
+               const ByteBuffer &ciphertext,
+               ByteBuffer &plaintext)
 {
     int ret = 0;
     char *err;
@@ -312,8 +315,6 @@ int RsaDecrypt(const std::string key_filename,
 
     buf = (unsigned char*) malloc(RSA_size(key));
 
-    //INFO("debug","CRYPTO: RSA decrypting message\n");
-       
     if((ret = RSA_private_decrypt(ciphertext.size(),
                                  (unsigned char*)ciphertext.contents(),
                                  buf, key, RSA_PKCS1_OAEP_PADDING)) == -1)
@@ -328,9 +329,24 @@ int RsaDecrypt(const std::string key_filename,
     {
         plaintext.clear();
         plaintext.append(buf, ret);
-        //INFO("debug","CRYPTO: RSA decrypted message\n");
     }   
 
     RSA_free(key);
     return ret;
+}
+
+bool RsaTest(const char* pem_file,
+             const char* pub_file,
+             const char* pwd)
+{
+    if(!pem_file || !pub_file)
+        return false;
+
+    ByteBuffer in, out, out2;
+    in << "rsatest";
+    RsaEncrypt(pub_file, in, out);
+    in.clear();
+    RsaDecrypt(pem_file, pwd, out, out2);
+   
+    return in.compare(out2) == 0;
 }

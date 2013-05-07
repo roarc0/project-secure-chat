@@ -55,8 +55,8 @@ class Session : public SessionBase
   
     private:
 
-        virtual int _SendPacket(Packet& pct);
-        virtual int _SendPacket(Packet* pct);
+        int _SendPacket(Packet& pct);
+        int _SendPacket(Packet* pct);
 
         uint32 m_id;
         Session_smart smartThis;

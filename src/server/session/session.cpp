@@ -160,9 +160,9 @@ void Session::PSendSysMessage(const char *format, ...)
 void Session::SendWaitQueue(int position)
 {
     // Invio posizione coda
-    Packet new_packet(SMSG_QUEUE_POSITION, 4);
-    new_packet<<uint32(position);
-    SendPacket(&new_packet);   
+    Packet data(SMSG_QUEUE_POSITION, 4);
+    data << uint32(position);
+    SendPacket(&data);   
 }
 
 void Session::HandlePing(Packet& /*packet*/)
@@ -373,9 +373,10 @@ void Session::HandleLogin(Packet& packet)
         case STATUS_AUTHENTICATED:
             {
                 GenerateRandomKey(s_key, 32);
+
                 Packet data(SMSG_LOGIN, 32);
                 data.append(s_key);
-                SendPacketToSocket(&data);
+                SendPacketToSocket(&data); // TODO inserire SendPacket e attivare la criptazione al passo dopo
                 
                 Xor(s_key, packet);
                 SetEncryption(s_key, ENC_AES256);

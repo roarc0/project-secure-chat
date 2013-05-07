@@ -58,7 +58,7 @@ class SessionBase
         SocketBase* m_Socket; // TODO protected
     protected:
 
-        virtual int _SendPacket(Packet& new_packet);
+        virtual int _SendPacket(Packet& new_packet) = 0;
         int _SendPacketToSocket(Packet& pct, unsigned char* temp_buffer = NULL);
         Packet* _RecvPacketFromSocket(unsigned char* temp_buffer = NULL);
         

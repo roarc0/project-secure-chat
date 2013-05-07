@@ -2,7 +2,7 @@
 #include "session-manager.h"
 #include "session.h"
 
-SocketServer::SocketServer(NetworkManager& netmanager, uint32 d) throw(SocketException):
+SocketServer::SocketServer(NetworkManager& netmanager, uint32 /*d*/) throw(SocketException):
     MethodRequest(), m_netmanager(netmanager)
 {
 

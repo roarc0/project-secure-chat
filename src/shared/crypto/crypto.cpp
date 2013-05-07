@@ -265,7 +265,7 @@ int RsaEncrypt(const std::string key_filename,
                ByteBuffer &ciphertext)
 {
     int ret = 0;
-    char *err;
+    char *err = NULL;
     RSA *key = RsaPubKeyFromFile(key_filename.c_str());
     unsigned char *buf;
     
@@ -298,12 +298,12 @@ int RsaEncrypt(const std::string key_filename,
 }
 
 int RsaDecrypt(const std::string key_filename,
-               const char* password,
+               const char* /*password*/,
                const ByteBuffer &ciphertext,
                ByteBuffer &plaintext)
 {
     int ret = 0;
-    char *err;
+    char *err = NULL;
     RSA *key = RsaPrivKeyFromFile(key_filename.c_str());
     unsigned char *buf;
     

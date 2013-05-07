@@ -41,6 +41,12 @@ class Session : public SessionBase
 
   private:
 
+    int _SendPacket(Packet& /*new_packet*/)
+    { 
+        INFO("debug","SESSION: _SendPacket NON DEVE ESSERE CHIAMATA\n");
+        return 0; 
+    };
+
     bool Update(uint32 diff);
     
 };

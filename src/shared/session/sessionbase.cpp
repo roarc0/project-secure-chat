@@ -61,14 +61,6 @@ void SessionBase::SendPacketToSocket(Packet* new_packet, unsigned char* temp_buf
         m_Socket->CloseSocket();
 }
 
-int SessionBase::_SendPacket(Packet& pct)
-{
-    INFO("debug", "SESSION_BASE: _SendPacket\n");
-    Packet* pkt = new Packet(pct);
-    _sendQueue.add(pkt);
-    return 0;
-}
-
 int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
 {
     INFO("debug", "SESSION_BASE: sending packet: \"%s\"\n", pkt.contents());

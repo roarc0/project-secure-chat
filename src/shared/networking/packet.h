@@ -88,7 +88,7 @@ class Packet : public ByteBuffer
 
 struct PktHeader
 {
-    PktHeader(uint32 size, uint16 cmd)
+    PktHeader(uint16 cmd, uint16 size)
     {
         uint8 headerIndex=0;
         header[headerIndex++] = 0xFF & cmd;
@@ -109,12 +109,12 @@ struct PktHeader
 
     uint16 getSize()
     {
-        return ((8<<uint16(header[3]))&0xFF00) | (uint16(header[2])&0x00FF);
+        return (((uint16(header[3])<<8)&0xFF00) | (uint16(header[2])&0x00FF));
     }
 
     uint16 getHeader()
     {
-        return ((8<<uint16(header[1]))&0xFF00) | (uint16(header[0])&0x00FF);
+        return (((uint16(header[1])<<8)&0xFF00) | (uint16(header[0])&0x00FF));
     }
 
     uint8 getHeaderLength()

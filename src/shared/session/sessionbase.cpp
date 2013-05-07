@@ -82,8 +82,8 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
         INFO("debug", "SESSION_BASE: encrypting packet  <%d bytes>\n", pct.size());
         pct.Encrypt(s_key);
     }
-
-    PktHeader header(pct.size()/*+OPCODE_SIZE*/, pct.GetOpcode());
+   
+    PktHeader header(pct.GetOpcode(), pct.size());
     
     if (!temp_buffer)
         rawData = new unsigned char[header.getHeaderLength() + pct.size() + 1]; // il + 1 non ci serve ?!
@@ -92,7 +92,7 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
 
     memcpy((void*)rawData, (char*) header.header, header.getHeaderLength());
     memcpy((void*)(rawData + header.getHeaderLength()), (char*) pct.contents(), pct.size());
-    
+
     m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
 
     if (!temp_buffer)
@@ -114,7 +114,7 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
 {
     char header[HEADER_SIZE];
     m_Socket->Recv((void*) &header, HEADER_SIZE);
-    PktHeader pkt_head(header, HEADER_SIZE);
+    PktHeader pkt_head((char*)header, HEADER_SIZE);
 
     unsigned char* buffer;
 
@@ -152,7 +152,6 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
 
         pkt = pct->Decapsulate();
 
-        pkt->hexlike();
         delete pct;
 
         if (!temp_buffer)

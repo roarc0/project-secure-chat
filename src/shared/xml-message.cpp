@@ -66,13 +66,13 @@ void XMLReadMessage(const char *str, string& name, string& content)
         if (elemName == "name")
         {
             attr = elem->Attribute("level");
-            if (attr != NULL);
+            if (attr != NULL){};
         }
         
         else if (elemName == "content")
         {
             attr = elem->Attribute("type");
-            if (attr != NULL);
+            if (attr != NULL){};
         }
         
         for (TiXmlNode* e = elem->FirstChild();

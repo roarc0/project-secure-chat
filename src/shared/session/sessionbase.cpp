@@ -174,12 +174,15 @@ const std::string* SessionBase::GetUsername()
 
 bool SessionBase::SetUsername(const std::string& n)
 {
-    /* TODO validate username ( can't contain white spaces )
-    if(username is not valid )
+    /*std::string::size_type index = n.find_last_not_of(EXCLUDED_CHARS);
+    if (index != std::string::npos)
+        return false;*/
+      
+    if (n.length() > MAX_USER_LEN)
         return false;
-    */    
     
-    username = n; 
+    username = n;
+    
     return true;
 }
 

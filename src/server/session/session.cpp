@@ -349,7 +349,7 @@ void Session::HandleLogin(Packet& packet)
                         INFO("debug","SESSION: username \"%s\" is not valid\n", user.c_str());
                     else
                     {
-                        valid = db_manager->UserExists(user);  // check user existence
+                        valid = db_manager->UserExists(user);
                         
                         if (!valid)
                             INFO("debug","SESSION: username \"%s\" doesn't exist\n", user.c_str());
@@ -391,8 +391,7 @@ void Session::HandleLogin(Packet& packet)
         case STATUS_REJECTED:
         default:
             {
-                // client should kill the session.
-                // if not kill it after a while
+
             }
         break;
     }

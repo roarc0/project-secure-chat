@@ -8,7 +8,7 @@ int Packet::Encrypt(ByteBuffer key)
     ret = AesEncrypt(key, (ByteBuffer)(*this), ciphertext);
     ciphertext.hexlike();
     
-    if(!ret)
+    if (!ret)
     {
         INFO("debug", "PACKET: encrypted\n");
         m_encrypted = true;

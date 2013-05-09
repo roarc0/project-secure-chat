@@ -8,6 +8,9 @@
 #include "threading/semaphore.h"
 #include "common.h"
 
+#define MAX_USER_LEN    32
+#define EXCLUDED_CHARS  " \t\f\v\n\r"
+
 enum SessionEncryption
 {
     ENC_NONE = 0,

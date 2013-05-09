@@ -25,8 +25,7 @@ class Session : public SessionBase
 
         bool Update(uint32 diff, PacketFilter& updater);
 
-        // THREADUNSAFE
-        void KickSession();
+        // THREADUNSAFE        
         void SetId(uint32 id) { m_id = id; }
         void setSmartPointer(Session_smart m_ses);
         void deleteSmartPointer();

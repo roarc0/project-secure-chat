@@ -133,12 +133,6 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
     return true;
 }
 
-void Session::KickSession()
-{
-    if (m_Socket)
-        m_Socket->CloseSocket();
-}
-
 void Session::SendSysMessage(const char *str)
 {
     INFO ("debug", "SESSION: %s \n", str);

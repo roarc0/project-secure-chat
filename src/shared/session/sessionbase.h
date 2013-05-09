@@ -36,6 +36,8 @@ class SessionBase
         SessionBase(int pSock);
         virtual ~SessionBase();
 
+        void KickSession();
+
         // THREADSAFE
         void QueuePacket(Packet* new_packet);
         void SendPacket(Packet* new_packet);

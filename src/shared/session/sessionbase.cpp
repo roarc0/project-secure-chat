@@ -124,7 +124,11 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
     pct = new Packet(pkt_head.getHeader(), pkt_head.getSize());
     
     if (!pct)
+    {
+        if (!temp_buffer)
+            delete[] buffer;
         return NULL;
+    }
     
     Packet* pkt = NULL;
 
@@ -143,8 +147,8 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
         pct->hexlike();
 
         pkt = pct->Decapsulate();
-
         delete pct;
+        pct = pkt;
 
         if (!temp_buffer)
             delete[] buffer;
@@ -155,7 +159,7 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
         assert(false);
     }
 
-    return pkt;
+    return pct;
 }
 
 void SessionBase::HandleNULL(Packet& /*packet*/)

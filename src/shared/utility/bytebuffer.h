@@ -305,7 +305,7 @@ class ByteBuffer
         bool compare(const ByteBuffer& b)
         {
             if (b.size() == size())
-                return memcmp(contents(), b.contents(), size());
+                return memcmp(contents(), b.contents(), size()) == 0;
             else
                 return false;
         }

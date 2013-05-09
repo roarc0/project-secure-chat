@@ -29,6 +29,12 @@ SessionBase::~SessionBase()
         delete m_Socket;
 }
 
+void SessionBase::KickSession()
+{
+    if (m_Socket)
+        m_Socket->CloseSocket();
+}
+
 void SessionBase::QueuePacket(Packet* new_packet)
 {
     _recvQueue.add(new_packet);
@@ -64,34 +70,46 @@ void SessionBase::SendPacketToSocket(Packet* new_packet, unsigned char* temp_buf
 int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
 {
     INFO("debug", "SESSION_BASE: sending packet: \"%s\"\n", pkt.contents());
-    unsigned char* rawData;
+    unsigned char* rawData = NULL;
 
-    Packet pct(0); // TODO inserire header appositi
-    pct.Incapsulate(pkt);
-
-    if (IsEncrypted() && pct.size())
+    try
     {
-        INFO("debug", "SESSION_BASE: encrypting packet  <%d bytes>\n", pct.size());
-        pct.Encrypt(s_key);
+        Packet pct(0); // TODO inserire header appositi
+        pct.Incapsulate(pkt);
+
+        if (IsEncrypted() && pct.size())
+        {
+            INFO("debug", "SESSION_BASE: encrypting packet  <%d bytes>\n", pct.size());
+            pct.Encrypt(s_key);
+        }
+       
+        PktHeader header(pct.GetOpcode(), pct.size());
+        
+        if (!temp_buffer)
+            rawData = new unsigned char[header.getHeaderLength() + pct.size() + 1]; // il + 1 non ci serve ?!
+        else 
+            rawData = temp_buffer;
+
+        memcpy((void*)rawData, (char*) header.header, header.getHeaderLength());
+        memcpy((void*)(rawData + header.getHeaderLength()), (char*) pct.contents(), pct.size());
+
+        m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
+
+        if (!temp_buffer)
+            delete[] rawData;
+
+        INFO("debug", "SESSION_BASE: packet <%d bytes> sent\n", pct.size());
+        return 0;
+
     }
-   
-    PktHeader header(pct.GetOpcode(), pct.size());
-    
-    if (!temp_buffer)
-        rawData = new unsigned char[header.getHeaderLength() + pct.size() + 1]; // il + 1 non ci serve ?!
-    else 
-        rawData = temp_buffer;
-
-    memcpy((void*)rawData, (char*) header.header, header.getHeaderLength());
-    memcpy((void*)(rawData + header.getHeaderLength()), (char*) pct.contents(), pct.size());
-
-    m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
-
-    if (!temp_buffer)
-        delete[] rawData;
-
-    INFO("debug", "SESSION_BASE: packet <%d bytes> sent\n", pct.size());
-    return 0;
+    catch (ByteBufferPositionException e)
+    {
+        INFO("debug","SESSION_BASE: _SendPacketToSocket: ByteBufferPositionException catched \n");
+        if (!temp_buffer && rawData)
+            delete[] rawData;
+        KickSession();
+        return -1;
+    }
 }
 
 Packet* SessionBase::RecvPacketFromSocket(unsigned char* temp_buffer)
@@ -103,64 +121,82 @@ Packet* SessionBase::RecvPacketFromSocket(unsigned char* temp_buffer)
 }
 
 Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
-{
+{    
     char header[HEADER_SIZE];
-    m_Socket->Recv((void*) &header, HEADER_SIZE);
-    PktHeader pkt_head((char*)header, HEADER_SIZE);
+    unsigned char* buffer = NULL;
 
-    unsigned char* buffer;
-
-    if (pkt_head.getSize())
+    try 
     {
-        if (!temp_buffer)
-            buffer = new unsigned char[pkt_head.getSize()];
-        else
-            buffer = temp_buffer;
-        m_Socket->Recv((void*) buffer, pkt_head.getSize());
-    }
+        m_Socket->Recv((void*) &header, HEADER_SIZE);
+        PktHeader pkt_head((char*)header, HEADER_SIZE);
 
-    INFO("debug","SESSION_BASE: packet [header %d, length %d]\n", pkt_head.getHeader(), pkt_head.getSize());
-
-    pct = new Packet(pkt_head.getHeader(), pkt_head.getSize());
-    
-    if (!pct)
-    {
-        if (!temp_buffer)
-            delete[] buffer;
-        return NULL;
-    }
-    
-    Packet* pkt = NULL;
-
-    if (pkt_head.getSize())
-    {
-        pct->append((char*)buffer, pkt_head.getSize());
-
-        if (IsEncrypted() && pkt_head.getSize())
+        if (pkt_head.getSize() > 65000) // limit 2^16
         {
-            //INFO("debug", "SESSION_BASE: decrypting packet\n");
-            pct->Decrypt(s_key);
-            //INFO("debug", "SESSION_BASE: packet decrypted\n");
+            INFO("debug","SESSION_BASE: Packet Bigger of 65000, kicking session\n");
+            KickSession();
+            return NULL;
+        }    
+
+        if (pkt_head.getSize())
+        {
+            if (!temp_buffer)
+                buffer = new unsigned char[pkt_head.getSize()];
+            else
+                buffer = temp_buffer;
+            m_Socket->Recv((void*) buffer, pkt_head.getSize());
         }
 
-        INFO("debug","SESSION_BASE: packet content:\n");
-        pct->hexlike();
+        INFO("debug","SESSION_BASE: packet [header %d, length %d]\n", pkt_head.getHeader(), pkt_head.getSize());
 
-        pkt = pct->Decapsulate();
-        delete pct;
-        pct = pkt;
+        pct = new Packet(pkt_head.getHeader(), pkt_head.getSize());
+        
+        if (!pct)
+        {
+            if (!temp_buffer)
+                delete[] buffer;
+            return NULL;
+        }
+        
+        Packet* pkt = NULL;
 
-        if (!temp_buffer)
-            delete[] buffer;
+        if (pkt_head.getSize())
+        {
+            pct->append((char*)buffer, pkt_head.getSize());
+
+            if (IsEncrypted() && pkt_head.getSize())
+            {
+                //INFO("debug", "SESSION_BASE: decrypting packet\n");
+                pct->Decrypt(s_key);
+                //INFO("debug", "SESSION_BASE: packet decrypted\n");
+            }
+
+            INFO("debug","SESSION_BASE: packet content:\n");
+            pct->hexlike();
+
+            pkt = pct->Decapsulate();
+            delete pct;
+            pct = pkt;
+
+            if (!temp_buffer)
+                delete[] buffer;
+        }
+        else
+        {
+            INFO("debug","SESSION_BASE: BAD BAD BAD! Must not exit! \n");
+            assert(false);
+        }
+
+        return pct;
     }
-    else
+    catch (ByteBufferPositionException e)
     {
-        INFO("debug","SESSION_BASE: BAD BAD BAD! Must not exit! \n");
-        assert(false);
+        INFO("debug","SESSION_BASE: _RecvPacketFromSocket: ByteBufferPositionException catched \n");
+        if (!temp_buffer && buffer)
+            delete[] buffer;
+        KickSession();
+        return NULL;
     }
-
-    return pct;
-}
+}   
 
 void SessionBase::HandleNULL(Packet& /*packet*/)
 {

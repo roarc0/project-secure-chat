@@ -60,7 +60,7 @@ bool SessionManager::RemoveSession(uint32 id)
     {
         //if (itr->second->IsLoading())
         //    return false;
-        itr->second->KickSession();
+        itr->second->Close();
     }
 
     return true;

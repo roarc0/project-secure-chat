@@ -29,7 +29,7 @@ SessionBase::~SessionBase()
         delete m_Socket;
 }
 
-void SessionBase::KickSession()
+void SessionBase::Close()
 {
     if (m_Socket)
         m_Socket->CloseSocket();
@@ -107,7 +107,7 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
         INFO("debug","SESSION_BASE: _SendPacketToSocket: ByteBufferPositionException catched \n");
         if (!temp_buffer && rawData)
             delete[] rawData;
-        KickSession();
+        Close();
         return -1;
     }
 }
@@ -133,7 +133,7 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
         if (pkt_head.getSize() > 65000) // limit 2^16
         {
             INFO("debug","SESSION_BASE: Packet Bigger of 65000, kicking session\n");
-            KickSession();
+            Close();
             return NULL;
         }    
 
@@ -193,7 +193,7 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
         INFO("debug","SESSION_BASE: _RecvPacketFromSocket: ByteBufferPositionException catched \n");
         if (!temp_buffer && buffer)
             delete[] buffer;
-        KickSession();
+        Close();
         return NULL;
     }
 }   

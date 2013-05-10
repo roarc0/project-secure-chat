@@ -1,7 +1,8 @@
 #ifndef OPCODE_H
 #define OPCODE_H
 
-#include "session.h"
+class Session;
+class Packet;
 
 enum MessageTypes
 { 

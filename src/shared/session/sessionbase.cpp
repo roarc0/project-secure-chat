@@ -1,4 +1,5 @@
 #include "sessionbase.h"
+#include "networking/opcode.h"
 
 SessionBase::SessionBase()
 {
@@ -20,10 +21,12 @@ SessionBase::~SessionBase()
 
     Packet* packet = NULL;
     while (_recvQueue.next(packet))
-        delete packet;
+        if (packet)
+            delete packet;
 
     while (_sendQueue.next(packet))
-        delete packet;
+        if (packet)
+            delete packet;
 
     if (m_Socket)
         delete m_Socket;
@@ -42,6 +45,9 @@ void SessionBase::QueuePacket(Packet* new_packet)
 
 Packet* SessionBase::GetPacketToSend()
 {
+    if (!m_Socket || m_Socket->IsClosed())
+        return NULL;
+
     Packet* pkt = NULL;
     _sendQueue.next(pkt); // TODO usare i ritorni a funzione
     return pkt;
@@ -116,14 +122,26 @@ Packet* SessionBase::RecvPacketFromSocket(unsigned char* temp_buffer)
 {
     if (!m_Socket || m_Socket->IsClosed())
         return NULL;
+
     INFO("debug","SESSION_BASE: receiving packet\n");
-    return _RecvPacketFromSocket(temp_buffer);
+    Packet* packet = _RecvPacketFromSocket(temp_buffer);
+
+    if (packet && packet->GetOpcode() >= NUM_MSG_TYPES) // Max opcode
+    {
+        delete packet; 
+        packet = NULL;
+        m_Socket->CloseSocket();
+        INFO ("debug", "SESSION_BASE: opcode is not valid\n");
+    }
+
+    return packet;
 }
 
 Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
 {    
     char header[HEADER_SIZE];
     unsigned char* buffer = NULL;
+    Packet* pct = NULL;
 
     try 
     {
@@ -183,7 +201,6 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
         else
         {
             INFO("debug","SESSION_BASE: BAD BAD BAD! Must not exit! \n");
-            assert(false);
         }
 
         return pct;
@@ -193,6 +210,8 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
         INFO("debug","SESSION_BASE: _RecvPacketFromSocket: ByteBufferPositionException catched \n");
         if (!temp_buffer && buffer)
             delete[] buffer;
+        if (pct)
+            delete pct;
         Close();
         return NULL;
     }

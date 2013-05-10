@@ -6,7 +6,9 @@
 #include "network-manager.h"
 #include "session/session-manager.h"
 #include "database/database-manager.h"
+#include "crypto/crypto.h"
 
-void  server_core();
+void ServerCore();
+void TestRsa();
 
 #endif

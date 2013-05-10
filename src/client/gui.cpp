@@ -264,8 +264,14 @@ bool request_auth(gpointer parent)
             {
                 c_core->GetSession()->SetUsername(text_name);
                 c_core->GetSession()->SetPassword(text_pwd);
+                
                 gtk_label_set_text(GTK_LABEL(gres.label_nick), text_name);
-                ret = true;
+                
+                if(!(ret = c_core->TestRsa()))
+                {
+                    add_message_to_chat(gres.chat_buffer,
+                                (gchar*) "Wrong Password! (RSA test failed)\n", 'e');
+                }
             }
             else
             {

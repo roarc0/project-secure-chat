@@ -76,8 +76,6 @@ class SessionBase
 
         LockQueue<Packet*> _recvQueue;
         LockQueue<Packet*> _sendQueue;
-
-        Packet* pct;
 };
 
 #endif

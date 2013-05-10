@@ -1,4 +1,5 @@
 #include "networking/opcode.h"
+#include "session.h"
 
 // Devono essere allineati con opcode.h
 OpcodeHandler opcodeTable[NUM_MSG_TYPES] =

@@ -15,10 +15,10 @@ std::string XMLBuildMessage(const char* name, const char* content)
     TiXmlText * text_name = NULL;
     if (name)
     {
-        INFO("debug", "XML: writing name -> %s\n", name);
+        //INFO("debug", "XML: writing name -> %s\n", name);
         text_name = new TiXmlText( EncodeBase64(name) );
     }
-    INFO("debug", "XML: writing content -> %s\n", content);
+    //INFO("debug", "XML: writing content -> %s\n", content);
     TiXmlText * text_content = new TiXmlText( EncodeBase64(content) );
     
     if (element_name)
@@ -86,12 +86,12 @@ void XMLReadMessage(const char *str, string& name, string& content)
             if (elemName == "name")
             {
                 name = DecodeBase64(text->Value());
-                INFO("debug", "XML: reading name -> %s\n", name.c_str());
+                //INFO("debug", "XML: reading name -> %s\n", name.c_str());
             }
             else if (elemName == "content")
             {
                 content = DecodeBase64(text->Value());
-                INFO("debug", "XML: reading content -> %s\n", content.c_str());
+                //INFO("debug", "XML: reading content -> %s\n", content.c_str());
             }
         }
      }
@@ -111,13 +111,13 @@ std::string XMLBuildUpdate(const char* name, const char* status)
     TiXmlElement * element = new TiXmlElement( "update" );
     
     TiXmlElement * element_name = new TiXmlElement( "name" );
-    INFO("debug", "XML: writing name -> %s\n", name);
+    //INFO("debug", "XML: writing name -> %s\n", name);
     TiXmlText * text_name = new TiXmlText( EncodeBase64(name) );
 
     element->LinkEndChild( element_name );
     element_name->LinkEndChild( text_name );
     
-    INFO("debug", "XML: writing status -> %s\n", status);
+    //INFO("debug", "XML: writing status -> %s\n", status);
     element_name->SetAttribute("status", EncodeBase64(status));
     
     doc.LinkEndChild( decl );
@@ -158,7 +158,7 @@ void XMLReadUpdate(const char *str, string& name, string& status)
             if (attr != NULL)
             {
                 status = DecodeBase64(attr);
-                INFO("debug", "XML: reading status -> %s\n", status.c_str());
+                //INFO("debug", "XML: reading status -> %s\n", status.c_str());
             }
         }
         
@@ -173,7 +173,7 @@ void XMLReadUpdate(const char *str, string& name, string& status)
             if (elemName == "name")
             {
                 name = DecodeBase64(text->Value());
-                INFO("debug", "XML: reading name -> %s\n", name.c_str());
+                //INFO("debug", "XML: reading name -> %s\n", name.c_str());
             }
         }
      }

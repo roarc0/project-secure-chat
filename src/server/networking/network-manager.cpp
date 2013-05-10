@@ -54,9 +54,9 @@ class NetworkThread: public MethodRequest
                         INFO("debug", "NETWORK_THREAD: receiving packet event\n");
                         pkt = net_ses.first->RecvPacketFromSocket(buffer);
                         if (pkt)
-                        {   
+                        {
                             INFO("debug", "NETWORK_THREAD: packet queued in elaboration queue.\n");          
-                            net_ses.first->QueuePacket(pkt);
+                            net_ses.first->QueuePacket(pkt);    
                         }
                         else
                             INFO("debug", "NETWORK_THREAD: WARNING can't send NULL packet\n");

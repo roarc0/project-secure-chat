@@ -291,6 +291,23 @@ void Session::HandleLeaveChannel(Packet& packet)
     SendToGui((const char*)msg.c_str(), name, 'l');    
 }
 
+/*
+void Session::HandleUpdateKey(Packet& packet)
+{
+    INFO ("debug", "SESSION: Handle update key\n");
+    
+    ByteBuffer s_key;
+    GenerateRandomKey(s_key, 32);
+    
+    Packet data(CMSG_UPDATEKEY, 32);
+    data.append(s_key);
+    SendPacketToSocket(&data);  
+    
+    Xor(s_key, (const ByteBuffer) packet);
+    SetEncryption(s_key, ENC_AES256); 
+}
+*/
+
 void Session::HandleLogin(Packet& packet)
 {
     INFO ("debug", "SESSION: LOGIN procedure\n");    

@@ -35,4 +35,7 @@ SessionActiveLimit = 100
 
 SessionQueueLimit = 50
 
-rsa_key_prefix = "../etc/keys/server"
+rsa_prefix = "../etc/keys/"
+rsa_my_keys = "server"
+rsa_client_pub_key = "client_"
+

@@ -61,13 +61,11 @@ struct gui_res
     GtkWidget *button_send;
 } gres;
 
-
 void push_status_bar(const gchar*);
 void add_message_to_chat(gpointer data, gchar *str, gchar type);
 void add_user_to_list(gpointer data, gchar *str, gchar *lev);
 void remove_user_from_list(gpointer data, const gchar *str);
 bool request_auth(gpointer parent);
-
 
 void* GuiThread(void* arg)
 {
@@ -182,10 +180,9 @@ GdkPixbuf *reduce_pixbuf(GdkPixbuf * pixbuf, gint x, gint y)
     return pixbuf_reduced;
 }
 
-
 void show_about()
 {
-  GdkPixbuf *pixbuf = reduce_pixbuf(create_pixbuf(GUI_ICON),128,128);
+  GdkPixbuf *pixbuf = reduce_pixbuf(create_pixbuf(GUI_ICON), 96, 96);
 
   GtkWidget *dialog = gtk_about_dialog_new();
   gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), _REVISION);
@@ -302,26 +299,24 @@ void select_font(gpointer parent)
     gtk_widget_destroy(dialog);
 }
 
-// TODO update
 void show_message(gchar *message)
 {
-   GtkWidget *dialog, *label;
-
-   dialog = gtk_dialog_new_with_buttons (_REVISION,
+   GtkWidget *dialog = gtk_dialog_new_with_buttons (_REVISION,
                                          0,
                                          GTK_DIALOG_DESTROY_WITH_PARENT,
                                          GTK_STOCK_OK,
                                          GTK_RESPONSE_NONE,
                                          NULL);
-   label = gtk_label_new (message);
-
+                                         
+   GtkWidget *content_area = gtk_dialog_get_content_area (GTK_DIALOG (dialog));
+   GtkWidget *label = gtk_label_new (message);
    g_signal_connect_swapped (dialog,
                              "response",
                              G_CALLBACK (gtk_widget_destroy),
                              dialog);
-   //gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
-   //                   label);
+   gtk_container_add (GTK_CONTAINER (content_area), label);
    gtk_widget_show_all (dialog);
+   gtk_widget_destroy(dialog);
 }
 
 void on_destroy(gpointer user_data)
@@ -474,47 +469,15 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type)
     //pthread_mutex_unlock(&mutex_guichange);
 }
 
-void button_send_click(gpointer data, gchar *str, gchar type)
+void button_send_click(gpointer data, gchar *str, gchar type) // TODO spostare tutti i controlli in client_core
 {
     Message_t msg;
     gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(gres.text_entry));
 
-    if (strlen(text) == 0 || !c_core->GetSession()->IsConnected()) // TODO check max length
-        return;
-        
-    msg.timestamp = true;    
-    msg.data = text;
-    msg.user = *(c_core->GetSession()->GetUsername());
-    
-    if ((text[0] != '\\') || (strncmp(text, "\\send", 5) == 0))
+    if (c_core->HandleSend(text))
     {
-        msg.type='M';
+        gtk_entry_set_text (GTK_ENTRY(gres.text_entry), "");
     }
-    else if (strncmp(text, "\\whisp", 6) == 0)
-    {
-        msg.type='W';
-    }
-    else
-    {
-        msg.timestamp = false;    
-        msg.user = "";
-        msg.type='e';
-    }
-    
-    c_core->AddMessage(msg.data, msg.user, msg.type, msg.timestamp); /* TODO get message add lock!! */
-    c_core->SignalEvent();
-
-    if (!c_core->HandleSend(text))
-    {
-        msg.data="Send failed!\n";
-        msg.type = 'e';
-        msg.timestamp = false;
-        c_core->AddMessage(msg.data, "", msg.type, msg.timestamp);
-        c_core->SignalEvent();
-        return;
-    }
-
-    gtk_entry_set_text (GTK_ENTRY(gres.text_entry), "");
 }
 
 void push_status_bar(const gchar *str)

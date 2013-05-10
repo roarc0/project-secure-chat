@@ -10,7 +10,6 @@ int main(int argc, char** argv)
 
     Init(argc, argv);
 
-    //c_core->TestRsa(); /* test on connection */
     main_gui(argc, argv);
 
     return 0;

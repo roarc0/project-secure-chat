@@ -226,6 +226,14 @@ int AesDecrypt(const ByteBuffer &key,
         return 0;
 }
 
+void RsaPrintError()
+{
+    char str2[256];  /* Horror Show */
+    ERR_load_crypto_strings();
+    ERR_error_string(ERR_get_error(), str2);
+    INFO("debug","CRYPTO: %s\n", str2);
+}
+
 RSA* RsaPubKey(const char* str)
 {
     assert(str);
@@ -241,7 +249,7 @@ RSA* RsaPubKey(const char* str)
     }
     else
     {
-        FILE* fp = fopen(str, "r");
+        FILE* fp = fopen(str, "rb");
 
         if(!fp)
           return NULL;
@@ -252,7 +260,9 @@ RSA* RsaPubKey(const char* str)
         fclose(fp);
     }
     
-    INFO("debug","CRYPTO: %d bit public key loaded\n", RSA_size(key) * 8);
+    if(key)
+        INFO("debug","CRYPTO: %d bit public key loaded\n", RSA_size(key) * 8);
+    
     return key;
 }
 
@@ -262,14 +272,19 @@ RSA* RsaPrivKey(const char* str, const char* password = NULL)
     assert(str);
     RSA * key = NULL;
         
-    FILE* fp = fopen(str, "r");
+    FILE* fp = fopen(str, "rb");
 
     if(!fp)
       return NULL;
-
+    
     INFO("debug","CRYPTO: reading private key from file: \"%s\"\n", str);
     PEM_read_RSAPrivateKey(fp, &key, NULL, (void*) password);
-    INFO("debug","CRYPTO: %d bit private key loaded\n", RSA_size(key) * 8);
+    
+    if(key)
+        INFO("debug","CRYPTO: %d bit private key loaded\n", RSA_size(key) * 8);
+    else
+        RsaPrintError();
+  
     fclose(fp);
 
     return key;
@@ -296,11 +311,7 @@ int RsaEncrypt(const std::string key_str,
                                  (unsigned char*)plaintext.contents(),
                                  buf, key, RSA_PKCS1_OAEP_PADDING)) == -1)
     {
-        ERR_load_crypto_strings();
-        //err = (char*) malloc(130*sizeof(char));
-        ERR_error_string(ERR_get_error(), err);
-        INFO("debug","CRYPTO: error encrypting message\n"); //: %s\n", err);
-        delete[] err;
+        RsaPrintError();
     }
    else
     {
@@ -313,13 +324,13 @@ int RsaEncrypt(const std::string key_str,
 }
 
 int RsaDecrypt(const std::string key_str,
-               const char* /*password*/,
+               const char* password,
                const ByteBuffer &ciphertext,
                ByteBuffer &plaintext)
 {
     int ret = 0;
     char *err = NULL;
-    RSA *key = RsaPrivKey(key_str.c_str());
+    RSA *key = RsaPrivKey(key_str.c_str(), password);
     unsigned char *buf;
     
     if(!key)
@@ -334,11 +345,7 @@ int RsaDecrypt(const std::string key_str,
                                  (unsigned char*)ciphertext.contents(),
                                  buf, key, RSA_PKCS1_OAEP_PADDING)) == -1)
     {
-        ERR_load_crypto_strings();
-        //err = (char*) malloc(130*sizeof(char));
-        ERR_error_string(ERR_get_error(), err);
-        INFO("debug","CRYPTO: error decrypting message\n"); //: %s\n", err);
-        delete[] err;
+        RsaPrintError();
     }
     else
     {
@@ -354,6 +361,8 @@ bool RsaTest(const char* pem_file,
              const char* pub_file,
              const char* pwd)
 {
+    CryptoInit();
+
     if(!pem_file || !pub_file)
         return false;
 

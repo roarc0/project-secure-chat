@@ -167,9 +167,10 @@ void ClientCore::SignalEvent()
     pthread_cond_signal(&cond_event);
 }
 
-void ClientCore::TestRsa()
+bool ClientCore::TestRsa()
 {
     string pub_file, pem_file;
+    bool res;
     
     pem_file = pub_file = CFG_GET_STRING("rsa_prefix") + 
                       CFG_GET_STRING("rsa_my_keys") +
@@ -177,10 +178,12 @@ void ClientCore::TestRsa()
     pem_file += ".pem";
     pub_file += ".pub";
     
-    INFO("debug", "MAIN: TESTING RSA KEYS\n");
+    INFO("debug", "CLIENT_CORE: TESTING RSA KEYS\n");
     
-    if(RsaTest(pem_file.c_str(), pub_file.c_str(), NULL))
-        INFO("debug", "MAIN: RSA TEST SUCCEEDED\n\n");
+    if(res = RsaTest(pem_file.c_str(), pub_file.c_str(), GetSession()->GetPassword()))
+        INFO("debug", "CLIENT_CORE: RSA TEST SUCCEEDED\n\n");
     else
-        INFO("debug", "MAIN: RSA TEST FAILED\n\n");
+        INFO("debug", "CLIENT_CORE: RSA TEST FAILED\n\n");
+    
+    return res;
 }

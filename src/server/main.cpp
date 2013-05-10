@@ -11,8 +11,11 @@ int main(int /*argc*/, char** /*argv*/)
 
     init_config("../etc/psc-server.conf");
 
-    string pub_file =  CFG_GET_STRING("rsa_key_prefix") + ".pub";
-    string pem_file = CFG_GET_STRING("rsa_key_prefix") + ".pem";
+    string pub_file = CFG_GET_STRING("rsa_prefix") + 
+                      CFG_GET_STRING("rsa_my_keys") + ".pub";
+    string pem_file = CFG_GET_STRING("rsa_prefix") + 
+                      CFG_GET_STRING("rsa_my_keys") + ".pem";
+    
     INFO("debug", "MAIN: TESTING RSA KEYS\n");
     
     if(RsaTest(pem_file.c_str(), pub_file.c_str(), NULL))

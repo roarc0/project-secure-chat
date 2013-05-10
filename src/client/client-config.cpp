@@ -13,7 +13,9 @@ void init_config(string filename)
     CFG->add_string("username", "user");
     CFG->add_string("password", "default");
     
-    CFG->add_string("rsa_key_prefix", "../etc/keys/client_");
+    CFG->add_string("rsa_prefix", "../etc/keys/");
+    CFG->add_string("rsa_my_keys", "client_");
+    CFG->add_string("rsa_server_pub_key", "server");
     
     CFG->add_string("chat_font", "Arial 10");
     CFG->add_string("chat_bg", "#fff");
@@ -31,8 +33,6 @@ void init_config(string filename)
 
 void post_init_config()
 {
-    cout << "CONFIG: log_path: " << CFG_GET_STRING("log_path") << endl;
-
     if (!dir_exists(CFG_GET_STRING("log_path")))
         mkdir(CFG_GET_STRING("log_path").c_str(), 0777);
     else

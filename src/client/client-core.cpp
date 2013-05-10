@@ -24,7 +24,7 @@ void* CoreThread(void* arg)
              CFG_GET_INT("server_port"), e.what());
         session->SetConnected(false);
         session->ResetSocket();
-        c_core->SignalEvent(); // disconnection Event on error
+        c_core->GetSession()->SendToGui("Disconnected!", "", 'e');
     }
 
     pthread_exit(NULL);
@@ -73,14 +73,56 @@ bool ClientCore::Disconnect()
     return ret;
 }
 
-bool ClientCore::HandleSend(const char* msg)
+bool ClientCore::HandleSend(const char* text)
 {
-    return session->HandleSend(msg);
+    char type;
+    bool good = true;
+    string username = *(c_core->GetSession()->GetUsername());
+    string msg = text;
+    
+    if (strlen(text) == 0 || !GetSession()->IsConnected())
+    {
+        return false;
+    }
+    else if (strlen(text) >= 65000 )
+    {
+        text = "message is too long";
+        username = "";
+        type = 'e';
+        good = false;
+    }
+    else if ((text[0] != '\\') || (strncmp(text, "\\send", 5) == 0))
+    {
+        type = 'M';
+    }
+    else if (strncmp(text, "\\whisp", 6) == 0)
+    {
+        type = 'W';
+    }
+    else
+    {
+        username = "";
+        type = 'e';
+    }
+    
+    GetSession()->SendToGui(text, username, type);
+    
+    if(!good)
+        return false;
+     
+    good = session->HandleSend(msg.c_str());
+    
+    if (!good)
+    {
+        GetSession()->SendToGui("Send Failed!", "", 'e');
+    }
+    
+    return good;
 }
 
 void ClientCore::HandleRecv()
 {
-    session->Update();    
+    session->Update();  
 }
 
 bool ClientCore::EmptyEvents()

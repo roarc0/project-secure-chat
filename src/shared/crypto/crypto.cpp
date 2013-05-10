@@ -226,33 +226,48 @@ int AesDecrypt(const ByteBuffer &key,
         return 0;
 }
 
-RSA* RsaPubKeyFromFile(const char* filename)
+RSA* RsaPubKey(const char* str)
 {
-    assert(filename);
+    assert(str);
     RSA * key = NULL;
-    FILE* fp = fopen(filename, "r");
+    const char* key_prefix = "-----BEGIN PUBLIC KEY-----";
 
-    if(!fp)
-      return NULL;
+    if (strncmp(str, key_prefix, strlen(key_prefix)) == 0)
+    {
+        BIO *bio = BIO_new_mem_buf((void*)str, -1);
+        INFO("debug","CRYPTO: reading public key from string\n");
+        key = PEM_read_bio_RSA_PUBKEY(bio, 0, 0, 0); 
+        BIO_free(bio);
+    }
+    else
+    {
+        FILE* fp = fopen(str, "r");
 
-    INFO("debug","CRYPTO: reading public key: \"%s\"\n", filename);
-    PEM_read_RSA_PUBKEY(fp, &key, NULL, NULL); // RSAPublicKey
+        if(!fp)
+          return NULL;
+
+        INFO("debug","CRYPTO: reading public key from file: \"%s\"\n", str);
+        PEM_read_RSA_PUBKEY(fp, &key, NULL, NULL);
+        
+        fclose(fp);
+    }
+    
     INFO("debug","CRYPTO: %d bit public key loaded\n", RSA_size(key) * 8);
-    fclose(fp);
-
     return key;
 }
 
-RSA* RsaPrivKeyFromFile(const char* filename, const char* password = NULL)
+
+RSA* RsaPrivKey(const char* str, const char* password = NULL)
 {
-    assert(filename);
+    assert(str);
     RSA * key = NULL;
-    FILE* fp = fopen(filename, "r");
+        
+    FILE* fp = fopen(str, "r");
 
     if(!fp)
       return NULL;
 
-    INFO("debug","CRYPTO: reading private key: \"%s\"\n", filename);
+    INFO("debug","CRYPTO: reading private key from file: \"%s\"\n", str);
     PEM_read_RSAPrivateKey(fp, &key, NULL, (void*) password);
     INFO("debug","CRYPTO: %d bit private key loaded\n", RSA_size(key) * 8);
     fclose(fp);
@@ -260,13 +275,13 @@ RSA* RsaPrivKeyFromFile(const char* filename, const char* password = NULL)
     return key;
 }
 
-int RsaEncrypt(const std::string key_filename,
+int RsaEncrypt(const std::string key_str,
                const ByteBuffer &plaintext,
                ByteBuffer &ciphertext)
 {
     int ret = 0;
     char *err = NULL;
-    RSA *key = RsaPubKeyFromFile(key_filename.c_str());
+    RSA *key = RsaPubKey(key_str.c_str());
     unsigned char *buf;
     
     if(!key)
@@ -297,14 +312,14 @@ int RsaEncrypt(const std::string key_filename,
     return ret;
 }
 
-int RsaDecrypt(const std::string key_filename,
+int RsaDecrypt(const std::string key_str,
                const char* /*password*/,
                const ByteBuffer &ciphertext,
                ByteBuffer &plaintext)
 {
     int ret = 0;
     char *err = NULL;
-    RSA *key = RsaPrivKeyFromFile(key_filename.c_str());
+    RSA *key = RsaPrivKey(key_str.c_str());
     unsigned char *buf;
     
     if(!key)

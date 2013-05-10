@@ -3,12 +3,8 @@
 
 #include "common.h"
 
-void   init_config(string);
-void   post_init_config();
-void   check_config();
-void   init_log_profiles();
+#define DEFAULT_CONFIG "../etc/psc-server.conf"
 
-int    load_args(int argc, char **argv);
-void   help_args();
+void Init(int argc, char **argv);
 
 #endif

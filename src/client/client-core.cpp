@@ -166,3 +166,21 @@ void ClientCore::SignalEvent()
 {
     pthread_cond_signal(&cond_event);
 }
+
+void ClientCore::TestRsa()
+{
+    string pub_file, pem_file;
+    
+    pem_file = pub_file = CFG_GET_STRING("rsa_prefix") + 
+                      CFG_GET_STRING("rsa_my_keys") +
+                      *(GetSession()->GetUsername());
+    pem_file += ".pem";
+    pub_file += ".pub";
+    
+    INFO("debug", "MAIN: TESTING RSA KEYS\n");
+    
+    if(RsaTest(pem_file.c_str(), pub_file.c_str(), NULL))
+        INFO("debug", "MAIN: RSA TEST SUCCEEDED\n\n");
+    else
+        INFO("debug", "MAIN: RSA TEST FAILED\n\n");
+}

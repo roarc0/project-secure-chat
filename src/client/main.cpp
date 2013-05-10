@@ -8,9 +8,9 @@ int main(int argc, char** argv)
 {
     welcome();
 
-    init_config("../etc/psc-client.conf");
+    Init(argc, argv);
 
-    c_core;
+    //c_core->TestRsa(); /* test on connection */
     main_gui(argc, argv);
 
     return 0;

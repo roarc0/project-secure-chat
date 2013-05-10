@@ -413,9 +413,13 @@ void remove_user_from_list(gpointer data, const gchar *str)
 void scroll_down(GtkWidget *scrolled)
 {
     assert(scrolled);
-    GtkAdjustment* adjustment;
-    adjustment = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled));
-    gtk_adjustment_set_value(adjustment, gtk_adjustment_get_upper(adjustment));
+    GtkAdjustment* adjustment = 
+        gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled));
+    
+    gdouble val = gtk_adjustment_get_upper(adjustment) - 
+                  gtk_adjustment_get_page_size(adjustment);
+    
+    gtk_adjustment_set_value(adjustment, val);
 }
 
 void add_message_to_chat(gpointer data, gchar *str, gchar type)

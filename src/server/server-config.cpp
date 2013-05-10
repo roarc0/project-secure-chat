@@ -1,6 +1,20 @@
 #include "server-config.h"
 
-void init_config(string filename)
+void HelpArgs()
+{
+    cout << "help: " << endl;
+    cout << "-h                  :  help" << endl;
+    cout << "-d                  :  debug mode on" << endl;
+    cout << "-c <filename>       :  alternative config filename" << endl;
+    cout << endl;
+}
+
+void CheckConfig()
+{
+
+}
+
+void InitConfig(string filename)
 {
     if (!file_exists(filename.c_str()))
         cout << "config file <" << filename << "> does not exists!" << endl;
@@ -23,10 +37,11 @@ void init_config(string filename)
     CFG->add_int("SessionQueueLimit", 50);
 
     CFG->open_cfg();
-    post_init_config();
+
+    CheckConfig();
 }
 
-void post_init_config()
+void InitLog()
 {
     if (!dir_exists(CFG_GET_STRING("log_path")))
         mkdir(CFG_GET_STRING("log_path").c_str(), 0777);
@@ -37,12 +52,6 @@ void post_init_config()
         int ret = system(str.str().c_str());
     }
 
-    check_config();
-    init_log_profiles();
-}
-
-void init_log_profiles()
-{
     log_profile *l_profile;
 
     if (CFG_GET_BOOL("debug"))
@@ -60,30 +69,31 @@ void init_log_profiles()
     }
 }
 
-int load_args(int argc, char **argv)
+void Init(int argc, char **argv)
 {
-    int opt/*, tmp_i*/;
+    int opt;
+    bool init_config_done = false;
     opterr = 0;
 
     while ((opt = getopt (argc, argv, "c:hd")) != -1)
         switch (opt)
         {
             case 'h':
-                help_args();
+                HelpArgs();
                 exit(0);
             break;
             case 'd':
                 // debug true
             break;
             case 'c':
-                // new config file = optarg;
                 if (!file_exists(optarg))
                 {
-                    cout << "config file " << optarg << " does not exists!" << endl;
-                    exit(1);
+                    cout << "CONFIG: config file " << optarg << " does not exists!" << endl;
+                    break;
                 }
-                cout << "* loading config from " << optarg << endl; //TODO INFO
-                init_config(optarg);
+                cout << "CONFIG: loading config from " << optarg << endl; //TODO INFO
+                InitConfig(optarg);
+                init_config_done = true;
             break;
             case '?':
                 if (optopt == 'c')
@@ -100,25 +110,10 @@ int load_args(int argc, char **argv)
     for (int index = optind; index < argc; index++)
         cout << "non-option argument " << argv[index] << endl;
 
-    post_init_config();
-
-    return 0;
-}
-
-void help_args()
-{
-    cout << "help: " << endl;
-    cout << "-h                  :  help" << endl;
-    cout << "-d                  :  debug mode on" << endl;
-    cout << "-c <filename>       :  alternative config filename" << endl;
-    cout << endl;
-}
-
-void check_config() // TODO inserire controlli
-{
-    /*if (CFG_GET_INT("thread_slots") <= 0)
+    if(!init_config_done)
     {
-        //set_thread_slot_to -->>> = sysconf( _SC_NPROCESSORS_ONLN ) + 1;
-    }*/
+        InitConfig(DEFAULT_CONFIG);
+    }
 
+    InitLog();
 }

@@ -16,4 +16,4 @@ doc.aux
 doc.synctex.gz
 doc.toc
 doc.pdf
-build/*
+data/keys/**

@@ -13,7 +13,7 @@ class Session : public SessionBase
 {
     SocketClient* c_Socket;
     string        s_pwd;
-    string        f_key_pub, f_key_priv;
+    string        f_key_pub, f_key_priv, f_server_key_pub;
   public:
     Session();
     ~Session();

@@ -113,8 +113,12 @@ void Session::UpdateKeyFilenames()
        string file = CFG_GET_STRING("rsa_prefix") +
                      CFG_GET_STRING("rsa_my_keys") +
                      *(GetUsername());
+       
        f_key_priv = file + ".pem";
        f_key_pub  = file + ".pub";
+       
+       f_server_key_pub = CFG_GET_STRING("rsa_prefix") +
+                          CFG_GET_STRING("rsa_server_pub_key") + ".pub";
 }
 
 bool Session::TestRsa()

@@ -23,32 +23,32 @@ class Session : public SessionBase
 
     bool Update();    
 
-    void HandleClientSide(Packet& /*packet*/);    
-    void HandlePing(Packet& /*packet*/);
-    void HandleMessage(Packet& /*packet*/);
-    void HandleServerMessage(Packet& /*packet*/);
-    void HandleJoinChannel(Packet& /*packet*/);
-    void HandleLeaveChannel(Packet& /*packet*/);
+    void HandleClientSide(Packet&);    
+    void HandlePing(Packet&);
+    void HandleMessage(Packet&);
+    void HandleServerMessage(Packet&);
+    void HandleJoinChannel(Packet&);
+    void HandleLeaveChannel(Packet&);
+    void HandleUpdateKey(Packet&);
     void HandleLogin(Packet& packet);
     bool HandleSend(const char* msg);
 
     const char* GetPassword();
     void SetPassword(const char *);
-    bool IsPasswordSet();
+    bool HavePassword();
     void ClearPassword();
     
     void SendToGui(std::string str, std::string nick, char type);
 
   private:
 
-    int _SendPacket(Packet& /*new_packet*/)
+    int _SendPacket(Packet&)
     { 
-        INFO("debug","SESSION: _SendPacket NON DEVE ESSERE CHIAMATA\n");
+        INFO("debug","SESSION: _SendPacket must not be called here\n");
         return 0; 
     };
 
     bool Update(uint32 diff);
-    
 };
 
 #endif

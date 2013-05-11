@@ -15,19 +15,24 @@ Session::~Session()
     delete c_Socket;
 }
 
+int Session::_SendPacket(Packet&)
+{ 
+    INFO("debug","SESSION: _SendPacket must not be called here\n");
+    return 0; 
+}
+
 bool Session::Connect()
 {
     stringstream ss;
     ss << "Connected to " << CFG_GET_STRING("server_host")
        << ":" << CFG_GET_INT("server_port");
-    string str_connect = ss.str();
 
     try
     {
         c_Socket->Connect(CFG_GET_STRING("server_host"),
                           CFG_GET_INT("server_port"));
         SetConnected(true);                  
-        SendToGui(str_connect.c_str(), "",'e');
+        SendToGui(ss.str(), "",'e');
     }
     catch(SocketException &e)
     {
@@ -84,23 +89,48 @@ bool Session::Disconnect()
 
 const char* Session::GetPassword()
 {
-    return m_pwd.c_str();
+    return s_pwd.c_str();
 }
 
 void Session::SetPassword(const char * password)
 {
-    m_pwd = password;
+    s_pwd = password;
     INFO("debug", "SESSION: setting password\n");
 }
 
 bool Session::HavePassword()
 {
-    return !m_pwd.empty();
+    return !s_pwd.empty();
 }
 
 void Session::ClearPassword()
 {
-    m_pwd = "";
+    s_pwd = "";
+}
+
+void Session::UpdateKeyFilenames()
+{
+       string file = CFG_GET_STRING("rsa_prefix") +
+                     CFG_GET_STRING("rsa_my_keys") +
+                     *(GetUsername());
+       f_key_priv = file + ".pem";
+       f_key_pub  = file + ".pub";
+}
+
+bool Session::TestRsa()
+{
+    bool res;
+    
+    UpdateKeyFilenames();
+    
+    INFO("debug", "CLIENT_CORE: TESTING RSA KEYS\n");
+    
+    if(res = RsaTest(f_key_priv.c_str(), f_key_pub.c_str(), GetPassword()))
+        INFO("debug", "CLIENT_CORE: RSA TEST SUCCEEDED\n\n");
+    else
+        INFO("debug", "CLIENT_CORE: RSA TEST FAILED\n\n");
+    
+    return res;
 }
 
 void Session::ResetSocket()

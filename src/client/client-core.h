@@ -73,8 +73,6 @@ class ClientCore
     void AddMessage(const std::string& str, const std::string& nick,
                     char type, bool timestamp = true);
     
-    bool TestRsa();
-    
     friend class Singleton<ClientCore>;
     
     private:

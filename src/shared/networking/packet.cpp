@@ -77,7 +77,7 @@ Packet* Packet::Decapsulate()
         read_skip(size);
     }
     
-    INFO("debug","PACKET: packet decapsulate [contents %s]\n", new_pkt->contents());
+    //INFO("debug","PACKET: packet decapsulate [contents %s]\n", new_pkt->contents());
 
     return new_pkt;
 }

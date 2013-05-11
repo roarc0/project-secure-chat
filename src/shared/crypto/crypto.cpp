@@ -262,6 +262,8 @@ RSA* RsaPubKey(const char* str)
     
     if(key)
         INFO("debug","CRYPTO: %d bit public key loaded\n", RSA_size(key) * 8);
+    else
+        RsaPrintError();        
     
     return key;
 }

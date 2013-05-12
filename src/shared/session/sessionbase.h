@@ -37,6 +37,7 @@ class SessionBase
         virtual ~SessionBase();
 
         void Close();
+        virtual bool IsServer() { return false; };
 
         // THREADSAFE
         void QueuePacket(Packet* new_packet);
@@ -71,8 +72,9 @@ class SessionBase
         std::string username;
         SessionStatus s_status;
         SessionEncryption s_enc;
+
         ByteBuffer s_key, s_key_tmp;
-        
+        uint8 u_changekeys;
         Mutex m_mutex;
 
         LockQueue<Packet*> _recvQueue;

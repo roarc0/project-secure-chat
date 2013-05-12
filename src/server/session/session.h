@@ -12,6 +12,8 @@
 #  define ATTR_PRINTF(F, V)
 #endif //COMPILER == COMPILER_GNU
 
+#define MIN_SESSION_UPDATE_KEY_DELAY 60000
+
 class Session;
 class Channel;
 typedef counted_ptr<Session> Session_smart;
@@ -24,6 +26,7 @@ class Session : public SessionBase
         ~Session();
 
         bool Update(uint32 diff, PacketFilter& updater);
+        virtual bool IsServer() { return true; }
 
         // THREADUNSAFE        
         void SetId(uint32 id) { m_id = id; }
@@ -31,6 +34,7 @@ class Session : public SessionBase
         void deleteSmartPointer();
         void setChannel(SmartChannel pChan) { m_channel=(SmartChannel)pChan; }
         SmartChannel getChannel() { return m_channel; }
+        void GenerateNewKey(uint32 diff);
 
         // THREADSAFE 
         bool IsInChannel() { return m_channel.get() ? true : false; }        
@@ -48,19 +52,29 @@ class Session : public SessionBase
         void HandleLeaveChannel(Packet& packet); 
         void HandleListChannel(Packet& packet);
         void HandleLogin(Packet& packet);
+        void HandleUpdateKey(Packet&);
         
         void SendSysMessage(const char *str);
         void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2, 3);
+         void SetSessionKeyUpdateInterval(uint32 t)
+        {
+            if (t > MIN_SESSION_UPDATE_KEY_DELAY)
+                t = MIN_SESSION_UPDATE_KEY_DELAY;
+
+            i_timer_key.SetInterval(t);
+            i_timer_key.Reset();
+        };
  
     private:
 
         int _SendPacket(Packet& pct);
         int _SendPacket(Packet* pct);
-
+    
         uint32 m_id;
         Session_smart smartThis;
         bool m_inQueue;
         SmartChannel m_channel;
+        IntervalTimer i_timer_key; 
 };
 
 #endif

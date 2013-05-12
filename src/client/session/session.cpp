@@ -325,19 +325,35 @@ void Session::HandleLeaveChannel(Packet& packet)
     SendToGui((const char*)msg.c_str(), name, 'l');    
 }
 
-void Session::HandleUpdateKey(Packet& /*packet*/)
+void Session::HandleUpdateKey(Packet& packet)
 {
     INFO ("debug", "SESSION: Handle update key\n");
-    
-    ByteBuffer s_key;
-    GenerateRandomKey(s_key, 32);
-    
-    /*Packet data(CMSG_UPDATEKEY, 32);
-    data.append(s_key);
-    SendPacketToSocket(&data);  
-    
-    Xor(s_key, (const ByteBuffer) packet);
-    SetEncryption(s_key, ENC_AES256);*/
+
+    if (u_changekeys == 1)
+    {
+       SetEncryption(s_key_tmp, ENC_AES256);
+       u_changekeys = 0;  
+       
+       // TODO riattivare send
+    }
+    else
+    {
+        ByteBuffer s_key2;
+        GenerateRandomKey(s_key2, 32);
+
+        Packet data(CMSG_REFRESH_KEY, 32);
+        data.append(s_key2);
+        SendPacketToSocket(&data);  
+        
+        Xor(s_key2, (const ByteBuffer) packet);
+        
+        s_key_tmp.clear();
+        s_key_tmp.append(s_key2);
+
+        u_changekeys = 1;
+        
+        // TODO Bloccare send fino alla ricezione del pacchetto di ritorno
+    }
 }
 
 void Session::HandleLogin(Packet& packet)

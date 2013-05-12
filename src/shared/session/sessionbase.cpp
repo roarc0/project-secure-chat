@@ -6,6 +6,7 @@ SessionBase::SessionBase()
     m_Socket = NULL;
     s_status = STATUS_DISCONNECTED;
     s_enc = ENC_NONE;
+    u_changekeys = 0;
 }
 
 SessionBase::SessionBase(int pSock)
@@ -13,6 +14,7 @@ SessionBase::SessionBase(int pSock)
     m_Socket = new SocketBase(pSock);
     s_status = STATUS_CONNECTED;  
     s_enc = ENC_NONE;
+    u_changekeys = 0;
 }
 
 SessionBase::~SessionBase()
@@ -75,7 +77,8 @@ void SessionBase::SendPacketToSocket(Packet* new_packet, unsigned char* temp_buf
 
 int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
 {
-    //Lock guard(m_mutex);
+    if (IsServer())
+        Lock guard(m_mutex);
 
     INFO("debug", "SESSION_BASE: sending packet: \"%s\"\n", pkt.contents());
     unsigned char* rawData = NULL;
@@ -102,6 +105,20 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
         memcpy((void*)(rawData + header.getHeaderLength()), (char*) pct.contents(), pct.size());
 
         m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
+
+        // Per l'aggiornamento delle chiavi lato Server
+        if (IsServer() && pkt.GetOpcode() == SMSG_REFRESH_KEY)
+        {
+            if (u_changekeys == 1)
+            {
+               SetEncryption(s_key_tmp, ENC_AES256);
+               u_changekeys = 0;  
+            }
+            else
+            {
+                u_changekeys = 1;
+            }
+        }            
 
         if (!temp_buffer)
             delete[] rawData;
@@ -141,7 +158,8 @@ Packet* SessionBase::RecvPacketFromSocket(unsigned char* temp_buffer)
 
 Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
 {
-    Lock guard(m_mutex);
+    if (IsServer())
+        Lock guard(m_mutex);
     
     char header[HEADER_SIZE];
     unsigned char* buffer = NULL;

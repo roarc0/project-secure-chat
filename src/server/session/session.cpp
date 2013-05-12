@@ -9,6 +9,7 @@ Session::Session(int pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), m_channel(NULL)
 {
     username = "";
+    i_timer_key.SetInterval(60000); //TODO dal config
 }
 
 Session::~Session()
@@ -48,7 +49,7 @@ int Session::_SendPacket(Packet* pct)
 }
 
 
-bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
+bool Session::Update(uint32 diff, PacketFilter& updater)
 {
     Packet* packet = NULL;
     // To prevent infinite loop
@@ -56,8 +57,8 @@ bool Session::Update(uint32 /*diff*/, PacketFilter& updater)
     // Delete packet after processing by default
     bool deletePacket = true;
 
-    if (m_Socket->IsClosed())
-        INFO ("debug", "SESSION: socket closed\n");
+    if (m_Socket && !m_Socket->IsClosed() && updater.IsSingleSessionFilter())
+        GenerateNewKey(diff);
 
     while (m_Socket && !m_Socket->IsClosed() &&
             !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
@@ -157,6 +158,30 @@ void Session::SendWaitQueue(int position)
     Packet data(SMSG_QUEUE_POSITION, 4);
     data << uint32(position);
     SendPacket(&data);   
+}
+
+void Session::GenerateNewKey(uint32 diff)
+{
+    if (s_status != STATUS_AUTHENTICATED)
+        return;
+
+    i_timer_key.Update(diff);
+    if (!i_timer_key.Passed())
+        return;
+
+    INFO ("debug", "SESSION: Generate New Key\n");
+
+    // Scambio chiavi già in corso
+    if (u_changekeys == 1) 
+        return;
+
+    GenerateRandomKey(s_key_tmp, 32);
+
+    Packet data(SMSG_REFRESH_KEY, 32);
+    data.append(s_key_tmp);
+    SendPacketToSocket(&data);
+
+    i_timer_key.SetCurrent(0);
 }
 
 void Session::HandlePing(Packet& /*packet*/)
@@ -389,4 +414,14 @@ void Session::HandleLogin(Packet& packet)
             }
         break;
     }
+}
+
+void Session::HandleUpdateKey(Packet& packet)
+{
+    INFO ("debug", "SESSION: Handle update key\n");
+    
+    Xor(s_key_tmp, (const ByteBuffer) packet);
+
+    Packet data(SMSG_REFRESH_KEY, 0);
+    SendPacketToSocket(&data);
 }

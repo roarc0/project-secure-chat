@@ -10,6 +10,7 @@ public:
     explicit PacketFilter(SessionBase* pSession) : m_pSession(pSession) {}
     virtual ~PacketFilter() {}
 
+    virtual bool IsSingleSessionFilter() { return false; } 
     virtual bool Process(Packet* /*packet*/) { return true; }
     virtual bool ProcessLogout() const { return true; }
 
@@ -36,6 +37,7 @@ public:
     explicit SingleSessionFilter(SessionBase* pSession) : PacketFilter(pSession) {}
     ~SingleSessionFilter() {}
 
+    virtual bool IsSingleSessionFilter() { return true; } 
     virtual bool Process(Packet* packet);
 };
 

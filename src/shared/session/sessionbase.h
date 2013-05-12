@@ -61,6 +61,7 @@ class SessionBase
         void HandleNULL(Packet& /*packet*/);
         
         SocketBase* m_Socket; // TODO protected
+
     protected:
 
         virtual int _SendPacket(Packet& new_packet) = 0;

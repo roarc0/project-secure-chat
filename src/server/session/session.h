@@ -51,7 +51,7 @@ class Session : public SessionBase
         
         void SendSysMessage(const char *str);
         void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2, 3);
-  
+ 
     private:
 
         int _SendPacket(Packet& pct);

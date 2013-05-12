@@ -75,7 +75,7 @@ void SessionBase::SendPacketToSocket(Packet* new_packet, unsigned char* temp_buf
 
 int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
 {
-    Lock guard(m_mutex);
+    //Lock guard(m_mutex);
 
     INFO("debug", "SESSION_BASE: sending packet: \"%s\"\n", pkt.contents());
     unsigned char* rawData = NULL;

@@ -24,6 +24,8 @@ enum MessageTypes
     CMSG_CHANNEL_INFO,       
     CMSG_LOGIN,
     SMSG_LOGIN,
+    CMSG_REFRESH_KEY,
+    SMSG_REFRESH_KEY,
     
     NUM_MSG_TYPES,                                  
 };

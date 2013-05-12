@@ -11,7 +11,7 @@ void* CoreThread(void* arg)
 
     try
     {
-        while(session->IsConnected())
+        while (session->IsConnected())
         {
             c_core->HandleRecv();
             msleep(1);

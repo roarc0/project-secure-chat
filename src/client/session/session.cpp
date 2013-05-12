@@ -129,7 +129,7 @@ bool Session::TestRsa()
     
     INFO("debug", "CLIENT_CORE: TESTING RSA KEYS\n");
     
-    if(res = RsaTest(f_key_priv.c_str(), f_key_pub.c_str(), GetPassword()))
+    if ((res = RsaTest(f_key_priv.c_str(), f_key_pub.c_str(), GetPassword())))
         INFO("debug", "CLIENT_CORE: RSA TEST SUCCEEDED\n\n");
     else
         INFO("debug", "CLIENT_CORE: RSA TEST FAILED\n\n");
@@ -325,7 +325,7 @@ void Session::HandleLeaveChannel(Packet& packet)
     SendToGui((const char*)msg.c_str(), name, 'l');    
 }
 
-void Session::HandleUpdateKey(Packet& packet)
+void Session::HandleUpdateKey(Packet& /*packet*/)
 {
     INFO ("debug", "SESSION: Handle update key\n");
     

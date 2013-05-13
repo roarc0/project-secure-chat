@@ -24,7 +24,7 @@ void InitConfig(string filename)
     CFG->add_bool("log", false);
     CFG->add_string("log_path", "logs");
     CFG->add_int("server_port", 7777);
-    CFG->add_int("key_renew_interval", 900);
+    CFG->add_int("key_refresh_interval", 900);
     CFG->add_string("db_filename", "../etc/database.sqlite");
     
     CFG->add_string("rsa_prefix", "../etc/keys/");

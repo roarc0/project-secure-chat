@@ -1,7 +1,7 @@
 #include "networking/opcode.h"
 #include "session.h"
 
-// Devono essere allineati con opcode.h
+// must be aligned with opcode.h
 OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
 { 
     { "MSG_NULL_ACTION",             STATUS_NEVER,       PROCESS_INPLACE,           &Session::HandleNULL                           },
@@ -22,6 +22,6 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     { "CMSG_CHANNEL_INFO",           STATUS_LOGGED,      PROCESS_INPLACE,           &Session::HandleNULL                           },
     { "CMSG_LOGIN",                  STATUS_LOGGING,     PROCESS_THREADUNSAFE,      &Session::HandleLogin                          },
     { "SMSG_LOGIN",                  STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleServerSide                     },
-    { "CMSG_REFRESH_KEY",            STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleUpdateKey                      },
+    { "CMSG_REFRESH_KEY",            STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleRefreshKey                     },
     { "SMSG_REFRESH_KEY",            STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleServerSide                     }, 
 };

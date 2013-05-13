@@ -323,25 +323,41 @@ void ChatHandler::SendSysMessage(uint32 entry)
     SendSysMessage(ChatCommandErrorTable[entry].Error.c_str());
 }
 
-void ChatHandler::PSendSysMessage(const char *format, ...)
+void ChatHandler::PSendSysMessage(const char *fmt, ...)
 {
+    int ret;
+    char* buffer;
     va_list ap;
-    char str [2048];
-    va_start(ap, format);
-    vsnprintf(str, 2048, format, ap);
+    va_start(ap, fmt);
+    ret = vasprintf(&buffer, fmt, ap);
     va_end(ap);
-    SendSysMessage(str);
+
+    if (ret)
+    {
+        SendSysMessage(buffer);
+        free(buffer);
+    }
+    else
+        perror("vasprintf");  
 }
 
 void ChatHandler::PSendSysMessage(uint32 entry, ...)
 {
-    const char* format = ChatCommandErrorTable[entry].Error.c_str();
+    const char *fmt = ChatCommandErrorTable[entry].Error.c_str(); 
+    int ret;
+    char* buffer;
     va_list ap;
-    char str [2048];
     va_start(ap, entry);
-    vsnprintf(str, 2048, format, ap);
+    ret = vasprintf(&buffer, fmt, ap);
     va_end(ap);
-    SendSysMessage(str);
+
+    if (ret)
+    {
+        SendSysMessage(buffer);
+        free(buffer);
+    }
+    else
+        perror("vasprintf"); 
 }
 
 bool ChatHandler::HandleCommandsCommand(const char* /*args*/)

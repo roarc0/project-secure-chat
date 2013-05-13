@@ -9,7 +9,7 @@ Session::Session(int pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), m_channel(NULL)
 {
     username = "";
-    i_timer_key.SetInterval(60000); //TODO dal config
+    InitKeyUpdateInterval();
 }
 
 Session::~Session()
@@ -48,6 +48,20 @@ int Session::_SendPacket(Packet* pct)
     return 0;
 }
 
+void Session::InitKeyUpdateInterval()
+{
+    int r = CFG_GET_INT("key_refresh_interval");
+    if ( r < MIN_REFRESH_KEY_INTERVAL )
+    {
+        INFO("debug", "SESSION: selected %d seconds key refresh interval is too low.\n", r);
+        r = MIN_REFRESH_KEY_INTERVAL;
+    }
+    
+    i_timer_key.SetInterval(r * 1000);
+    i_timer_key.Reset();
+                
+    INFO("debug", "SESSION: setting key refresh interval to %d seconds.\n", r);
+};
 
 bool Session::Update(uint32 diff, PacketFilter& updater)
 {
@@ -322,7 +336,6 @@ void Session::HandleLeaveChannel(Packet& /*packet*/)
         return;
     }
 
-    // Rimuovere dal canale
     getChannel()->RemoveSession(GetId());
     setChannel(SmartChannel(NULL));
 
@@ -400,8 +413,7 @@ void Session::HandleLogin(Packet& packet)
                 Xor(s_key, packet);
                 SetEncryption(s_key, ENC_AES256);
                 
-                INFO("debug", "\nKEY :\n");
-                s_key.hexlike();
+                INFO("debug", "SESSION: key established\n");
                 
                 s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
             }
@@ -416,9 +428,9 @@ void Session::HandleLogin(Packet& packet)
     }
 }
 
-void Session::HandleUpdateKey(Packet& packet)
+void Session::HandleRefreshKey(Packet& packet)
 {
-    INFO ("debug", "SESSION: Handle update key\n");
+    INFO ("debug", "SESSION: handle refresh key\n");
     
     Xor(s_key_tmp, (const ByteBuffer) packet);
 

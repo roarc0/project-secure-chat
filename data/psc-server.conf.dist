@@ -5,9 +5,9 @@ db_filename = "../etc/database.sqlite"
 
 server_port = 7777
 
-#    key_renew_interval: Number of seconds before renewing the session key.
+#    key_refresh_interval: Number of seconds before renewing the session key.
 #         Default:    900
-key_renew_interval = 900
+key_refresh_interval = 900
 
 #    ThreadNet: Number of threads for network.
 #         Default:    2

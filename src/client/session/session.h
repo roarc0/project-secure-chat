@@ -30,7 +30,7 @@ class Session : public SessionBase
     void HandleServerMessage(Packet&);
     void HandleJoinChannel(Packet&);
     void HandleLeaveChannel(Packet&);
-    void HandleUpdateKey(Packet&);
+    void HandleRefreshKey(Packet&);
     void HandleLogin(Packet& packet);
     bool HandleSend(const char* msg);
 

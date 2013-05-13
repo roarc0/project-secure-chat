@@ -325,9 +325,9 @@ void Session::HandleLeaveChannel(Packet& packet)
     SendToGui((const char*)msg.c_str(), name, 'l');    
 }
 
-void Session::HandleUpdateKey(Packet& packet)
+void Session::HandleRefreshKey(Packet& packet)
 {
-    INFO ("debug", "SESSION: Handle update key\n");
+    INFO ("debug", "SESSION: Handle refresh key\n");
 
     if (u_changekeys == 1)
     {

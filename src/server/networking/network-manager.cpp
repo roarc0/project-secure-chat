@@ -65,7 +65,7 @@ class NetworkThread: public MethodRequest
                 catch(SocketException e)
                 {
                     INFO("debug", "NETWORK_THREAD: %s , closing socket\n", e.what());
-                    net_ses.first->m_Socket->CloseSocket();
+                    net_ses.first->Close();
                 }
             }
             

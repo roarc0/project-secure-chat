@@ -51,7 +51,7 @@ Packet* SessionBase::GetPacketToSend()
         return NULL;
 
     Packet* pkt = NULL;
-    _sendQueue.next(pkt); // TODO usare i ritorni a funzione
+    _sendQueue.next(pkt);
     return pkt;
 }
 
@@ -87,17 +87,32 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
     {
         Packet pct(0); // TODO inserire header appositi
         pct.Incapsulate(pkt);
-
+        
+        INFO("debug", "SESSION_BASE: encrypting packet  <%d bytes>\n", pct.size());
+        
         if (IsEncrypted() && pct.size())
         {
-            INFO("debug", "SESSION_BASE: encrypting packet  <%d bytes>\n", pct.size());
-            pct.Encrypt(s_key);
+            ByteBuffer par;
+
+            switch (s_enc)
+            {
+                case ENC_AES128:
+                case ENC_AES256:
+                    par = s_key;
+                break;
+                case ENC_RSA:
+                    /*par << password << pub;*/
+                break; 
+                    
+            }
+
+            pct.Encrypt(par);
         }
        
         PktHeader header(pct.GetOpcode(), pct.size());
         
         if (!temp_buffer)
-            rawData = new unsigned char[header.getHeaderLength() + pct.size() + 1]; // il + 1 non ci serve ?!
+            rawData = new unsigned char[header.getHeaderLength() + pct.size() + 1];
         else 
             rawData = temp_buffer;
 
@@ -106,7 +121,6 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
 
         m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
 
-        // Per l'aggiornamento delle chiavi lato Server
         if (IsServer() && pkt.GetOpcode() == SMSG_REFRESH_KEY && u_changekeys == 1)
         {
            SetEncryption(s_key_tmp, ENC_AES256);
@@ -198,9 +212,21 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
 
             if (IsEncrypted() && pkt_head.getSize())
             {
-                //INFO("debug", "SESSION_BASE: decrypting packet\n");
-                pct->Decrypt(s_key);
-                //INFO("debug", "SESSION_BASE: packet decrypted\n");
+                ByteBuffer par;
+
+                switch (s_enc)
+                {
+                    case ENC_AES128:
+                    case ENC_AES256:
+                        par = s_key;
+                    break;
+                    case ENC_RSA:
+                        /*par << password << priv;*/
+                    break; 
+                        
+                }
+            
+                pct->Decrypt(par);
             }
 
             INFO("debug","SESSION_BASE: packet content:\n");

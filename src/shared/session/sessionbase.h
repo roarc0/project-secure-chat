@@ -15,7 +15,8 @@ enum SessionEncryption
 {
     ENC_NONE = 0,
     ENC_AES128,
-    ENC_AES256
+    ENC_AES256,
+    ENC_RSA
 };
 
 enum SessionStatus
@@ -61,10 +62,9 @@ class SessionBase
 
         void HandleNULL(Packet& /*packet*/);
         
-        SocketBase* m_Socket; // TODO protected
-
+        SocketBase* m_Socket;
+        
     protected:
-
         virtual int _SendPacket(Packet& new_packet) = 0;
         int _SendPacketToSocket(Packet& pct, unsigned char* temp_buffer = NULL);
         Packet* _RecvPacketFromSocket(unsigned char* temp_buffer = NULL);

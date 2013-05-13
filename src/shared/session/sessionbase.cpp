@@ -107,18 +107,11 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
         m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
 
         // Per l'aggiornamento delle chiavi lato Server
-        if (IsServer() && pkt.GetOpcode() == SMSG_REFRESH_KEY)
+        if (IsServer() && pkt.GetOpcode() == SMSG_REFRESH_KEY && u_changekeys == 1)
         {
-            if (u_changekeys == 1)
-            {
-               SetEncryption(s_key_tmp, ENC_AES256);
-               u_changekeys = 0;  
-            }
-            else
-            {
-                u_changekeys = 1;
-            }
-        }            
+           SetEncryption(s_key_tmp, ENC_AES256);
+           u_changekeys = 2;
+        }
 
         if (!temp_buffer)
             delete[] rawData;

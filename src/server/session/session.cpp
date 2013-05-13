@@ -191,6 +191,8 @@ void Session::GenerateNewKey(uint32 diff)
 
     GenerateRandomKey(s_key_tmp, 32);
 
+    u_changekeys = 0;
+
     Packet data(SMSG_REFRESH_KEY, 32);
     data.append(s_key_tmp);
     SendPacketToSocket(&data);
@@ -431,8 +433,13 @@ void Session::HandleLogin(Packet& packet)
 void Session::HandleRefreshKey(Packet& packet)
 {
     INFO ("debug", "SESSION: handle refresh key\n");
+
+    if (u_changekeys != 0) // Packet Injection
+        return;
     
     Xor(s_key_tmp, (const ByteBuffer) packet);
+
+    u_changekeys = 1;
 
     Packet data(SMSG_REFRESH_KEY, 0);
     SendPacketToSocket(&data);

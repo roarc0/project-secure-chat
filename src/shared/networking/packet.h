@@ -14,6 +14,12 @@ using namespace std;
 #define   OPCODE_SIZE       sizeof(uint16)
 #define   LENGTH_SIZE       sizeof(uint16)
 
+enum eMode
+{
+    AES_MODE = 0,
+    RSA_MODE
+};
+
 enum eOpcode
 {
     OP_NULL = 0,
@@ -27,11 +33,13 @@ class Packet : public ByteBuffer
         Packet() : ByteBuffer(0), m_opcode(OP_NULL), m_encrypted(false)
         {
             gettimeofday(&m_createTime, NULL);
+            mode = AES_MODE;
         }
 
         Packet(uint16 opcode, size_t res=200) : ByteBuffer(res), m_opcode(opcode), m_encrypted(false)
         {
             gettimeofday(&m_createTime, NULL);
+            mode = AES_MODE;
         }
 
         void Initialize(uint16 opcode, size_t newres=200)
@@ -41,8 +49,7 @@ class Packet : public ByteBuffer
             m_opcode = opcode;
         }
 
-        // costruttore di copia
-        Packet(const Packet &packet) : ByteBuffer(packet), m_opcode(packet.m_opcode), m_createTime(packet.m_createTime), m_encrypted(packet.m_encrypted)
+        Packet(const Packet &packet) : ByteBuffer(packet), m_opcode(packet.m_opcode), m_createTime(packet.m_createTime), m_encrypted(packet.m_encrypted), mode(packet.mode)
         {
 
         }
@@ -60,18 +67,23 @@ class Packet : public ByteBuffer
             gettimeofday(&m_createTime, NULL);
         }
         
-        int Encrypt(ByteBuffer key);
-        int Decrypt(ByteBuffer key);
+        int Encrypt(ByteBuffer par);
+        int Decrypt(ByteBuffer par);
         
         bool IsEncrypted() const
         {
             return m_encrypted;
         }
+        
+        void SetEncryptionMode(eMode m)
+        {
+            mode = m;
+        }
 
         void Incapsulate(Packet& pkt);
         Packet* Decapsulate();
         
-        uint32 GetTime() // In millisecondi
+        uint32 GetTime() // milliseconds
         {
             uint32 seconds  = m_createTime.tv_sec;  // - start.tv_sec;  TODO Quando è stato avviato il programma
             uint32 useconds = m_createTime.tv_usec; // - start.tv_usec; TODO Quando è stato avviato il programma
@@ -82,6 +94,7 @@ class Packet : public ByteBuffer
         uint16 m_opcode;
         timeval m_createTime;
         bool m_encrypted;
+        eMode mode;
 };
 
 #define HEADER_SIZE 4

@@ -31,7 +31,9 @@ class Session : public SessionBase
     void HandleJoinChannel(Packet&);
     void HandleLeaveChannel(Packet&);
     void HandleRefreshKey(Packet&);
-    void HandleLogin(Packet& packet);
+    void HandleLogin(Packet&);
+    void HandleQueuePos(Packet&);        
+    
     bool HandleSend(const char* msg);
 
     const char* GetPassword();

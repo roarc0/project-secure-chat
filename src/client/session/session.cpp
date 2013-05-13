@@ -421,3 +421,10 @@ void Session::HandleLogin(Packet& packet)
     }
  
 }
+
+void Session::HandleQueuePos(Packet& packet)
+{
+    uint32 pos;
+    packet >> pos;
+    SendToGui("", 'e', "Posizione in Coda %u\n", pos);
+}

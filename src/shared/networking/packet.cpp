@@ -8,13 +8,13 @@ int Packet::Encrypt(ByteBuffer par)
 
     switch(mode)
     {
-        case AES_MODE:
+        case MODE_AES:
         {
             INFO("debug", "PACKET: encrypting AES packet\n");
             ret = AesEncrypt(par, (ByteBuffer)(*this), ciphertext);
         }
         break;
-        case RSA_MODE:
+        case MODE_RSA:
         {
             INFO("debug", "PACKET: encrypting RSA packet\n");
             string pub = (const char*) par.contents();
@@ -50,14 +50,14 @@ int Packet::Decrypt(ByteBuffer par)
 
     switch(mode)
     {
-        case AES_MODE:
+        case MODE_AES:
         {
             INFO("debug", "PACKET: decrypting AES packet\n");
             ciphertext->hexlike();
             ret = AesDecrypt(par, *ciphertext, plaintext);
         }
         break;
-        case RSA_MODE:
+        case MODE_RSA:
         {
             string pwd, priv;
             par >> pwd;

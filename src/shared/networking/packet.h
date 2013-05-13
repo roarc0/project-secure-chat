@@ -16,8 +16,8 @@ using namespace std;
 
 enum eMode
 {
-    AES_MODE = 0,
-    RSA_MODE
+    MODE_AES = 0,
+    MODE_RSA
 };
 
 enum eOpcode
@@ -33,13 +33,13 @@ class Packet : public ByteBuffer
         Packet() : ByteBuffer(0), m_opcode(OP_NULL), m_encrypted(false)
         {
             gettimeofday(&m_createTime, NULL);
-            mode = AES_MODE;
+            mode = MODE_AES;
         }
 
         Packet(uint16 opcode, size_t res=200) : ByteBuffer(res), m_opcode(opcode), m_encrypted(false)
         {
             gettimeofday(&m_createTime, NULL);
-            mode = AES_MODE;
+            mode = MODE_AES;
         }
 
         void Initialize(uint16 opcode, size_t newres=200)
@@ -75,7 +75,7 @@ class Packet : public ByteBuffer
             return m_encrypted;
         }
         
-        void SetEncryptionMode(eMode m)
+        void SetMode(eMode m)
         {
             mode = m;
         }

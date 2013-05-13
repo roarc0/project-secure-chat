@@ -41,8 +41,8 @@ class Session : public SessionBase
     void UpdateKeyFilenames();
     bool TestRsa();
         
-    void SendToGui(std::string str, std::string nick, char type);
-
+    void SendToGui(std::string nick, char type, std::string str);
+    void SendToGui(std::string nick, char type, const char * fmt, ...);
   private:
   
     bool Update(uint32 diff);

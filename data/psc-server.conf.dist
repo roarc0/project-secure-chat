@@ -3,6 +3,8 @@ log_path = "logs"
 
 db_filename = "../etc/database.sqlite"
 
+#    server_port: Server port of application
+#         Default:    7777
 server_port = 7777
 
 #    key_refresh_interval: Number of seconds before renewing the session key.

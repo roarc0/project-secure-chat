@@ -88,7 +88,7 @@ Session_smart SessionManager::FindSession(std::string str) const
 
 void SessionManager::Update(uint32 udiff)
 {
-    AddSessions_ ();
+    AddSessions_();
 
     // Update all sessions
     Session* pSession;
@@ -121,7 +121,7 @@ uint32 SessionManager::GetQueuePos(Session_smart sess)
 {
     uint32 position = 1;
 
-    for (SessionQueue::const_iterator iter = m_QueuedSessions.begin(); iter != m_QueuedSessions.end(); ++iter, ++position)
+    for (SessionQueue::const_iterator iter = m_waitSessQueue.begin(); iter != m_waitSessQueue.end(); ++iter, ++position)
         if ((*iter).get() == sess.get())
             return position;
 
@@ -131,7 +131,7 @@ uint32 SessionManager::GetQueuePos(Session_smart sess)
 void SessionManager::AddQueuedSession(Session_smart sess)
 {
     sess->SetInQueue(true);
-    m_QueuedSessions.push_back(sess);
+    m_waitSessQueue.push_back(sess);
 
     // Notifica all'utente che è in coda
     sess->SendWaitQueue(GetQueuePos(sess));

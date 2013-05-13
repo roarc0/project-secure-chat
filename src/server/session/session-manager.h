@@ -66,7 +66,6 @@ class SessionManager
         LockQueue<Session_smart> addSessQueue;
 
         // Coda in Ingresso
-        SessionQueue m_QueuedSessions;
         SessionQueue m_waitSessQueue;
 
         // Session server limit

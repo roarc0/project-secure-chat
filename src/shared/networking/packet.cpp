@@ -1,11 +1,29 @@
 #include "packet.h"
 
-int Packet::Encrypt(ByteBuffer key)
+int Packet::Encrypt(ByteBuffer par)
 {
     ByteBuffer ciphertext;
+    
     int ret=0;
 
-    ret = AesEncrypt(key, (ByteBuffer)(*this), ciphertext);
+    switch(mode)
+    {
+        case AES_MODE:
+        {
+            ret = AesEncrypt(par, (ByteBuffer)(*this), ciphertext);
+        }
+        break;
+        case RSA_MODE:
+        {
+            string pub = (const char*) par.contents();
+            ret = RsaEncrypt(pub, (ByteBuffer)(*this), ciphertext);
+        }
+        break;
+        default:
+            INFO("debug", "PACKET: wrong enc type\n");
+        break;
+    }
+    
     ciphertext.hexlike();
     
     if (!ret)
@@ -22,17 +40,36 @@ int Packet::Encrypt(ByteBuffer key)
     return ret;
 }
 
-int Packet::Decrypt(ByteBuffer key)
+int Packet::Decrypt(ByteBuffer par)
 {
-    ByteBuffer *ciphertext = (ByteBuffer*) this; // Mother Of God
+    ByteBuffer *ciphertext = (ByteBuffer*) this;
     ByteBuffer plaintext;
     int ret=0;
 
     INFO("debug", "PACKET: decrypting\n");
     ciphertext->hexlike();
 
-    ret = AesDecrypt(key, *ciphertext, plaintext);
-    
+    switch(mode)
+    {
+        case AES_MODE:
+        {
+            ret = AesDecrypt(par, *ciphertext, plaintext);
+        }
+        break;
+        case RSA_MODE:
+        {
+            string pwd, priv;
+            par >> pwd;
+            par >> priv;
+
+            ret = RsaDecrypt(priv, pwd.c_str(), (ByteBuffer)(*this), plaintext);
+        }
+        break;
+        default:
+            INFO("debug", "PACKET: wrong enc type\n");
+        break;
+    }
+  
     if (!ret)
     {
         INFO("debug", "PACKET: decrypted\n");

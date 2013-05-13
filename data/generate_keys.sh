@@ -11,8 +11,8 @@ genkey()
     openssl rsa $4 -in $1.pem -pubout > $1.pub
 }
 
+mkdir -p keys
 genkey "server"
-
 genkey "client_viralex" $CIPHER "$PASSOUT" "$PASSIN"
 genkey "client_paradox" $CIPHER "$PASSOUT" "$PASSIN"
 genkey "client_gufo"    $CIPHER "$PASSOUT" "$PASSIN"

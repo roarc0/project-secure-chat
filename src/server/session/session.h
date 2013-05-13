@@ -12,7 +12,7 @@
 #  define ATTR_PRINTF(F, V)
 #endif //COMPILER == COMPILER_GNU
 
-#define MIN_SESSION_UPDATE_KEY_DELAY 60000
+#define MIN_REFRESH_KEY_INTERVAL 60
 
 class Session;
 class Channel;
@@ -52,18 +52,11 @@ class Session : public SessionBase
         void HandleLeaveChannel(Packet& packet); 
         void HandleListChannel(Packet& packet);
         void HandleLogin(Packet& packet);
-        void HandleUpdateKey(Packet&);
+        void HandleRefreshKey(Packet&);
         
         void SendSysMessage(const char *str);
         void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2, 3);
-         void SetSessionKeyUpdateInterval(uint32 t)
-        {
-            if (t > MIN_SESSION_UPDATE_KEY_DELAY)
-                t = MIN_SESSION_UPDATE_KEY_DELAY;
-
-            i_timer_key.SetInterval(t);
-            i_timer_key.Reset();
-        };
+        void InitKeyUpdateInterval();
  
     private:
 

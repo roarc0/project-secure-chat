@@ -219,9 +219,11 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
                     case ENC_AES128:
                     case ENC_AES256:
                         par = s_key;
+                        pct->SetMode(MODE_AES);
                     break;
                     case ENC_RSA:
                         /*par << password << priv;*/
+                        pct->SetMode(MODE_RSA);
                     break; 
                         
                 }

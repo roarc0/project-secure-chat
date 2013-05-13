@@ -10,17 +10,19 @@ int Packet::Encrypt(ByteBuffer par)
     {
         case AES_MODE:
         {
+            INFO("debug", "PACKET: encrypting AES packet\n");
             ret = AesEncrypt(par, (ByteBuffer)(*this), ciphertext);
         }
         break;
         case RSA_MODE:
         {
+            INFO("debug", "PACKET: encrypting RSA packet\n");
             string pub = (const char*) par.contents();
             ret = RsaEncrypt(pub, (ByteBuffer)(*this), ciphertext);
         }
         break;
         default:
-            INFO("debug", "PACKET: wrong enc type\n");
+            INFO("debug", "PACKET: wrong mode selected\n");
         break;
     }
     
@@ -46,13 +48,12 @@ int Packet::Decrypt(ByteBuffer par)
     ByteBuffer plaintext;
     int ret=0;
 
-    INFO("debug", "PACKET: decrypting\n");
-    ciphertext->hexlike();
-
     switch(mode)
     {
         case AES_MODE:
         {
+            INFO("debug", "PACKET: decrypting AES packet\n");
+            ciphertext->hexlike();
             ret = AesDecrypt(par, *ciphertext, plaintext);
         }
         break;
@@ -61,12 +62,15 @@ int Packet::Decrypt(ByteBuffer par)
             string pwd, priv;
             par >> pwd;
             par >> priv;
+            
+            INFO("debug", "PACKET: decrypting RSA packet\n");
+            ciphertext->hexlike();
 
             ret = RsaDecrypt(priv, pwd.c_str(), (ByteBuffer)(*this), plaintext);
         }
         break;
         default:
-            INFO("debug", "PACKET: wrong enc type\n");
+            INFO("debug", "PACKET: wrong mode selected\n");
         break;
     }
   
@@ -87,7 +91,7 @@ void Packet::Incapsulate(Packet& pkt)
 {
     *this << uint16(pkt.GetOpcode());
     *this << uint16(pkt.size());
-    INFO("debug","PACKET: packet incapsulate [header opcode %d, length %d]\n", pkt.GetOpcode(), pkt.size());
+    INFO("debug","PACKET: packet incapsulated [header opcode %d, length %d]\n", pkt.GetOpcode(), pkt.size());
     if (pkt.size())
         this->append(pkt.contents(), pkt.size());
 }
@@ -102,7 +106,7 @@ Packet* Packet::Decapsulate()
     *this >> opcode;
     *this >> size;
 
-    INFO("debug","PACKET: packet decapsulate [header opcode %d, length %d]\n", opcode, size);
+    INFO("debug","PACKET: packet decapsulated [header opcode %d, length %d]\n", opcode, size);
 
     Packet* new_pkt = new Packet(opcode, size);
     if (!new_pkt)
@@ -113,8 +117,6 @@ Packet* Packet::Decapsulate()
         new_pkt->append(contents()+rpos(), size);
         read_skip(size);
     }
-    
-    //INFO("debug","PACKET: packet decapsulate [contents %s]\n", new_pkt->contents());
 
     return new_pkt;
 }

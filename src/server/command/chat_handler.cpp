@@ -322,7 +322,7 @@ void ChatHandler::SendSysMessage(uint32 entry)
     SendSysMessage(ChatCommandErrorTable[entry].Error.c_str());
 }
 
-void ChatHandler::PSendSysMessage(const char *format, ...)
+void ChatHandler::PSendSysMessage(const char *fmt, ...)
 {
     int ret;
     char* buffer;

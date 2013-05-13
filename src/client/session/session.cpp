@@ -23,24 +23,22 @@ int Session::_SendPacket(Packet&)
 
 bool Session::Connect()
 {
-    stringstream ss;
-    ss << "Connected to " << CFG_GET_STRING("server_host")
-       << ":" << CFG_GET_INT("server_port");
-
+    string host = CFG_GET_STRING("server_host");
+    int port = CFG_GET_INT("server_port");
+    
     try
     {
-        c_Socket->Connect(CFG_GET_STRING("server_host"),
-                          CFG_GET_INT("server_port"));
+        c_Socket->Connect(host, port);
         SetConnected(true);                  
-        SendToGui(ss.str(), "",'e');
+        SendToGui("", 'e', "Connected to %s:%d!\n", host.c_str(), port); 
     }
     catch(SocketException &e)
     {
         INFO("debug", "SESSION: connection failed %s:%d (%s)\n",
-             CFG_GET_STRING("server_host").c_str(),
-             CFG_GET_INT("server_port"), e.what());
+             host.c_str(), port, e.what());
         SetConnected(false);
-        SendToGui("Connection failed!\n", "",'e');   
+        SendToGui("", 'e', "Connection failed %s:%d!\n", 
+                  host.c_str(), port);   
         return false;
     }
     catch(...)
@@ -50,14 +48,16 @@ bool Session::Connect()
     }
 
     INFO("debug", "SESSION: connection successful %s:%d\n",
-         CFG_GET_STRING("server_host").c_str(),
-         CFG_GET_INT("server_port"));
+         host.c_str(), port);
 
     return true;
 }
 
 bool Session::Disconnect()
 {
+    string host = CFG_GET_STRING("server_host");
+    int port = CFG_GET_INT("server_port");
+
     try
     {
         c_Socket->Disconnect();
@@ -65,24 +65,17 @@ bool Session::Disconnect()
     catch(SocketException &e)
     {
         INFO("debug", "SESSION: disconnection failed %s:%d (%s)\n",
-             CFG_GET_STRING("server_host").c_str(),
-             CFG_GET_INT("server_port"), e.what());
-        SendToGui("Disconnection failed?!\n", "",'e');
+              host.c_str(), port, e.what());
+        SendToGui("",'e', "Disconnection failed?!\n");
 
         return false;
     }
     
     SetConnected(false);
     INFO("debug", "SESSION: disconnection successful %s:%d\n",
-         CFG_GET_STRING("server_host").c_str(),
-         CFG_GET_INT("server_port"));  
+          host.c_str(), port);  
          
-    stringstream ss;
-    ss << "Disconnected from " << CFG_GET_STRING("server_host")
-       << ":" << CFG_GET_INT("server_port");
-    string str_disconnect = ss.str();
-    
-    SendToGui(str_disconnect.c_str(), "",'e');
+    SendToGui("", 'e', "Disconnected from %s:%d!\n", host.c_str(), port); 
     
     return true;
 }
@@ -144,11 +137,29 @@ void Session::ResetSocket()
     m_Socket = (SocketBase*) c_Socket;
 }
 
-void Session::SendToGui(std::string msg, std::string nick, char type)
+void Session::SendToGui(std::string nick, char type, std::string msg)
 {
     bool timestamp = ((type == 'e') ? false:true);
     c_core->AddMessage(msg, nick, type, timestamp);
     c_core->SignalEvent();
+}
+
+void Session::SendToGui(std::string nick, char type, const char * fmt, ...)
+{
+    int ret;
+    char* buffer;
+    va_list ap;
+    va_start(ap, fmt);
+    ret = vasprintf(&buffer, fmt, ap);
+    va_end(ap);
+
+    if (ret)
+    {
+        SendToGui(nick, type, (string) buffer);
+        free(buffer);
+    }
+    else
+        perror("vasprintf");
 }
 
 bool Session::HandleSend(const char* msg)
@@ -298,13 +309,13 @@ void Session::HandleMessage(Packet& packet)
     INFO ("debug", "SESSION: handling message\n");
     std::string msg, user;
     XMLReadMessage((const char*)packet.contents(), user, msg);
-    SendToGui(msg, user, 'm');
+    SendToGui(user, 'm', msg);
 }
 
 void Session::HandleServerMessage(Packet& packet)
 {
     INFO ("debug", "SESSION: handle server message\n");
-    SendToGui((const char*)packet.contents(), "", 'e');
+    SendToGui("", 'e', (const char*)packet.contents());
 }
 
 void Session::HandleJoinChannel(Packet& packet)
@@ -313,7 +324,7 @@ void Session::HandleJoinChannel(Packet& packet)
     std::string name, status, msg;
     XMLReadUpdate((const char*)packet.contents(), name, status);
     msg = "joined the channel";
-    SendToGui((const char*)msg.c_str(), name, 'j');    
+    SendToGui(name, 'j', (const char*)msg.c_str());    
 }
 
 void Session::HandleLeaveChannel(Packet& packet)
@@ -322,7 +333,7 @@ void Session::HandleLeaveChannel(Packet& packet)
     std::string name, status, msg;
     XMLReadUpdate((const char*)packet.contents(), name, status);
     msg = "left the channel";
-    SendToGui((const char*)msg.c_str(), name, 'l');    
+    SendToGui(name, 'l', (const char*)msg.c_str());    
 }
 
 void Session::HandleRefreshKey(Packet& packet)
@@ -379,7 +390,7 @@ void Session::HandleLogin(Packet& packet)
                 packet >> valid;
                 if(valid)
                 {
-                    SendToGui("Login succeeded!", "", 'e');
+                    SendToGui("", 'e', "Login succeeded!");
                     SetSessionStatus(STATUS_AUTHENTICATED);
                     
                     GenerateRandomKey(s_key, 32);
@@ -389,7 +400,7 @@ void Session::HandleLogin(Packet& packet)
                 }
                 else
                 {
-                    SendToGui("Login failed!", "", 'e');    
+                    SendToGui("", 'e', "Login failed!");    
                     SetSessionStatus(STATUS_REJECTED);
                     m_Socket->CloseSocket();
                     ResetSocket();

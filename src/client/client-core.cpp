@@ -24,7 +24,7 @@ void* CoreThread(void* arg)
              CFG_GET_INT("server_port"), e.what());
         session->SetConnected(false);
         session->ResetSocket();
-        c_core->GetSession()->SendToGui("Disconnected!", "", 'e');
+        c_core->GetSession()->SendToGui("", 'e', "Disconnected!");
     }
 
     pthread_exit(NULL);
@@ -105,7 +105,7 @@ bool ClientCore::HandleSend(const char* text)
         type = 'e';
     }
     
-    GetSession()->SendToGui(text, username, type);
+    GetSession()->SendToGui(username, type, text);
     
     if(!good)
         return false;
@@ -114,7 +114,7 @@ bool ClientCore::HandleSend(const char* text)
     
     if (!good)
     {
-        GetSession()->SendToGui("Send Failed!", "", 'e');
+        GetSession()->SendToGui("", 'e', "Send Failed!");
     }
     
     return good;

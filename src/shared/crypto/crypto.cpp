@@ -12,6 +12,7 @@
 
 void CryptoInit()
 {
+    INFO("debug", "CRYPTO: %s\n", SSLeay_version(SSLEAY_VERSION));
     OpenSSL_add_all_algorithms();
 }
 
@@ -322,7 +323,7 @@ int RsaEncrypt(const std::string key_str,
     }   
 
     RSA_free(key);
-    return ret;
+    return 0;
 }
 
 int RsaDecrypt(const std::string key_str,
@@ -356,7 +357,7 @@ int RsaDecrypt(const std::string key_str,
     }   
 
     RSA_free(key);
-    return ret;
+    return 0;
 }
 
 bool RsaTest(const char* pem_file,

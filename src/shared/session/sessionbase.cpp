@@ -94,12 +94,6 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
         {
             ByteBuffer par;
             
-            if (pct.GetMode() == MODE_RSA)
-            {
-                //par << f_other_pub_key;
-                SetEncryption(ENC_RSA);
-            }
-
             switch (s_enc)
             {
                 case ENC_AES128:

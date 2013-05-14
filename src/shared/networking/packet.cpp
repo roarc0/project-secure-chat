@@ -20,7 +20,6 @@ int Packet::Encrypt(ByteBuffer par)
             INFO("debug", "PACKET: encrypting RSA packet\n");
             string pub = (const char*) par.contents();
             ret = RsaEncrypt(pub, (ByteBuffer)(*this), ciphertext);
-            ret = 0; /* REMOVE */
         }
         break;
         case MODE_PLAIN:
@@ -81,11 +80,8 @@ int Packet::Decrypt(ByteBuffer par)
             {
                 INFO("debug", "PACKET: reading private key with no password!\n");
                 ret = RsaDecrypt(priv, NULL, (ByteBuffer)(*this), plaintext);
-                ret = 0; /* REMOVE */
             }
-            
             ret = RsaDecrypt(priv, pwd.c_str(), (ByteBuffer)(*this), plaintext);
-            ret = 0; /* REMOVE */
         }
         break;
         case MODE_PLAIN:

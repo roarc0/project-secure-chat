@@ -80,54 +80,17 @@ bool Session::Disconnect()
     return true;
 }
 
-const char* Session::GetPassword()
-{
-    return s_pwd.c_str();
-}
-
-void Session::SetPassword(const char * password)
-{
-    s_pwd = password;
-    INFO("debug", "SESSION: setting password\n");
-}
-
-bool Session::HavePassword()
-{
-    return !s_pwd.empty();
-}
-
-void Session::ClearPassword()
-{
-    s_pwd = "";
-}
-
 void Session::UpdateKeyFilenames()
 {
        string file = CFG_GET_STRING("rsa_prefix") +
                      CFG_GET_STRING("rsa_my_keys") +
                      *(GetUsername());
        
-       f_key_priv = file + ".pem";
-       f_key_pub  = file + ".pub";
+       f_my_priv_key = file + ".pem";
+       f_my_pub_key  = file + ".pub";
        
-       f_server_key_pub = CFG_GET_STRING("rsa_prefix") +
-                          CFG_GET_STRING("rsa_server_pub_key") + ".pub";
-}
-
-bool Session::TestRsa()
-{
-    bool res;
-    
-    UpdateKeyFilenames();
-    
-    INFO("debug", "CLIENT_CORE: TESTING RSA KEYS\n");
-    
-    if ((res = RsaTest(f_key_priv.c_str(), f_key_pub.c_str(), GetPassword())))
-        INFO("debug", "CLIENT_CORE: RSA TEST SUCCEEDED\n\n");
-    else
-        INFO("debug", "CLIENT_CORE: RSA TEST FAILED\n\n");
-    
-    return res;
+       f_other_pub_key = CFG_GET_STRING("rsa_prefix") +
+                         CFG_GET_STRING("rsa_server_pub_key") + ".pub";
 }
 
 void Session::ResetSocket()

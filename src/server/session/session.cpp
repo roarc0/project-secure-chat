@@ -10,6 +10,7 @@ m_id(0), m_inQueue(false), m_channel(NULL)
 {
     username = "";
     InitKeyUpdateInterval();
+    UpdateKeyFilenames();
 }
 
 Session::~Session()
@@ -198,6 +199,20 @@ void Session::GenerateNewKey(uint32 diff)
     SendPacketToSocket(&data);
 
     i_timer_key.SetCurrent(0);
+}
+
+void Session::UpdateKeyFilenames()
+{
+       string file = CFG_GET_STRING("rsa_prefix") +
+                     CFG_GET_STRING("rsa_my_keys") +
+                     *(GetUsername());
+       
+       f_my_priv_key = file + ".pem";
+       f_my_pub_key  = file + ".pub";
+       
+       f_other_pub_key = CFG_GET_STRING("rsa_prefix") +
+                         CFG_GET_STRING("rsa_client_pub_key") + 
+                         *GetUsername() + ".pub";
 }
 
 void Session::HandlePing(Packet& /*packet*/)
@@ -394,6 +409,7 @@ void Session::HandleLogin(Packet& packet)
                 {
                     INFO("debug", "SESSION: username \"%s\" accepted\n", user.c_str());
                     SetSessionStatus(STATUS_AUTHENTICATED);
+                    UpdateKeyFilenames();  // locate user public key.
                 }
                 else
                     SetSessionStatus(STATUS_REJECTED);

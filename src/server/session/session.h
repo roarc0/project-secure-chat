@@ -57,15 +57,17 @@ class Session : public SessionBase
         void SendSysMessage(const char *str);
         void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2, 3);
         void InitKeyUpdateInterval();
- 
+        
+        virtual void UpdateKeyFilenames();
+    
     private:
 
         int _SendPacket(Packet& pct);
         int _SendPacket(Packet* pct);
     
         uint32 m_id;
-        Session_smart smartThis;
         bool m_inQueue;
+        Session_smart smartThis;
         SmartChannel m_channel;
         IntervalTimer i_timer_key; 
 };

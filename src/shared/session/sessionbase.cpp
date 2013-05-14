@@ -102,7 +102,9 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
                 break;
                 case ENC_RSA:
                     /*par << password << pub;*/
-                break; 
+                break;
+                default:
+                break;
                     
             }
 
@@ -224,8 +226,9 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
                     case ENC_RSA:
                         /*par << password << priv;*/
                         pct->SetMode(MODE_RSA);
-                    break; 
-                        
+                    break;
+                    default:
+                    break;                        
                 }
             
                 pct->Decrypt(par);

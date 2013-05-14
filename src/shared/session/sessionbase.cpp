@@ -336,3 +336,41 @@ void SessionBase::SetSessionStatus(SessionStatus s)
 {
     s_status = s;
 }
+
+
+const char* SessionBase::GetPassword()
+{
+    return s_pwd.c_str();
+}
+
+void SessionBase::SetPassword(const char * password)
+{
+    s_pwd = password;
+    INFO("debug", "SESSION: setting password\n");
+}
+
+bool SessionBase::HavePassword()
+{
+    return !s_pwd.empty();
+}
+
+void SessionBase::ClearPassword()
+{
+    s_pwd = "";
+}
+
+bool SessionBase::TestRsa()
+{
+    bool res;
+    
+    UpdateKeyFilenames();
+    
+    INFO("debug", "SESSIONBASE: TESTING RSA KEYS\n");
+    
+    if ((res = RsaTest(f_my_priv_key.c_str(), f_my_pub_key.c_str(), GetPassword())))
+        INFO("debug", "SESSIONBASE: RSA TEST SUCCEEDED\n\n");
+    else
+        INFO("debug", "SESSIONBASE: RSA TEST FAILED\n\n");
+    
+    return res;
+}

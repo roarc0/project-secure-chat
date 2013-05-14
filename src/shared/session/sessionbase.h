@@ -59,7 +59,14 @@ class SessionBase
         void SetSessionStatus(SessionStatus);
         
         virtual bool IsInChannel() { return false; }
-
+        
+        const char* GetPassword();
+        void SetPassword(const char *);
+        bool HavePassword();
+        void ClearPassword();
+        bool TestRsa();
+        virtual void UpdateKeyFilenames(){ };
+            
         void HandleNULL(Packet& /*packet*/);
         
         SocketBase* m_Socket;
@@ -68,13 +75,20 @@ class SessionBase
         virtual int _SendPacket(Packet& new_packet) = 0;
         int _SendPacketToSocket(Packet& pct, unsigned char* temp_buffer = NULL);
         Packet* _RecvPacketFromSocket(unsigned char* temp_buffer = NULL);
-        
+
         std::string username;
         SessionStatus s_status;
         SessionEncryption s_enc;
-
+        
+        /* asymmethric encryption */
+        string s_pwd;
+        string f_my_pub_key, f_my_priv_key,
+               f_other_pub_key;
+        
+        /* symmethric encryption */
         ByteBuffer s_key, s_key_tmp;
         uint8 u_changekeys;
+
         Mutex m_mutex;
 
         LockQueue<Packet*> _recvQueue;

@@ -14,9 +14,10 @@ using namespace std;
 #define   OPCODE_SIZE       sizeof(uint16)
 #define   LENGTH_SIZE       sizeof(uint16)
 
-enum eMode
+enum PacketMode
 {
-    MODE_AES = 0,
+    MODE_PLAIN = 0,
+    MODE_AES,
     MODE_RSA
 };
 
@@ -75,7 +76,7 @@ class Packet : public ByteBuffer
             return m_encrypted;
         }
         
-        void SetMode(eMode m)
+        void SetMode(PacketMode m)
         {
             mode = m;
         }
@@ -94,7 +95,7 @@ class Packet : public ByteBuffer
         uint16 m_opcode;
         timeval m_createTime;
         bool m_encrypted;
-        eMode mode;
+        PacketMode mode;
 };
 
 #define HEADER_SIZE 4

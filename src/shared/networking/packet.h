@@ -34,13 +34,13 @@ class Packet : public ByteBuffer
         Packet() : ByteBuffer(0), m_opcode(OP_NULL), m_encrypted(false)
         {
             gettimeofday(&m_createTime, NULL);
-            mode = MODE_AES;
+            mode = MODE_PLAIN;
         }
 
         Packet(uint16 opcode, size_t res=200) : ByteBuffer(res), m_opcode(opcode), m_encrypted(false)
         {
             gettimeofday(&m_createTime, NULL);
-            mode = MODE_AES;
+            mode = MODE_PLAIN;
         }
 
         void Initialize(uint16 opcode, size_t newres=200)

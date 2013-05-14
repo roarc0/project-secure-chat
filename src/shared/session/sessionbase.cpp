@@ -99,9 +99,11 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
                 case ENC_AES128:
                 case ENC_AES256:
                     par = s_key;
+                    pct.SetMode(MODE_AES);
                 break;
                 case ENC_RSA:
-                    /*par << password << pub;*/
+                    par << f_my_pub_key;
+                    pct.SetMode(MODE_RSA);
                 break;
                 default:
                 break;
@@ -224,7 +226,7 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
                         pct->SetMode(MODE_AES);
                     break;
                     case ENC_RSA:
-                        /*par << password << priv;*/
+                        par << GetPassword() << f_my_priv_key;
                         pct->SetMode(MODE_RSA);
                     break;
                     default:
@@ -246,7 +248,8 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
         }
         else
         {
-            INFO("debug","SESSION_BASE: BAD BAD BAD! Must not exit! \n");
+            INFO("debug","SESSION_BASE: BAD BAD BAD!\n");
+            /* kill session ? */
         }
 
         return pct;

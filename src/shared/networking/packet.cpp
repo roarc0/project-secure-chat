@@ -22,6 +22,9 @@ int Packet::Encrypt(ByteBuffer par)
             ret = RsaEncrypt(pub, (ByteBuffer)(*this), ciphertext);
         }
         break;
+        case MODE_PLAIN:
+            INFO("debug", "PACKET: can't encrypt. plain mode selected\n");
+        break;
         default:
             INFO("debug", "PACKET: wrong mode selected\n");
         break;
@@ -38,7 +41,9 @@ int Packet::Encrypt(ByteBuffer par)
             this->append(ciphertext.contents(), ciphertext.size());
     }
     else
+    {
         INFO("debug", "PACKET: encryption failed\n");
+    }
     
     return ret;
 }
@@ -66,9 +71,14 @@ int Packet::Decrypt(ByteBuffer par)
             
             INFO("debug", "PACKET: decrypting RSA packet\n");
             ciphertext->hexlike();
-
-            ret = RsaDecrypt(priv, pwd.c_str(), (ByteBuffer)(*this), plaintext);
+            if (!pwd.empty())
+                ret = RsaDecrypt(priv, pwd.c_str(), (ByteBuffer)(*this), plaintext);
+            else
+                ret = RsaDecrypt(priv, NULL, (ByteBuffer)(*this), plaintext);
         }
+        break;
+        case MODE_PLAIN:
+            INFO("debug", "PACKET: can't decrypt. plain mode selected\n");
         break;
         default:
             INFO("debug", "PACKET: wrong mode selected\n");

@@ -1,4 +1,5 @@
 #include "packet.h"
+#include <openssl/rand.h>
 
 int Packet::Encrypt(ByteBuffer par)
 {
@@ -91,6 +92,12 @@ void Packet::Incapsulate(Packet& pkt)
 {
     *this << uint16(pkt.GetOpcode());
     *this << uint16(pkt.size());
+
+    // Numero Random
+    uint32 buf;
+    RAND_bytes((unsigned char*)(&buf), 4);
+    *this << uint32(buf);
+
     INFO("debug","PACKET: packet incapsulated [header opcode %d, length %d]\n", pkt.GetOpcode(), pkt.size());
     if (pkt.size())
         this->append(pkt.contents(), pkt.size());
@@ -103,8 +110,10 @@ Packet* Packet::Decapsulate()
 
     uint16 opcode; 
     uint16 size;
+    uint32 rand;
     *this >> opcode;
     *this >> size;
+    *this >> rand;
 
     INFO("debug","PACKET: packet decapsulated [header opcode %d, length %d]\n", opcode, size);
 

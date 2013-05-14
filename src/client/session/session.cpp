@@ -340,14 +340,13 @@ void Session::HandleRefreshKey(Packet& packet)
 {
     INFO ("debug", "SESSION: Handle refresh key\n");
 
-    if (u_changekeys == 1)
+    if (packet.size() == 0)
     {
        SetEncryption(s_key_tmp, ENC_AES256);
-       u_changekeys = 0;  
        
        // TODO riattivare send
     }
-    else
+    else if (packet.size() == 32)
     {
         ByteBuffer s_key2;
         GenerateRandomKey(s_key2, 32);
@@ -360,11 +359,11 @@ void Session::HandleRefreshKey(Packet& packet)
         
         s_key_tmp.clear();
         s_key_tmp.append(s_key2);
-
-        u_changekeys = 1;
         
         // TODO Bloccare send fino alla ricezione del pacchetto di ritorno
     }
+    else
+        INFO ("debug", "SESSION: Refresh Key corrupted packet\n"); 
 }
 
 void Session::HandleLogin(Packet& packet)

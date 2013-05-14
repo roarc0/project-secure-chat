@@ -81,6 +81,11 @@ class Packet : public ByteBuffer
             mode = m;
         }
 
+        PacketMode GetMode()
+        {
+            return mode;
+        }
+
         void Incapsulate(Packet& pkt);
         Packet* Decapsulate();
         

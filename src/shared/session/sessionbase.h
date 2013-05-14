@@ -49,21 +49,25 @@ class SessionBase
         
         const std::string* GetUsername();
         bool SetUsername(const std::string&);
-        bool IsEncrypted() const;
+        
         void SetEncryption(const ByteBuffer&, SessionEncryption);
-        bool IsAuthenticated() const;
+        void SetEncryption(SessionEncryption type);
+        bool IsEncrypted() const;
+        
         bool IsConnected() const;
         bool IsRejected() const;
-        void SetConnected(bool);
+        bool IsAuthenticated() const;
+        void SetConnected(bool); // will be deprecated
         SessionStatus GetSessionStatus() const;
         void SetSessionStatus(SessionStatus);
         
         virtual bool IsInChannel() { return false; }
-        
+
         const char* GetPassword();
         void SetPassword(const char *);
         bool HavePassword();
         void ClearPassword();
+        
         bool TestRsa();
         virtual void UpdateKeyFilenames(){ };
             

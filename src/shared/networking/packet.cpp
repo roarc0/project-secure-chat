@@ -20,10 +20,12 @@ int Packet::Encrypt(ByteBuffer par)
             INFO("debug", "PACKET: encrypting RSA packet\n");
             string pub = (const char*) par.contents();
             ret = RsaEncrypt(pub, (ByteBuffer)(*this), ciphertext);
+            ret = 0; /* REMOVE */
         }
         break;
         case MODE_PLAIN:
             INFO("debug", "PACKET: can't encrypt. plain mode selected\n");
+            return 0;
         break;
         default:
             INFO("debug", "PACKET: wrong mode selected\n");
@@ -66,19 +68,29 @@ int Packet::Decrypt(ByteBuffer par)
         case MODE_RSA:
         {
             string pwd, priv;
-            par >> pwd;
-            par >> priv;
             
             INFO("debug", "PACKET: decrypting RSA packet\n");
             ciphertext->hexlike();
-            if (!pwd.empty())
-                ret = RsaDecrypt(priv, pwd.c_str(), (ByteBuffer)(*this), plaintext);
-            else
+            
+            try
+            {
+                par >> priv;
+                par >> pwd;
+            }
+            catch (...)
+            {
+                INFO("debug", "PACKET: reading private key with no password!\n");
                 ret = RsaDecrypt(priv, NULL, (ByteBuffer)(*this), plaintext);
+                ret = 0; /* REMOVE */
+            }
+            
+            ret = RsaDecrypt(priv, pwd.c_str(), (ByteBuffer)(*this), plaintext);
+            ret = 0; /* REMOVE */
         }
         break;
         case MODE_PLAIN:
             INFO("debug", "PACKET: can't decrypt. plain mode selected\n");
+            return 0;
         break;
         default:
             INFO("debug", "PACKET: wrong mode selected\n");

@@ -93,6 +93,12 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
         if (IsEncrypted() && pct.size())
         {
             ByteBuffer par;
+            
+            if (pct.GetMode() == MODE_RSA)
+            {
+                //par << f_other_pub_key;
+                SetEncryption(ENC_RSA);
+            }
 
             switch (s_enc)
             {
@@ -102,12 +108,11 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
                     pct.SetMode(MODE_AES);
                 break;
                 case ENC_RSA:
-                    par << f_my_pub_key;
+                    par << f_other_pub_key;
                     pct.SetMode(MODE_RSA);
                 break;
                 default:
-                break;
-                    
+                break; 
             }
 
             pct.Encrypt(par);
@@ -226,7 +231,9 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
                         pct->SetMode(MODE_AES);
                     break;
                     case ENC_RSA:
-                        par << GetPassword() << f_my_priv_key;
+                        par << f_my_priv_key;
+                        if(HavePassword())
+                            par << GetPassword();
                         pct->SetMode(MODE_RSA);
                     break;
                     default:
@@ -299,6 +306,11 @@ void SessionBase::SetEncryption(const ByteBuffer& key,
                                 SessionEncryption type=ENC_AES128)
 {
     s_key = key;
+    s_enc = type;
+}
+
+void SessionBase::SetEncryption(SessionEncryption type)
+{
     s_enc = type;
 }
 

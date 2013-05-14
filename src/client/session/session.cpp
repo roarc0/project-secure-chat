@@ -340,10 +340,12 @@ void Session::HandleLogin(Packet& packet)
         case STATUS_CONNECTED:
             {
                 SetSessionStatus(STATUS_LOGIN_STEP_1);
+                INFO("debug", "SESSION: sending RSA message\n");
+                //SetEncryption(ENC_RSA);
                 
                 Packet data(CMSG_LOGIN, 0);
-                data << *GetUsername();
-                data << GetPassword();
+                data << *GetUsername(); /* check size */
+                data << GetPassword(); /* do not send password */
                 SendPacketToSocket(&data);
             }
             break;
@@ -373,7 +375,6 @@ void Session::HandleLogin(Packet& packet)
             {
                 Xor(s_key, (const ByteBuffer) packet);
                 SetEncryption(s_key, ENC_AES256);
-                
                 INFO("debug", "SESSION: key established\n");
             }
             break;

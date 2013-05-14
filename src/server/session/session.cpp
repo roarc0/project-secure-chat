@@ -377,6 +377,10 @@ void Session::HandleLogin(Packet& packet)
                 SetSessionStatus(STATUS_LOGIN_STEP_1);
                 Packet data(SMSG_LOGIN, 0);
                 SendPacket(&data);
+                /*
+                il prossimo messaggio deve essere processato come messaggio rsa...
+                SetEncryption(ENC_RSA);
+                */
             }
             break;
         case STATUS_LOGIN_STEP_1:

@@ -204,14 +204,13 @@ void Session::GenerateNewKey(uint32 diff)
 void Session::UpdateKeyFilenames()
 {
        string file = CFG_GET_STRING("rsa_prefix") +
-                     CFG_GET_STRING("rsa_my_keys") +
-                     *(GetUsername());
+                     CFG_GET_STRING("rsa_my_keys");
        
-       f_my_priv_key = file + ".pem";
-       f_my_pub_key  = file + ".pub";
+       f_my_priv_key   = file +  ".pem";
+       f_my_pub_key    = file + ".pub";
        
        f_other_pub_key = CFG_GET_STRING("rsa_prefix") +
-                         CFG_GET_STRING("rsa_client_pub_key") + 
+                         CFG_GET_STRING("rsa_client_pub_key") +
                          *GetUsername() + ".pub";
 }
 
@@ -375,12 +374,9 @@ void Session::HandleLogin(Packet& packet)
         case STATUS_CONNECTED:
             {
                 SetSessionStatus(STATUS_LOGIN_STEP_1);
+                SetNextEncryption(ENC_RSA);
                 Packet data(SMSG_LOGIN, 0);
                 SendPacket(&data);
-                /*
-                il prossimo messaggio deve essere processato come messaggio rsa...
-                SetEncryption(ENC_RSA);
-                */
             }
             break;
         case STATUS_LOGIN_STEP_1:

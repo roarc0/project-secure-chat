@@ -13,7 +13,8 @@
 
 enum SessionEncryption
 {
-    ENC_NONE = 0,
+    ENC_UNSPEC = 0,
+    ENC_NONE,
     ENC_AES128,
     ENC_AES256,
     ENC_RSA
@@ -52,6 +53,7 @@ class SessionBase
         
         void SetEncryption(const ByteBuffer&, SessionEncryption);
         void SetEncryption(SessionEncryption type);
+        void SetNextEncryption(SessionEncryption type);
         bool IsEncrypted() const;
         
         bool IsConnected() const;
@@ -82,7 +84,7 @@ class SessionBase
 
         std::string username;
         SessionStatus s_status;
-        SessionEncryption s_enc;
+        SessionEncryption s_enc, s_next_enc;
         
         /* asymmethric encryption */
         string s_pwd;

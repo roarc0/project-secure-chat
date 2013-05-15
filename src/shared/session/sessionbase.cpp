@@ -6,6 +6,7 @@ SessionBase::SessionBase()
     m_Socket = NULL;
     s_status = STATUS_DISCONNECTED;
     s_enc = ENC_NONE;
+    s_next_enc = ENC_UNSPEC;
     u_changekeys = 0;
 }
 
@@ -14,6 +15,7 @@ SessionBase::SessionBase(int pSock)
     m_Socket = new SocketBase(pSock);
     s_status = STATUS_CONNECTED;  
     s_enc = ENC_NONE;
+    s_next_enc = ENC_UNSPEC;
     u_changekeys = 0;
 }
 
@@ -126,8 +128,13 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
 
         if (IsServer() && pkt.GetOpcode() == SMSG_REFRESH_KEY && u_changekeys == 1)
         {
-           SetEncryption(s_key_tmp, ENC_AES256);
-           u_changekeys = 2;
+            SetEncryption(s_key_tmp, ENC_AES256);
+            u_changekeys = 2;
+        }
+        else if (IsServer() && s_next_enc == ENC_RSA)
+        {
+            SetNextEncryption(ENC_UNSPEC);
+            SetEncryption(ENC_RSA);
         }
 
         if (!temp_buffer)
@@ -306,6 +313,11 @@ void SessionBase::SetEncryption(const ByteBuffer& key,
 void SessionBase::SetEncryption(SessionEncryption type)
 {
     s_enc = type;
+}
+
+void SessionBase::SetNextEncryption(SessionEncryption type)
+{
+    s_next_enc = type;
 }
 
 bool SessionBase::IsAuthenticated() const

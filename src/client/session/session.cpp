@@ -341,7 +341,7 @@ void Session::HandleLogin(Packet& packet)
             {
                 SetSessionStatus(STATUS_LOGIN_STEP_1);
                 INFO("debug", "SESSION: sending RSA message\n");
-                //SetEncryption(ENC_RSA);
+                SetEncryption(ENC_RSA);
                 
                 Packet data(CMSG_LOGIN, 0);
                 data << *GetUsername(); /* check size */

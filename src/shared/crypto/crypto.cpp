@@ -251,9 +251,13 @@ RSA* RsaPubKey(const char* str)
     else
     {
         FILE* fp = fopen(str, "rb");
-
+   
         if(!fp)
-          return NULL;
+        {
+            INFO("debug", "CRYPTO: error opening \"%s\"", str);
+            perror("CRYPTO: fopen");
+            return NULL;
+        }
 
         INFO("debug","CRYPTO: reading public key from file: \"%s\"\n", str);
         PEM_read_RSA_PUBKEY(fp, &key, NULL, NULL);
@@ -278,7 +282,11 @@ RSA* RsaPrivKey(const char* str, const char* password = NULL)
     FILE* fp = fopen(str, "rb");
 
     if(!fp)
-      return NULL;
+    {
+        INFO("debug", "CRYPTO: error opening \"%s\"\n", str);
+        perror("CRYPTO: fopen");
+        return NULL;
+    }
     
     INFO("debug","CRYPTO: reading private key from file: \"%s\"\n", str);
     PEM_read_RSAPrivateKey(fp, &key, NULL, (void*) password);
@@ -333,8 +341,13 @@ int RsaDecrypt(const std::string key_str,
 {
     int ret = 0;
     char *err = NULL;
-    RSA *key = RsaPrivKey(key_str.c_str(), password);
+    RSA *key;
     unsigned char *buf;
+    
+    if (!password || strlen(password) == 0)
+        key = RsaPrivKey(key_str.c_str(), NULL);
+    else
+        key = RsaPrivKey(key_str.c_str(), password);
     
     if(!key)
     {

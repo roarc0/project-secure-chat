@@ -89,28 +89,32 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
     {
         Packet pct(0); // TODO inserire header appositi
         pct.Incapsulate(pkt);
-        
-        INFO("debug", "SESSION_BASE: encrypting packet  <%d bytes>\n", pct.size());
-        
+               
         if (IsEncrypted() && pct.size())
         {
             ByteBuffer par;
+            string str_enc;
             
             switch (s_enc)
             {
                 case ENC_AES128:
                 case ENC_AES256:
+                    str_enc = "AES";
                     par = s_key;
                     pct.SetMode(MODE_AES);
                 break;
                 case ENC_RSA:
+                    str_enc = "RSA";
                     par << f_other_pub_key;
                     pct.SetMode(MODE_RSA);
                 break;
                 default:
+                    
                 break; 
             }
-
+            
+            INFO("debug", "SESSION_BASE: encrypting %s packet  <%d bytes>\n",
+                          str_enc.c_str(), pct.size());
             pct.Encrypt(par);
         }
        
@@ -189,7 +193,7 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
 
         if (pkt_head.getSize() > 65000) // limit 2^16
         {
-            INFO("debug","SESSION_BASE: Packet Bigger of 65000, kicking session\n");
+            INFO("debug","SESSION_BASE: packet > 65000, kicking session\n");
             Close();
             return NULL;
         }    

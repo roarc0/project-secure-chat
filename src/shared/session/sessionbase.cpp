@@ -140,7 +140,7 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
         if (!temp_buffer)
             delete[] rawData;
 
-        INFO("debug", "SESSION_BASE: packet <%d bytes> sent\n", pct.size());
+        INFO("debug", "SESSION_BASE: packet <%d bytes> sent\n", header.getHeaderLength()+pct.size());
         return 0;
 
     }

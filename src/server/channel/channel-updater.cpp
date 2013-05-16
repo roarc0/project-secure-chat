@@ -49,7 +49,6 @@ int ChannelUpdater::ScheduleUpdate(Channel& channel, uint32 diff)
         // TODO Log Errore
         return -1;
     }
-
     
     ++pending_requests;
     active = true;

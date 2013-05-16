@@ -301,7 +301,7 @@ void Session::HandleLeaveChannel(Packet& packet)
 
 void Session::HandleRefreshKey(Packet& packet)
 {
-    INFO ("debug", "SESSION: Handle refresh key\n");
+    INFO ("debug", "SESSION: handle refresh key\n");
 
     if (packet.size() == 0)
     {
@@ -326,7 +326,7 @@ void Session::HandleRefreshKey(Packet& packet)
         // TODO Bloccare send fino alla ricezione del pacchetto di ritorno
     }
     else
-        INFO ("debug", "SESSION: Refresh Key corrupted packet\n"); 
+        INFO ("debug", "SESSION: refresh key, corrupted packet\n"); 
 }
 
 void Session::HandleLogin(Packet& packet)
@@ -340,7 +340,7 @@ void Session::HandleLogin(Packet& packet)
         case STATUS_CONNECTED:
             {
                 SetSessionStatus(STATUS_LOGIN_STEP_1);
-                INFO("debug", "SESSION: sending RSA message\n");
+                INFO("debug", "SESSION: sending first RSA encrypted packet\n");
                 SetEncryption(ENC_RSA);
                 
                 Packet data(CMSG_LOGIN, 0);
@@ -375,7 +375,7 @@ void Session::HandleLogin(Packet& packet)
             {
                 Xor(s_key, (const ByteBuffer) packet);
                 SetEncryption(s_key, ENC_AES256);
-                INFO("debug", "SESSION: key established\n");
+                INFO("debug", "SESSION: AES key established\n");
             }
             break;
         default:

@@ -431,7 +431,7 @@ void Session::HandleLogin(Packet& packet)
                 Xor(s_key, packet);
                 SetEncryption(s_key, ENC_AES256);
                 
-                INFO("debug", "SESSION: key established\n");
+                INFO("debug", "SESSION: AES key established\n");
                 
                 s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
             }
@@ -448,7 +448,7 @@ void Session::HandleLogin(Packet& packet)
 
 void Session::HandleRefreshKey(Packet& packet)
 {
-    INFO ("debug", "SESSION: handle refresh key\n");
+    INFO ("debug", "SESSION: handle refresh AES key\n");
 
     if (u_changekeys != 0) // Packet Injection
         return;

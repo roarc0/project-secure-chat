@@ -65,6 +65,7 @@ void push_status_bar(const gchar*);
 void add_message_to_chat(gpointer data, gchar *str, gchar type);
 void add_user_to_list(gpointer data, gchar *str, gchar *lev);
 void remove_user_from_list(gpointer data, const gchar *str);
+void remove_all_users_from_list(gpointer data);
 bool request_auth(gpointer parent);
 
 void* GuiThread(void* arg)
@@ -106,8 +107,7 @@ void* GuiThread(void* arg)
                 GTK_TOOL_BUTTON(gres->toolbar_connect),
                 "Connect");
             push_status_bar("Disconnected from server!");
-            remove_user_from_list(gres->view_user_list,
-                 (gchar*) c_core->GetSession()->GetUsername()->c_str());
+            remove_all_users_from_list(gres->view_user_list);
         }
         
         prev = c_core->GetSession()->IsConnected();
@@ -395,10 +395,7 @@ void remove_user_from_list(gpointer data, const gchar *str)
         return;
     
     model = gtk_tree_view_get_model (GTK_TREE_VIEW (data));
-    
-    if (gtk_tree_model_get_iter_first (model, &iter) == FALSE)
-        return;
-        
+           
     for (r = gtk_tree_model_get_iter_first (model, &iter); 
          r == TRUE; 
          r = gtk_tree_model_iter_next (model, &iter))
@@ -408,12 +405,25 @@ void remove_user_from_list(gpointer data, const gchar *str)
         if (g_ascii_strcasecmp(value, str) == 0) 
         {
             gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
+            
+            if (value) 
+                g_free (value); 
+            
             break;
         }
 
         if (value) 
             g_free (value);        
     }
+}
+
+void remove_all_users_from_list(gpointer data)
+{
+    GtkTreeModel            *model = gtk_tree_view_get_model (GTK_TREE_VIEW (data));
+    GtkTreeIter             iter;
+
+    while (gtk_tree_model_get_iter_first (model, &iter))   
+        gtk_list_store_remove (GTK_LIST_STORE (model), &iter);
 }
 
 void scroll_down(GtkWidget *scrolled)

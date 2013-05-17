@@ -16,6 +16,11 @@ void CryptoInit()
     OpenSSL_add_all_algorithms();
 }
 
+void SHA256_digest(const string& data, string& digest)
+{
+    SHA256_digest(data.c_str(), data.length(), digest);
+}
+
 void SHA256_digest(const char* data, int length, string& digest)
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];
@@ -168,9 +173,7 @@ int AesDecrypt(const ByteBuffer &key,
             return -1;
         }
 
-        
-        if (ciphertext.size() < BLOCK_SIZE || 
-            ciphertext.size() % BLOCK_SIZE)
+        if (ciphertext.size() % BLOCK_SIZE)
         {
             INFO("debug","CRYPTO: wrong ciphertext size!\n");
             return -1;
@@ -328,10 +331,11 @@ int RsaEncrypt(const std::string key_str,
     {
         ciphertext.clear();
         ciphertext.append(buf, ret);
-    }   
+        ret = 0;
+    }
 
     RSA_free(key);
-    return 0;
+    return ret;
 }
 
 int RsaDecrypt(const std::string key_str,
@@ -367,10 +371,11 @@ int RsaDecrypt(const std::string key_str,
     {
         plaintext.clear();
         plaintext.append(buf, ret);
+        ret = 0;
     }   
 
     RSA_free(key);
-    return 0;
+    return ret;
 }
 
 bool RsaTest(const char* pem_file,
@@ -381,12 +386,11 @@ bool RsaTest(const char* pem_file,
 
     if(!pem_file || !pub_file)
         return false;
-
+    
     ByteBuffer in, out, out2;
     in << "rsatest";
     RsaEncrypt(pub_file, in, out);
-    in.clear();
     RsaDecrypt(pem_file, pwd, out, out2);
    
-    return in.compare(out2) == 0;
+    return in.compare(out2);
 }

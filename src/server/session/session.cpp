@@ -381,7 +381,7 @@ void Session::HandleLogin(Packet& packet)
             break;
         case STATUS_LOGIN_STEP_1:
             {
-                std::string user, pwd;
+                std::string user, pwd, response;
                 bool valid = true;
                     
                 packet >> user;
@@ -402,6 +402,13 @@ void Session::HandleLogin(Packet& packet)
                         
                         if (!valid)
                             INFO("debug","SESSION: username \"%s\" doesn't exist\n", user.c_str());
+                            
+                        /*
+                        valid = db_manager->CheckPasswordDigest(pwd);
+                        
+                        if (!valid)
+                            INFO("debug","SESSION: password digest is wrong\n", user.c_str());
+                        */
                     }
                 }
 
@@ -409,13 +416,17 @@ void Session::HandleLogin(Packet& packet)
                 {
                     INFO("debug", "SESSION: username \"%s\" accepted\n", user.c_str());
                     SetSessionStatus(STATUS_AUTHENTICATED);
-                    UpdateKeyFilenames();  // locate user public key.
+                    UpdateKeyFilenames();  // locate user's public key.
+                    response = "authenticated";
                 }
                 else
+                {
                     SetSessionStatus(STATUS_REJECTED);
+                    response = "rejected";
+                }
                 
-                Packet data(SMSG_LOGIN, 1);
-                data << (uint8) valid;                
+                Packet data(SMSG_LOGIN, 0);
+                data << response;
                 SendPacket(&data);
             }
             break;

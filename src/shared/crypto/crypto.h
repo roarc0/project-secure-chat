@@ -9,6 +9,7 @@
 
 void CryptoInit();
 
+void SHA256_digest(const string& data, string& digest);
 void SHA256_digest(const char* data, int length,
                    string& digest);
 

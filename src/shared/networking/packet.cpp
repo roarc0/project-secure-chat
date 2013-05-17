@@ -115,9 +115,10 @@ void Packet::Incapsulate(Packet& pkt)
     RAND_pseudo_bytes((unsigned char*)(&buf), SALT_SIZE);
     *this << uint32(buf);*/
 
-    INFO("debug","PACKET: packet incapsulated [header opcode %d, length %d]\n", pkt.GetOpcode(), pkt.size());
     if (pkt.size())
         this->append(pkt.contents(), pkt.size());
+
+    INFO("debug","PACKET: packet incapsulated [header opcode %d, length %d]\n", pkt.GetOpcode(), pkt.size());
 }
 
 Packet* Packet::Decapsulate()

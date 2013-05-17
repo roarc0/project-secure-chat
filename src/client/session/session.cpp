@@ -345,14 +345,17 @@ void Session::HandleLogin(Packet& packet)
                 
                 Packet data(CMSG_LOGIN, 0);
                 data << *GetUsername(); /* check size */
-                data << GetPassword(); /* do not send password */
+                string pwd_digest;
+                SHA256_digest(GetPassword(), pwd_digest);
+                data << pwd_digest;
                 SendPacketToSocket(&data);
             }
             break;
         case STATUS_LOGIN_STEP_1:
             {
-                packet >> valid;
-                if(valid)
+                string response;
+                packet >> response;
+                if(response.compare("authenticated") == 0)
                 {
                     SendToGui("", 'e', "Login succeeded!");
                     SetSessionStatus(STATUS_AUTHENTICATED);

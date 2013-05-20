@@ -13,7 +13,8 @@ void SHA256_digest(const string& data, string& digest);
 void SHA256_digest(const char* data, int length,
                    string& digest);
 
-int  GenerateRandomKey(ByteBuffer &key, int size);
+int GenerateRandomKey(ByteBuffer &key, int size);
+int GenerateRandomData(ByteBuffer &key, int size);
 
 void Xor(ByteBuffer& data, const ByteBuffer& key);
 

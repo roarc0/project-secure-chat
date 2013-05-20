@@ -345,11 +345,26 @@ void Session::HandleLogin(Packet& packet)
                 
                 Packet data(CMSG_LOGIN, 0);
                 data << *GetUsername(); /* check size */
+                
                 string pwd_digest;
                 SHA256_digest(GetPassword(), pwd_digest);
                 data << pwd_digest;
+                
+                uint8 nonce[NONCE_SIZE];
+                
+                packet.read(nonce, NONCE_SIZE);
+                s_other_nonce.append(nonce, NONCE_SIZE);
+                data.append(s_other_nonce);
+                
+                GenerateNonce();
+                data.append(s_my_nonce);
+                
+                INFO("debug", "\n\nSESSION: AUTH PACKET >>>>> \n\n");
+                data.hexlike();
+                INFO("debug", "\n\n");
+                
                 SendPacketToSocket(&data);
-            }
+            }   
             break;
         case STATUS_LOGIN_STEP_1:
             {
@@ -357,13 +372,27 @@ void Session::HandleLogin(Packet& packet)
                 packet >> response;
                 if(response.compare("authenticated") == 0)
                 {
-                    SendToGui("", 'e', "Login succeeded!");
-                    SetSessionStatus(STATUS_AUTHENTICATED);
+                    uint8 nonce[NONCE_SIZE];
+                    ByteBuffer read_nonce;
                     
-                    GenerateRandomKey(s_key, 32);
-                    Packet data(CMSG_LOGIN, 32);
-                    data.append(s_key);
-                    SendPacketToSocket(&data);
+                    packet.read(nonce, NONCE_SIZE);
+                    read_nonce.append(nonce, NONCE_SIZE);
+                    
+                    if(CheckNonce(read_nonce))
+                    {
+                        SendToGui("", 'e', "Login succeeded!");
+                        SetSessionStatus(STATUS_AUTHENTICATED);
+                        
+                        GenerateRandomKey(s_key, 32);
+                        Packet data(CMSG_LOGIN, 32);
+                        data.append(s_key);
+                        SendPacketToSocket(&data);
+                    }
+                    else
+                    {
+                       SetSessionStatus(STATUS_REJECTED);
+                       SendToGui("", 'e', "Fake Server!");
+                    }
                 }
                 else
                 {

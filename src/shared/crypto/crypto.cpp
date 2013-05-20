@@ -57,6 +57,19 @@ int GenerateRandomKey(ByteBuffer &key, int size)
     return 0;
 }
 
+int GenerateRandomData(ByteBuffer &key, int size)
+{
+    uint8 *buf;
+    
+    buf = new uint8[size];
+    RAND_pseudo_bytes(buf, size);
+    key.clear();
+    key.append(buf, size);
+    
+    delete[] buf;
+    return 0;
+}
+
 // funzione per generare la chiave di sessione a partire da Ka,Kb
 void Xor(ByteBuffer& data, const ByteBuffer& key)
 {

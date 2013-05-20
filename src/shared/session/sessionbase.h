@@ -10,6 +10,7 @@
 
 #define MAX_USER_LEN    32
 #define EXCLUDED_CHARS  " \t\f\v\n\r"
+#define NONCE_SIZE      32
 
 enum SessionEncryption
 {
@@ -70,6 +71,9 @@ class SessionBase
         bool HavePassword();
         void ClearPassword();
         
+        void GenerateNonce();
+        bool CheckNonce(const ByteBuffer&);
+        
         bool TestRsa();
         virtual void UpdateKeyFilenames(){ };
             
@@ -87,6 +91,7 @@ class SessionBase
         SessionEncryption s_enc, s_next_enc;
         
         /* asymmethric encryption */
+        ByteBuffer s_my_nonce, s_other_nonce;
         string s_pwd;
         string f_my_pub_key, f_my_priv_key,
                f_other_pub_key;

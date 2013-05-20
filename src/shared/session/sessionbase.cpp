@@ -384,6 +384,16 @@ void SessionBase::ClearPassword()
     s_pwd = "";
 }
 
+void SessionBase::GenerateNonce()
+{
+    GenerateRandomData(s_my_nonce, NONCE_SIZE);
+}
+
+bool SessionBase::CheckNonce(const ByteBuffer& buf)
+{  
+    s_my_nonce.compare(buf);
+}
+
 bool SessionBase::TestRsa()
 {
     bool res;

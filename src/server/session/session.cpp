@@ -376,6 +376,10 @@ void Session::HandleLogin(Packet& packet)
                 SetSessionStatus(STATUS_LOGIN_STEP_1);
                 SetNextEncryption(ENC_RSA);
                 Packet data(SMSG_LOGIN, 0);
+                
+                GenerateNonce();
+                data.append(s_my_nonce);
+                
                 SendPacket(&data);
             }
             break;
@@ -386,6 +390,15 @@ void Session::HandleLogin(Packet& packet)
                     
                 packet >> user;
                 packet >> pwd;
+                
+                ByteBuffer rec_nonce;
+                uint8 nonce[NONCE_SIZE];
+                
+                packet.read(nonce, NONCE_SIZE);
+                rec_nonce.append(nonce, NONCE_SIZE);
+                
+                packet.read(nonce, NONCE_SIZE);
+                s_other_nonce.append(nonce, NONCE_SIZE);
                 
                 valid = s_manager->FindSession(user).is_null();
 
@@ -402,13 +415,22 @@ void Session::HandleLogin(Packet& packet)
                         
                         if (!valid)
                             INFO("debug","SESSION: username \"%s\" doesn't exist\n", user.c_str());
+                        else
+                        {  
+                            /*
+                            valid = db_manager->CheckPasswordDigest(pwd);
                             
-                        /*
-                        valid = db_manager->CheckPasswordDigest(pwd);
+                            if (!valid)
+                                INFO("debug","SESSION: password digest is wrong\n", user.c_str());
+                            else
+                            {*/
+                                valid = CheckNonce(rec_nonce);
+                            
+                                if (!valid)
+                                    INFO("debug","SESSION: reply attack detected!\n", user.c_str());
+                            //}
+                        }
                         
-                        if (!valid)
-                            INFO("debug","SESSION: password digest is wrong\n", user.c_str());
-                        */
                     }
                 }
 
@@ -427,6 +449,10 @@ void Session::HandleLogin(Packet& packet)
                 
                 Packet data(SMSG_LOGIN, 0);
                 data << response;
+                
+                if (valid)
+                    data.append(s_other_nonce);
+                
                 SendPacket(&data);
             }
             break;

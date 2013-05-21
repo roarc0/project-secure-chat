@@ -475,7 +475,7 @@ bool ChatHandler::HandleWhispCommand(const char *args)
         return false;
     std::string name = arg1;
 
-    char* arg2 = strtok(NULL, " ");
+    char* arg2 = strtok(NULL, "\0");
     if (!arg2)
         return false;
     std::string msg = arg2;

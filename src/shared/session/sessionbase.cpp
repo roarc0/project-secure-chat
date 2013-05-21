@@ -138,9 +138,8 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
             SetEncryption(s_key_tmp, ENC_AES256);
             u_changekeys = 2;
 
-            // Resettar-e numerazione pacchetti
-            u_id_send = 0;
-            u_id_receive = 0;
+            // Resettare numerazione pacchetti
+            ResetPacketNum();
         }
         else if (IsServer() && s_next_enc == ENC_RSA)
         {

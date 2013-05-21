@@ -236,7 +236,6 @@ void Session::HandleMessage(Packet& packet)
 
     if (m_channel.get())
     {
-        packet.SetOpcode(SMSG_MESSAGE);
         std::string data;
         packet >> data;
         
@@ -254,7 +253,7 @@ void Session::HandleMessage(Packet& packet)
     }
 }
 
-void Session::HandleWhisp(Packet& packet) 
+void Session::HandleWhisp(Packet& packet)
 {    
     std::string nick;
     packet >> nick;
@@ -263,10 +262,16 @@ void Session::HandleWhisp(Packet& packet)
     if (!ses.get())
     {
         SendSysMessage("User not found");
+        return;
     }
 
-    packet.SetOpcode(SMSG_WHISP);
-    ses->SendPacket(&packet);
+    std::string msg;
+    packet >> msg;
+
+    XMLSetUsernameToMessage(msg, *GetUsername());
+    Packet pkt(SMSG_WHISP, msg.size());
+    pkt << msg;
+    ses->SendPacket(&pkt);
 }
 
 void Session::HandleJoinChannel(Packet& packet) 

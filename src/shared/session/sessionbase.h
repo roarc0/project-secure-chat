@@ -56,6 +56,7 @@ class SessionBase
         void SetEncryption(SessionEncryption type);
         void SetNextEncryption(SessionEncryption type);
         bool IsEncrypted() const;
+        bool IsSymmetric() const;
         
         bool IsConnected() const;
         bool IsRejected() const;
@@ -73,6 +74,9 @@ class SessionBase
         
         void GenerateNonce();
         bool CheckNonce(const ByteBuffer&);
+
+        // Resetta la numerazione dei pacchetti
+        void ResetPacketNum();
         
         bool TestRsa();
         virtual void UpdateKeyFilenames(){ };
@@ -99,6 +103,9 @@ class SessionBase
         /* symmethric encryption */
         ByteBuffer s_key, s_key_tmp;
         uint8 u_changekeys;
+
+        uint32 u_id_send;
+        uint32 u_id_receive;
 
         Mutex m_mutex;
 

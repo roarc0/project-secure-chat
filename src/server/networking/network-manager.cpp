@@ -58,8 +58,6 @@ class NetworkThread: public MethodRequest
                             INFO("debug", "NETWORK_THREAD: packet queued in elaboration queue.\n");          
                             net_ses.first->QueuePacket(pkt);    
                         }
-                        else
-                            INFO("debug", "NETWORK_THREAD: WARNING can't send NULL packet\n");
                     }
                 }
                 catch(SocketException e)

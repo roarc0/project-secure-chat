@@ -398,6 +398,7 @@ void Session::HandleLogin(Packet& packet)
                 rec_nonce.append(nonce, NONCE_SIZE);
                 
                 packet.read(nonce, NONCE_SIZE);
+                s_other_nonce.clear();
                 s_other_nonce.append(nonce, NONCE_SIZE);
                 
                 valid = s_manager->FindSession(user).is_null();

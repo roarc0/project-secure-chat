@@ -353,6 +353,7 @@ void Session::HandleLogin(Packet& packet)
                 uint8 nonce[NONCE_SIZE];
                 
                 packet.read(nonce, NONCE_SIZE);
+                s_other_nonce.clear();
                 s_other_nonce.append(nonce, NONCE_SIZE);
                 data.append(s_other_nonce);
                 

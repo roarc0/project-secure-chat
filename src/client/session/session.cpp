@@ -278,6 +278,14 @@ void Session::HandleMessage(Packet& packet)
     SendToGui(user, 'm', msg);
 }
 
+void Session::HandleWhisp(Packet& packet)
+{
+    INFO ("debug", "SESSION: handling whisp\n");
+    std::string msg, user;
+    XMLReadMessage((const char*)packet.contents(), user, msg);
+    SendToGui(user, 'w', msg);
+} 
+
 void Session::HandleServerMessage(Packet& packet)
 {
     INFO ("debug", "SESSION: handle server message\n");
@@ -311,8 +319,7 @@ void Session::HandleRefreshKey(Packet& packet)
        SetEncryption(s_key_tmp, ENC_AES256);
 
        // Resettare numerazione pacchetti
-       u_id_send = 0;
-       u_id_receive = 0;
+       ResetPacketNum();
        
        // TODO riattivare send
     }

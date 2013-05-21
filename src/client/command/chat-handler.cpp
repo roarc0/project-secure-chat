@@ -59,6 +59,7 @@ ChatCommand* ChatHandler::getCommandTable()
         { "ping",         SEC_USER,     &ChatHandler::HandlePingCommand,         "", NULL },
         { "commands",     SEC_USER,     &ChatHandler::HandleCommandsCommand,     "", NULL },
         { "help",         SEC_USER,     &ChatHandler::HandleHelpCommand,         "Syntax: \\help [$command]  Display usage instructions for the given $command.", NULL },
+        { "whisp",        SEC_USER,     &ChatHandler::HandleWhispCommand,        "", NULL },        
         { NULL,           0,            NULL,                 "", NULL                    }
     };
 
@@ -461,5 +462,28 @@ bool ChatHandler::HandlePingCommand(const char* /*args*/)
 {
     Packet data(CMSG_PING, 0);
     m_session->SendPacketToSocket(&data);
+    return true;
+}
+
+bool ChatHandler::HandleWhispCommand(const char *args)
+{
+    if (!*args)
+        return false;
+
+    char* arg1 = strtok((char*)args, " ");
+    if (!arg1)
+        return false;
+    std::string name = arg1;
+
+    char* arg2 = strtok(NULL, " ");
+    if (!arg2)
+        return false;
+    std::string msg = arg2;
+
+    Packet pack(CMSG_WHISP);
+    pack << name;
+    pack << XMLBuildMessage(m_session->GetUsername()->c_str(),  msg.c_str());    
+    m_session->SendPacketToSocket(&pack);
+
     return true;
 }

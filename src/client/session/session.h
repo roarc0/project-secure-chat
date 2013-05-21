@@ -25,6 +25,7 @@ class Session : public SessionBase
     void HandleClientSide(Packet&);    
     void HandlePing(Packet&);
     void HandleMessage(Packet&);
+    void HandleWhisp(Packet&);
     void HandleServerMessage(Packet&);
     void HandleJoinChannel(Packet&);
     void HandleLeaveChannel(Packet&);

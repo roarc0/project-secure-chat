@@ -390,8 +390,13 @@ void SessionBase::GenerateNonce()
 }
 
 bool SessionBase::CheckNonce(const ByteBuffer& buf)
-{  
-    s_my_nonce.compare(buf);
+{
+    INFO("debug", "SESSIONBASE: my nounce\n");
+    s_my_nonce.hexlike();
+    INFO("debug", "SESSIONBASE: received nounce\n");
+    buf.hexlike();
+          
+    return s_my_nonce.compare(buf);
 }
 
 bool SessionBase::TestRsa()

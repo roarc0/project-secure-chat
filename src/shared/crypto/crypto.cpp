@@ -270,7 +270,7 @@ RSA* RsaPubKey(const char* str)
    
         if(!fp)
         {
-            INFO("debug", "CRYPTO: error opening \"%s\"", str);
+            INFO("debug", "CRYPTO: error opening \"%s\"\n", str);
             perror("CRYPTO: fopen");
             return NULL;
         }

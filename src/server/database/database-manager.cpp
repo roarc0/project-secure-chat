@@ -59,7 +59,7 @@ void DatabaseManager::OpenDb()
     }
 }
 
-bool DatabaseManager::UserExists(const string& username)
+bool DatabaseManager::CheckUsername(const string& username)
 {
     bool exists = 0;
     string query = "select * from user where username=\"" + username + "\"";
@@ -76,15 +76,17 @@ bool DatabaseManager::UserExists(const string& username)
     return exists;
 }
 
-bool DatabaseManager::UserGetKey(const string& username, std::string& key)
+bool DatabaseManager::CheckPassword(const string& username, const std::string& hash)
 {
-    bool exists = 0;
+    string db_hash;
     string query = "select password from user where username=\"" + username + "\"";
     sqlite3_prepare_v2(handle, query.c_str(), query.length(), &result, NULL);
 
     if(sqlite3_step(result) == SQLITE_ROW)
-        key = (const char*)sqlite3_column_text(result, 0); //sqlite3_column_name(stmt,col);
-
+        db_hash = (const char*)sqlite3_column_text(result, 0);
+    else
+        return false;
+    
     sqlite3_finalize(result);
-    return exists;
+    return db_hash.compare(hash);
 }

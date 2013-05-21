@@ -8,6 +8,9 @@ SessionBase::SessionBase()
     s_enc = ENC_NONE;
     s_next_enc = ENC_UNSPEC;
     u_changekeys = 0;
+
+    u_id_send = 0;
+    u_id_receive = 0;
 }
 
 SessionBase::SessionBase(int pSock)
@@ -88,7 +91,7 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
     try
     {
         Packet pct(0); // TODO inserire header appositi
-        pct.Incapsulate(pkt);
+        pct.Incapsulate(pkt, u_id_send, IsSymmetric());
                
         if (IsEncrypted() && pct.size())
         {
@@ -134,6 +137,10 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
         {
             SetEncryption(s_key_tmp, ENC_AES256);
             u_changekeys = 2;
+
+            // Resettar-e numerazione pacchetti
+            u_id_send = 0;
+            u_id_receive = 0;
         }
         else if (IsServer() && s_next_enc == ENC_RSA)
         {
@@ -237,7 +244,7 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
                     break;
                     case ENC_RSA:
                         par << f_my_priv_key;
-                        if(HavePassword())
+                        if (HavePassword())
                             par << GetPassword();
                         pct->SetMode(MODE_RSA);
                     break;
@@ -251,7 +258,7 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
             INFO("debug","SESSION_BASE: packet content:\n");
             pct->hexlike();
 
-            pkt = pct->Decapsulate();
+            pkt = pct->Decapsulate(u_id_receive, IsSymmetric());
             delete pct;
             pct = pkt;
 
@@ -305,6 +312,11 @@ bool SessionBase::SetUsername(const std::string& n)
 bool SessionBase::IsEncrypted() const
 {
     return s_enc != ENC_NONE;
+}
+
+bool SessionBase::IsSymmetric() const
+{
+    return (s_enc == ENC_AES256 || s_enc == ENC_AES128);
 }
 
 void SessionBase::SetEncryption(const ByteBuffer& key,
@@ -413,4 +425,10 @@ bool SessionBase::TestRsa()
         INFO("debug", "SESSIONBASE: RSA TEST FAILED\n\n");
     
     return res;
+}
+
+void SessionBase::ResetPacketNum() 
+{
+    u_id_send = 0;
+    u_id_receive = 0;
 }

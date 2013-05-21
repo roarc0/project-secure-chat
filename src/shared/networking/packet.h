@@ -86,8 +86,8 @@ class Packet : public ByteBuffer
             return mode;
         }
 
-        void Incapsulate(Packet& pkt);
-        Packet* Decapsulate();
+        void Incapsulate(Packet& pkt, uint32& , bool check);
+        Packet* Decapsulate(uint32& , bool check);
         
         uint32 GetTime() // milliseconds
         {

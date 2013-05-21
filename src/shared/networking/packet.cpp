@@ -106,10 +106,16 @@ int Packet::Decrypt(ByteBuffer par)
     return ret;
 }
 
-void Packet::Incapsulate(Packet& pkt)
+void Packet::Incapsulate(Packet& pkt, uint32& u_id_send, bool check)
 {
     *this << uint16(pkt.GetOpcode());
     *this << uint16(pkt.size());
+
+    if (check)
+    {
+        *this << uint32(u_id_send);
+        u_id_send++;
+    }
 
     /*uint32 buf;
     RAND_pseudo_bytes((unsigned char*)(&buf), SALT_SIZE);
@@ -121,17 +127,23 @@ void Packet::Incapsulate(Packet& pkt)
     INFO("debug","PACKET: packet incapsulated [header opcode %d, length %d]\n", pkt.GetOpcode(), pkt.size());
 }
 
-Packet* Packet::Decapsulate()
+Packet* Packet::Decapsulate(uint32& u_id_receive, bool check)
 {    
     if (empty())
         return NULL;
 
     uint16 opcode; 
     uint16 size;
-    uint32 rand;
+    uint32 u_id_recv = 0;
+    // uint32 rand;
+    
     *this >> opcode;
     *this >> size;
-    /* *this >> rand;*/
+
+    if (check)
+        *this >> u_id_recv;
+
+    // *this >> rand;
 
     INFO("debug","PACKET: packet decapsulated [header opcode %d, length %d]\n", opcode, size);
 
@@ -143,6 +155,20 @@ Packet* Packet::Decapsulate()
     {
         new_pkt->append(contents()+rpos(), size);
         read_skip(size);
+    }
+
+    if (check)
+    {
+        if (u_id_recv < u_id_receive)
+        {
+            INFO("debug", "PACKET: Tentativo di Packet Replay, pacchetto ignorato\n");
+            delete new_pkt;
+            return NULL;     
+        }
+        else
+        {
+            u_id_receive = u_id_recv;
+        }
     }
 
     return new_pkt;

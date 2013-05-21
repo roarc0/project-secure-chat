@@ -50,6 +50,9 @@ bool Session::Connect()
     INFO("debug", "SESSION: connection successful %s:%d\n",
          host.c_str(), port);
 
+    u_id_send = 0;
+    u_id_receive = 0;
+
     return true;
 }
 
@@ -306,6 +309,10 @@ void Session::HandleRefreshKey(Packet& packet)
     if (packet.size() == 0)
     {
        SetEncryption(s_key_tmp, ENC_AES256);
+
+       // Resettare numerazione pacchetti
+       u_id_send = 0;
+       u_id_receive = 0;
        
        // TODO riattivare send
     }
@@ -331,9 +338,7 @@ void Session::HandleRefreshKey(Packet& packet)
 
 void Session::HandleLogin(Packet& packet)
 {
-    INFO ("debug", "SESSION: hanle login message\n");    
-
-    bool valid;
+    INFO ("debug", "SESSION: hanle login message\n");
     
     switch (GetSessionStatus())
     {
@@ -408,6 +413,7 @@ void Session::HandleLogin(Packet& packet)
             {
                 Xor(s_key, (const ByteBuffer) packet);
                 SetEncryption(s_key, ENC_AES256);
+                ResetPacketNum();
                 INFO("debug", "SESSION: AES key established\n");
             }
             break;

@@ -411,24 +411,24 @@ void Session::HandleLogin(Packet& packet)
                         INFO("debug","SESSION: username \"%s\" is not valid\n", user.c_str());
                     else
                     {
-                        valid = db_manager->UserExists(user);
+                        valid = db_manager->CheckUsername(user);
                         
                         if (!valid)
                             INFO("debug","SESSION: username \"%s\" doesn't exist\n", user.c_str());
                         else
                         {  
-                            /*
-                            valid = db_manager->CheckPasswordDigest(pwd);
+                            
+                            valid = db_manager->CheckPassword(user, pwd);
                             
                             if (!valid)
                                 INFO("debug","SESSION: password digest is wrong\n", user.c_str());
                             else
-                            {*/
+                            {
                                 valid = CheckNonce(rec_nonce);
                             
                                 if (!valid)
                                     INFO("debug","SESSION: reply attack detected!\n", user.c_str());
-                            //}
+                            }
                         }
                         
                     }

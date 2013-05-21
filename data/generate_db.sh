@@ -1,4 +1,4 @@
 #!/bin/sh
 
-rm database.sqlite.dist
-cat dump.sql | sqlite3 database.sqlite.dist
+rm database.sqlite
+cat dump.sql | sqlite3 database.sqlite

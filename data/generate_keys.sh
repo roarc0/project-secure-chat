@@ -13,10 +13,17 @@ genkey()
 
 mkdir -p keys
 genkey "server"
+
 genkey "client_viralex" $CIPHER "$PASSOUT" "$PASSIN"
 genkey "client_paradox" $CIPHER "$PASSOUT" "$PASSIN"
-genkey "client_gufo"    $CIPHER "$PASSOUT" "$PASSIN"
-genkey "client_daniele"    $CIPHER "$PASSOUT" "$PASSIN"
 genkey "client_alec"    $CIPHER "$PASSOUT" "$PASSIN"
+
+genkey "client_gufo"    $CIPHER "$PASSOUT" "$PASSIN"
+genkey "client_daniele" $CIPHER "$PASSOUT" "$PASSIN"
+
+PASSOUT="-passout pass:badwolf"
+PASSIN="-passin pass:badwolf"
+genkey "client_the_doctor"  $CIPHER "$PASSOUT" "$PASSIN"
+
 
 mv *.pem *.pub keys/

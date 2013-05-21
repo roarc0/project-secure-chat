@@ -81,12 +81,16 @@ bool DatabaseManager::CheckPassword(const string& username, const std::string& h
     string db_hash;
     string query = "select password from user where username=\"" + username + "\"";
     sqlite3_prepare_v2(handle, query.c_str(), query.length(), &result, NULL);
-
+    
+    INFO("debug", "DATABASE_MANAGER: user provided hash is \"%s\"\n", hash.c_str());
     if(sqlite3_step(result) == SQLITE_ROW)
+    {      
         db_hash = (const char*)sqlite3_column_text(result, 0);
+        INFO("debug", "DATABASE_MANAGER: user pwd hash is \"%s\"\n", db_hash.c_str());
+    }
     else
         return false;
     
     sqlite3_finalize(result);
-    return db_hash.compare(hash);
+    return db_hash.compare(hash) == 0;
 }

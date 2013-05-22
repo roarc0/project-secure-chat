@@ -75,8 +75,6 @@ frame=tb, columns=fullflexible, showstringspaces=false}
 \large{\textbf{Autori}}\\
 \underline{\Large{Alessandro Rosetti}}\\
 \underline{\Large{Daniele Lazzarini}}\\
-\underline{\Large{Alessandro Furlanetto}}\\
-
 
 \vfill
 \large{Anno accademico 2011-2012}\\[2.0cm]
@@ -96,14 +94,31 @@ Documento sviluppato con \LaTeX\\
 
 \tableofcontents \thispagestyle{fancy}
 \newpage
-\listoffigures
-\newpage
+%\listoffigures
+%\newpage
 
-\section*{Introduzione} \addcontentsline{toc}{section}{Introduzione} \thispagestyle{plain}
+\section{Introduzione} \addcontentsline{toc}{section}{Introduzione} \thispagestyle{plain}
 Il progetto illustrato in questo documento si chiama \textbf{pschat} e rappresenta un sistema client-server di chat ispirato al modello \textbf{IRC} (Internet Relay Chat) che integra caratteristiche di sicurezza.\\
 \begin{figure}[H]
   \centering \includegraphics[scale=1.0]{../data/psc_orig.png}
 \end{figure}
+
+\subsection{Formato del pacchetto}
+
+Pacchetto \textbf{RSA}:
+\begin{verbatim}
+[LEN]  RSA{ [OPCODE][LEN][PAYLOAD] }
+  2            2      2    0-252
+\end{verbatim}
+$Size = 2 + 256= 258$ Bytes.\\
+
+Pacchetto \textbf{AES-128/256}:
+\begin{verbatim}
+[LEN]  AES{ [OPCODE][LEN][SEQ][PAYLOAD] }
+  2            2      2    4   0-65000
+\end{verbatim}
+$Size_{min} = 2 + 16= 258$ Bytes
+%$Size_{max} = Size_{min} + 16 * ( 65000 % 16 ) = $ Bytes
 
 \section{Protocollo}
 L'autenticazione è stata eseguita sfruttando RSA.
@@ -124,8 +139,6 @@ Il client ha una chiave privata e pubblica e conosce la chiave pubblica del serv
 \item client\_\$\{username\}.pub
 \item server.pub
 \end{itemize}
-
-\subsection{Formato del pacchetto}
 
 \subsection{Autenticazione}
 La procedura di autenticazione permette di stabilire una chiave di sessione tra client e server.

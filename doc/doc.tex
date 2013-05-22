@@ -110,10 +110,53 @@ L'autenticazione è stata eseguita sfruttando RSA.
 \subsection{Server}
 Il server ha una chiave privata e una pubblica (nota a priori per ogni client), è dotato di un database che contiene i nomi degli utenti, gli hash delle loro password e altre informazioni.\\
 Il server conosce tutte le chiavi pubbliche degli utenti registrati al sistema.
+\begin{itemize}
+\item server.pem
+\item server.pub
+\item client\_*.pub
+\item database's table user(name, hash, user\_type, reg\_date);
+\end{itemize}
 
 \subsection{Client}
-Il client ha una chiave privata e pubblica e conosce la chiave pubblica del server.\\
-\newpage
+Il client ha una chiave privata e pubblica e conosce la chiave pubblica del server.
+\begin{itemize}
+\item client\_\$\{username\}.pem
+\item client\_\$\{username\}.pub
+\item server.pub
+\end{itemize}
 
+\subsection{Formato del pacchetto}
+
+\subsection{Autenticazione}
+La procedura di autenticazione permette di stabilire una chiave di sessione tra client e server.
+\begin{itemize}
+\item \textbf{S} : Server
+\item \textbf{C} : Client
+\item $N_s$ : Server's nounce
+\item $N_c$ : Client's nounce
+\item $E_{spub} ()$ : Encrypt with server's public key. 
+\item $E_{cpub} ()$ : Encrypt with client's public key.
+\item $K_c$ : Client's Key.
+\item $K_s$ : Server's Key.
+\item $K_{sc}$ : Session Key.
+\end{itemize}
+Il protocollo di autenticazione usa la seguente sequenza di messaggi.
+\begin{itemize}
+\item \textbf{M1} : $S \rightarrow C$ : $N_s$ \\
+Il server manda un nounce al client che si è appena connesso.
+\item \textbf{M2} : $S \leftarrow C$ : $E_{spub}$ ( $N_c$, $N_s$, User, PwdHash )\\
+Il client cripta con la chiave pubblica del server il nounce ricevuto, inserisce un proprio nounce, inserisce utente e hash della password.
+\item \textbf{M3} : $S \rightarrow C$ : $E_{cpub}$ ( $N_c$, Response )\\
+Se l'utente non è già connesso, ha un nome valido e quindi è presente nel database e l'hash della password coincide con quello nel database, la risposta è positiva e viene autenticato, altrimenti viene rigettato.
+\item \textbf{M4} : Se il nounce viene verificato invia il seguente messaggio altrimenti la connessione viene chiusa.\\
+$S \leftarrow C$ : $E_{spub}$ ( $K_c$ )
+\item \textbf{M5} : $S \rightarrow C$ : $E_{cpub}$ ( $K_s$ )
+\item Client e Server calcolano la chiave di sessione: $ K_{sc} = K_s \oplus K_c $
+\end{itemize}
+
+\subsection{Analisi Ban}
+
+
+\subsection{Aggiornamento chiave di sessione}
 
 \end{document}

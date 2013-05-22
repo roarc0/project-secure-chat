@@ -91,11 +91,11 @@ bool ClientCore::HandleSend(const char* text)
         type = 'e';
         good = false;
     }
-    else if ((text[0] != '\\') || (strncmp(text, "\\send", 5) == 0))
+    else if ((text[0] != '.') || (strncmp(text, ".send", 5) == 0))
     {
         type = 'M';
     }
-    else if (strncmp(text, "\\whisp", 6) == 0)
+    else if (strncmp(text, ".whisp", 6) == 0)
     {
         type = 'W';
     }

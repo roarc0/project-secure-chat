@@ -99,7 +99,21 @@ Documento sviluppato con \LaTeX\\
 \listoffigures
 \newpage
 
-\input{1-introduzione.tex}
-\input{2-progettazione.tex}
+\section*{Introduzione} \addcontentsline{toc}{section}{Introduzione} \thispagestyle{plain}
+Il progetto illustrato in questo documento si chiama \textbf{pschat} e rappresenta un sistema client-server di chat ispirato al modello \textbf{IRC} (Internet Relay Chat) che integra caratteristiche di sicurezza.\\
+\begin{figure}[H]
+  \centering \includegraphics[scale=1.0]{../data/psc_orig.png}
+\end{figure}
+
+\section{Protocollo}
+L'autenticazione è stata eseguita sfruttando RSA.
+\subsection{Server}
+Il server ha una chiave privata e una pubblica (nota a priori per ogni client), è dotato di un database che contiene i nomi degli utenti, gli hash delle loro password e altre informazioni.\\
+Il server conosce tutte le chiavi pubbliche degli utenti registrati al sistema.
+
+\subsection{Client}
+Il client ha una chiave privata e pubblica e conosce la chiave pubblica del server.\\
+\newpage
+
 
 \end{document}

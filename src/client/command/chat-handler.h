@@ -10,6 +10,8 @@
 #  define ATTR_PRINTF(F, V)
 #endif //COMPILER == COMPILER_GNU
 
+#define CMD_CHAR '.'
+
 enum AccountTypes
 {
     SEC_USER           = 0,

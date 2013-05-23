@@ -116,12 +116,15 @@ void* GuiThread(void* arg)
         
         if(msg.data.length() > 0)
         {
-            if (msg.data[msg.data.length()-1] != '\n')
-                msg.data.append("\n");
-            add_message_to_chat(gres->chat_buffer,
-                                (gchar*) msg.data.c_str(), msg.type);
+            if (msg.type != 'J')
+            {
+                if (msg.data[msg.data.length()-1] != '\n')
+                    msg.data.append("\n");
+                add_message_to_chat(gres->chat_buffer,
+                                   (gchar*) msg.data.c_str(), msg.type);
+            }
             
-            if (msg.type == 'j')
+            if (msg.type == 'j' || msg.type == 'J')
             {
                 add_user_to_list(gres->view_user_list,
                  (gchar*) msg.user.c_str(),
@@ -131,6 +134,10 @@ void* GuiThread(void* arg)
             {
                 remove_user_from_list(gres->view_user_list,
                                      (gchar*) msg.user.c_str());
+            }
+            else if (msg.type == 'L')
+            {
+                remove_all_users_from_list(gres->view_user_list);
             }
         }
         else

@@ -445,10 +445,13 @@ void Session::HandleChannelUsersList(Packet& packet)
 
     packet >> size;
 
+    SendToGui("", 'L', ""); 
+
     for (uint32 i = 0; i < size; i++)
     {   
         name = "";
         packet >> name;
-        // TODO fai cose buffe
+        SendToGui(name, 'J', ""); 
+
     }
 }

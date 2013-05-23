@@ -49,10 +49,9 @@ struct gui_res
     /* Chat */
     GtkWidget *hbox_chat;
     GtkWidget *view_chat;
-    GtkTextBuffer *view_chat_buffer;
     GtkWidget *label_nick;
     GtkWidget *scrolledwindow_chat;
-    GtkTextBuffer *chat_buffer;
+    GtkTextBuffer *tbuf_chat;
     
     /* input */
     GtkWidget *hbox_inputs;
@@ -116,7 +115,7 @@ void* GuiThread(void* arg)
             {
                 if (msg.data[msg.data.length()-1] != '\n')
                     msg.data.append("\n");
-                add_message_to_chat(gres->chat_buffer,
+                add_message_to_chat(gres->tbuf_chat,
                                    (gchar*) msg.data.c_str(), msg.type);
             }
             
@@ -272,13 +271,13 @@ bool request_auth(gpointer parent)
                 
                 if(!(ret = c_core->GetSession()->TestRsa()))
                 {
-                    add_message_to_chat(gres.chat_buffer,
+                    add_message_to_chat(gres.tbuf_chat,
                                 (gchar*) "Wrong Password! (RSA test failed)\n", 'e');
                 }
             }
             else
             {
-                add_message_to_chat(gres.chat_buffer,
+                add_message_to_chat(gres.tbuf_chat,
                                 (gchar*) "Invalid User/Password insertion\n", 'e');
                 ret = false;
             }
@@ -288,9 +287,11 @@ bool request_auth(gpointer parent)
             ret = false;
         break;
     }
+    
     if(pixbuf)
         g_object_unref (G_OBJECT(pixbuf));
     gtk_widget_destroy(dialog);
+    
     return ret;
 }
 
@@ -485,6 +486,7 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type)
                 &textiter, str, -1, "lmarg", "chat_sys_msg_fg", "bold", NULL);
         break;
         default:
+            return;
         break;
     }
 
@@ -492,7 +494,7 @@ void add_message_to_chat(gpointer data, gchar *str, gchar type)
     //pthread_mutex_unlock(&mutex_guichange);
 }
 
-void button_send_click(gpointer data, gchar *str, gchar type) // TODO spostare tutti i controlli in client_core
+void button_send_click(gpointer data, gchar *str, gchar type)
 {
     Message_t msg;
     gchar *text = (gchar*) gtk_entry_get_text(GTK_ENTRY(gres.text_entry));
@@ -515,7 +517,7 @@ void push_status_bar(const gchar *str)
 void toolbar_reset_click(gpointer data)
 {
     //pthread_mutex_lock(&mutex_guichange);
-    GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(gres.chat_buffer);
+    GtkTextBuffer *text_view_buffer = GTK_TEXT_BUFFER(gres.tbuf_chat);
     GtkTextIter textiter;
     gtk_text_buffer_get_end_iter(text_view_buffer, &textiter);
     gtk_text_buffer_set_text(text_view_buffer, "", 0);
@@ -566,7 +568,7 @@ void main_gui(int argc, char **argv)
     gtk_window_set_resizable(GTK_WINDOW(gres.window), TRUE);
 
     /* setting window icon */
-    gtk_window_set_icon(GTK_WINDOW(gres.window), create_pixbuf("data/psc.png"));
+    gtk_window_set_icon(GTK_WINDOW(gres.window), create_pixbuf(GUI_ICON));
 
     gtk_widget_show(gres.window);
 
@@ -676,32 +678,32 @@ void main_gui(int argc, char **argv)
     gtk_text_view_set_right_margin (GTK_TEXT_VIEW (gres.view_chat), 1);
     gtk_text_view_set_editable(GTK_TEXT_VIEW(gres.view_chat), FALSE);
     gtk_container_add (GTK_CONTAINER (gres.scrolledwindow_chat), gres.view_chat);
-    gres.view_chat_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(gres.view_chat));
+    gres.tbuf_chat = gtk_text_view_get_buffer(GTK_TEXT_VIEW(gres.view_chat));
     
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "chat_bg", "background", CFG_GET_STRING("chat_bg").c_str() , NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "chat_sys_msg_fg", "foreground", CFG_GET_STRING("chat_sys_msg_fg").c_str() , NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "chat_msg_fg", "foreground", CFG_GET_STRING("chat_msg_fg").c_str() , NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "chat_join_fg", "foreground", CFG_GET_STRING("chat_join_fg").c_str() , NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "chat_leave_fg", "foreground", CFG_GET_STRING("chat_leave_fg").c_str() , NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "chat_whisp_fg", "foreground", CFG_GET_STRING("chat_whisp_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "chat_bg", "background", CFG_GET_STRING("chat_bg").c_str() , NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "chat_sys_msg_fg", "foreground", CFG_GET_STRING("chat_sys_msg_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "chat_msg_fg", "foreground", CFG_GET_STRING("chat_msg_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "chat_join_fg", "foreground", CFG_GET_STRING("chat_join_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "chat_leave_fg", "foreground", CFG_GET_STRING("chat_leave_fg").c_str() , NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "chat_whisp_fg", "foreground", CFG_GET_STRING("chat_whisp_fg").c_str() , NULL);
 
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "gap", "pixels_above_lines", 30, NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "lmarg", "left_margin", 5, NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "black_fg", "foreground", "#000000", NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "white_fg", "foreground", "#ffffff", NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "blue_fg", "foreground", "#3200ff", NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "magenta_fg", "foreground", "#ff32ff", NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "green_fg", "foreground", "#55ff00", NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "red_fg", "foreground", "#ff3200", NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "gap", "pixels_above_lines", 30, NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "lmarg", "left_margin", 5, NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "black_fg", "foreground", "#000000", NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "white_fg", "foreground", "#ffffff", NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "blue_fg", "foreground", "#3200ff", NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "magenta_fg", "foreground", "#ff32ff", NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "green_fg", "foreground", "#55ff00", NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "red_fg", "foreground", "#ff3200", NULL);
     
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "green_bg", "background", "#55ff00", NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "blue_bg", "background", "#3200ff", NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "red_bg", "background", "#ff3200", NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "yellow_bg", "background", "#f7f732", NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "magenta_bg", "background", "#ff32ff", NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "green_bg", "background", "#55ff00", NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "blue_bg", "background", "#3200ff", NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "red_bg", "background", "#ff3200", NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "yellow_bg", "background", "#f7f732", NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "magenta_bg", "background", "#ff32ff", NULL);
     
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "italic", "style", PANGO_STYLE_ITALIC, NULL);
-    gtk_text_buffer_create_tag(gres.view_chat_buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "italic", "style", PANGO_STYLE_ITALIC, NULL);
+    gtk_text_buffer_create_tag(gres.tbuf_chat, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 
     gres.scrolledwindow_user_list = gtk_scrolled_window_new (NULL, NULL);
     gtk_paned_pack2 (GTK_PANED(gres.paned_main), gres.scrolledwindow_user_list, false, false);
@@ -759,7 +761,6 @@ void main_gui(int argc, char **argv)
     gtk_box_pack_start(GTK_BOX (gres.hbox_inputs), gres.button_send, FALSE, FALSE, 0);
 
     gres.text_entry = gres.entry_command;
-    gres.chat_buffer = gres.view_chat_buffer;
     g_signal_connect(G_OBJECT(gres.entry_command), "activate", G_CALLBACK(button_send_click), NULL);
     g_signal_connect(G_OBJECT(gres.button_send), "clicked", G_CALLBACK(button_send_click), NULL);
 

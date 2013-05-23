@@ -396,15 +396,12 @@ void Session::HandleLogin(Packet& packet)
                 packet >> user;
                 packet >> pwd;
                 
-                ByteBuffer rec_nonce;
-                uint8 nonce[NONCE_SIZE];
+                uint8 nonce[NONCE_SIZE], rec_nonce[NONCE_SIZE];
+               
+                packet.read(rec_nonce, NONCE_SIZE);
                 
                 packet.read(nonce, NONCE_SIZE);
-                rec_nonce.append(nonce, NONCE_SIZE);
-                
-                packet.read(nonce, NONCE_SIZE);
-                s_other_nonce.clear();
-                s_other_nonce.append(nonce, NONCE_SIZE);
+                SetOtherNonce(nonce);
                 
                 valid = s_manager->FindSession(user).is_null();
 
@@ -469,7 +466,7 @@ void Session::HandleLogin(Packet& packet)
 
                 Packet data(SMSG_LOGIN, 32);
                 data.append(s_key);
-                SendPacketToSocket(&data); // TODO inserire SendPacket e attivare la criptazione al passo dopo
+                SendPacketToSocket(&data);
                 
                 Xor(s_key, packet);
                 SetEncryption(s_key, ENC_AES256);

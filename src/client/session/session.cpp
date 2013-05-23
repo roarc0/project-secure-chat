@@ -365,8 +365,7 @@ void Session::HandleLogin(Packet& packet)
                 uint8 nonce[NONCE_SIZE];
                 
                 packet.read(nonce, NONCE_SIZE);
-                s_other_nonce.clear();
-                s_other_nonce.append(nonce, NONCE_SIZE);
+                SetOtherNonce(nonce);
                 data.append(s_other_nonce);
                 
                 GenerateNonce();
@@ -385,13 +384,10 @@ void Session::HandleLogin(Packet& packet)
                 packet >> response;
                 if(response.compare("authenticated") == 0)
                 {
-                    uint8 nonce[NONCE_SIZE];
-                    ByteBuffer read_nonce;
-                    
+                    uint8 nonce[NONCE_SIZE];                   
                     packet.read(nonce, NONCE_SIZE);
-                    read_nonce.append(nonce, NONCE_SIZE);
-                    
-                    if(CheckNonce(read_nonce))
+
+                    if(CheckNonce(nonce))
                     {
                         SendToGui("", 'e', "Login succeeded!");
                         SetSessionStatus(STATUS_AUTHENTICATED);

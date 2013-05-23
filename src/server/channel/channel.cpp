@@ -80,6 +80,8 @@ bool Channel::RemoveSession(uint32 id)
         Packet packet2(SMSG_USERS_CHANNEL_LIST, 4);
         packet2 << (uint32)0;
         ses->SendPacket(&packet2);
+
+        return true;
     }
     m_mutex.Release();
     return false;

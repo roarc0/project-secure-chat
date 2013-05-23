@@ -83,14 +83,16 @@ void SessionBase::SendPacketToSocket(Packet* new_packet, unsigned char* temp_buf
 int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
 {
     if (IsServer())
+    {
         Lock guard(m_mutex);
+    }
 
     INFO("debug", "SESSION_BASE: sending packet: \"%s\"\n", pkt.contents());
     unsigned char* rawData = NULL;
 
     try
     {
-        Packet pct(0); // TODO inserire header appositi
+        Packet pct(0);
         pct.Incapsulate(pkt, u_id_send, IsSymmetric());
                
         if (IsEncrypted() && pct.size())
@@ -187,7 +189,9 @@ Packet* SessionBase::RecvPacketFromSocket(unsigned char* temp_buffer)
 Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
 {
     if (IsServer())
+    {
         Lock guard(m_mutex);
+    }
     
     uint16 len;
     unsigned char* buffer = NULL;

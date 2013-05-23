@@ -95,10 +95,6 @@ void* GuiThread(void* arg)
                 GTK_TOOL_BUTTON(gres->toolbar_connect),
                 "Disconnect");
             push_status_bar("Connected with server!");
-
-            add_user_to_list(gres->view_user_list,
-                             (gchar*) c_core->GetSession()->GetUsername()->c_str(),
-                             (gchar*) "*");
         }
         
         if(!c_core->GetSession()->IsConnected() && prev)
@@ -127,8 +123,8 @@ void* GuiThread(void* arg)
             if (msg.type == 'j' || msg.type == 'J')
             {
                 add_user_to_list(gres->view_user_list,
-                 (gchar*) msg.user.c_str(),
-                 (gchar*) "*");
+                                 (gchar*) msg.user.c_str(),
+                                 (gchar*) "*");
             }
             else if (msg.type == 'l')
             {

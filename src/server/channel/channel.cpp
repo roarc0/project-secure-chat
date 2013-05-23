@@ -24,7 +24,7 @@ void Channel::Update(uint32 t_diff)
 
 bool Channel::DelayedUpdate(uint32 /*t_diff*/)
 {
-    return m_sessions.size() ? true : false;
+    return m_sessions.size() ? true : (name == "Default" ? true : false);
 }
 
 bool Channel::CanEnterSession(Session_smart /*ses*/, std::string& c_pass) const

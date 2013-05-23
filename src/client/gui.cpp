@@ -21,7 +21,7 @@ struct gui_res
     /* menubar (MOTHER OF NAMES) */
     GtkWidget *menubar, *filemenu,*helpmenu, *file;
     GtkWidget *connect,*open, *font, *sep, *quit;
-    GtkWidget *username, *help, *about;
+    GtkWidget *help, *about;
     GtkAccelGroup *accel_group = NULL;
 
     /* toolbar */
@@ -590,8 +590,7 @@ void main_gui(int argc, char **argv)
     gres.helpmenu = gtk_menu_new();
 
     gres.file = gtk_menu_item_new_with_label("File");
-    gres.username = gtk_menu_item_new_with_label("Password");
-    gres.connect = gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW, NULL);
+    //gres.connect = gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW, NULL);
     gres.open = gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN, NULL);
     gres.font = gtk_image_menu_item_new_from_stock(GTK_STOCK_SELECT_FONT, NULL);
     gres.sep = gtk_separator_menu_item_new();
@@ -600,8 +599,7 @@ void main_gui(int argc, char **argv)
     gres.about = gtk_image_menu_item_new_from_stock(GTK_STOCK_ABOUT, NULL);
 
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(gres.file), gres.filemenu);
-    gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.connect);
-    gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.username);
+    //gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.connect);
     gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.font);
     gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.sep);
     gtk_menu_shell_append(GTK_MENU_SHELL(gres.filemenu), gres.quit);
@@ -616,7 +614,6 @@ void main_gui(int argc, char **argv)
     g_signal_connect(G_OBJECT(gres.quit), "activate", G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect(G_OBJECT(gres.font), "activate", G_CALLBACK(select_font), G_OBJECT(gres.window));
     g_signal_connect(G_OBJECT(gres.about), "activate", G_CALLBACK(show_about), NULL);
-    g_signal_connect(G_OBJECT(gres.username), "activate", G_CALLBACK(request_auth), G_OBJECT(gres.window));
 
     /* toolbar */
     gres.toolbar = gtk_toolbar_new();
@@ -632,8 +629,8 @@ void main_gui(int argc, char **argv)
     gtk_toolbar_insert(GTK_TOOLBAR(gres.toolbar), gres.toolbar_connect, -1);
     g_signal_connect(G_OBJECT(gres.toolbar_connect), "clicked", G_CALLBACK(toolbar_connect_click), NULL);
 
-    gres.toolbar_refresh = gtk_tool_button_new_from_stock(GTK_STOCK_REFRESH);
-    gtk_toolbar_insert(GTK_TOOLBAR(gres.toolbar), gres.toolbar_refresh, -1);
+    //gres.toolbar_refresh = gtk_tool_button_new_from_stock(GTK_STOCK_REFRESH);
+    //gtk_toolbar_insert(GTK_TOOLBAR(gres.toolbar), gres.toolbar_refresh, -1);
     //g_signal_connect(G_OBJECT(gres.toolbar_refresh), "clicked", G_CALLBACK(set_nick), G_OBJECT(gres.window));
 
     gres.toolbar_reset = gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR);
@@ -732,7 +729,7 @@ void main_gui(int argc, char **argv)
     gres.renderer_user_list = gtk_cell_renderer_text_new();
     gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(gres.view_user_list),
                         -1,
-                        "Level",
+                        "Type",
                         gres.renderer_user_list,
                         "text",
                         COLUMN_STRING2,
@@ -750,7 +747,7 @@ void main_gui(int argc, char **argv)
     gtk_box_pack_start(GTK_BOX (gres.vbox_main), gres.hbox_inputs, FALSE, FALSE, 0);
     
     gres.label_nick = gtk_label_new((gchar *) CFG_GET_STRING("username").c_str()); 
-    gtk_misc_set_alignment(GTK_MISC(gres.label_nick),0.0,0.5);
+    gtk_misc_set_alignment(GTK_MISC(gres.label_nick), 0.0, 0.5);
     gtk_box_pack_start(GTK_BOX (gres.hbox_inputs), gres.label_nick, FALSE, FALSE, 2 );
 
     gres.entry_command = gtk_entry_new();

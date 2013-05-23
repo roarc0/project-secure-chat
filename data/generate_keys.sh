@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SIZE=2048
+SIZE=4096
 CIPHER="-aes256"
 PASSOUT="-passout pass:password"
 PASSIN="-passin pass:password"

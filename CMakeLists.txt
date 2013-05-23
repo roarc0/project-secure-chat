@@ -1,9 +1,5 @@
-# Set projectname (must be done AFTER setting configurationtypes)
-project(ProjectSecureChat)
-
-# CMake policies (can not be handled elsewhere)
+project("Project Secure Chat")
 cmake_minimum_required(VERSION 2.6)
-#cmake_policy(SET CMP0005 OLD)
 
 # Set RPATH-handing (CMake parameters)
 set(CMAKE_SKIP_BUILD_RPATH 0)
@@ -32,7 +28,7 @@ find_package (PkgConfig REQUIRED)
 find_package(OpenSSL REQUIRED)
 pkg_check_modules(Confuse REQUIRED libconfuse)
 if( CLIENT )
-    pkg_check_modules (GTK3 REQUIRED gtk+-3.0) # senza questo non linka
+    pkg_check_modules (GTK3 REQUIRED gtk+-3.0)
     find_package(GTK3 REQUIRED)
     find_package(Glib REQUIRED)
     find_package(TinyXML REQUIRED)

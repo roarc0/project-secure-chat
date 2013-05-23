@@ -80,8 +80,8 @@ using std::hash_map;
 #define int16 int16_t
 #define int8  int8_t
 
-#include "utility/file.h"
 #include "utility/logger.h"
+#include "utility/file.h"
 #include "utility/timer.h"
 #include "utility/config.h"
 #include "revision.h"

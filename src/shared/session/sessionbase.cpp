@@ -121,17 +121,18 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
             pct.Encrypt(par);
         }
        
-        PktHeader header(pct.GetOpcode(), pct.size());
+        //PktHeader header(pct.GetOpcode(), pct.size());
+        uint16 len = pct.size();
         
         if (!temp_buffer)
-            rawData = new unsigned char[header.getHeaderLength() + pct.size() + 1];
+            rawData = new unsigned char[2 + pct.size() + 1];
         else 
             rawData = temp_buffer;
 
-        memcpy((void*)rawData, (char*) header.header, header.getHeaderLength());
-        memcpy((void*)(rawData + header.getHeaderLength()), (char*) pct.contents(), pct.size());
+        memcpy((void*)rawData, (char*)(&len), 2);
+        memcpy((void*)(rawData + 2), (char*) pct.contents(), pct.size());
 
-        m_Socket->Send(rawData, pct.size() + header.getHeaderLength());
+        m_Socket->Send(rawData, pct.size() + 2);
 
         if (IsServer() && pkt.GetOpcode() == SMSG_REFRESH_KEY && u_changekeys == 1)
         {
@@ -150,7 +151,7 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
         if (!temp_buffer)
             delete[] rawData;
 
-        INFO("debug", "SESSION_BASE: packet <%d bytes> sent\n", header.getHeaderLength()+pct.size());
+        INFO("debug", "SESSION_BASE: packet <%d bytes> sent\n", 2+pct.size());
         return 0;
 
     }
@@ -188,49 +189,45 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
     if (IsServer())
         Lock guard(m_mutex);
     
-    char header[HEADER_SIZE];
+    uint16 len;
     unsigned char* buffer = NULL;
     Packet* pct = NULL;
 
     try 
     {
-        m_Socket->Recv((void*) &header, HEADER_SIZE);
-        PktHeader pkt_head((char*)header, HEADER_SIZE);
+        m_Socket->Recv((void*) &len, 2);
+        //PktHeader pkt_head((char*)header, 2);
 
-        if (pkt_head.getSize() > 65000) // limit 2^16
+        if (len > 65000) // limit 2^16
         {
             INFO("debug","SESSION_BASE: packet > 65000, kicking session\n");
             Close();
             return NULL;
         }    
 
-        if (pkt_head.getSize())
-        {
-            if (!temp_buffer)
-                buffer = new unsigned char[pkt_head.getSize()];
-            else
-                buffer = temp_buffer;
-            m_Socket->Recv((void*) buffer, pkt_head.getSize());
-        }
+        INFO("debug","SESSION_BASE: packet [header %d, length %d]\n", 0, len);
 
-        INFO("debug","SESSION_BASE: packet [header %d, length %d]\n", pkt_head.getHeader(), pkt_head.getSize());
-
-        pct = new Packet(pkt_head.getHeader(), pkt_head.getSize());
-        
+        pct = new Packet(0, len);        
         if (!pct)
-        {
-            if (!temp_buffer)
-                delete[] buffer;
             return NULL;
-        }
         
         Packet* pkt = NULL;
 
-        if (pkt_head.getSize())
+        if ((uint16)len)
         {
-            pct->append((char*)buffer, pkt_head.getSize());
+            if (!temp_buffer)
+            {
+                buffer = new unsigned char[len];
+                if (!buffer)
+                    return NULL;
+            }
+            else
+                buffer = temp_buffer;
 
-            if (IsEncrypted() && pkt_head.getSize())
+            m_Socket->Recv((void*)buffer, len);
+            pct->append((char*)buffer, len);
+
+            if (IsEncrypted())
             {
                 ByteBuffer par;
 

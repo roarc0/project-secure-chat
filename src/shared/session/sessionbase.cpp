@@ -87,7 +87,8 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
         Lock guard(m_mutex);
     }
 
-    INFO("debug", "SESSION_BASE: sending packet: \"%s\"\n", pkt.contents());
+    INFO("debug", "SESSION_BASE: sending packet:\n");
+    pkt.hexlike();
     unsigned char* rawData = NULL;
 
     try
@@ -399,6 +400,17 @@ void SessionBase::ClearPassword()
 void SessionBase::GenerateNonce()
 {
     GenerateRandomData(s_my_nonce, NONCE_SIZE);
+}
+
+void SessionBase::SetOtherNonce(const uint8* nonce)
+{
+    s_other_nonce.clear();
+    s_other_nonce.append(nonce, NONCE_SIZE);
+}
+
+bool SessionBase::CheckNonce(const uint8* buf)
+{        
+    return s_my_nonce.compare(buf);
 }
 
 bool SessionBase::CheckNonce(const ByteBuffer& buf)

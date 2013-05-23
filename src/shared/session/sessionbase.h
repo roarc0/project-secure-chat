@@ -73,7 +73,9 @@ class SessionBase
         void ClearPassword();
         
         void GenerateNonce();
+        bool CheckNonce(const uint8*);
         bool CheckNonce(const ByteBuffer&);
+        void SetOtherNonce(const uint8*);
 
         // Resetta la numerazione dei pacchetti
         void ResetPacketNum();

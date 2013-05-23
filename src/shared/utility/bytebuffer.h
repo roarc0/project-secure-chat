@@ -302,12 +302,14 @@ class ByteBuffer
             return val;
         }
 
+        bool compare(const uint8* b) const
+        {
+            return memcmp(contents(), b, size()) == 0;
+        }
+
         bool compare(const ByteBuffer& b) const
         {
-            if (b.size() == size())
-                return memcmp(contents(), b.contents(), size()) == 0;
-            else
-                return false;
+            return compare((const uint8*) b.contents());
         }
 
         void read(uint8 *dest, size_t len)

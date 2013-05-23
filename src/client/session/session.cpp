@@ -437,3 +437,18 @@ void Session::HandleQueuePos(Packet& packet)
     packet >> pos;
     SendToGui("", 'e', "Queue position is %u\n", pos);
 }
+
+void Session::HandleChannelUsersList(Packet& packet)
+{
+    uint32 size;
+    std::string name;
+
+    packet >> size;
+
+    for (uint32 i = 0; i < size; i++)
+    {   
+        name = "";
+        packet >> name;
+        // TODO fai cose buffe
+    }
+}

@@ -51,6 +51,7 @@ bool Channel::AddSession(Session_smart ses)
     new_packet << XMLBuildUpdate(ses->GetUsername()->c_str(), "join");
     SendToAllButOne(&new_packet, ses->GetId());
 
+    SendUsersList(ses);
     return true;
 }
 
@@ -125,4 +126,15 @@ void Channel::SendToOne(Packet* packet, uint32 id)
 void Channel::MakeChannelChangeName(Packet* /*packet*/)
 {
     // Settaggio pacchetto
+}
+
+void Channel::SendUsersList(Session_smart ses)
+{
+    Packet packet(SMSG_USERS_CHANNEL_LIST, 0);
+    packet << (uint32)m_sessions.size();
+    for (mapSession::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    {
+        packet << *(itr->second->GetUsername());
+    }    
+    ses->SendPacket(&packet);
 }

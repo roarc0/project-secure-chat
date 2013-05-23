@@ -22,7 +22,7 @@ class Session : public SessionBase
 
     bool Update();    
 
-    void HandleClientSide(Packet&);    
+    void HandleClientSide(Packet&); 
     void HandlePing(Packet&);
     void HandleMessage(Packet&);
     void HandleWhisp(Packet&);
@@ -31,7 +31,8 @@ class Session : public SessionBase
     void HandleLeaveChannel(Packet&);
     void HandleRefreshKey(Packet&);
     void HandleLogin(Packet&);
-    void HandleQueuePos(Packet&);        
+    void HandleQueuePos(Packet&);
+    void HandleChannelUsersList(Packet&);    
     
     bool HandleSend(const char* msg);
 

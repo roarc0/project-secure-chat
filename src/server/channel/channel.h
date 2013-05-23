@@ -37,6 +37,7 @@ class Channel
         void SendToOne(Packet* packet, uint32 id);
 
         void MakeChannelChangeName(Packet* packet);
+        void SendUsersList(Session_smart ses);
 
         // THREADSAFE
         Session_smart FindSession(uint32 id);

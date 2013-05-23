@@ -26,6 +26,8 @@ enum MessageTypes
     SMSG_LOGIN,
     CMSG_REFRESH_KEY,
     SMSG_REFRESH_KEY,
+    CMSG_USERS_CHANNEL_LIST,
+    SMSG_USERS_CHANNEL_LIST,
     
     NUM_MSG_TYPES,                                  
 };

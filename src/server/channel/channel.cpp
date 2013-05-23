@@ -73,13 +73,13 @@ bool Channel::RemoveSession(uint32 id)
         m_mutex.Release();
 
         // Invio uscita dal canale
-        Packet new_packet(SMSG_LEAVE_CHANNEL, 0);
-        new_packet << XMLBuildUpdate(ses->GetUsername()->c_str(), "leave");  // leave e join non servirebbero
-                                                                    // ma in questo modo si potrebbe fare un solo opcode che gestisce
-                                                                    // entrambi i cambi di stato
-        SendToAllButOne(&new_packet, ses->GetId());
+        Packet packet(SMSG_LEAVE_CHANNEL, 0);
+        packet << XMLBuildUpdate(ses->GetUsername()->c_str(), "leave");
+        SendToAllButOne(&packet, ses->GetId());
 
-        return true;
+        Packet packet2(SMSG_USERS_CHANNEL_LIST, 4);
+        packet2 << (uint32)0;
+        ses->SendPacket(&packet2);
     }
     m_mutex.Release();
     return false;

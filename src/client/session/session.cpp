@@ -119,7 +119,7 @@ void Session::SendToGui(std::string nick, char type, const char * fmt, ...)
     ret = vasprintf(&buffer, fmt, ap);
     va_end(ap);
 
-    if (ret)
+    if (ret >= 0)
     {
         SendToGui(nick, type, (string) buffer);
         free(buffer);
@@ -440,6 +440,7 @@ void Session::HandleQueuePos(Packet& packet)
 
 void Session::HandleChannelUsersList(Packet& packet)
 {
+    INFO("debug", "SESSION: HandleChannelUsersList\n");
     uint32 size;
     std::string name;
 
@@ -452,6 +453,5 @@ void Session::HandleChannelUsersList(Packet& packet)
         name = "";
         packet >> name;
         SendToGui(name, 'J', ""); 
-
     }
 }

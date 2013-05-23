@@ -23,5 +23,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     { "CMSG_LOGIN",                  STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleClientSide                     },
     { "SMSG_LOGIN",                  STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleLogin                          },
     { "CMSG_REFRESH_KEY",            STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleClientSide                     },
-    { "SMSG_REFRESH_KEY",            STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleRefreshKey                     },  
+    { "SMSG_REFRESH_KEY",            STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleRefreshKey                     },
+    { "CMSG_USERS_CHANNEL_LIST",     STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleClientSide                     },
+    { "SMSG_USERS_CHANNEL_LIST",     STATUS_LOGGING,     PROCESS_INPLACE,           &Session::HandleChannelUsersList               },  
 };

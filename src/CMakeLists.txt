@@ -1,6 +1,6 @@
-if(CMAKE_COMPILER_IS_GNUCXX)
-  add_definitions(-fno-delete-null-pointer-checks)
-endif()
+#if(CMAKE_COMPILER_IS_GNUCXX)
+#  add_definitions(-fno-delete-null-pointer-checks)
+#endif()
 
 add_subdirectory(shared)
 

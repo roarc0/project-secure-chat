@@ -61,7 +61,7 @@ endif()
 set_target_properties(server PROPERTIES LINK_FLAGS "${server_LINK_FLAGS}")
 
 target_link_libraries(server
-  shared
+  shared_serv
   ${Confuse_LIBRARIES}
   ${Sqlite_LIBRARIES}
   ${OPENSSL_LIBRARIES}

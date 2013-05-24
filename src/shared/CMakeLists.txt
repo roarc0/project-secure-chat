@@ -17,6 +17,16 @@ set(shared_STAT_SRCS
   ${sources_localdir}
 )
 
+set(shared_STAT_SRCS_CLIE
+  ${shared_STAT_SRCS}
+  ${sources_Define_Clie} 
+)
+
+set(shared_STAT_SRCS_SERV
+  ${shared_STAT_SRCS}
+  ${sources_Define_Serv} 
+)
+
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -30,4 +40,9 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
 )
 
-add_library(shared STATIC ${shared_STAT_SRCS})
+
+add_library(shared_clie STATIC ${shared_STAT_SRCS_CLIE})
+
+add_definitions( -DSERVER=1 )
+add_library(shared_serv STATIC ${shared_STAT_SRCS_SERV})
+

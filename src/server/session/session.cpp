@@ -472,7 +472,7 @@ void Session::HandleLogin(Packet& packet)
                 SetEncryption(s_key, ENC_AES256);
                 
                 INFO("debug", "SESSION: AES key established\n");
-                ResetPacketNum();              
+                ResetPacketNum();
                 s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
             }
         break;

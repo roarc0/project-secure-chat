@@ -82,10 +82,9 @@ void SessionBase::SendPacketToSocket(Packet* new_packet, unsigned char* temp_buf
 
 int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
 {
-    if (IsServer())
-    {
+    #ifdef SERVER
         Lock guard(m_mutex);
-    }
+    #endif
 
     INFO("debug", "SESSION_BASE: sending packet:\n");
     pkt.hexlike();
@@ -189,10 +188,9 @@ Packet* SessionBase::RecvPacketFromSocket(unsigned char* temp_buffer)
 
 Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
 {
-    if (IsServer())
-    {
+    #ifdef SERVER
         Lock guard(m_mutex);
-    }
+    #endif
     
     uint16 len;
     unsigned char* buffer = NULL;

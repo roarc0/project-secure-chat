@@ -43,6 +43,6 @@ include_directories(
 
 add_library(shared_clie STATIC ${shared_STAT_SRCS_CLIE})
 
-add_definitions( -DSERVER=1 )
 add_library(shared_serv STATIC ${shared_STAT_SRCS_SERV})
+set_target_properties(shared_serv PROPERTIES COMPILE_FLAGS -DSERVER=1)
 

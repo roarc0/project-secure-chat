@@ -17,16 +17,6 @@ set(shared_STAT_SRCS
   ${sources_localdir}
 )
 
-set(shared_STAT_SRCS_CLIE
-  ${shared_STAT_SRCS}
-  ${sources_Define_Clie} 
-)
-
-set(shared_STAT_SRCS_SERV
-  ${shared_STAT_SRCS}
-  ${sources_Define_Serv} 
-)
-
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -41,8 +31,8 @@ include_directories(
 )
 
 
-add_library(shared_clie STATIC ${shared_STAT_SRCS_CLIE})
+add_library(shared_clie STATIC ${shared_STAT_SRCS})
 
-add_library(shared_serv STATIC ${shared_STAT_SRCS_SERV})
+add_library(shared_serv STATIC ${shared_STAT_SRCS})
 set_target_properties(shared_serv PROPERTIES COMPILE_FLAGS -DSERVER=1)
 

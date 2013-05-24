@@ -47,7 +47,7 @@ endif()
 set_target_properties(client PROPERTIES LINK_FLAGS "${client_LINK_FLAGS}")
 
 target_link_libraries(client    
-  shared
+  shared_clie
   ${OPENSSL_LIBRARIES}
   ${OPENSSL_EXTRA_LIBRARIES}
   ${GTK3_LIBRARIES}  

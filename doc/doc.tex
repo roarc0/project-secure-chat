@@ -155,18 +155,16 @@ La procedura di autenticazione permette di stabilire una chiave di sessione tra 
 \item $K_{sc}$ : Session Key.
 \end{itemize}
 Il protocollo di autenticazione usa la seguente sequenza di messaggi.
-\begin{itemize}
-\item \textbf{M1} : $S \rightarrow C$ : $N_s$ \\
-Il server manda un nounce al client che si è appena connesso.
-\item \textbf{M2} : $S \leftarrow C$ : $E_{spub}$ ( $N_c$, $N_s$, User, PwdHash )\\
-Il client cripta con la chiave pubblica del server il nounce ricevuto, inserisce un proprio nounce, inserisce utente e hash della password.
-\item \textbf{M3} : $S \rightarrow C$ : $E_{cpub}$ ( $N_c$, Response )\\
-Se l'utente non è già connesso, ha un nome valido e quindi è presente nel database e l'hash della password coincide con quello nel database, la risposta è positiva e viene autenticato, altrimenti viene rigettato.
-\item \textbf{M4} : Se il nounce viene verificato invia il seguente messaggio altrimenti la connessione viene chiusa.\\
-$S \leftarrow C$ : $E_{spub}$ ( $K_c$ )
-\item \textbf{M5} : $S \rightarrow C$ : $E_{cpub}$ ( $K_s$ )
-\item Client e Server calcolano la chiave di sessione: $ K_{sc} = K_s \oplus K_c $
-\end{itemize}
+\begin{center}
+    \begin{tabular}{ | c | c | p{6cm} |}
+    \hline
+    M1 & $S \rightarrow C$ : $N_s$ & Il server invia un nounce/challenge al client che si è appena connesso. \\ \hline
+    M2 &  $S \leftarrow C$ : $E_{spub}$ ( $N_c$, $N_s$, User, PwdHash ) & Il client cripta con la chiave pubblica del server il nounce ricevuto, inserisce un proprio nounce, inserisce utente e hash della password. \\ \hline
+    M3 & $S \rightarrow C$ : $E_{cpub}$ ( $N_c$, Response ) & Se l'utente non è già connesso, ha un nome valido e quindi è presente nel database e l'hash della password coincide con quello nel database, la risposta è positiva e viene autenticato, altrimenti viene rigettato. \\ \hline
+    M4 & $S \leftarrow C$ : $E_{spub}$ ( $K_c$ ) & Se il nounce viene verificato invia il seguente messaggio altrimenti la connessione viene chiusa.\\ \hline
+    M5 & $S \rightarrow C$ : $E_{cpub}$ ( $K_s$ ) & Client e Server calcolano la chiave di sessione: $ K_{sc} = K_s \oplus K_c $ \\ \hline
+    \end{tabular}
+\end{center}
 
 \subsection{Analisi Ban}
 

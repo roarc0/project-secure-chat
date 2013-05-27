@@ -14,6 +14,7 @@
 \usepackage{listings}
 \usepackage{makeidx}
 \usepackage{subfig}
+\usepackage{amssymb} % symbols
 \makeindex
 
 \renewcommand{\headrule}{\hbox to\headwidth{\dotfill} \vskip 0.25cm}
@@ -169,6 +170,17 @@ $S \leftarrow C$ : $E_{spub}$ ( $K_c$ )
 
 \subsection{Analisi Ban}
 
+%% BAN logic test statements %%
+$ S \mid \equiv X  $. S believes X.\\
+$ S \lhd X  $. S sees X.\\
+$ S \mid \sim X  $. S once said X.\\
+$ S \Rightarrow X $. S controls X.\\ 
+$ \#(X) $. X is fresh.\\
+$S {k \atop \leftrightarrow} C $. K is a shared key between S and C.\\ 
+$S {k \atop \leftrightharpoons} C $. K is a shared secret between S and C.\\ 
+${k  \atop \longmapsto} S $. K is S's public key.\\
+$\langle X \rangle_{Y}$. X is combined with Y (secret).\\
+$\{X\}_{K}$ X has been cyphered with K.
 
 \subsection{Aggiornamento chiave di sessione}
 La chiave di sessione viene aggiornata ogni 15 minuti. La frequenza di aggiornamento è configurabile ma ha un minimo di 60 secondi. 

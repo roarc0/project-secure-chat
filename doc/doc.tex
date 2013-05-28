@@ -106,7 +106,7 @@ Il progetto illustrato in questo documento si chiama \textbf{pschat} e rappresen
 
 \subsection{Formato del pacchetto}
 
-Pacchetto \textbf{RSA}:
+Pacchetto \textbf{RSA} OEAP:
 \begin{verbatim}
 [LEN]  RSA{ [OPCODE][LEN][PAYLOAD] }
   2            2      2    0-252
@@ -118,11 +118,12 @@ Pacchetto \textbf{AES-128/256}:
 [LEN]  AES{ [OPCODE][LEN][SEQ][PAYLOAD] }
   2            2      2    4   0-65000
 \end{verbatim}
-$Size_{min} = 2 + 16= 258$ Bytes
-%$Size_{max} = Size_{min} + 16 * ( 65000 % 16 ) = $ Bytes
+
+$Size_{min} = 2 + 16 = 258$ Bytes.\\
+$Size_{max} = Size_{min} + 65000 + ( 65000 \% 16 ) = 65260 $ Bytes.\\
 
 \section{Protocollo}
-L'autenticazione è stata eseguita sfruttando RSA.
+L'autenticazione è stata eseguita sfruttando RSA in modalità OEAP.
 \subsection{Server}
 Il server ha una chiave privata e una pubblica (nota a priori per ogni client), è dotato di un database che contiene i nomi degli utenti, gli hash delle loro password e altre informazioni.\\
 Il server conosce tutte le chiavi pubbliche degli utenti registrati al sistema.
@@ -148,37 +149,54 @@ La procedura di autenticazione permette di stabilire una chiave di sessione tra 
 \item \textbf{C} : Client
 \item $N_s$ : Server's nounce
 \item $N_c$ : Client's nounce
-\item $E_{spub} ()$ : Encrypt with server's public key. 
-\item $E_{cpub} ()$ : Encrypt with client's public key.
-\item $K_c$ : Client's Key.
-\item $K_s$ : Server's Key.
-\item $K_{sc}$ : Session Key.
+\item $E_{s} ()$ : Encrypt with server's public key. 
+\item $E_{c} ()$ : Encrypt with client's public key.
+\item $K_c$ : Client's symmethric key.
+\item $K_s$ : Server's symmethric key.
+\item $K_{sc}$ : Combined session key.
 \end{itemize}
 Il protocollo di autenticazione usa la seguente sequenza di messaggi.
 \begin{center}
     \begin{tabular}{ | c | c | p{6cm} |}
     \hline
     M1 & $S \rightarrow C$ : $N_s$ & Il server invia un nounce/challenge al client che si è appena connesso. \\ \hline
-    M2 &  $S \leftarrow C$ : $E_{spub}$ ( $N_c$, $N_s$, User, PwdHash ) & Il client cripta con la chiave pubblica del server il nounce ricevuto, inserisce un proprio nounce, inserisce utente e hash della password. \\ \hline
-    M3 & $S \rightarrow C$ : $E_{cpub}$ ( $N_c$, Response ) & Se l'utente non è già connesso, ha un nome valido e quindi è presente nel database e l'hash della password coincide con quello nel database, la risposta è positiva e viene autenticato, altrimenti viene rigettato. \\ \hline
-    M4 & $S \leftarrow C$ : $E_{spub}$ ( $K_c$ ) & Se il nounce viene verificato invia il seguente messaggio altrimenti la connessione viene chiusa.\\ \hline
-    M5 & $S \rightarrow C$ : $E_{cpub}$ ( $K_s$ ) & Client e Server calcolano la chiave di sessione: $ K_{sc} = K_s \oplus K_c $ \\ \hline
+    M2 & $S \leftarrow C$ : $E_{s}$ ( $N_c$, $N_s$, User, PwdHash ) & Il client cripta con la chiave pubblica del server il nounce ricevuto, inserisce un proprio nounce, inserisce utente e hash della password. \\ \hline
+    M3 & $S \rightarrow C$ : $E_{c}$ ( $N_c$, Response ) & Se l'utente non è già connesso, ha un nome valido e quindi è presente nel database e l'hash della password coincide con quello nel database, la risposta è positiva e viene autenticato, altrimenti viene rigettato. \\ \hline
+    M4 & $S \leftarrow C$ : $E_{s}$ ( $K_c$ ) & Se il nounce viene verificato invia il seguente messaggio altrimenti la connessione viene chiusa.\\ \hline
+    M5 & $S \rightarrow C$ : $E_{c}$ ( $K_s$ ) & Client e Server calcolano la chiave di sessione: $ K_{sc} = K_s \oplus K_c $ \\ \hline
     \end{tabular}
 \end{center}
+!! Manca la parte di key confirmation !! magari si spediscono gli xor dei nounce o qualcosa del genere\\
 
 \subsection{Analisi Ban}
 
-%% BAN logic test statements %%
-$ S \mid \equiv X  $. S believes X.\\
-$ S \lhd X  $. S sees X.\\
-$ S \mid \sim X  $. S once said X.\\
-$ S \Rightarrow X $. S controls X.\\ 
-$ \#(X) $. X is fresh.\\
-$S {k \atop \leftrightarrow} C $. K is a shared key between S and C.\\ 
-$S {k \atop \leftrightharpoons} C $. K is a shared secret between S and C.\\ 
-${k  \atop \longmapsto} S $. K is S's public key.\\
-$\langle X \rangle_{Y}$. X is combined with Y (secret).\\
-$\{X\}_{K}$ X has been cyphered with K.
+BAN logic statements:
+\begin{center}
+\begin{tabular}{|c | l|} \hline
+$ S \mid \equiv X  $ & S believes X.\\
+$ S \lhd X  $ & S sees X.\\
+$ S \mid \sim X  $ & S once said X.\\
+$ S \Rightarrow X $ & S controls X.\\ 
+$ \#(X) $ & X is fresh.\\
+$S {k \atop \leftrightarrow} C $ & K is a shared key between S and C.\\ 
+$S {k \atop \leftrightharpoons} C $ & K is a shared secret between S and C.\\ 
+${k  \atop \longmapsto} S $ & K is S's public key.\\
+$\langle X \rangle_{Y}$ & X is combined with Y (secret).\\
+$\{X\}_{K}$ & X has been cyphered with K.\\ \hline
+\end{tabular}
+\end{center}
+
+Obiettivi:
+\begin{itemize}
+\item \framebox{$S \mid \equiv S {k \atop \leftrightarrow} C $} \framebox{$C \mid \equiv S {k \atop \leftrightarrow} C $} (\textit{key-authentication})
+\item \framebox{$S \mid \equiv C \mid \equiv S {k \atop \leftrightarrow} C $} \framebox{$C \mid \equiv S \mid \equiv S {k \atop \leftrightarrow} C $} (\textit{key-confirmation})
+\item \framebox{$ C \mid \equiv \#( S {k \atop \leftrightarrow} C) $} \framebox{$ S \mid \equiv \#( S {k \atop \leftrightarrow} C) $} (\textit{key-freshness})
+\end{itemize}
+
+Ipotesi:\\
+
+Idealizzazione del protocollo:\\
+
 
 \subsection{Aggiornamento chiave di sessione}
 La chiave di sessione viene aggiornata ogni 15 minuti. La frequenza di aggiornamento è configurabile ma ha un minimo di 60 secondi. 

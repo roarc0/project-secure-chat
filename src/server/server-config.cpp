@@ -23,9 +23,12 @@ void InitConfig(string filename)
     CFG->add_bool("debug", false);
     CFG->add_bool("log", false);
     CFG->add_string("log_path", "logs");
+    
     CFG->add_int("server_port", 7777);
-    CFG->add_int("key_refresh_interval", 900);
+    CFG->add_string("server_name", "psc-test-server");
+    
     CFG->add_string("db_filename", "../etc/database.sqlite");
+    CFG->add_int("key_refresh_interval", 900);
     
     CFG->add_string("rsa_prefix", "../etc/keys/");
     CFG->add_string("rsa_my_keys", "server");
@@ -33,7 +36,6 @@ void InitConfig(string filename)
 
     CFG->add_int("ThreadNet", 2);
     CFG->add_int("ThreadExec", 2);
-
     CFG->add_int("SessionActiveLimit", 100);
     CFG->add_int("SessionQueueLimit", 50);
 

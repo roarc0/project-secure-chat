@@ -108,19 +108,19 @@ Il progetto illustrato in questo documento si chiama \textbf{pschat} e rappresen
 
 Pacchetto \textbf{RSA} OEAP:
 \begin{verbatim}
-[LEN]  RSA{ [OPCODE][LEN][PAYLOAD] }
+[LEN]  RSA-ENCRYPTED{ [OPCODE][LEN][PAYLOAD] }
   2            2      2    0-252
 \end{verbatim}
 $Size = 2 + 256= 258$ Bytes.\\
 
 Pacchetto \textbf{AES-128/256}:
 \begin{verbatim}
-[LEN]  AES{ [OPCODE][LEN][SEQ][PAYLOAD] }
-  2            2      2    4   0-65000
+[LEN]  { [IV] } AES-ENCRYPTED { [OPCODE][LEN][SEQ][PAYLOAD] }
+  2       16                       2      2    4   0-65000
 \end{verbatim}
 
 $Size_{min} = 2 + 16 = 258$ Bytes.\\
-$Size_{max} = Size_{min} + 65000 + ( 65000 \% 16 ) = 65260 $ Bytes.\\
+$Size_{max} = Size_{min} + 65000 + ( 65000 \% 16 ) = 65260 $ Bytes.
 
 \section{Protocollo}
 L'autenticazione è stata eseguita sfruttando RSA in modalità OEAP.
@@ -163,7 +163,7 @@ Il protocollo di autenticazione usa la seguente sequenza di messaggi.
     M2 & $S \leftarrow C$ : $E_{s}$ ( $N_c$, $N_s$, User, PwdHash ) & Il client cripta con la chiave pubblica del server il nounce ricevuto, inserisce un proprio nounce, inserisce utente e hash della password. \\ \hline
     M3 & $S \rightarrow C$ : $E_{c}$ ( $N_c$, Response ) & Se l'utente non è già connesso, ha un nome valido e quindi è presente nel database e l'hash della password coincide con quello nel database, la risposta è positiva e viene autenticato, altrimenti viene rigettato. \\ \hline
     M4 & $S \leftarrow C$ : $E_{s}$ ( $K_c$ ) & Se il nounce viene verificato invia il seguente messaggio altrimenti la connessione viene chiusa.\\ \hline
-    M5 & $S \rightarrow C$ : $E_{c}$ ( $K_s$ ) & Client e Server calcolano la chiave di sessione: $ K_{sc} = K_s \oplus K_c $ \\ \hline
+    M5 & $S \rightarrow C$ : $E_{c}$ ( $K_s$ ) & Client e Server calcolano la chiave di sessione: $ K_{sc} = AES_{Na \oplus Nb}(K_s \oplus K_c) $ \\ \hline % non va bene da rivedere
     \end{tabular}
 \end{center}
 !! Manca la parte di key confirmation !! magari si spediscono gli xor dei nounce o qualcosa del genere\\
@@ -194,7 +194,11 @@ Obiettivi:
 \end{itemize}
 
 Ipotesi:\\
+\begin{itemize}
+\item \textbf{(H1)}: $ S \mid \equiv \#(Na) $
+\item \textbf{(H2)}: $ S \mid \equiv \#(Nb) $
 
+\end{itemize}
 Idealizzazione del protocollo:\\
 
 

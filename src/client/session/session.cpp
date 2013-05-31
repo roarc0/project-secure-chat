@@ -390,7 +390,7 @@ void Session::HandleLogin(Packet& packet)
                     if(CheckNonce(nonce))
                     {
                         SendToGui("", 'e', "Login succeeded!");
-                        SetSessionStatus(STATUS_AUTHENTICATED);
+                        SetSessionStatus(STATUS_LOGIN_STEP_2);
                         
                         GenerateRandomKey(s_key, 32);
                         Packet data(CMSG_LOGIN, 32);
@@ -412,11 +412,26 @@ void Session::HandleLogin(Packet& packet)
                 }
             }
             break;
-        case STATUS_AUTHENTICATED:   
+        case STATUS_LOGIN_STEP_2:   
             {
                 Xor(s_key, (const ByteBuffer) packet);
                 SetEncryption(s_key, ENC_AES256);
                 ResetPacketNum();
+
+                SetSessionStatus(STATUS_LOGIN_STEP_3);
+            }
+            break;
+        case STATUS_LOGIN_STEP_3:   
+            {
+                // Test chiave di sessione
+                packet >> test_nounce;
+                test_nounce--;
+
+                Packet data(CMSG_LOGIN, 4);
+                data << test_nounce;
+                SendPacketToSocket(&data);
+
+                SetSessionStatus(STATUS_AUTHENTICATED);
                 INFO("debug", "SESSION: AES key established\n");
             }
             break;
@@ -431,7 +446,8 @@ void Session::HandleQueuePos(Packet& packet)
 {
     uint32 pos;
     packet >> pos;
-    SendToGui("", 'e', "Queue position is %u\n", pos);
+    SendToGui
+("", 'e', "Queue position is %u\n", pos);
 }
 
 void Session::HandleChannelUsersList(Packet& packet)

@@ -29,6 +29,7 @@ enum SessionStatus
     STATUS_CONNECTED,
     STATUS_LOGIN_STEP_1,
     STATUS_LOGIN_STEP_2,
+    STATUS_LOGIN_STEP_3,
     STATUS_AUTHENTICATED
 };
 
@@ -101,6 +102,8 @@ class SessionBase
         string s_pwd;
         string f_my_pub_key, f_my_priv_key,
                f_other_pub_key;
+
+        uint32 test_nounce;
         
         /* symmethric encryption */
         ByteBuffer s_key, s_key_tmp;

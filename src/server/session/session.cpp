@@ -4,6 +4,7 @@
 #include "session-manager.h"
 #include "network-manager.h"
 #include "xml-message.h"
+#include <openssl/rand.h>
 
 Session::Session(int pSock) : SessionBase(pSock),
 m_id(0), m_inQueue(false), m_channel(NULL)
@@ -440,27 +441,30 @@ void Session::HandleLogin(Packet& packet)
                 if (valid)
                 {
                     INFO("debug", "SESSION: username \"%s\" accepted\n", user.c_str());
-                    SetSessionStatus(STATUS_AUTHENTICATED);
+                    SetSessionStatus(STATUS_LOGIN_STEP_2);
                     UpdateKeyFilenames();  // locate user's public key.
-                    response = "authenticated";
+
+                    Packet data(SMSG_LOGIN, 0);
+                    data << "authenticated";
+                    data.append(s_other_nonce);
+                    SendPacket(&data);
+                    break;
                 }
                 else
-                {
+                {   
+                    INFO("debug", "SESSION: username \"%s\" rejected\n", user.c_str());         
                     SetSessionStatus(STATUS_REJECTED);
-                    response = "rejected";
+
+                    Packet data(SMSG_LOGIN, 0);
+                    data << "rejected";
+                    SendPacketToSocket(&data);
+                   
+                    Close();
+                    break;        
                 }
-                
-                Packet data(SMSG_LOGIN, 0);
-                data << response;
-                
-                if (valid)
-                    data.append(s_other_nonce);
-                
-                SendPacket(&data);
             }
-            break;
-            
-        case STATUS_AUTHENTICATED:
+            break;            
+        case STATUS_LOGIN_STEP_2:
             {
                 GenerateRandomKey(s_key, 32);
 
@@ -470,9 +474,31 @@ void Session::HandleLogin(Packet& packet)
                 
                 Xor(s_key, packet);
                 SetEncryption(s_key, ENC_AES256);
-                
-                INFO("debug", "SESSION: AES key established\n");
                 ResetPacketNum();
+                
+                // Generazione numero per testare che la chiave di sessione è stabilita correttamente
+                RAND_pseudo_bytes((unsigned char*)&test_nounce, 4);
+                Packet data2(SMSG_LOGIN, 32);
+                data2 << test_nounce;
+                SendPacketToSocket(&data2);
+
+                SetSessionStatus(STATUS_LOGIN_STEP_3);
+            }
+        break;
+        case STATUS_LOGIN_STEP_3:
+            {   
+                uint32 recv_nounce; 
+                packet >> recv_nounce;
+                if (recv_nounce != (test_nounce-1))
+                {   
+                    Close();            
+                    SetSessionStatus(STATUS_REJECTED);
+                    break;  
+                }
+
+                // Test chiave di sessione corretto
+                INFO("debug", "SESSION: AES key established\n");
+                SetSessionStatus(STATUS_AUTHENTICATED);
                 s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
             }
         break;

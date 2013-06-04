@@ -1,5 +1,6 @@
 #include "packet.h"
 #include <openssl/rand.h>
+#include <sys/time.h>
 
 int Packet::Encrypt(ByteBuffer par)
 {
@@ -110,6 +111,7 @@ void Packet::Incapsulate(Packet& pkt, uint32& seq, bool check_seq)
 {
     *this << uint16(pkt.GetOpcode());
     *this << uint16(pkt.size());
+    *this << uint32(time(NULL));
 
     if (check_seq)
     {
@@ -129,11 +131,13 @@ Packet* Packet::Decapsulate(uint32& seq_old, bool check_seq)
         return NULL;
 
     uint16 opcode; 
-    uint16 size;
+    uint16 size;    
     uint32 seq = 0;
+    uint32 timer;
 
     *this >> opcode;
     *this >> size;
+    *this >> timer;
 
     if (check_seq)
         *this >> seq;
@@ -150,11 +154,18 @@ Packet* Packet::Decapsulate(uint32& seq_old, bool check_seq)
         read_skip(size);
     }
 
+    if (timer + 3600 < uint32(time(NULL)))
+    {
+        INFO("debug", "PACKET: Packet Timer Replay detected, ignored\n");
+        delete new_pkt;
+        return NULL;
+    }
+
     if (check_seq)
     {
         if (seq < seq_old)
         {
-            INFO("debug", "PACKET: Packet Replay detected, ignored\n");
+            INFO("debug", "PACKET: Packet Counter Replay detected, ignored\n");
             delete new_pkt;
             return NULL;     
         }

@@ -8,7 +8,7 @@
 #include "threading/semaphore.h"
 #include "common.h"
 
-#define MAX_USER_LEN    32
+#define MAX_USER_LEN    16
 #define EXCLUDED_CHARS  " \t\f\v\n\r"
 #define NONCE_SIZE      32
 
@@ -103,7 +103,7 @@ class SessionBase
         string f_my_pub_key, f_my_priv_key,
                f_other_pub_key;
 
-        uint32 test_nounce;
+        uint32 test_data;
         
         /* symmethric encryption */
         ByteBuffer s_key, s_key_tmp;

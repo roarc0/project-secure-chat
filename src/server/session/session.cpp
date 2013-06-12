@@ -395,12 +395,13 @@ void Session::HandleLogin(Packet& packet)
                 bool valid = true;
                     
                 packet >> user;
-                packet >> pwd;
                 
-                uint8 nonce[NONCE_SIZE], rec_nonce[NONCE_SIZE];
-               
+                ByteBuffer key_tmp;
+                uint8 nonce[NONCE_SIZE], rec_nonce[NONCE_SIZE], tmp[32];
+                
+                packet.read(tmp, 32);
+                key_tmp.append(tmp, 32);
                 packet.read(rec_nonce, NONCE_SIZE);
-                
                 packet.read(nonce, NONCE_SIZE);
                 SetOtherNonce(nonce);
                 
@@ -421,20 +422,11 @@ void Session::HandleLogin(Packet& packet)
                             INFO("debug","SESSION: username \"%s\" doesn't exist\n", user.c_str());
                         else
                         {  
-                            
-                            valid = db_manager->CheckPassword(user, pwd);
-                            
-                            if (!valid)
-                                INFO("debug","SESSION: password digest is wrong\n", user.c_str());
-                            else
-                            {
-                                valid = CheckNonce(rec_nonce);
-                            
-                                if (!valid)
-                                    INFO("debug","SESSION: reply attack detected!\n", user.c_str());
-                            }
-                        }
+                            valid = CheckNonce(rec_nonce);
                         
+                            if (!valid)
+                                INFO("debug","SESSION: reply attack detected!\n", user.c_str());
+                        }
                     }
                 }
 
@@ -445,9 +437,25 @@ void Session::HandleLogin(Packet& packet)
                     UpdateKeyFilenames();  // locate user's public key.
 
                     Packet data(SMSG_LOGIN, 0);
-                    data << "authenticated";
+                    data << "acc";
                     data.append(s_other_nonce);
+                    
+                    GenerateRandomKey(s_key, 32);
+                    data.append(s_key);
+                    
+                    
+                    
                     SendPacket(&data);
+                    
+                    Xor(s_key, key_tmp);
+                    SetEncryption(s_key, ENC_AES256);
+                    ResetPacketNum();
+                    
+                    RAND_pseudo_bytes((unsigned char*)&test_data, 4);
+                    Packet data2(SMSG_LOGIN, 4);
+                    data2 << test_data;
+                    SendPacketToSocket(&data2);
+                    
                     break;
                 }
                 else
@@ -456,7 +464,7 @@ void Session::HandleLogin(Packet& packet)
                     SetSessionStatus(STATUS_REJECTED);
 
                     Packet data(SMSG_LOGIN, 0);
-                    data << "rejected";
+                    data << "rej";
                     SendPacketToSocket(&data);
                    
                     Close();
@@ -465,49 +473,24 @@ void Session::HandleLogin(Packet& packet)
             }
             break;            
         case STATUS_LOGIN_STEP_2:
-            {
-                GenerateRandomKey(s_key, 32);
-
-                Packet data(SMSG_LOGIN, 32);
-                data.append(s_key);
-                SendPacketToSocket(&data);
-                
-                Xor(s_key, packet);
-                SetEncryption(s_key, ENC_AES256);
-                ResetPacketNum();
-                
-                // Generazione numero per testare che la chiave di sessione è stabilita correttamente
-                RAND_pseudo_bytes((unsigned char*)&test_nounce, 4);
-                Packet data2(SMSG_LOGIN, 32);
-                data2 << test_nounce;
-                SendPacketToSocket(&data2);
-
-                SetSessionStatus(STATUS_LOGIN_STEP_3);
-            }
-        break;
-        case STATUS_LOGIN_STEP_3:
             {   
-                uint32 recv_nounce; 
-                packet >> recv_nounce;
-                if (recv_nounce != (test_nounce-1))
+                uint32 recv_data; 
+                packet >> recv_data;
+                
+                if (recv_data != (test_data - 1))
                 {   
                     Close();            
                     SetSessionStatus(STATUS_REJECTED);
                     break;  
                 }
 
-                // Test chiave di sessione corretto
                 INFO("debug", "SESSION: AES key established\n");
                 SetSessionStatus(STATUS_AUTHENTICATED);
                 s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
             }
         break;
-        
-        case STATUS_REJECTED:
-        default:
-            {
 
-            }
+        default:
         break;
     }
 }

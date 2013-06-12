@@ -353,23 +353,23 @@ void Session::HandleLogin(Packet& packet)
             {
                 SetSessionStatus(STATUS_LOGIN_STEP_1);
                 INFO("debug", "SESSION: sending first RSA encrypted packet\n");
+                
                 SetEncryption(ENC_RSA);
                 
                 Packet data(CMSG_LOGIN, 0);
-                data << *GetUsername(); /* check size */
-                
-                string pwd_digest;
-                SHA256_digest(GetPassword(), pwd_digest);
-                data << pwd_digest;
+                data << *GetUsername();
+
+                GenerateRandomKey(s_key, 32);
+                data.append(s_key);
                 
                 uint8 nonce[NONCE_SIZE];
                 
                 packet.read(nonce, NONCE_SIZE);
                 SetOtherNonce(nonce);
-                data.append(s_other_nonce);
+                data.append(s_other_nonce);  /* re-sending server nonce */
                 
                 GenerateNonce();
-                data.append(s_my_nonce);
+                data.append(s_my_nonce); /* sending my nonce */
                 
                 INFO("debug", "\n\nSESSION: AUTH PACKET >>>>> \n\n");
                 data.hexlike();
@@ -382,7 +382,7 @@ void Session::HandleLogin(Packet& packet)
             {
                 string response;
                 packet >> response;
-                if(response.compare("authenticated") == 0)
+                if(response.compare("acc") == 0)
                 {
                     uint8 nonce[NONCE_SIZE];                   
                     packet.read(nonce, NONCE_SIZE);
@@ -392,10 +392,14 @@ void Session::HandleLogin(Packet& packet)
                         SendToGui("", 'e', "Login succeeded!");
                         SetSessionStatus(STATUS_LOGIN_STEP_2);
                         
-                        GenerateRandomKey(s_key, 32);
-                        Packet data(CMSG_LOGIN, 32);
-                        data.append(s_key);
-                        SendPacketToSocket(&data);
+                        ByteBuffer key_tmp;
+                        uint8 tmp[32];
+                        packet.read(tmp, 32);
+                        key_tmp.append(tmp, 32);
+                        
+                        Xor(s_key, key_tmp);
+                        SetEncryption(s_key, ENC_AES256);
+                        ResetPacketNum();   
                     }
                     else
                     {
@@ -412,29 +416,20 @@ void Session::HandleLogin(Packet& packet)
                 }
             }
             break;
-        case STATUS_LOGIN_STEP_2:   
-            {
-                Xor(s_key, (const ByteBuffer) packet);
-                SetEncryption(s_key, ENC_AES256);
-                ResetPacketNum();
-
-                SetSessionStatus(STATUS_LOGIN_STEP_3);
-            }
-            break;
-        case STATUS_LOGIN_STEP_3:   
-            {
-                // Test chiave di sessione
-                packet >> test_nounce;
-                test_nounce--;
-
-                Packet data(CMSG_LOGIN, 4);
-                data << test_nounce;
+            
+        case STATUS_LOGIN_STEP_2:
+            {   
+                packet >> test_data;
+                test_data--;
+                
+                Packet data(CMSG_LOGIN, 0);
+                data << test_data;
                 SendPacketToSocket(&data);
-
+                
                 SetSessionStatus(STATUS_AUTHENTICATED);
-                INFO("debug", "SESSION: AES key established\n");
+                INFO("debug", "SESSION: AES key established\n");  
             }
-            break;
+        break;
         default:
         
         break;
@@ -446,8 +441,7 @@ void Session::HandleQueuePos(Packet& packet)
 {
     uint32 pos;
     packet >> pos;
-    SendToGui
-("", 'e', "Queue position is %u\n", pos);
+    SendToGui ("", 'e', "Queue position is %u\n", pos);
 }
 
 void Session::HandleChannelUsersList(Packet& packet)

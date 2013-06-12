@@ -442,10 +442,7 @@ void Session::HandleLogin(Packet& packet)
                     
                     GenerateRandomKey(s_key, 32);
                     data.append(s_key);
-                    
-                    
-                    
-                    SendPacket(&data);
+                    SendPacketToSocket(&data);
                     
                     Xor(s_key, key_tmp);
                     SetEncryption(s_key, ENC_AES256);
@@ -455,7 +452,6 @@ void Session::HandleLogin(Packet& packet)
                     Packet data2(SMSG_LOGIN, 4);
                     data2 << test_data;
                     SendPacketToSocket(&data2);
-                    
                     break;
                 }
                 else

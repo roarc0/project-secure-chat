@@ -50,6 +50,16 @@ int Session::_SendPacket(Packet* pct)
     return 0;
 }
 
+bool Session::SetTempUsername(const std::string& n)
+{      
+    if (n.length() > MAX_USER_LEN)
+        return false;
+    
+    temp_username = n;
+    
+    return true;
+}
+
 void Session::InitKeyUpdateInterval()
 {
     int r = CFG_GET_INT("key_refresh_interval");
@@ -65,6 +75,19 @@ void Session::InitKeyUpdateInterval()
     INFO("debug", "SESSION: setting key refresh interval to %d seconds.\n", r);
 };
 
+void Session::InitLoginInterval()
+{
+    int r = 10;//CFG_GET_INT("login_interval");
+    if ( r < MIN_LOGIN_INTERVAL )
+    {
+        INFO("debug", "SESSION: selected %d seconds login interval is too low.\n", r);
+        r = MIN_LOGIN_INTERVAL;
+    }
+    
+    i_timer_keep_alive.SetInterval(r * 1000);
+    i_timer_keep_alive.Reset();
+};
+
 bool Session::Update(uint32 diff, PacketFilter& updater)
 {
     Packet* packet = NULL;
@@ -74,7 +97,10 @@ bool Session::Update(uint32 diff, PacketFilter& updater)
     bool deletePacket = true;
 
     if (m_Socket && !m_Socket->IsClosed() && updater.IsSingleSessionFilter())
+    {
+        LoginTimer(diff);
         GenerateNewKey(diff);
+    }
 
     while (m_Socket && !m_Socket->IsClosed() &&
             !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
@@ -174,6 +200,22 @@ void Session::SendWaitQueue(int position)
     Packet data(SMSG_QUEUE_POSITION, 4);
     data << uint32(position);
     SendPacket(&data);   
+}
+
+void Session::LoginTimer(uint32 diff)
+{
+    if (s_status == STATUS_AUTHENTICATED ||
+        s_status == STATUS_CONNECTED ||
+        s_status == STATUS_REJECTED)
+        return;
+
+    i_timer_keep_alive.Update(diff);
+    if (!i_timer_keep_alive.Passed())
+        return;    
+    
+    INFO ("debug", "SESSION: Kicked for timeout login\n");
+    Close();
+    SetSessionStatus(STATUS_REJECTED);
 }
 
 void Session::GenerateNewKey(uint32 diff)
@@ -387,6 +429,7 @@ void Session::HandleLogin(Packet& packet)
                 data.append(s_my_nonce);
                 
                 SendPacket(&data);
+                InitLoginInterval();
             }
             break;
         case STATUS_LOGIN_STEP_1:
@@ -404,29 +447,22 @@ void Session::HandleLogin(Packet& packet)
                 packet.read(rec_nonce, NONCE_SIZE);
                 packet.read(nonce, NONCE_SIZE);
                 SetOtherNonce(nonce);
-                
-                valid = s_manager->FindSession(user).is_null();
 
-                if (!valid)
-                    INFO("debug","SESSION: username \"%s\" is already loggedin\n", user.c_str());
+                valid = SetTempUsername(user);
+                if (!valid) 
+                    INFO("debug","SESSION: username \"%s\" is not valid\n", user.c_str());
                 else
                 {
-                    valid = SetUsername(user);
-                    if (!valid) 
-                        INFO("debug","SESSION: username \"%s\" is not valid\n", user.c_str());
+                    valid = db_manager->CheckUsername(user);
+                    
+                    if (!valid)
+                        INFO("debug","SESSION: username \"%s\" doesn't exist\n", user.c_str());
                     else
-                    {
-                        valid = db_manager->CheckUsername(user);
-                        
+                    {  
+                        valid = CheckNonce(rec_nonce);
+                    
                         if (!valid)
-                            INFO("debug","SESSION: username \"%s\" doesn't exist\n", user.c_str());
-                        else
-                        {  
-                            valid = CheckNonce(rec_nonce);
-                        
-                            if (!valid)
-                                INFO("debug","SESSION: reply attack detected!\n", user.c_str());
-                        }
+                            INFO("debug","SESSION: Nonce not valid!\n", user.c_str());
                     }
                 }
 
@@ -480,9 +516,20 @@ void Session::HandleLogin(Packet& packet)
                     break;  
                 }
 
-                INFO("debug", "SESSION: AES key established\n");
-                SetSessionStatus(STATUS_AUTHENTICATED);
-                s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);
+                if (s_manager->FindSession(temp_username).is_null())
+                {
+                    INFO("debug", "SESSION: AES key established\n");
+                    SetUsername(temp_username);
+                    SetSessionStatus(STATUS_AUTHENTICATED);                    
+                    s_manager->GetChannelMrg()->JoinDefaultChannel(smartThis);                    
+                }
+                else
+                {
+                    INFO("debug","SESSION: username \"%s\" is already loggedin\n", temp_username.c_str());
+                    Close();            
+                    SetSessionStatus(STATUS_REJECTED);
+                    break;
+                }
             }
         break;
 

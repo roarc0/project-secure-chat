@@ -13,6 +13,7 @@
 #endif //COMPILER == COMPILER_GNU
 
 #define MIN_REFRESH_KEY_INTERVAL 60
+#define MIN_LOGIN_INTERVAL 5
 
 class Session;
 class Channel;
@@ -30,11 +31,13 @@ class Session : public SessionBase
 
         // THREADUNSAFE        
         void SetId(uint32 id) { m_id = id; }
+        bool SetTempUsername(const std::string&);
         void setSmartPointer(Session_smart m_ses);
         void deleteSmartPointer();
         void setChannel(SmartChannel pChan) { m_channel=(SmartChannel)pChan; }
         SmartChannel getChannel() { return m_channel; }
-        void GenerateNewKey(uint32 diff);
+        void GenerateNewKey(uint32 diff);  
+        void LoginTimer(uint32 diff);      
 
         // THREADSAFE 
         bool IsInChannel() { return m_channel.get() ? true : false; }        
@@ -57,6 +60,7 @@ class Session : public SessionBase
         void SendSysMessage(const char *str);
         void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2, 3);
         void InitKeyUpdateInterval();
+        void InitLoginInterval();
         
         virtual void UpdateKeyFilenames();
     
@@ -64,12 +68,14 @@ class Session : public SessionBase
 
         int _SendPacket(Packet& pct);
         int _SendPacket(Packet* pct);
-    
+          
         uint32 m_id;
         bool m_inQueue;
+        std::string temp_username;  
         Session_smart smartThis;
         SmartChannel m_channel;
-        IntervalTimer i_timer_key; 
+        IntervalTimer i_timer_key;    
+        IntervalTimer i_timer_keep_alive;
 };
 
 #endif

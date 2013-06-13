@@ -371,10 +371,6 @@ void Session::HandleLogin(Packet& packet)
                 GenerateNonce();
                 data.append(s_my_nonce); /* sending my nonce */
                 
-                INFO("debug", "\n\nSESSION: AUTH PACKET >>>>> \n\n");
-                data.hexlike();
-                INFO("debug", "\n\n");
-                
                 SendPacketToSocket(&data);
             }   
             break;

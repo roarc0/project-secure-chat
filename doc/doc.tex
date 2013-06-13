@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage{epstopdf}
 \usepackage{fancyhdr}
+\usepackage{color}
 \usepackage[margin=3.5cm]{geometry}
 %\usepackage[margin=3cm, bottom=3.0cm, top=3.0cm, noheadfoot]{geometry}
 \usepackage{lastpage}
@@ -15,6 +16,8 @@
 \usepackage{makeidx}
 \usepackage{subfig}
 \usepackage{amssymb} % symbols
+\usepackage{amsmath}
+\usepackage{mathtools}
 \makeindex
 
 \renewcommand{\headrule}{\hbox to\headwidth{\dotfill} \vskip 0.25cm}
@@ -24,7 +27,29 @@ frame=tb, columns=fullflexible, showstringspaces=false}
 \setlength{\parindent}{0in}
 \newcommand{\sectrule}{\rule[0.2cm]{15cm}{0.05cm}\\[0.001cm]}
 \newcommand{\subsectrule}{\rule{10cm}{0.025cm}\\}
-\newcommand{\mobius}{M\"{o}bius }
+
+\newlength{\symlen}
+\newlength{\barlen}
+\newcommand{\overstrike}[2]{\mbox{\settowidth{\symlen}{$#1$}%
+	$#1$\hspace{-\symlen}$#2$}}
+\settowidth{\barlen}{$|$}
+\newcommand{\vbarred}[1]{\,\overstrike{\hspace{-0.25 \barlen}|}{#1}\,}
+
+\newcommand{\sees}[2]{#1 \triangleleft #2}
+\newcommand{\said}[2]{#1 \vbarred{\sim} #2}
+\newcommand{\believes}[2]{#1 \vbarred{\equiv} #2}
+\newcommand{\fresh}[1]{\#\left(#1\right)}
+\newcommand{\sharedkey}[3]{#1\xleftrightarrow{#3}#2}
+\newcommand{\sharedsecret}[3]{#1\overset{#3}{\leftrightharpoons} #2}
+\newcommand{\publickeyowner}[2]{\stackrel{#1}{\mapsto}#2}
+\newcommand{\publickey}[1]{{K_{#1}}^+}
+\newcommand{\privatekey}[1]{{K_{#1}}^-}
+\newcommand{\encrypt}[2]{\left\{#1\right\}_{#2}}
+\newcommand{\encryptp}[2]{E_{#2}\left(#1\right)}
+\newcommand{\decrypt}[2]{\left\{#1\right\}^{-1}_{#2}}
+\newcommand{\combine}[2]{\left\langle #1\right\rangle_{#2}}
+\newcommand{\jurisdiction}[2]{#1 \Rightarrow #2}
+
 \author{Alessandro Rosetti}
 \title{Tesi}
 
@@ -101,29 +126,31 @@ Documento sviluppato con \LaTeX\\
 \section{Introduzione} \addcontentsline{toc}{section}{Introduzione} \thispagestyle{plain}
 Il progetto illustrato in questo documento si chiama \textbf{pschat} e rappresenta un sistema client-server di chat ispirato al modello \textbf{IRC} (Internet Relay Chat) che integra caratteristiche di sicurezza.\\
 \begin{figure}[H]
-  \centering \includegraphics[scale=1.0]{../data/psc_orig.png}
+  \centering \includegraphics[scale=1.0]{img/psc_orig.png}
 \end{figure}
 
 \subsection{Formato del pacchetto}
 
-Pacchetto \textbf{RSA} OEAP:
-\begin{verbatim}
+Pacchetto \textbf{RSA} OEAP viene usato solo nei primi messaggi di autenticazione:
+{\color{red} \begin{verbatim}
 [LEN]  RSA-ENCRYPTED{ [OPCODE][LEN][PAYLOAD] }
-  2            2      2    0-252
-\end{verbatim}
-$Size = 2 + 256= 258$ Bytes.\\
+  2                      2      2  0-252/510
+\end{verbatim}}
+$Size = 2 + 256= 258$ Bytes per chiavi 2048bit.\\
+$Size = 2 + 512= 514$ Bytes per chiavi 4096bit.\\
 
-Pacchetto \textbf{AES-128/256}:
-\begin{verbatim}
-[LEN]  { [IV] } AES-ENCRYPTED { [OPCODE][LEN][SEQ][PAYLOAD] }
-  2       16                       2      2    4   0-65000
-\end{verbatim}
+Pacchetto \textbf{AES-128/256} viene usato per cifrare la comunicazione tra client e server nella funzionalità di chat:
+{\color{red} \begin{verbatim}
+[LEN]   AES-ENCRYPTED { [IV] }{ [OPCODE][LEN][SEQ][PAYLOAD] }
+  2                      16        2      2    4   0-65000
+\end{verbatim} }
+Il testo cifrato è multiplo della dimensione di un blocco AES di 16 Byte.
 
-$Size_{min} = 2 + 16 = 258$ Bytes.\\
-$Size_{max} = Size_{min} + 65000 + ( 65000 \% 16 ) = 65260 $ Bytes.
+$Size_{min} = 2 + 16 + 16 = 34$ Bytes.\\
+$Size_{max} = Size_{min} + 65000 + ( 65000 \% 16 ) \cong 64k$Bytes.
 
 \section{Protocollo}
-L'autenticazione è stata eseguita sfruttando RSA in modalità OEAP.
+L'autenticazione usa pacchetti cifrati con RSA in modalità OEAP.
 \subsection{Server}
 Il server ha una chiave privata e una pubblica (nota a priori per ogni client), è dotato di un database che contiene i nomi degli utenti, gli hash delle loro password e altre informazioni.\\
 Il server conosce tutte le chiavi pubbliche degli utenti registrati al sistema.
@@ -142,35 +169,8 @@ Il client ha una chiave privata e pubblica e conosce la chiave pubblica del serv
 \item server.pub
 \end{itemize}
 
-\subsection{Autenticazione}
-La procedura di autenticazione permette di stabilire una chiave di sessione tra client e server.
-\begin{itemize}
-\item \textbf{S} : Server
-\item \textbf{C} : Client
-\item $N_s$ : Server's nounce
-\item $N_c$ : Client's nounce
-\item $E_{s} ()$ : Encrypt with server's public key. 
-\item $E_{c} ()$ : Encrypt with client's public key.
-\item $K_c$ : Client's symmethric key.
-\item $K_s$ : Server's symmethric key.
-\item $K_{sc}$ : Combined session key.
-\end{itemize}
-Il protocollo di autenticazione usa la seguente sequenza di messaggi.
-\begin{center}
-    \begin{tabular}{ | c | c | p{6cm} |}
-    \hline
-    M1 & $S \rightarrow C$ : $N_s$ & Il server invia un nounce/challenge al client che si è appena connesso. \\ \hline
-    M2 & $S \leftarrow C$ : $E_{s}$ ( $N_c$, $N_s$, User, PwdHash ) & Il client cripta con la chiave pubblica del server il nounce ricevuto, inserisce un proprio nounce, inserisce utente e hash della password. \\ \hline
-    M3 & $S \rightarrow C$ : $E_{c}$ ( $N_c$, Response ) & Se l'utente non è già connesso, ha un nome valido e quindi è presente nel database e l'hash della password coincide con quello nel database, la risposta è positiva e viene autenticato, altrimenti viene rigettato. \\ \hline
-    M4 & $S \leftarrow C$ : $E_{s}$ ( $K_c$ ) & Se il nounce viene verificato invia il seguente messaggio altrimenti la connessione viene chiusa.\\ \hline
-    M5 & $S \rightarrow C$ : $E_{c}$ ( $K_s$ ) & Client e Server calcolano la chiave di sessione: $ K_{sc} = AES_{Na \oplus Nb}(K_s \oplus K_c) $ \\ \hline % non va bene da rivedere
-    \end{tabular}
-\end{center}
-!! Manca la parte di key confirmation !! magari si spediscono gli xor dei nounce o qualcosa del genere\\
-
-\subsection{Analisi Ban}
-
-BAN logic statements:
+\subsection{BAN}
+Gli statement Ban che andremo a utilizzare:
 \begin{center}
 \begin{tabular}{|c | l|} \hline
 $ S \mid \equiv X  $ & S believes X.\\
@@ -180,28 +180,122 @@ $ S \Rightarrow X $ & S controls X.\\
 $ \#(X) $ & X is fresh.\\
 $S {k \atop \leftrightarrow} C $ & K is a shared key between S and C.\\ 
 $S {k \atop \leftrightharpoons} C $ & K is a shared secret between S and C.\\ 
-${k  \atop \longmapsto} S $ & K is S's public key.\\
+${k  \atop \mapsto} S $ & K is S's public key.\\
 $\langle X \rangle_{Y}$ & X is combined with Y (secret).\\
 $\{X\}_{K}$ & X has been cyphered with K.\\ \hline
 \end{tabular}
 \end{center}
 
-Obiettivi:
+\subsection{Protocollo Base}
+La procedura di autenticazione permette di stabilire una chiave di sessione tra client e server. Tutti i numeri random sono generati con le funzioni della libreria OpenSSL.\\
+Gli attori e gli elementi del protocollo sono i seguenti:
 \begin{itemize}
-\item \framebox{$S \mid \equiv S {k \atop \leftrightarrow} C $} \framebox{$C \mid \equiv S {k \atop \leftrightarrow} C $} (\textit{key-authentication})
-\item \framebox{$S \mid \equiv C \mid \equiv S {k \atop \leftrightarrow} C $} \framebox{$C \mid \equiv S \mid \equiv S {k \atop \leftrightarrow} C $} (\textit{key-confirmation})
-\item \framebox{$ C \mid \equiv \#( S {k \atop \leftrightarrow} C) $} \framebox{$ S \mid \equiv \#( S {k \atop \leftrightarrow} C) $} (\textit{key-freshness})
+\item \textbf{S} : Server
+\item \textbf{C} : Client
+\item $N_s$ : Server's nonce
+\item $N_c$ : Client's nonce
+\item $E_{s} ()$ : Encrypt with server's public key. 
+\item $E_{c} ()$ : Encrypt with client's public key.
+\item $K_c$ : Client's symmethric key.
+\item $K_s$ : Server's symmethric key.
+\item $K_{sc}$ : Combined session key.
+\item $R$ : Random number.
+\end{itemize}
+Il protocollo di autenticazione effettivamente implementato usa la seguente sequenza di messaggi.
+\begin{center}
+    \begin{tabular}{  c  c c p{6cm} }
+    M1 & $S \rightarrow C$ & $N_s$ & Il \textit{server} invia un nonce al \textit{client} che si è appena connesso. \\
+    M2 & $S \leftarrow C$ & $E_{s}$ ( $N_c$, $N_s$, User, $K_{sc'}$ ) & Il \textit{client} cifra il messaggio di autenticazione con la chiave pubblica del server inserendo il nonce ricevuto, un proprio nonce, nome utente e la sua parte della chiave di sessione $K_{sc'}$. \\
+    M3 & $S \rightarrow C$ & $E_{c}$ ( $N_c$, $K_{sc''}$, Response ), $E_{K_{sc}}$ ( $R$ )  & Se l'utente non è già connesso, ha un nome valido ed è presente nel database, la risposta è positiva e viene mandata l'altra parte della chiave di sessione $K_{sc''}$ generata dal server, il nonce del client e viene autenticato, altrimenti viene rigettato. \textit{Client} e \textit{server} calcolano la chiave di sessione: $ K_{sc} = AES_{Na \oplus Nb}(K_sc' \oplus K_sc'') $. Se la procedura è andata a buon fine il \textit{server} manda anche un dato challenge cifrato con la chiave simmetrica. Il nome utente permette di localizzare la corretta chiave pubblica del client con cui si sta comunicando.\\
+    M4 & $S \leftarrow C$ & $E_{K_{sc}}$ ( $R$ - 1 ) & Il \textit{client} risponde al \textit{server} decrementando il numero ricevuto di uno e rimandandolo indietro sempre criptato con la chiave di sessione. \\   
+    \end{tabular}
+\end{center}
+
+\subsection{Obiettivi}
+Gli obiettivi sono:
+\begin{itemize}
+\item \textbf{O1}: \framebox{$S \mid \equiv S {k \atop \leftrightarrow} C $} \framebox{$C \mid \equiv S {k \atop \leftrightarrow} C $} (\textit{key-authentication})
+\item \textbf{O2}: \framebox{$S \mid \equiv C \mid \equiv S {k \atop \leftrightarrow} C $} \framebox{$C \mid \equiv S \mid \equiv S {k \atop \leftrightarrow} C $} (\textit{key-confirmation})
+\item \textbf{O3}: \framebox{$ C \mid \equiv \#( S {k \atop \leftrightarrow} C) $} \framebox{$ S \mid \equiv \#( S {k \atop \leftrightarrow} C) $} (\textit{key-freshness})
 \end{itemize}
 
-Ipotesi:\\
-\begin{itemize}
-\item \textbf{(H1)}: $ S \mid \equiv \#(Na) $
-\item \textbf{(H2)}: $ S \mid \equiv \#(Nb) $
+\subsection{Ipotesi}
+Le ipotesi iniziali sono:
+\[
+\begin{aligned}
+	H_1:\ & &\  \believes{C}{ {Ks  \atop \mapsto} S } \\
+	H_2:\ & &\  \believes{S}{ {Kc  \atop \mapsto} C } \\
+	H_3:\ & &\  \believes{C}{ \#(N_c)} \\
+	H_4:\ & &\  \believes{S}{ \#(N_s) } \\
+	H_5:\ & &\  \believes{C}{ \#(K_c) } \\
+	H_6:\ & &\  \believes{S}{ \#(K_s) } \\
+\end{aligned}
+\]
 
-\end{itemize}
-Idealizzazione del protocollo:\\
+\subsection{Protocollo Reale}
+Il protocollo descritto precedentemente viene riassunto nei seguenti messaggi.
+\[
+\begin{aligned}
+	M_1:\ & S \rightarrow C & &  N_s\\
+	M_2:\ & S \leftarrow  C & &  \encrypt{N_s, N_c, C, K_{sc'}}{K_{s}} \\
+	M_3:\ & S \rightarrow  C & &  \encrypt{N_c, K_{sc''}}{K_{c}},  \encrypt{N}{K_{sc}}\\
+	M_4:\ & S \leftarrow  C & & \encrypt{N-1}{K_{sc}}
+\end{aligned}
+\]
 
+
+\subsection{Protocollo Idealizzato}
+M1 non è cifrato e contiene solamente il nonce del server quindi non ha rilevanza ai fini dell'analisi BAN.
+\[
+\begin{aligned}
+	M_2:\ & S \leftarrow  C & &  \encrypt{N_s, N_c, \sharedkey{C}{S}{K_{sc}} }{K_{s}} \\
+	M_3:\ & S \rightarrow  C & &  \encrypt{N_c, \sharedkey{C}{S}{K_{sc}} } {K_{c}},  \encrypt{N}{K_{sc}}\\
+	M_4:\ & S \leftarrow  C & & \encrypt{N-1}{K_{sc}}
+\end{aligned}
+\]
+
+\subsection{Analisi BAN}
+
+Dal messaggio M2 per l'ipotesi H4:
+
+\[
+\begin{aligned}
+\believes{S}{ {k_{s} \atop \mapsto }S} , \believes{S}{ \#(N_s) }, \sees{S}{N_{s}} \\ \hline
+\believes{S}{\fresh{N{s}, N{c}, \sharedkey{C}{S}{K_{sc}}} }
+\end{aligned}
+\]
+
+Il \textit{server} vede il proprio nonce nel messaggio cifrato con la propria chiave pubblica e crede che sia fresco.\\
+
+Dal messaggio M3:
+\[
+\begin{aligned}
+\believes{C}{ {k_{c} \atop \mapsto }C}, \believes{C}{ \#(N_c) }, \sees{C}{N_{c}} \\ \hline
+aiuto, help, haaallpp \\
+\end{aligned}
+\]
+
+Il \textit{client} vede il proprio nonce nel messaggio cifrato con la propria chiave pubblica, crede che sia fresco e crede che il server abbia detto $K{sc''}$
 
 \subsection{Aggiornamento chiave di sessione}
-La chiave di sessione viene aggiornata ogni 15 minuti. La frequenza di aggiornamento è configurabile ma ha un minimo di 60 secondi. 
+La sessione è cifrata in \textit{AES128/256} e aggiorna la chiave con una frequenza determinata da un valore che per default è 15 minuti. La minima frequenza di aggiornamento è di 60 secondi.\\
+Un possibile miglioramento sarebbe cambiare la chiave in base al tempo ma anche a quanti dati sono stati inviati/ricevuti.\\
+L'aggiornamento della chiave viene fatto sfruttando il canale cifrato già stabilito, quindi la chiave precedente. La procedura di aggiornamento è stata fatta per evitare di generare troppi pacchetti cifrati con la stessa chiave.
+
+\newpage
+\section{Implementazione}
+Sono stati implementati un client e un server che usano il protocollo descritto sopra per scambiarsi i messaggi cifrati con esso. Il codice è stato scritto in C++ e usa la libreria OpenSSL per cifrare, decifrare e generare numeri random.
+Inoltre è usata la libreria libconfuse per la gestione del file di configurazione e le le librerie GTK per la grafica del client. \\
+Il codice è implementato in numerosi file, alcuni dei quali sono condivisi tra client e server contenuti nella cartella shared. \\
+\\
+In shared troviamo i seguenti file:
+\begin{itemize}
+\item \textbf{base64.cpp base64.h} Contengono le due funzioni per la conversione del testo in base64 e viceversa per evitare che caratteri speciali possano disturbare il parsing dell'XML.
+\item \textbf{crypto.cpp crypto.h} Contengono le funzioni per la criptazione e decriptazione in AES e RSA oltre che a funzioni d'appoggio.
+\item \textbf{socket-base.cpp socket-base.h} Implementazione base di un socket, con le funzioni si send e recv. Questa classe viene derivata nel client e nel server nel SocketClient e SocketServer.
+\item \textbf{packet.cpp packet.h opcode.h} Implementazione del pacchetto dati usato all'interno del client e del server descritto da un opcode che ne identifica la funzione che gestirà quel pacchetto. I vari opcode del protocollo si trovano all'interno di opcode.h.
+\item \textbf{sessionbase.cpp sessionbase.h} Implementazione della sessione dell'utente che include al suo interno il Socket che gestirà, con le dovute cifrature, la trasmissione dei dati. La SessionBase viene derivata in Session all'interno del client e del server.
+\item \textbf{cartella threading} Contiene le classi per una gestione semplificata dei threads.
+\item \textbf{cartella utility} Classi implementate per semplificare la gestione di code, singleton, logger, timer, buffer di byte ecc...
+\end{itemize}
 \end{document}

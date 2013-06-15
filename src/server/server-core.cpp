@@ -53,10 +53,17 @@ void TestRsa()
     string pem_file = CFG_GET_STRING("rsa_prefix") + 
                       CFG_GET_STRING("rsa_my_keys") + ".pem";
     
+    CryptoInit();   
+
     INFO("debug", "MAIN: TESTING RSA KEYS\n");
     
-    if(RsaTest(pem_file.c_str(), pub_file.c_str(), NULL))
+    if ( RsaTest(pem_file.c_str(), pub_file.c_str(), NULL) )
         INFO("debug", "MAIN: RSA TEST SUCCEEDED\n\n");
     else
         INFO("debug", "MAIN: RSA TEST FAILED\n\n");
+    
+    if ( RsaSignTest(pem_file.c_str(), pub_file.c_str(), NULL) )
+        INFO("debug","MAIN: RSA verify succeeded.\n\n");
+    else
+        INFO("debug","MAIN: RSA verify failed.\n\n");
 }

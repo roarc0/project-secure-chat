@@ -34,7 +34,8 @@ ClientCore::ClientCore()
 {
     pthread_cond_init (&cond_event, NULL);
     pthread_mutex_init (&mutex_event, NULL);
-
+    CryptoInit();
+    
     session = new Session();
 }
 

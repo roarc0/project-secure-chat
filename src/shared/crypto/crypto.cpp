@@ -249,6 +249,7 @@ void RsaPrintError()
     ERR_load_crypto_strings();
     ERR_error_string(ERR_get_error(), str2);
     INFO("debug","CRYPTO: %s\n", str2);
+    ERR_free_strings();
 }
 
 RSA* RsaPubKey(const char* str)
@@ -322,7 +323,6 @@ int RsaEncrypt(const std::string key_str,
                ByteBuffer &ciphertext)
 {
     int ret = 0;
-    char *err = NULL;
     RSA *key = RsaPubKey(key_str.c_str());
     unsigned char *buf;
     
@@ -357,7 +357,6 @@ int RsaDecrypt(const std::string key_str,
                ByteBuffer &plaintext)
 {
     int ret = 0;
-    char *err = NULL;
     RSA *key;
     unsigned char *buf;
     
@@ -391,12 +390,103 @@ int RsaDecrypt(const std::string key_str,
     return ret;
 }
 
+int RsaSign(const std::string key_str,
+            const char* password,
+            const ByteBuffer &data,
+            ByteBuffer &sign)
+{
+    int ret = 0;
+    RSA *key;
+    
+    if (!password || strlen(password) == 0)
+        key = RsaPrivKey(key_str.c_str(), NULL);
+    else
+        key = RsaPrivKey(key_str.c_str(), password);
+    
+    if(!key)
+    {
+        INFO("debug","CRYPTO: RSA error reading private key\n");
+        return -1;
+    }
+
+    SHA256_CTX context;
+    unsigned char digest[SHA256_DIGEST_LENGTH];
+
+    SHA256_Init(&context);
+    SHA256_Update(&context, (unsigned char*)data.contents(), data.size());
+    SHA256_Final(digest, &context);
+    
+    int key_len = RSA_size(key);
+    uint8* sig = (uint8*) malloc(sizeof(char) * key_len);
+    uint32 sig_len = 0;
+
+    if ( RSA_sign(NID_sha1, digest, SHA256_DIGEST_LENGTH, sig, &sig_len, key) == 0 )
+    {
+        INFO("debug","CRYPTO: RSA error, couldn't sign message digest.\n");
+        RsaPrintError();
+    }
+    
+    sign.append(sig, sig_len);
+
+    free(sig);
+    RSA_free(key);
+}
+
+int RsaVerify(const std::string key_str,
+              const ByteBuffer &data,
+              const ByteBuffer &sign)
+{
+    int ret = 0;
+    RSA *key = RsaPubKey(key_str.c_str());
+    unsigned char *buf;
+    
+    if(!key)
+    {
+        INFO("debug","CRYPTO: RSA error reading public key\n");
+        return -1;
+    }
+
+    SHA256_CTX context;
+    unsigned char digest[SHA256_DIGEST_LENGTH];
+
+    SHA256_Init(&context);
+    SHA256_Update(&context, (unsigned char*)data.contents(), data.size());
+    SHA256_Final(digest, &context);
+    
+    int key_len = RSA_size(key);
+    uint8* sig = (uint8*) sign.contents();
+    uint32 sig_len = sign.size();
+    
+    if ( RSA_verify(NID_sha1, digest, SHA256_DIGEST_LENGTH,
+                    sig, sig_len, key) == 0 )
+    {
+        INFO("debug","CRYPTO: RSA error, couldn't verify message digest.\n");
+        RsaPrintError();
+        return 0;
+    }
+    
+    RSA_free(key);
+    return 1;
+}
+
+bool RsaSignTest(const char* pem_file,
+                 const char* pub_file,
+                 const char* pwd)
+{
+    if(!pem_file || !pub_file)
+        return false;
+    
+    ByteBuffer msg, sign;
+    msg << "rsa message sign and verify test";
+    RsaSign(pem_file, pwd, msg, sign);
+
+    return RsaVerify(pub_file, msg, sign);
+}
+
 bool RsaTest(const char* pem_file,
              const char* pub_file,
              const char* pwd)
 {
-    CryptoInit();
-
     if(!pem_file || !pub_file)
         return false;
     

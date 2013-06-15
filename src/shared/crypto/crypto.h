@@ -35,6 +35,19 @@ int RsaDecrypt(const std::string key_filename,
                const ByteBuffer &ciphertext,
                ByteBuffer &plaintext);
 
+int RsaSign(const std::string key_str,
+            const char* password,
+            const ByteBuffer &data,
+            ByteBuffer &sign);
+
+int RsaVerify(const std::string key_str,
+              const ByteBuffer &data,
+              const ByteBuffer &sign);
+
+bool RsaSignTest(const char* pem_file,
+                 const char* pub_file,
+                 const char* pwd);
+                 
 bool RsaTest(const char* pem_file,
              const char* pub_file,
              const char* pwd);

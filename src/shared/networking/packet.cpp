@@ -154,7 +154,8 @@ Packet* Packet::Decapsulate(uint32& seq_old, bool check_seq)
         read_skip(size);
     }
 
-    if (timer + 3600 < uint32(time(NULL)))
+    // 2 Giorni per evitare fusi orari
+    if (timer + 172800 < uint32(time(NULL)))
     {
         INFO("debug", "PACKET: Packet Timer Replay detected, ignored\n");
         delete new_pkt;

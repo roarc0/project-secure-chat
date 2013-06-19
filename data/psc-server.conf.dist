@@ -32,6 +32,10 @@ SessionActiveLimit = 100
 #                     0   - (Disabled, No limit)
 SessionQueueLimit = 50
 
+#    LoginTimeout: Max time (in seconds) for complete login with client (min 5 sec);
+#            Default: 10
+LoginTimeout = 10
+
 rsa_prefix = "../etc/keys/"
 rsa_my_keys = "server"
 rsa_client_pub_key = "client_"

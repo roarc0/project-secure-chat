@@ -77,7 +77,7 @@ void Session::InitKeyUpdateInterval()
 
 void Session::InitLoginInterval()
 {
-    int r = 10;//CFG_GET_INT("login_interval");
+    int r = CFG_GET_INT("LoginTimeout");
     if ( r < MIN_LOGIN_INTERVAL )
     {
         INFO("debug", "SESSION: selected %d seconds login interval is too low.\n", r);

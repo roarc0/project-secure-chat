@@ -352,9 +352,9 @@ void Session::HandleLogin(Packet& packet)
         case STATUS_CONNECTED:
             {
                 SetSessionStatus(STATUS_LOGIN_STEP_1);
-                INFO("debug", "SESSION: sending first RSA encrypted packet\n");
+                INFO("debug", "SESSION: sending first HYBRID RSA/AES encrypted packet\n");
                 
-                SetEncryption(ENC_RSA);
+                SetEncryption(ENC_HYB);
                 
                 Packet data(CMSG_LOGIN, 0);
                 data << *GetUsername();

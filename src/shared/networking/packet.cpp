@@ -23,6 +23,38 @@ int Packet::Encrypt(ByteBuffer par)
             ret = RsaEncrypt(pub, (ByteBuffer)(*this), ciphertext);
         }
         break;
+        case MODE_HYB:
+        {
+            INFO("debug", "PACKET: encrypting HYBRID RSA/AES packet\n");
+            
+            string pub, priv, pwd;
+            ByteBuffer rnd_key, sign, ciphertext_tmp;
+            
+            try
+            {
+                par >> pub;
+                par >> priv;
+                par >> pwd;
+                
+                RsaSign(priv.c_str(), pwd.c_str(), (ByteBuffer)(*this), sign); // check
+            }
+            catch (...)
+            {
+                INFO("debug", "PACKET: reading private key with no password!\n");
+                RsaSign(priv.c_str(), NULL, (ByteBuffer)(*this), sign);  // check
+            }
+            
+            this->append(sign.contents(), sign.size());
+            
+            GenerateRandomKey(rnd_key, 32);
+            ret = RsaEncrypt(pub, rnd_key, ciphertext);
+            if (ret)
+                break;           
+
+            ret = AesEncrypt(rnd_key, (ByteBuffer)(*this), ciphertext_tmp);
+            ciphertext.append(ciphertext_tmp);
+        }
+        break;
         case MODE_PLAIN:
             INFO("debug", "PACKET: can't encrypt. plain mode selected\n");
             return 0;
@@ -65,6 +97,7 @@ int Packet::Decrypt(ByteBuffer par)
             ret = AesDecrypt(par, *ciphertext, plaintext);
         }
         break;
+        
         case MODE_RSA:
         {
             string pwd, priv;
@@ -85,10 +118,54 @@ int Packet::Decrypt(ByteBuffer par)
             ret = RsaDecrypt(priv, pwd.c_str(), (ByteBuffer)(*this), plaintext);
         }
         break;
+        
+        case MODE_HYB:
+        {
+            string pub, priv, pwd;
+            ByteBuffer rsa_block, key, aes_block, msg, sign;
+            int rsa_bsize = 512; // leggere l'effettiva dimensione dalla chiave T_T
+            
+            INFO("debug", "PACKET: decrypting HYBRID RSA/AES packet\n");
+            ciphertext->hexlike();
+            
+            rsa_block.append(this->contents() + this->rpos(), rsa_bsize);
+            this->read_skip(rsa_bsize);
+            
+            aes_block.append(this->contents() + this->rpos(), (this->wpos() - this->rpos()));
+            
+            try
+            {
+                par >> pub;
+                par >> priv;
+                par >> pwd;
+            }
+            catch (...)
+            {
+                INFO("debug", "PACKET: reading private key with no password!\n");
+                ret = RsaDecrypt(priv, NULL, rsa_block, key);
+            }
+            ret = RsaDecrypt(priv, pwd.c_str(), rsa_block, key);
+            if (ret)
+                break;
+            
+            ret = AesDecrypt(key, aes_block, plaintext);
+            if (ret)
+                break;
+                
+            msg.append(plaintext.contents() + plaintext.rpos() , (plaintext.size() - rsa_bsize));
+            plaintext.read_skip((plaintext.size() - rsa_bsize));
+            sign.append(plaintext.contents() + plaintext.rpos(), rsa_bsize);    
+                       
+                         
+            ret = RsaVerify(pub.c_str(), msg, sign);
+        }
+        break;
+        
         case MODE_PLAIN:
             INFO("debug", "PACKET: can't decrypt. plain mode selected\n");
             return 0;
         break;
+        
         default:
             INFO("debug", "PACKET: wrong mode selected\n");
         break;

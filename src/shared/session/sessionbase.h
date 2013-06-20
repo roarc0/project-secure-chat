@@ -18,7 +18,8 @@ enum SessionEncryption
     ENC_NONE,
     ENC_AES128,
     ENC_AES256,
-    ENC_RSA
+    ENC_RSA,
+    ENC_HYB
 };
 
 enum SessionStatus

@@ -18,7 +18,8 @@ enum PacketMode
 {
     MODE_PLAIN = 0,
     MODE_AES,
-    MODE_RSA
+    MODE_RSA,
+    MODE_HYB
 };
 
 enum eOpcode

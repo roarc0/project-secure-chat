@@ -113,6 +113,15 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
                     par << f_other_pub_key;
                     pct.SetMode(MODE_RSA);
                 break;
+                case ENC_HYB:
+                    str_enc = "HYBRID";
+                    par << f_other_pub_key;
+                    par << f_my_priv_key;
+                    if (HavePassword())
+                        par << GetPassword();
+                    pct.SetMode(MODE_HYB);
+                break;
+                
                 default:
                     
                 break; 
@@ -246,6 +255,13 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
                         if (HavePassword())
                             par << GetPassword();
                         pct->SetMode(MODE_RSA);
+                    break;
+                    case ENC_HYB:
+                        par << f_other_pub_key;
+                        par << f_my_priv_key;
+                        if (HavePassword())
+                            par << GetPassword();
+                        pct->SetMode(MODE_HYB);
                     break;
                     default:
                     break;                        

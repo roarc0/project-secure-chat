@@ -2,7 +2,7 @@
 #include <openssl/rand.h>
 #include <sys/time.h>
 
-int Packet::Encrypt(ByteBuffer par)
+int Packet::Encrypt(ByteBuffer& par)
 {
     ByteBuffer ciphertext;
     
@@ -27,30 +27,39 @@ int Packet::Encrypt(ByteBuffer par)
         {
             INFO("debug", "PACKET: encrypting HYBRID RSA/AES packet\n");
             
-            string pub, priv, pwd;
-            ByteBuffer rnd_key, sign, ciphertext_tmp;
-            
-            try
-            {
-                par >> pub;
-                par >> priv;
-                par >> pwd;
-                
-                RsaSign(priv.c_str(), pwd.c_str(), (ByteBuffer)(*this), sign); // check
+            std::string pub, priv;
+            ByteBuffer sign;
+
+            par >> pub;
+            par >> priv;
+
+            uint8 b_ifpwd;
+            par >> b_ifpwd;
+
+            if (b_ifpwd)
+            {                
+                std::string s_pwd;
+                par >> s_pwd;
+                RsaSign(priv.c_str(), s_pwd.c_str(), (ByteBuffer)(*this), sign); // check
             }
-            catch (...)
+            else
             {
                 INFO("debug", "PACKET: reading private key with no password!\n");
                 RsaSign(priv.c_str(), NULL, (ByteBuffer)(*this), sign);  // check
             }
             
-            this->append(sign.contents(), sign.size());
+            INFO("debug", "PACKET: append firma size %d !\n", sign.size());
+            append(sign.contents(), sign.size());
             
+            // Generazione di chiave simmetrica e criptazione di essa con RSA
+            ByteBuffer rnd_key;
             GenerateRandomKey(rnd_key, 32);
             ret = RsaEncrypt(pub, rnd_key, ciphertext);
             if (ret)
                 break;           
 
+            // Criptazione del resto del buffer con AES
+            ByteBuffer ciphertext_tmp;
             ret = AesEncrypt(rnd_key, (ByteBuffer)(*this), ciphertext_tmp);
             ciphertext.append(ciphertext_tmp);
         }
@@ -82,8 +91,9 @@ int Packet::Encrypt(ByteBuffer par)
     return ret;
 }
 
-int Packet::Decrypt(ByteBuffer par)
+int Packet::Decrypt(ByteBuffer& par)
 {
+    INFO("debug", "PACKET: decrypting packet\n");
     ByteBuffer *ciphertext = (ByteBuffer*) this;
     ByteBuffer plaintext;
     int ret=0;
@@ -121,30 +131,40 @@ int Packet::Decrypt(ByteBuffer par)
         
         case MODE_HYB:
         {
-            string pub, priv, pwd;
+            std::string pub, priv;            
             ByteBuffer rsa_block, key, aes_block, msg, sign;
             int rsa_bsize = 512; // leggere l'effettiva dimensione dalla chiave T_T
             
             INFO("debug", "PACKET: decrypting HYBRID RSA/AES packet\n");
             ciphertext->hexlike();
             
-            rsa_block.append(this->contents() + this->rpos(), rsa_bsize);
-            this->read_skip(rsa_bsize);
+            INFO("debug", "PACKET: lettura blocco RSA %d!\n", rpos());
+            rsa_block.append(contents() + rpos(), rsa_bsize);
+            read_skip(rsa_bsize);
             
-            aes_block.append(this->contents() + this->rpos(), (this->wpos() - this->rpos()));
+            INFO("debug", "PACKET: lettura blocco AES!\n");
+            aes_block.append(contents() + rpos(), (wpos() - rpos()));
             
-            try
-            {
-                par >> pub;
-                par >> priv;
-                par >> pwd;
+            INFO("debug", "PACKET: lettura parametri!\n");
+            par >> pub;
+            par >> priv;
+
+            uint8 b_ifpwd;
+            par >> b_ifpwd;
+
+            if (b_ifpwd)
+            {                
+                std::string s_pwd;
+                par >> s_pwd;
+                INFO("debug", "RSA descr!\n");
+                ret = RsaDecrypt(priv, s_pwd.c_str(), rsa_block, key);
             }
-            catch (...)
+            else
             {
                 INFO("debug", "PACKET: reading private key with no password!\n");
                 ret = RsaDecrypt(priv, NULL, rsa_block, key);
             }
-            ret = RsaDecrypt(priv, pwd.c_str(), rsa_block, key);
+
             if (ret)
                 break;
             

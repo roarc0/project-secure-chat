@@ -118,7 +118,12 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
                     par << f_other_pub_key;
                     par << f_my_priv_key;
                     if (HavePassword())
+                    {
+                        par << uint8(1);
                         par << GetPassword();
+                    }
+                    else
+                        par << uint8(0);
                     pct.SetMode(MODE_HYB);
                 break;
                 
@@ -153,10 +158,10 @@ int SessionBase::_SendPacketToSocket(Packet& pkt, unsigned char* temp_buffer)
             // Resettare numerazione pacchetti
             ResetPacketNum();
         }
-        else if (IsServer() && s_next_enc == ENC_RSA)
+        else if (IsServer() && (s_next_enc == ENC_RSA || s_next_enc == ENC_HYB))
         {
+            SetEncryption(s_next_enc);
             SetNextEncryption(ENC_UNSPEC);
-            SetEncryption(ENC_RSA);
         }
 
         if (!temp_buffer)
@@ -241,6 +246,7 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
 
             if (IsEncrypted())
             {
+                INFO("debug","SESSION_BASE: packet crypted %d\n", s_enc);
                 ByteBuffer par;
 
                 switch (s_enc)
@@ -260,7 +266,12 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
                         par << f_other_pub_key;
                         par << f_my_priv_key;
                         if (HavePassword())
+                        {
+                            par << uint8(1);
                             par << GetPassword();
+                        }
+                        else
+                            par << uint8(0);
                         pct->SetMode(MODE_HYB);
                     break;
                     default:
@@ -271,7 +282,7 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
             }
 
             INFO("debug","SESSION_BASE: packet content:\n");
-            pct->hexlike();
+            //pct->hexlike();
 
             pkt = pct->Decapsulate(u_id_receive, IsSymmetric());
             delete pct;

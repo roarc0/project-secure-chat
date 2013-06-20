@@ -422,7 +422,7 @@ void Session::HandleLogin(Packet& packet)
         case STATUS_CONNECTED:
             {
                 SetSessionStatus(STATUS_LOGIN_STEP_1);
-                SetNextEncryption(ENC_RSA);
+                SetNextEncryption(ENC_HYB);
                 Packet data(SMSG_LOGIN, 0);
                 
                 GenerateNonce();

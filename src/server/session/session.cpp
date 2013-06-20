@@ -422,13 +422,14 @@ void Session::HandleLogin(Packet& packet)
         case STATUS_CONNECTED:
             {
                 SetSessionStatus(STATUS_LOGIN_STEP_1);
+                
                 SetNextEncryption(ENC_HYB);
-                Packet data(SMSG_LOGIN, 0);
-                
+
+                Packet data(SMSG_LOGIN, 0);                
                 GenerateNonce();
-                data.append(s_my_nonce);
-                
+                data.append(s_my_nonce);                
                 SendPacket(&data);
+                
                 InitLoginInterval();
             }
             break;

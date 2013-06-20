@@ -69,8 +69,8 @@ class Packet : public ByteBuffer
             gettimeofday(&m_createTime, NULL);
         }
         
-        int Encrypt(ByteBuffer par);
-        int Decrypt(ByteBuffer par);
+        int Encrypt(ByteBuffer& par);
+        int Decrypt(ByteBuffer& par);
         
         bool IsEncrypted() const
         {

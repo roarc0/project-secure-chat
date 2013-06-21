@@ -383,7 +383,7 @@ void Session::HandleLogin(Packet& packet)
                     uint8 nonce[NONCE_SIZE];                   
                     packet.read(nonce, NONCE_SIZE);
 
-                    if(CheckNonce(nonce))
+                    if (CheckNonce(nonce))
                     {
                         SendToGui("", 'e', "Login succeeded!");
                         SetSessionStatus(STATUS_LOGIN_STEP_2);
@@ -410,16 +410,28 @@ void Session::HandleLogin(Packet& packet)
                     m_Socket->CloseSocket();
                     ResetSocket();
                 }
+
+                // Carico la variabile di test (primi 4 byte del nonce)
+                s_my_nonce >> test_data;
             }
             break;
             
         case STATUS_LOGIN_STEP_2:
             {   
-                packet >> test_data;
-                test_data--;
+                uint32 recv_data;
+                packet >> recv_data;
+                
+                if (recv_data != (test_data - 1))
+                {
+                    INFO("debug", "SESSION: AES test failed\n"); 
+                    Close();
+                    break;; 
+                }
+
+                recv_data--;
                 
                 Packet data(CMSG_LOGIN, 0);
-                data << test_data;
+                data << recv_data;
                 SendPacketToSocket(&data);
                 
                 SetSessionStatus(STATUS_AUTHENTICATED);

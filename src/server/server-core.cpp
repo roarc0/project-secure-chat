@@ -23,7 +23,7 @@ void ServerCore()
         {
             try
             {
-                //msleep(0);
+                msleep(1);
 
                 // calcola diff
                 gettimeofday(&t2, NULL);

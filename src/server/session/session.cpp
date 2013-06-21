@@ -254,7 +254,7 @@ void Session::UpdateKeyFilenames()
        
        f_other_pub_key = CFG_GET_STRING("rsa_prefix") +
                          CFG_GET_STRING("rsa_client_pub_key") +
-                         *GetUsername() + ".pub";
+                         temp_username + ".pub";
 }
 
 void Session::HandlePing(Packet& /*packet*/)

@@ -55,7 +55,7 @@ int Packet::Encrypt(ByteBuffer& par)
             ByteBuffer rnd_key;
             GenerateRandomKey(rnd_key, 32);
             ret = RsaEncrypt(pub, rnd_key, ciphertext);
-            if (ret)
+            if (ret != 0)
                 break;           
 
             // Criptazione del resto del buffer con AES
@@ -176,7 +176,17 @@ int Packet::Decrypt(ByteBuffer& par)
             plaintext.read_skip((plaintext.size() - rsa_bsize));
             sign.append(plaintext.contents() + plaintext.rpos(), rsa_bsize);    
                        
-                         
+            #ifdef SERVER
+                msg.read_skip(8);
+                string user;
+                msg >> user;
+                pub = CFG_GET_STRING("rsa_prefix") +
+                      CFG_GET_STRING("rsa_client_pub_key") +
+                      user + ".pub";
+                msg.rpos(0);
+                INFO("debug", "PACKET: updating user \"%s\" directory to %s\n", user.c_str(), pub.c_str());
+            #endif   
+            
             ret = RsaVerify(pub.c_str(), msg, sign);
         }
         break;

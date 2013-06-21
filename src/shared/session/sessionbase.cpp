@@ -282,7 +282,7 @@ Packet* SessionBase::_RecvPacketFromSocket(unsigned char* temp_buffer)
             }
 
             INFO("debug","SESSION_BASE: packet content:\n");
-            //pct->hexlike();
+            pct->hexlike();
 
             pkt = pct->Decapsulate(u_id_receive, IsSymmetric());
             delete pct;

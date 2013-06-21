@@ -209,6 +209,9 @@ void Session::LoginTimer(uint32 diff)
         s_status == STATUS_REJECTED)
         return;
 
+    if (!diff)
+        return;
+
     i_timer_keep_alive.Update(diff);
     if (!i_timer_keep_alive.Passed())
         return;    
@@ -221,6 +224,9 @@ void Session::LoginTimer(uint32 diff)
 void Session::GenerateNewKey(uint32 diff)
 {
     if (s_status != STATUS_AUTHENTICATED)
+        return;
+
+    if (!diff)
         return;
 
     i_timer_key.Update(diff);

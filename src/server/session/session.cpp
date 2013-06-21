@@ -491,7 +491,10 @@ void Session::HandleLogin(Packet& packet)
                     SetEncryption(s_key, ENC_AES256);
                     ResetPacketNum();
                     
-                    RAND_pseudo_bytes((unsigned char*)&test_data, 4);
+                    // variabile di test (primi 4 byte del nonce)                    
+                    s_other_nonce >> test_data;
+                    test_data--;
+
                     Packet data2(SMSG_LOGIN, 4);
                     data2 << test_data;
                     SendPacketToSocket(&data2);
@@ -518,6 +521,7 @@ void Session::HandleLogin(Packet& packet)
                 
                 if (recv_data != (test_data - 1))
                 {   
+                    INFO("debug", "SESSION: AES test failed\n"); 
                     Close();            
                     SetSessionStatus(STATUS_REJECTED);
                     break;  

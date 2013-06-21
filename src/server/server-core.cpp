@@ -23,13 +23,13 @@ void ServerCore()
         {
             try
             {
-                msleep(0);
+                //msleep(0);
 
                 // calcola diff
                 gettimeofday(&t2, NULL);
                 diff = (t2.tv_sec - t1.tv_sec) * 1000 + (t2.tv_usec - t1.tv_usec)/1000;
-                if (diff == 0)
-                    diff = 1;
+                /*if (diff == 0)
+                    diff = 1;*/
                 t1 = t2;
  
                 s_manager->Update(diff);

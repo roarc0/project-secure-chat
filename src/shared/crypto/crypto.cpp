@@ -424,12 +424,14 @@ int RsaSign(const std::string key_str,
     {
         INFO("debug","CRYPTO: RSA error, couldn't sign message digest.\n");
         RsaPrintError();
+        return 1;
     }
     
     sign.append(sig, sig_len);
 
     free(sig);
     RSA_free(key);
+    return 0;
 }
 
 int RsaVerify(const std::string key_str,
@@ -462,11 +464,11 @@ int RsaVerify(const std::string key_str,
     {
         INFO("debug","CRYPTO: RSA error, couldn't verify message digest.\n");
         RsaPrintError();
-        return 0;
+        return 1;
     }
     
     RSA_free(key);
-    return 1;
+    return 0;
 }
 
 bool RsaSignTest(const char* pem_file,
@@ -480,7 +482,10 @@ bool RsaSignTest(const char* pem_file,
     msg << "rsa message sign and verify test";
     RsaSign(pem_file, pwd, msg, sign);
 
-    return RsaVerify(pub_file, msg, sign);
+    //INFO("debug", "sign of \"%s\" is\n", msg.contents());
+    //sign.hexlike();
+    
+    return RsaVerify(pub_file, msg, sign) == 0;
 }
 
 bool RsaTest(const char* pem_file,

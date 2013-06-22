@@ -35,6 +35,10 @@ int RsaDecrypt(const std::string key_filename,
                const ByteBuffer &ciphertext,
                ByteBuffer &plaintext);
 
+int RsaKeySize(const char* str,
+               const char* password,
+               bool pub);
+
 int RsaSign(const std::string key_str,
             const char* password,
             const ByteBuffer &data,

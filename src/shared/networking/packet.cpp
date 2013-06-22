@@ -133,7 +133,7 @@ int Packet::Decrypt(ByteBuffer& par)
         {
             std::string pub, priv;            
             ByteBuffer rsa_block, key, aes_block, msg, sign;
-            int rsa_bsize = 512; // leggere l'effettiva dimensione dalla chiave T_T
+            int rsa_bsize = 512; //RsaKeySize(pub.c_str(), NULL, true); // leggere l'effettiva dimensione dalla chiave T_T
             
             INFO("debug", "PACKET: decrypting HYBRID RSA/AES packet\n");
             ciphertext->hexlike();

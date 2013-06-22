@@ -252,6 +252,37 @@ void RsaPrintError()
     ERR_free_strings();
 }
 
+int RsaKeySize(const char* str, const char* password, bool pub)
+{
+    assert(str);
+    RSA * key = NULL;
+
+    FILE* fp = fopen(str, "rb");
+
+    if(!fp)
+    {
+        INFO("debug", "CRYPTO: error opening \"%s\"\n", str);
+        perror("CRYPTO: fopen");
+        return 0;
+    }
+    
+    if (pub)
+        PEM_read_RSA_PUBKEY(fp, &key, NULL, NULL);
+    else
+        PEM_read_RSAPrivateKey(fp, &key, NULL, (void*) password);
+    
+    if(key)
+        INFO("debug","CRYPTO: %d bit private key loaded\n", RSA_size(key) * 8);
+    else
+        RsaPrintError();
+    
+    int size = RSA_size(key);
+    RSA_free(key);
+    fclose(fp);
+    
+    return size;
+}
+
 RSA* RsaPubKey(const char* str)
 {
     assert(str);

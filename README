@@ -1,4 +1,16 @@
-#pacchetti debian-like (comando non testato)
+psc - project secure chat
+===
+Alessandro Rosetti ; Daniele Lazzarini
+
+
+![ScreenShot](https://dl.dropboxusercontent.com/u/2564515/psc.jpg)
+
+Per informazioni sul protocollo implementato leggete la documentazione pdf nella cartella doc del progetto.
+
+La lista dei comandi disponibili può essere visualizzata eseguendo il comando ".help" quando si è connessi al server.
+
+
+#nome pacchetti debian-like richiesti
 
 apt-get install libsqlite3-dev libopenssl-dev libconfuse-dev libarchive-dev libgtk-2.0-dev libglib-2.0-dev build-essential
 

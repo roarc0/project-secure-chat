@@ -118,7 +118,7 @@ std::string XMLBuildUpdate(const char* name, const char* status)
     element_name->LinkEndChild( text_name );
     
     //INFO("debug", "XML: writing status -> %s\n", status);
-    element_name->SetAttribute("status", EncodeBase64(status));
+    element_name->SetAttribute("status", EncodeBase64(status).c_str());
     
     doc.LinkEndChild( decl );
     doc.LinkEndChild( element );
